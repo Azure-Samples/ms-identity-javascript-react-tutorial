@@ -139,7 +139,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 ## Running the sample
 
-Locate the `App` folder in your terminal. Then:
+Locate the folder where `package.json` resides in your terminal. Then:
 
 ```console
     npm start
