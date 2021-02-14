@@ -12,11 +12,11 @@ products:
 - azure-active-directory
 - azure-active-directory-b2c
 - microsoft-identity-platform
-description: "Tutorial: Enable your React single-page application (SPA) to sign-in users and call APIs with the Microsoft identity platform"
+description: "Tutorial: Enable your React single-page application to sign-in users, call the Graph API and deploy on Azure"
 urlFragment: "ms-identity-javascript-react-tutorial"
 ---
 
-# Tutorial: Enable your React single-page application (SPA) to sign-in users and call APIs with the Microsoft identity platform
+# Tutorial: Enable your React single-page application to sign-in users, call the Graph API and deploy on Azure
 
 The [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-overview), along with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) and [Azure Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview) (Azure AD B2C) are central to the **Azure** cloud ecosystem. This tutorial aims to take you through the fundamentals of modern authentication with React, using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
@@ -29,7 +29,7 @@ We recommend following the chapters in successive order. However, the code sampl
 - [Node.js](https://nodejs.org/en/download/)
 - [Visual Studio Code](https://code.visualstudio.com/download)
 - [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack)
-- A modern web browser -while **MSAL React** supports **IE11**, samples here use **ES6** conventions and will not run on **Internet Explorer**
+- A modern web browser
 
 Please refer to each sample's README for sample-specific prerequisites.
 
@@ -48,11 +48,18 @@ Please refer to each sample's README for sample-specific recommendations.
 
 Alternatively, choose below the sample you want to review.
 
-### Chapter 1: Sign-in users and call Microsoft Graph
+### Chapter 1: Sign-in a user to your application
 
 |               |               |
 |---------------|---------------|
-| <img src="./1-Authentication/1-sign-in/ReadmeFiles/topology.png" width="200"> | [**Sign-in with Azure AD**](./1-Authentication/1-sign-in) </br> Sign-in your users with the **Azure AD** and learn to work with **ID Tokens**. Learn how **single sign-on (SSO)** works. Learn to secure your apps to operate in **national clouds**. Acquire  **access tokens** and learn how to make an **authorized call** to **Microsoft Graph** API.|
+| <img src="./1-Authentication/1-sign-in/ReadmeFiles/topology.png" width="200"> | [**Sign-in with Azure AD**](./1-Authentication/1-sign-in) </br> Sign-in your users with the **Azure AD** and learn to work with **ID Tokens**. Learn how **single sign-on (SSO)** works. Learn to secure your apps to operate in **national clouds**.|
+| <img src="./1-Authentication/2-sign-in-b2c/ReadmeFiles/topology.png" width="200"> | [**Sign-in with Azure AD B2C**](./1-Authentication/2-sign-in-b2c) </br> Sign-in your customers with **Azure AD B2C**. Learn to integrate with **external social identity providers**. Learn how to use **user-flows** and **custom policies**. |
+
+### Chapter 2: Sign-in a user and get an Access Token for Microsoft Graph
+
+|                |               |
+|----------------|---------------|
+| <img src="./2-Authorization-I/1-call-graph/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Azure AD and call Microsoft Graph**](./2-Authorization-I/1-call-graph) </br> Authenticate your users and acquire an **Access Token** for Microsoft Graph and then call the **Microsoft Graph API**. |
 
 ## We'd love your feedback!
 

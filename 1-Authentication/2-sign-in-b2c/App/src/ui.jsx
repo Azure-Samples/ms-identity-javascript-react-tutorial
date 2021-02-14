@@ -10,21 +10,22 @@ import Button from "react-bootstrap/Button";
 import DropdownButton from "react-bootstrap/DropdownButton";
 import Dropdown from "react-bootstrap/esm/Dropdown";
 
-import { loginRequest } from "./authConfig";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
+import { b2cPolicies } from "./policies";
+import { loginRequest } from "./authConfig";
+
 const NavigationBar = () => {
-    /**
-     * useMsal is hook that returns the PublicClientApplication instance, 
-     * an array of all accounts currently signed in and an inProgress value 
-     * that tells you what msal is currently doing.
-     */
+    
     const { instance } = useMsal();
 
     return (
         <>
             <AuthenticatedTemplate>
-                <Button variant="warning" onClick={() => instance.logout()} className="ml-auto">Sign Out</Button>
+                <div className="ml-auto">
+                    <Button variant="info" onClick={() => instance.loginPopup(b2cPolicies.authorities.editProfile)} className="ml-auto">Edit Profile</Button>
+                    <Button variant="warning" onClick={() => instance.logout()} className="ml-auto">Sign Out</Button>
+                </div>
             </AuthenticatedTemplate>
             <UnauthenticatedTemplate>
                 <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
@@ -48,11 +49,13 @@ export const PageLayout = (props) => {
             <br />
             {props.children}
             <br />
-            <footer>
-                <center>How did we do? 
-                    <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu" target="_blank"> Share your experience!</a>
-                </center>
-            </footer>
+            <AuthenticatedTemplate>
+                <footer>
+                    <center>How did we do? 
+                        <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu" target="_blank"> Share your experience!</a>
+                    </center>
+                </footer>
+            </AuthenticatedTemplate>
         </>
     );
 };

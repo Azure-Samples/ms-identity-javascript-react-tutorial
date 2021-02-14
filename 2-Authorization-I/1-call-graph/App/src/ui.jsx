@@ -14,11 +14,7 @@ import { loginRequest } from "./authConfig";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
 const NavigationBar = () => {
-    /**
-     * useMsal is hook that returns the PublicClientApplication instance, 
-     * an array of all accounts currently signed in and an inProgress value 
-     * that tells you what msal is currently doing.
-     */
+    
     const { instance } = useMsal();
 
     return (
@@ -64,6 +60,17 @@ export const IdTokenClaims = (props) => {
             <p><strong>Issuer: </strong> {props.idTokenClaims.iss}</p>
             <p><strong>OID: </strong> {props.idTokenClaims.oid}</p>
             <p><strong>UPN: </strong> {props.idTokenClaims.preferred_username}</p>
+        </div>
+    );
+}
+
+export const ProfileData = (props) => {
+    return (
+        <div id="profile-div">
+            <p><strong>Title: </strong> {props.graphData.jobTitle}</p>
+            <p><strong>Mail: </strong> {props.graphData.mail}</p>
+            <p><strong>Phone: </strong> {props.graphData.businessPhones[0]}</p>
+            <p><strong>Location: </strong> {props.graphData.officeLocation}</p>
         </div>
     );
 }

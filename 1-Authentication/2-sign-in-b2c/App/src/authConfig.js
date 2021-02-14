@@ -4,6 +4,7 @@
  */
 
 import { LogLevel } from "@azure/msal-browser";
+import { b2cPolicies } from "./policies";
 
 /**
  * Configuration object to be passed to MSAL instance on creation. 
@@ -12,8 +13,9 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: "Enter_the_Application_Id_Here",
-        authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here",
+        clientId: "4cf71dfc-6255-4c30-afcd-a3a3ca777ba4",
+        authority: b2cPolicies.authorities.signUpSignIn.authority,
+        knownAuthorities: [b2cPolicies.authorityDomain],
         redirectUri: window.location.origin,
     },
     cache: {

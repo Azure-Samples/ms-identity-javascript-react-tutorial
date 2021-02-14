@@ -106,12 +106,13 @@ Function ConfigureApplications
     $user = Get-AzureADUser -ObjectId $creds.Account.Id
 
    # Create the spa AAD application
-   Write-Host "Creating the AAD application (ms-identity-react-c1s1)"
+   Write-Host "Creating the AAD application (msal-react-spa)"
    # create the application 
-   $spaAadApplication = New-AzureADApplication -DisplayName "ms-identity-react-c1s1" `
-                                               -HomePage "http://localhost:3000/" `
-                                               -ReplyUrls "http://localhost:3000/" `
-                                               -IdentifierUris "https://$tenantName/ms-identity-react-c1s1" `
+   $spaAadApplication = New-AzureADApplication -DisplayName "msal-react-spa" `
+                                               -HomePage "http://localhost:3000" `
+                                               -ReplyUrls "http://localhost:3000" `
+                                               -IdentifierUris "https://$tenantName/msal-react-spa" `
+                                               -AvailableToOtherTenants $True `
                                                -PublicClient $False
 
    # create the service principal of the newly created application 
@@ -127,18 +128,18 @@ Function ConfigureApplications
    }
 
 
-   Write-Host "Done creating the spa application (ms-identity-react-c1s1)"
+   Write-Host "Done creating the spa application (msal-react-spa)"
 
    # URL of the AAD application in the Azure portal
    # Future? $spaPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
    $spaPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>ms-identity-react-c1s1</a></td></tr>" -Path createdApps.html
+   Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>msal-react-spa</a></td></tr>" -Path createdApps.html
 
 
    # Update config file for 'spa'
    $configFile = $pwd.Path + "\..\App\src\authConfig.js"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantName };
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Cloud_Instance_Id_HereEnter_the_Tenant_Info_Here" = "https://login.microsoftonline.com/"+$tenantName };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
    Write-Host ""
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 

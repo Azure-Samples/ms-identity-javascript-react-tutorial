@@ -15,16 +15,16 @@
 
 ## Overview
 
-This sample demonstrates a React single-page application (SPA) authenticating users against [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD), using the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+This sample demonstrates a React single-page application (SPA) calling [Microsoft Graph](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
 MSAL React is a wrapper around the [Microsoft Authentication Library for JavaScript](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-browser) (MSAL.js). As such, it exposes the same public APIs that MSAL.js offers, while adding many new features customized for modern React applications.
 
-Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-sign-in) users and acquire [ID tokens](https://docs.microsoft.com/azure/active-directory/develop/id-tokens), as well as how to work with different [audiences and account types](https://docs.microsoft.com/azure/active-directory/develop/v2-supported-account-types).
+Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-sign-in), [acquire a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token) and [call a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as how to work with different [audiences and account types](https://docs.microsoft.com/azure/active-directory/develop/v2-supported-account-types).
 
 ## Scenario
 
-1. The client React SPA uses MSAL React to sign-in a user and obtain a JWT **ID token** from **Azure AD**.
-2. The **ID token** proves that the user has successfully authenticated with **Azure AD**.
+1. The client React SPA uses the Microsoft Authentication Library (MSAL) to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD**.
+2. The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**.
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -32,12 +32,16 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 | File/folder         | Description                                      |
 |---------------------|--------------------------------------------------|
-| `App/authConfig.js` | Contains authentication parameters.              |
 | `App/App.jsx`       | Main application logic resides here.             |
+| `App/authConfig.js` | Contains authentication parameters.              |
 | `App/ui.jsx`        | UI update logic resides here.                    |
+| `App/fetch.jsx`     | Provides a helper method for making fetch calls. |
 
 ## Prerequisites
 
+- [Node.js](https://nodejs.org/en/download/) must be installed to run this sample.
+- [Visual Studio Code](https://code.visualstudio.com/download) is recommended for running and editing this sample.
+- A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
 - An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
 - A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
 
@@ -59,7 +63,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-react-tutorial
-    cd 1-Authentication/1-sign-in
+    cd 2-Authorization-I/1-call-graph
     npm install
 ```
 
@@ -116,6 +120,12 @@ As a first step you'll need to:
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
+   - Select the **Add a permission** button and then,
+   - Ensure that the **Microsoft APIs** tab is selected.
+   - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+   - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
+   - Select the **Add permissions** button at the bottom.
 
 #### Configure the app (ms-identity-react-c1s1) to use your app registration
 
@@ -139,7 +149,7 @@ Locate the folder where `package.json` resides in your terminal. Then:
 
 1. Open your browser and navigate to `http://localhost:3000`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
-1. Select the **View ID Token Claims** button at the center. This will display some of the important claims in your ID token.
+1. Select the **Request Profile Data** button at the center. This will make a call to Microsoft Graph using a bearer token.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
@@ -151,104 +161,76 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
-### Sign-in
+### Protected resources and scopes
 
-MSAL.js exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`. These APIs are usable in MSAL React as well:
+In order to access a protected resource on behalf of a signed-in user, the app needs to present a valid **Access Token** to that resource owner (in this case, Microsoft Graph). The intended recipient of an **Access Token** is represented by the `aud` claim (in this case, it should be the Microsoft Graph API's App ID); in case the value for the `aud` claim does not mach the resource **APP ID URI**, the token should be considered invalid. Likewise, the permissions that an **Access Token** grants is represented by the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
+
+### Dynamic scopes and incremental consent
+
+In **Azure AD**, the scopes (permissions) set directly on the application registration are called static scopes. Other scopes that are only defined within the code are called dynamic scopes. This has implications on the **login** (i.e. loginPopup, loginRedirect) and **acquireToken** (i.e. `acquireTokenPopup`, `acquireTokenRedirect`, `acquireTokenSilent`) methods of **MSAL.js**. Consider:
 
 ```javascript
-    export function App() {
-        const { instance, accounts, inProgress } = useMsal();
-    
-        if (accounts.length > 0) {
-            return <span>There are currently {accounts.length} users signed in!</span>
-        } else if (inProgress === "login") {
-            return <span>Login is currently in progress!</span>
-        } else {
-            return (
-                <>
-                    <span>There are currently no users signed in!</span>
-                    <button onClick={() => instance.loginPopup()}>Login</button>
-                </>
-            );
-        }
-    }
+     const loginRequest = {
+          scopes: [ "openid", "profile", "User.Read" ]
+     };
+
+     const tokenRequest = {
+          scopes: [ "Mail.Read" ]
+     };
+
+     // will return an ID Token and an Access Token with scopes: "openid", "profile" and "User.Read"
+     instance.loginPopup(loginRequest);
+
+     // will fail and fallback to an interactive method prompting a consent screen
+     // after consent, the received token will be issued for "openid", "profile" ,"User.Read" and "Mail.Read" combined
+     instance.acquireTokenPopup(tokenRequest);
 ```
 
-You may also use MSAL React's [useMsalAuthentication](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md#usemsalauthentication-hook) hook. Below is an example in which the `ssoSilent()` API is used. When using `ssoSilent()`, the recommended pattern is that you fallback to an **interactive method** should the silent SSO attempt fails:
+In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `Mail.Read` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*.
+
+### Acquire a Token
+
+**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from cache *silently*.
 
 ```javascript
-function App() {
-    const request = {
-        loginHint: "name@example.com",
-        scopes: ["User.Read"]
-    }
-
-    const { login, result, error } = useMsalAuthentication(InteractionType.Silent, request);
+export function App() {
+    const { instance, accounts, inProgress } = useMsal();
+    const account = useAccount(accounts[0]);
+    const [apiData, setApiData] = useState(null);
 
     useEffect(() => {
-        if (error) {
-            login(InteractionType.Popup, request);
+        if (account) {
+            instance.acquireTokenSilent({
+                scopes: ["User.Read"],
+                account: account
+            }).then((response) => {
+                if(response) {
+                    callMsGraph(response.accessToken).then((result) => setApiData(result));
+                }
+            });
         }
-    }, [error]);
+    }, [account, instance]);
 
-    const { accounts } = useMsal();
-
-    return (
-        <React.Fragment>
-            <p>Anyone can see this paragraph.</p>
-            <AuthenticatedTemplate>
-                <p>Signed in as: {accounts[0]?.username}</p>
-            </AuthenticatedTemplate>
-            <UnauthenticatedTemplate>
-                <p>No users are signed in!</p>
-            </UnauthenticatedTemplate>
-        </React.Fragment>
-    );
+    if (accounts.length > 0) {
+        return (
+            <>
+                <span>There are currently {accounts.length} users signed in!</span>
+                {apiData && (<span>Data retrieved from API: {JSON.stringify(apiData)}</span>)}
+            </>
+        );
+    } else if (inProgress === "login") {
+        return <span>Login is currently in progress!</span>
+    } else {
+        return <span>There are currently no users signed in!</span>
+    }
 }
 ```
 
-As shown above, the components that depend on whether the user is authenticated should be wrapped inside React's `AuthenticatedTemplate` and `UnauthenticatedTemplate` components. Alternatively, you may use the [useIsAuthenticated](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md#useisauthenticated-hook) hook to conditionally render components.
+If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`.
 
-### Sign-out
+### Access Token validation
 
-The application redirects the user to the **Microsoft identity platform** logout endpoint to sign out. This endpoint clears the user's session from the browser. If your app does not go to the logout endpoint, the user may re-authenticate to your app without entering their credentials again, because they would have a valid single sign-on session with the **Microsoft identity platform** endpoint. For more, see: [Send a sign-out request](https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request)
-
-### ID token validation
-
-A single-page application does not benefit from validating [ID tokens](https://docs.microsoft.com/azure/active-directory/develop/id-tokens), since the application runs without a back-end and as such, attackers can intercept and edit the keys used for validation of the token.
-
-### Sign-in audience and account types
-
-This sample is meant to work with accounts in your organization (aka *single-tenant*). If you would like to allow sign-ins from other organizations and/or with other types of accounts, you have to configure your `authority` string in `authConfig.js` accordingly. For example:
-
-```javascript
-const msalConfig = {
-    auth: {
-      clientId: "<YOUR_CLIENT_ID>",
-      authority: "https://login.microsoftonline.com/consumers", // allows sign-ins with personal Microsoft accounts.
-      redirectUri: "<YOUR_REDIRECT_URI>",
-    },
-```
-
-For more information about audiences and account types, please see: [Validation differences by supported account types (signInAudience)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation)
-
-> :warning: Be aware that making an application multi-tenant entails more than just modifying the `authority` string. For more information, please see [How to: Sign in any Azure Active Directory user using the multi-tenant application pattern](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant).
-
-### Authentication in national clouds
-
-National clouds (aka sovereign clouds) are physically isolated instances of Azure. These regions of Azure are designed to make sure that data residency, sovereignty, and compliance requirements are honored within geographical boundaries. Enabling your application for sovereign clouds requires you to:
-
-- register your application in a specific portal, depending on the cloud.
-- use a specific authority, depending on the cloud in the configuration file for your application.
-- in case you want to call the MS Graph, this requires a specific Graph endpoint URL, depending on the cloud.
-
-For instance, to configure this sample for **Azure AD Germany** national cloud:
-
-1. Open the `App\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of the `ms-identity-javascript-tutorial-c1s1` application copied from the Azure portal.
-1. Find the key `Enter_the_Cloud_Instance_Id_Here/Enter_the_Tenant_Info_Here` and replace the existing value with `https://portal.microsoftazure.de/<your-tenant-id>`.
-
-See [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints) for more information.
+Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
 ## More information
 
