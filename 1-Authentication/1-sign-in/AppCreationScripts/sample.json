@@ -25,7 +25,7 @@
         {
             "App": "spa",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\App\\src\\authConfig.js",
+            "SettingFile": "\\..\\SPA\\src\\authConfig.js",
             "Mappings": [
                 {
                     "key": "Enter_the_Application_Id_Here",
@@ -33,7 +33,7 @@
                 },
                 {
                     "key": "Enter_the_Tenant_Info_Here",
-                    "value": "$tenantName"
+                    "value": "$tenantId"
                 }
             ]
         }

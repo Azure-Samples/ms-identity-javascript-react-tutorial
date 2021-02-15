@@ -12,12 +12,14 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: "Enter_the_Application_Id_Here",
-        authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here",
-        redirectUri: window.location.origin,
+        clientId: "Enter_the_Application_Id_Here", // This is the ONLY mandatory field that you need to supply.
+        authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here", // Defaults to "https://login.microsoftonline.com/common"
+        redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
+        postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
+        navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
     },
     cache: {
-        cacheLocation: "sessionStorage", // This configures where your cache will be stored
+        cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO.
         storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
     },
     system: {	
@@ -54,3 +56,13 @@ export const msalConfig = {
 export const loginRequest = {
     scopes: []
 };
+
+/**
+ * An optional silentRequest object can be used to achieve silent SSO
+ * between applications by providing a "login_hint" property.
+ */
+
+// const silentRequest = {
+//   scopes: ["openid", "profile"],
+//   loginHint: "example@domain.net"
+// };

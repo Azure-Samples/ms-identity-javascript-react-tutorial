@@ -15,11 +15,15 @@
 
 ## Overview
 
-This sample demonstrates a React SPA that authenticates users against Azure AD B2C.
+This sample demonstrates a React single-page application (SPA) authenticating users against [Azure AD B2C](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD), using the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+
+MSAL React is a wrapper around the [Microsoft Authentication Library for JavaScript](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-browser) (MSAL.js). As such, it exposes the same public APIs that MSAL.js offers, while adding many new features customized for modern React applications.
+
+Here you'll learn about authentication and **B2C** concepts, such as [ID tokens](https://docs.microsoft.com/azure/active-directory-b2c/tokens-overview#token-types), [external identity providers](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#external-identity-providers), [consumer social accounts](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#consumer-accounts), [single-sign on (SSO)](https://docs.microsoft.com/azure/active-directory-b2c/session-overview) and more.
 
 ## Scenario
 
-1. The client React SPA uses the Microsoft Authentication Library (MSAL) to obtain an ID Token from **Azure AD B2C**.
+1. The client React SPA uses **MSAL React** to obtain an ID Token from **Azure AD B2C**.
 2. The **ID Token** proves that the user has successfully authenticated against **Azure AD B2C**.
 
 ![Overview](./ReadmeFiles/topology.png)
@@ -55,11 +59,11 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-react-tutorial
-    cd 1-Authentication/2-sign-in-b2c
+    cd 1-Authentication/2-sign-in-b2c/SPA
     npm install
 ```
 
-### Register the sample application(s) with your Azure Active Directory tenant
+### Registration
 
 :warning: This sample comes with a pre-registered application for demo purposes. If you would like to use your own **Azure AD B2C** tenant and application, follow the steps below to register and configure the application on **Azure portal**. Otherwise, continue with the steps for [Running the sample](#running-the-sample).
 
@@ -100,7 +104,11 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
 
-<!-- ENTER CONFIGURATION STEPS FOR B2C USER-FLOWS/CUSTOM POLICIES BELOW -->
+To setup your B2C user-flows, do the following:
+
+1. Find the key `names` and populate it with your policy names e.g. `signUpSignIn`.
+1. Find the key `authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
+1. Find the key `authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
 
 ## Running the sample
 
@@ -126,140 +134,67 @@ Locate the folder where `package.json` resides in your terminal. Then:
 
 ## We'd love your feedback!
 
-Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](Enter_Survey_Form_Link).
+Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu).
 
 ## About the code
 
-### Configuration
+### Sign-in
 
-You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [Configuration Options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/configuration.md) for more information.
-
-### Securing Routes
-
-You can add authentication to secure specific routes in your application by just adding `canActivate: [MsalGuard]` to your route definition. It can be added at the parent or child routes.
+MSAL.js exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`. These APIs are usable in MSAL React as well:
 
 ```javascript
-    const routes: Routes = [
-        {
-            path: 'admin',
-            component: AdminComponent,
-            canActivate: [MsalGuard]
-        }
-    ]
-```
-
-### Broadcast Events
-
-**MSAL-Angular** wrapper provides below callbacks for various operations. For all callbacks, you need to inject `BroadcastService` as a dependency in your component/service:
-
-```typescript
-    this.broadcastService.subscribe("msal:loginSuccess", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoSuccess", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoFailure", (payload) => {
-        // do something here
-    });
-```
-
-It is important to unsubscribe. Implement `ngOnDestroy()` in your component and unsubscribe.
-
-```typescript
-    private subscription: Subscription;
-
-    this.subscription = this.broadcastService.subscribe("msal:acquireTokenFailure", (payload) => {});
-
-    ngOnDestroy() {
-        this.broadcastService.getMSALSubject().next(1);
-        if (this.subscription) {
-            this.subscription.unsubscribe();
+    export function App() {
+        const { instance, accounts, inProgress } = useMsal();
+    
+        if (accounts.length > 0) {
+            return <span>There are currently {accounts.length} users signed in!</span>
+        } else if (inProgress === "login") {
+            return <span>Login is currently in progress!</span>
+        } else {
+            return (
+                <>
+                    <span>There are currently no users signed in!</span>
+                    <button onClick={() => instance.loginPopup()}>Login</button>
+                </>
+            );
         }
     }
 ```
 
-### Sign-in
+You may also use MSAL React's [useMsalAuthentication](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md#usemsalauthentication-hook) hook. Below is an example in which the `ssoSilent()` API is used. When using `ssoSilent()`, the recommended pattern is that you fallback to an **interactive method** should the silent SSO attempt fails:
 
-**MSAL-Angular** wrapper exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`:
+```javascript
+function App() {
+    const request = {
+        loginHint: "name@example.com",
+        scopes: ["User.Read"]
+    }
 
-```typescript
-    this.authService.loginPopup();
+    const { login, result, error } = useMsalAuthentication(InteractionType.Silent, request);
 
-    this.broadcastService.subscribe("msal:loginSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", payload => {
-        // do something here
-    });
-```
-
-To use the redirect flow, you must register a handler for the redirect callback. **MSAL-Angular** provides the`handleRedirectCallback()` API:
-
-```typescript
-    this.authService.handleRedirectCallback((authError, response) => {
-        // do something here
-    });
-
-    this.authService.loginRedirect();
-
-    this.broadcastService.subscribe("msal:loginSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", payload => {
-        // do something here
-    });
-```
-
-The recommended pattern is that you fallback to an **interactive method** should silent SSO fails:
-
-```typescript
-
-    const silentRequest = {
-        loginHint: "example@domain.net"
-    };
-
-    this.authService.ssoSilent(silentRequest);
-
-    this.broadcastService.subscribe("msal:ssoSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoFailure", payload => {
-        if (InteractionRequiredAuthError.isInteractionRequiredError(payload.error.errorCode)) {
-            this.authService.loginRedirect(loginRequest);
+    useEffect(() => {
+        if (error) {
+            login(InteractionType.Popup, request);
         }
-    });
+    }, [error]);
 
-```
+    const { accounts } = useMsal();
 
-You can pass custom query string parameters to your sign-in request, using the `extraQueryParameters` property. For instance, in order to customize your B2C user interface, you can:
-
-```typescript
-function MSALAngularConfigFactory(): MsalAngularConfiguration {
-  return {
-    popUp: !isIE,
-    consentScopes: ["openid", "profile"],
-    extraQueryParameters: { campaignId: 'hawaii', ui_locales: 'es' },
-  };
+    return (
+        <React.Fragment>
+            <p>Anyone can see this paragraph.</p>
+            <AuthenticatedTemplate>
+                <p>Signed in as: {accounts[0]?.username}</p>
+            </AuthenticatedTemplate>
+            <UnauthenticatedTemplate>
+                <p>No users are signed in!</p>
+            </UnauthenticatedTemplate>
+        </React.Fragment>
+    );
 }
 ```
 
-See here for more: [Customize the user interface of your application in Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/custom-policy-ui-customization)
-
-You can get the current signed-in user's account with `getAccount()` API:
-
-```typescript
-    this.authService.getAccount();
-```
+As shown above, the components that depend on whether the user is authenticated should be wrapped inside React's `AuthenticatedTemplate` and `UnauthenticatedTemplate` components. Alternatively, you may use the [useIsAuthenticated](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md#useisauthenticated-hook) hook to conditionally render components.
 
 ### Sign-out
 
@@ -271,6 +206,15 @@ The sign-out clears the user's single sign-on session with **Azure AD B2C**, but
 
 A single-page application does not benefit from validating ID tokens, since the application runs without a back-end and as such, attackers can intercept and edit the keys used for validation of the token.
 
+### Events API
+
+Using the event API, you can register an event callback that will do something when an event is emitted. When registering an event callback in a react component you will need to make sure you do 2 things.
+
+1. The callback is registered only once
+2. The callback is unregistered before the component unmounts.
+
+Here, we use the event API when integrating the B2C user-flows (discussed below).
+
 ### Integrating user-flows
 
 - **Sign-up/sign-in**
@@ -281,43 +225,37 @@ This user-flow allows your users to sign-in to your application if the user has 
 
 When a user clicks on the **forgot your password?** link during sign-in, **Azure AD B2C** will throw an error. To initiate the password reset user-flow, you need to catch this error and handle it by sending another login request with the corresponding password reset authority string.
 
-```typescript
-    this.broadcastService.subscribe("msal:loginFailure", (payload) => {
-        if (payload.errorMessage.indexOf('AADB2C90118') > -1) {
-          if (isIE) {
-            this.authService.loginRedirect(config.policies.authorities.forgotPassword);
-          } else {
-            this.authService.loginPopup(config.policies.authorities.forgotPassword);
-          }
+```javascript
+    if (event.eventType === EventType.LOGIN_FAILURE) {
+        if (event.error && event.error.errorMessage.indexOf("AADB2C90118") > -1) {
+            if (event.interactionType === InteractionType.Redirect) {
+                instance.loginRedirect(b2cPolicies.authorities.forgotPassword);
+            } else if (event.interactionType === InteractionType.Popup) {
+                instance.loginPopup(b2cPolicies.authorities.forgotPassword)
+                    .catch(e => {
+                        return;
+                    });
+            }
         }
-    });
+    }
 ```
 
 We need to reject ID tokens that were not issued with the default sign-in policy. After the user resets her password and signs-in again, we will force a logout and prompt for login again (with the default sign-in policy).
 
-```typescript
-    this.broadcastService.subscribe('msal:loginSuccess', (payload) => {
-        if (payload.idToken.claims['acr'] === config.policies.names.forgotPassword) {
-          window.alert("Password has been reset successfully. \nPlease sign-in with your new password");
-          return this.authService.logout();
+```javascript
+    if (event.eventType === EventType.LOGIN_SUCCESS) {
+        if (event?.payload) {
+            if (event.payload.idTokenClaims["acr"] !== b2cPolicies.names.forgotPassword) {
+                window.alert("Password has been reset successfully. \nPlease sign-in with your new password");
+                return instance.logout();
+            }
         }
-      });
+    }
 ```
 
 - **Edit Profile**
 
-Unlike password reset, edit profile user-flow does not require users to sign-out and sign-in again. Instead, **MSAL-Angular** will handle
-switching back to the authority string of the default user-flow automatically.
-
-```typescript
-    editProfile() {
-        if (isIE) {
-            this.authService.loginRedirect(config.policies.authorities.editProfile);
-        } else {
-            this.authService.loginPopup(config.policies.authorities.editProfile);
-        }
-    }
-```
+When a user selects the **Edit Profile** button on the navigation bar, we simply initiate a sign-in flow. Like password reset, edit profile user-flow requires users to sign-out and sign-in again.
 
 ## More information
 

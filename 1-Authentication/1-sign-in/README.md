@@ -23,7 +23,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 ## Scenario
 
-1. The client React SPA uses MSAL React to sign-in a user and obtain a JWT **ID token** from **Azure AD**.
+1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT **ID token** from **Azure AD**.
 2. The **ID token** proves that the user has successfully authenticated with **Azure AD**.
 
 ![Overview](./ReadmeFiles/topology.png)
@@ -34,7 +34,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 |---------------------|--------------------------------------------------|
 | `App/authConfig.js` | Contains authentication parameters.              |
 | `App/App.jsx`       | Main application logic resides here.             |
-| `App/ui.jsx`        | UI update logic resides here.                    |
+| `App/ui.jsx`        | UI components reside here.                    |
 
 ## Prerequisites
 
@@ -59,7 +59,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-react-tutorial
-    cd 1-Authentication/1-sign-in
+    cd 1-Authentication/1-sign-in/SPA
     npm install
 ```
 
@@ -105,26 +105,26 @@ As a first step you'll need to:
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
-### Register the app (ms-identity-react-c1s1)
+### Register the app (msal-react-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ms-identity-react-c1s1`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
+   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
 
-#### Configure the app (ms-identity-react-c1s1) to use your app registration
+#### Configure the app (msal-react-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `App\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ms-identity-react-c1s1` app copied from the Azure portal.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
 
 ## Running the sample
@@ -246,7 +246,7 @@ For instance, to configure this sample for **Azure AD Germany** national cloud:
 
 1. Open the `App\authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of the `ms-identity-javascript-tutorial-c1s1` application copied from the Azure portal.
-1. Find the key `Enter_the_Cloud_Instance_Id_Here/Enter_the_Tenant_Info_Here` and replace the existing value with `https://portal.microsoftazure.de/<your-tenant-id>`.
+1. Find the key `https://login.microsoftonline.com/Enter_the_Tenant_Info_Here` and replace the existing value with `https://portal.microsoftazure.de/<your-tenant-id>`.
 
 See [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints) for more information.
 

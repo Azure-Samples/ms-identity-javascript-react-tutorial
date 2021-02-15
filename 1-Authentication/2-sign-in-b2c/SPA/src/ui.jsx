@@ -12,8 +12,7 @@ import Dropdown from "react-bootstrap/esm/Dropdown";
 
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
-import { b2cPolicies } from "./policies";
-import { loginRequest } from "./authConfig";
+import { loginRequest, b2cPolicies } from "./authConfig";
 
 const NavigationBar = () => {
     

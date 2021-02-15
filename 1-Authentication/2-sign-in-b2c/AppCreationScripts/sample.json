@@ -11,7 +11,7 @@
     "AADApps": [
       {
         "Id": "spa",
-        "Name": "msal-react-spa",
+        "Name": "ms-identity-react-c1s2",
         "Kind" :  "SinglePageApplication",
         "Audience": "AzureADandPersonalMicrosoftAccount",
         "HomePage": "http://localhost:3000",
@@ -28,15 +28,11 @@
         {
           "App": "spa",
           "SettingKind": "Replace",
-          "SettingFile": "\\..\\App\\src\\authConfig.js",
+          "SettingFile": "\\..\\SPA\\src\\authConfig.js",
           "Mappings": [
             {
               "key": "Enter_the_Application_Id_Here",
               "value": ".AppId"
-            },
-            {
-              "key": "Enter_the_Cloud_Instance_Id_HereEnter_the_Tenant_Info_Here",
-              "value": "\"https://login.microsoftonline.com/\"+$tenantName"
             }
           ]
         }

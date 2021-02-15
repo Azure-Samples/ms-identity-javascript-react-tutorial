@@ -1,0 +1,100 @@
+{
+    "Sample": {
+      "Title": "Vanilla JavaScript single-page application (SPA) using MSAL.js to authorize users for calling a protected web API on Azure AD",
+      "Level": 200,
+      "Client": "JavaScript SPA",
+      "Service": "Node.js Web Api",
+      "RepositoryUrl": "ms-identity-javascript-tutorial",
+      "Endpoint": "AAD v2.0"
+    },
+
+    "AADApps": [
+      {
+        "Id": "spa",
+        "Name": "ms-identity-javascript-tutorial-c3s1-spa",
+        "Kind" :  "SinglePageApplication",
+        "Audience": "AzureADMyOrg",
+        "HomePage": "http://localhost:3000/",
+        "ReplyUrls":"http://localhost:3000/",
+        "RequiredResourcesAccess": [
+          {
+            "Resource": "Microsoft Graph",
+            "DelegatedPermissions": [ "User.Read" ]
+          }
+        ],
+        "ManualSteps": [
+            {
+              "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
+            }
+        ]
+      },
+      {
+        "Id": "service",
+        "Name": "ms-identity-javascript-tutorial-c3s1-api",
+        "Kind": "WebApi",
+        "HomePage": "http://localhost:5000/api",
+        "Audience": "AzureADMyOrg",
+        "ManualSteps": [
+          {
+            "Comment": "Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'"
+          }
+        ]
+      }
+    ],
+  
+    "CodeConfiguration": [
+      {
+        "App": "spa",
+        "SettingKind": "Replace",
+        "SettingFile": "\\..\\SPA\\App\\authConfig.js",
+        "Mappings": [
+          {
+            "key": "Enter_the_Application_Id_Here",
+            "value": ".AppId"
+          },
+          {
+            "key": "Enter_the_Cloud_Instance_Id_Here/Enter_the_Tenant_Info_Here",
+            "value": "\"https://login.microsoftonline.com/\"+$tenantId"
+          },
+          {
+            "key": "Enter_the_Redirect_Uri_Here",
+            "value": ".ReplyUrls"
+          }
+        ]
+      },
+      {
+        "App": "spa",
+        "SettingKind": "Replace",
+        "SettingFile": "\\..\\SPA\\App\\apiConfig.js",
+        "Mappings": [
+          {
+            "key": "Enter_the_Web_Api_Uri_Here",
+            "value": "service.HomePage"
+          },
+          {
+            "key": "Enter_the_Web_Api_Scope_Here",
+            "value": "service.Scope"
+          }
+        ]
+      },
+      {
+        "App": "service",
+        "SettingKind": "JSON",
+        "SettingFile": "\\..\\API\\config.json",
+        "Mappings": [
+          {
+            "key": "clientID",
+            "value": ".AppId"
+          },
+          {
+            "key": "tenantID",
+            "value": "$tenantId"
+          },
+          {
+            "key": "audience",
+            "value": ".AppId"
+          }
+        ]
+      }
+    ]
+  }
