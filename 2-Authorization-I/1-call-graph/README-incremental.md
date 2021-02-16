@@ -238,6 +238,28 @@ If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one o
 
 Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
+### Calling the Graph API
+
+Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), make an authorized request to the Graph API. To do so, simply add the `Authorization` header to your request, followed by the **access token** you have obtained previously for this resource/endpoint (as a [bearer token](https://tools.ietf.org/html/rfc6750)):
+
+```javascript
+export const callApiWithToken = async(accessToken, apiEndpoint) => {
+    const headers = new Headers();
+    const bearer = `Bearer ${accessToken}`;
+
+    headers.append("Authorization", bearer);
+
+    const options = {
+        method: "GET",
+        headers: headers
+    };
+
+    return fetch(apiEndpoint, options)
+        .then(response => response.json())
+        .catch(error => console.log(error));
+}
+```
+
 ### Working with React routes
 
 You can use [React Router](https://reactrouter.com/) component in conjunction with **MSAL React**. Simply wrap the `MsalProvider` component between the `Router` component, passing the `PublicClientApplication` instance you have created earlier as props:
