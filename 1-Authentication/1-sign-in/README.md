@@ -30,11 +30,11 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 ## Contents
 
-| File/folder         | Description                                      |
-|---------------------|--------------------------------------------------|
-| `App/authConfig.js` | Contains authentication parameters.              |
-| `App/App.jsx`       | Main application logic resides here.             |
-| `App/ui.jsx`        | UI components reside here.                    |
+| File/folder     | Description                                      |
+|-----------------|--------------------------------------------------|
+| `App.jsx`       | Main application logic resides here.             |
+| `ui.jsx`        | UI components reside here.                       |
+| `authConfig.js` | Contains authentication parameters.              |
 
 ## Prerequisites
 

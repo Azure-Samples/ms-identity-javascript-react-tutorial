@@ -59,9 +59,9 @@ Function Cleanup
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantName'"
 
-    Write-Host "Removing 'spa' (ms-identity-react-c1s1) if needed"
-    Get-AzureADApplication -Filter "DisplayName eq 'ms-identity-react-c1s1'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'ms-identity-react-c1s1'"
+    Write-Host "Removing 'spa' (ms-identity-react-c2s1) if needed"
+    Get-AzureADApplication -Filter "DisplayName eq 'ms-identity-react-c2s1'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+    $apps = Get-AzureADApplication -Filter "DisplayName eq 'ms-identity-react-c2s1'"
     if ($apps)
     {
         Remove-AzureADApplication -ObjectId $apps.ObjectId
@@ -70,10 +70,10 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed ms-identity-react-c1s1.."
+        Write-Host "Removed ms-identity-react-c2s1.."
     }
     # also remove service principals of this app
-    Get-AzureADServicePrincipal -filter "DisplayName eq 'ms-identity-react-c1s1'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+    Get-AzureADServicePrincipal -filter "DisplayName eq 'ms-identity-react-c2s1'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
     
 }
 

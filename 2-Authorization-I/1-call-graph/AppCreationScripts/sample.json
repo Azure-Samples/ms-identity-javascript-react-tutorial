@@ -1,6 +1,6 @@
 {
     "Sample": {
-        "Title": "React single-page application using MSAL React to sign-in users against Azure Active Directory",
+        "Title": "React single-page application using MSAL React to call the Microsoft Graph API",
         "Level": 100,
         "Client": "React SPA",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
@@ -9,7 +9,7 @@
     "AADApps": [
         {
             "Id": "spa",
-            "Name": "ms-identity-react-c1s1",
+            "Name": "ms-identity-react-c2s1",
             "Kind": "SinglePageApplication",
             "HomePage": "http://localhost:3000/",
             "ReplyUrls": "http://localhost:3000/",
@@ -18,6 +18,16 @@
                 {
                     "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
                 }
+            ],
+            "RequiredResourcesAccess": [
+                {
+                  "Resource": "Microsoft Graph",
+                  "DelegatedPermissions": [ "User.Read" ]
+                },
+                {
+                    "Resource": "Windows Azure Service Management API",
+                    "DelegatedPermissions": [ "user_impersonation" ]
+                }
             ]
         }
     ],
@@ -25,7 +35,7 @@
         {
             "App": "spa",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\App\\src\\authConfig.js",
+            "SettingFile": "\\..\\SPA\\src\\authConfig.js",
             "Mappings": [
                 {
                     "key": "Enter_the_Application_Id_Here",
@@ -33,7 +43,7 @@
                 },
                 {
                     "key": "Enter_the_Tenant_Info_Here",
-                    "value": "$tenantName"
+                    "value": "$tenantId"
                 }
             ]
         }

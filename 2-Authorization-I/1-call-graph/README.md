@@ -17,31 +17,26 @@
 
 This sample demonstrates a React single-page application (SPA) calling [Microsoft Graph](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
-MSAL React is a wrapper around the [Microsoft Authentication Library for JavaScript](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-browser) (MSAL.js). As such, it exposes the same public APIs that MSAL.js offers, while adding many new features customized for modern React applications.
-
-Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-sign-in), [acquire a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token) and [call a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as how to work with different [audiences and account types](https://docs.microsoft.com/azure/active-directory/develop/v2-supported-account-types).
+Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-sign-in), [acquire a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token) and [call a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as [Dynamic Scopes and Incremental Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent), **working with multiple resources** and **protecting your routes/pages** and more.
 
 ## Scenario
 
-1. The client React SPA uses the Microsoft Authentication Library (MSAL) to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD**.
+1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD**.
 2. The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**.
 
 ![Overview](./ReadmeFiles/topology.png)
 
 ## Contents
 
-| File/folder         | Description                                      |
-|---------------------|--------------------------------------------------|
-| `App/App.jsx`       | Main application logic resides here.             |
-| `App/authConfig.js` | Contains authentication parameters.              |
-| `App/ui.jsx`        | UI update logic resides here.                    |
-| `App/fetch.jsx`     | Provides a helper method for making fetch calls. |
+| File/folder     | Description                                      |
+|-----------------|--------------------------------------------------|
+| `App.jsx`       | Main application logic resides here.             |
+| `ui.jsx`        | UI update logic resides here.                    |
+| `fetch.jsx`     | Provides a helper method for making fetch calls. |
+| `authConfig.js` | Contains authentication parameters.              |
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/download/) must be installed to run this sample.
-- [Visual Studio Code](https://code.visualstudio.com/download) is recommended for running and editing this sample.
-- A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
 - An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
 - A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
 
@@ -63,7 +58,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-react-tutorial
-    cd 2-Authorization-I/1-call-graph
+    cd 2-Authorization-I/1-call-graph/SPA
     npm install
 ```
 
@@ -109,14 +104,14 @@ As a first step you'll need to:
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
-### Register the app (ms-identity-react-c1s1)
+### Register the app (msal-react-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ms-identity-react-c1s1`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
+   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
@@ -124,17 +119,23 @@ As a first step you'll need to:
    - Select the **Add a permission** button and then,
    - Ensure that the **Microsoft APIs** tab is selected.
    - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
+   - In the **Delegated permissions** section, select the **User.Read** and **Mail.Read** in the list. Use the search box if necessary.
+   - Select the **Add permissions** button at the bottom.
+1. Still in the **API permissions** blade,
+   - Select the **Add a permission** button and then,
+   - Ensure that the **Microsoft APIs** tab is selected.
+   - In the *Commonly used Microsoft APIs* section, select **Azure Service Management**
+   - In the **Delegated permissions** section, select the **user_impersonation** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
 
-#### Configure the app (ms-identity-react-c1s1) to use your app registration
+#### Configure the app (msal-react-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `App\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ms-identity-react-c1s1` app copied from the Azure portal.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
 
 ## Running the sample
@@ -149,7 +150,9 @@ Locate the folder where `package.json` resides in your terminal. Then:
 
 1. Open your browser and navigate to `http://localhost:3000`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
-1. Select the **Request Profile Data** button at the center. This will make a call to Microsoft Graph using a bearer token.
+1. Select the **Profile** button on the navigation bar. This will make a call to the Graph API.
+1. Select the **Mails** button on the navigation bar. This will make a call to the Graph API.
+1. Select the **Tenant** button on the navigation bar. This will make a call to Azure Resource Management API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
@@ -163,7 +166,43 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ### Protected resources and scopes
 
-In order to access a protected resource on behalf of a signed-in user, the app needs to present a valid **Access Token** to that resource owner (in this case, Microsoft Graph). The intended recipient of an **Access Token** is represented by the `aud` claim (in this case, it should be the Microsoft Graph API's App ID); in case the value for the `aud` claim does not mach the resource **APP ID URI**, the token should be considered invalid. Likewise, the permissions that an **Access Token** grants is represented by the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
+In order to access a protected resource on behalf of a signed-in user, the app needs to present a valid **Access Token** to that resource owner (in this case, Microsoft Graph). **Access Token** requests in **MSAL** are meant to be *per-resource-per-scope(s)*. This means that an **Access Token** requested for resource **A** with scope `scp1`:
+
+- cannot be used for accessing resource **A** with scope `scp2`, and,
+- cannot be used for accessing resource **B** of any scope.
+
+The intended recipient of an **Access Token** is represented by the `aud` claim (in this case, it should be the Microsoft Graph API's App ID); in case the value for the `aud` claim does not mach the resource **APP ID URI**, the token should be considered invalid. Likewise, the permissions that an **Access Token** grants is represented by the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
+
+### Working with multiple resources
+
+When you have to access multiple resources, initiate a separate token request for each:
+
+ ```javascript
+     // "User.Read" stands as shorthand for "graph.microsoft.com/User.Read"
+     const graphToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read" ]
+     });
+     const customApiToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "api://<myCustomApiClientId>/My.Scope" ]
+     });
+ ```
+
+Bear in mind that you *can* request multiple scopes for the same resource (e.g. `User.Read`, `User.Write` and `Calendar.Read` for **MS Graph API**).
+
+ ```javascript
+     const graphToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read", "User.Write", "Calendar.Read"] // all MS Graph API scopes
+     });
+ ```
+
+In case you *erroneously* pass multiple resources in your token request, the token you will receive will only be issued for the first resource.
+
+ ```javascript
+     // you will only receive a token for MS GRAPH API's "User.Read" scope here
+     const myToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read", "api://<myCustomApiClientId>/My.Scope" ]
+     });
+ ```
 
 ### Dynamic scopes and incremental consent
 
@@ -179,11 +218,11 @@ In **Azure AD**, the scopes (permissions) set directly on the application regist
      };
 
      // will return an ID Token and an Access Token with scopes: "openid", "profile" and "User.Read"
-     instance.loginPopup(loginRequest);
+     msalInstance.loginPopup(loginRequest);
 
      // will fail and fallback to an interactive method prompting a consent screen
      // after consent, the received token will be issued for "openid", "profile" ,"User.Read" and "Mail.Read" combined
-     instance.acquireTokenPopup(tokenRequest);
+     msalInstance.acquireTokenPopup(tokenRequest);
 ```
 
 In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `Mail.Read` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*.
@@ -231,6 +270,76 @@ If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one o
 ### Access Token validation
 
 Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
+
+### Working with React routes
+
+```javascript
+
+const msalInstance = new PublicClientApplication(msalConfig);
+
+ReactDOM.render(
+  <React.StrictMode>
+    <App pca={msalInstance} />
+  </React.StrictMode>,
+  document.getElementById('root')
+);
+
+const App = ({pca}) => {
+  return (
+    <Router>
+      <ThemeProvider theme={theme}>
+        <MsalProvider instance={pca}>
+            <PageLayout>
+              <Grid container justify="center">
+                <Pages />
+              </Grid>
+            </PageLayout>
+        </MsalProvider>
+      </ThemeProvider>
+    </Router>
+  );
+}
+
+const Pages = () => {
+  return (
+    <Switch>
+      <Route path="/profile">
+        <Profile />
+      </Route>
+      <Route path="/profileWithMsal">
+        <ProfileWithMsal />
+      </Route>
+      <Route path="/profileRawContext">
+        <ProfileRawContext />
+      </Route>
+      <Route path="/">
+        <Home />
+      </Route>
+    </Switch>
+  )
+}
+```
+
+### Securing your React routes
+
+```javascript
+export const Profile = () => {
+    const authRequest = {
+        ...loginRequest
+    };
+
+    return (
+        <MsalAuthenticationTemplate 
+            interactionType={InteractionType.Popup} 
+            authenticationRequest={authRequest} 
+            errorComponent={ErrorComponent} 
+            loadingComponent={Loading}
+        >
+            <ProfileContent />
+        </MsalAuthenticationTemplate>
+      )
+};
+```
 
 ## More information
 

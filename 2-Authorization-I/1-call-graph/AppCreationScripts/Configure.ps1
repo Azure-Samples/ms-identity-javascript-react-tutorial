@@ -161,12 +161,12 @@ Function ConfigureApplications
     $user = Get-AzureADUser -ObjectId $creds.Account.Id
 
    # Create the spa AAD application
-   Write-Host "Creating the AAD application (ms-identity-react-c1s1)"
+   Write-Host "Creating the AAD application (ms-identity-react-c2s1)"
    # create the application 
-   $spaAadApplication = New-AzureADApplication -DisplayName "ms-identity-react-c1s1" `
+   $spaAadApplication = New-AzureADApplication -DisplayName "ms-identity-react-c2s1" `
                                                -HomePage "http://localhost:3000/" `
                                                -ReplyUrls "http://localhost:3000/" `
-                                               -IdentifierUris "https://$tenantName/ms-identity-react-c1s1" `
+                                               -IdentifierUris "https://$tenantName/ms-identity-react-c2s1" `
                                                -PublicClient $False
 
    # create the service principal of the newly created application 
@@ -182,12 +182,12 @@ Function ConfigureApplications
    }
 
 
-   Write-Host "Done creating the spa application (ms-identity-react-c1s1)"
+   Write-Host "Done creating the spa application (ms-identity-react-c2s1)"
 
    # URL of the AAD application in the Azure portal
    # Future? $spaPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
    $spaPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>ms-identity-react-c1s1</a></td></tr>" -Path createdApps.html
+   Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>ms-identity-react-c2s1</a></td></tr>" -Path createdApps.html
 
    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
 
@@ -198,14 +198,21 @@ Function ConfigureApplications
 
    $requiredResourcesAccess.Add($requiredPermissions)
 
+   # Add Required Resources Access (from 'spa' to 'Windows Azure Service Management API')
+   Write-Host "Getting access from 'spa' to 'Windows Azure Service Management API'"
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Windows Azure Service Management API" `
+                                                -requiredDelegatedPermissions "user_impersonation" `
+
+   $requiredResourcesAccess.Add($requiredPermissions)
+
 
    Set-AzureADApplication -ObjectId $spaAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
    Write-Host "Granted permissions."
 
    # Update config file for 'spa'
-   $configFile = $pwd.Path + "\..\App\src\authConfig.js"
+   $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantName };
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
    Write-Host ""
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 

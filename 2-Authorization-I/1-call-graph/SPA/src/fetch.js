@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 export const callApiWithToken = async(accessToken, apiEndpoint) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;

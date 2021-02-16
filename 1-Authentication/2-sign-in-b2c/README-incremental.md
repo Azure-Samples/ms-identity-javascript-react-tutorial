@@ -30,11 +30,11 @@ Here you'll learn about authentication and **B2C** concepts, such as [ID tokens]
 
 ## Contents
 
-| File/folder         | Description                                      |
-|---------------------|--------------------------------------------------|
-| `App/authConfig.js` | Contains authentication parameters.              |
-| `App/App.jsx`       | Main application logic resides here.             |
-| `App/ui.jsx`        | UI update logic resides here.                    |
+| File/folder     | Description                                      |
+|-----------------|--------------------------------------------------|
+| `App.jsx`       | Main application logic resides here.             |
+| `ui.jsx`        | UI components reside here.                       |
+| `authConfig.js` | Contains authentication parameters.              |
 
 ## Prerequisites
 
