@@ -243,6 +243,10 @@ We need to reject ID tokens that were not issued with the default sign-in policy
 
 When a user selects the **Edit Profile** button on the navigation bar, we simply initiate a sign-in flow. Like password reset, edit profile user-flow requires users to sign-out and sign-in again.
 
+## Next Tutorial
+
+Continue with the next tutorial: [Protect and call a web API](../../3-Authorization-II/1-call-api-b2c/README-incremental.md).
+
 ## More information
 
 - [What is Azure Active Directory B2C?](https://docs.microsoft.com/azure/active-directory-b2c/overview)

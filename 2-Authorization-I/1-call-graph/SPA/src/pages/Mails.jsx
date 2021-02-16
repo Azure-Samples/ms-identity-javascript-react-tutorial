@@ -13,24 +13,22 @@ const MailsContent = () => {
     const [mailsData, setMailsData] = useState(null);
 
     useEffect(() => {
-        if (account && inProgress === "none") {
+        if (account && inProgress === "none" && !mailsData) {
             instance.acquireTokenSilent({
                 scopes: protectedResources.graphMessages.scopes,
                 account: account
-            }).then((response) => {
+            }).then((response) => {     
                 callApiWithToken(response.accessToken, protectedResources.graphMessages.endpoint)
-                    .then(response => setMailsData(response))
+                    .then(response => setMailsData(response));
             }).catch(error => {
-                console.log(error);
                 if (error instanceof InteractionRequiredAuthError) {
                     if (account && inProgress === "none") {
                         instance.acquireTokenPopup({
                             scopes: protectedResources.graphMessages.scopes,
-                            account
                         }).then((response) => {
                             callApiWithToken(response.accessToken, protectedResources.graphMessages.endpoint)
                                 .then(response => setMailsData(response));
-                        })
+                        }).catch(error => console.log(error));
                     }
                 }
             });

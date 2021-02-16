@@ -17,7 +17,7 @@
 
 This sample demonstrates a React single-page application (SPA) calling [Microsoft Graph](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
-Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-sign-in), [acquire a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token) and [call a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as [Dynamic Scopes and Incremental Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent), **working with multiple resources** and **protecting your routes/pages** and more.
+Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-sign-in), [acquire a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token) and [call a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as [Dynamic Scopes and Incremental Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent), **working with multiple resources** and **securing your routes** and more.
 
 ## Scenario
 
@@ -31,9 +31,10 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 | File/folder     | Description                                      |
 |-----------------|--------------------------------------------------|
 | `App.jsx`       | Main application logic resides here.             |
-| `ui.jsx`        | UI update logic resides here.                    |
 | `fetch.jsx`     | Provides a helper method for making fetch calls. |
 | `authConfig.js` | Contains authentication parameters.              |
+| `pages/`        | Pages and routes.                                |
+| `components/`   | Contains UI components                           |
 
 ## Prerequisites
 
@@ -152,7 +153,7 @@ Locate the folder where `package.json` resides in your terminal. Then:
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
 1. Select the **Profile** button on the navigation bar. This will make a call to the Graph API.
 1. Select the **Mails** button on the navigation bar. This will make a call to the Graph API.
-1. Select the **Tenant** button on the navigation bar. This will make a call to Azure Resource Management API.
+1. Select the **Tenant** button on the navigation bar. This will make a call to Azure Resource Management (ARM) API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
@@ -273,8 +274,9 @@ Clients should treat access tokens as opaque strings, as the contents of the tok
 
 ### Working with React routes
 
-```javascript
+You can use [React Router](https://reactrouter.com/) component in conjunction with **MSAL React**. Simply wrap the `MsalProvider` component between the `Router` component, passing the `PublicClientApplication` instance you have created earlier as props:
 
+```javascript
 const msalInstance = new PublicClientApplication(msalConfig);
 
 ReactDOM.render(
@@ -287,15 +289,11 @@ ReactDOM.render(
 const App = ({pca}) => {
   return (
     <Router>
-      <ThemeProvider theme={theme}>
-        <MsalProvider instance={pca}>
-            <PageLayout>
-              <Grid container justify="center">
-                <Pages />
-              </Grid>
-            </PageLayout>
-        </MsalProvider>
-      </ThemeProvider>
+      <MsalProvider instance={pca}>
+          <PageLayout>
+            <Pages />
+          </PageLayout>
+      </MsalProvider>
     </Router>
   );
 }
@@ -306,12 +304,6 @@ const Pages = () => {
       <Route path="/profile">
         <Profile />
       </Route>
-      <Route path="/profileWithMsal">
-        <ProfileWithMsal />
-      </Route>
-      <Route path="/profileRawContext">
-        <ProfileRawContext />
-      </Route>
       <Route path="/">
         <Home />
       </Route>
@@ -321,6 +313,8 @@ const Pages = () => {
 ```
 
 ### Securing your React routes
+
+You can ensure that your users are authenticated when visiting a certain route/page with the help of `MsalAuthenticationTemplate` component. This component takes a number of props to manage the sign-in experience when an unauthenticated user hits the route:
 
 ```javascript
 export const Profile = () => {

@@ -13,7 +13,7 @@ const TenantContent = () => {
     const [tenantData, setTenantData] = useState(null);
 
     useEffect(() => {
-        if (account && inProgress === "none") {
+        if (account && inProgress === "none" && !tenantData) {
             instance.acquireTokenSilent({
                 scopes: protectedResources.armTenants.scopes,
                 account: account
@@ -21,16 +21,14 @@ const TenantContent = () => {
                 callApiWithToken(response.accessToken, protectedResources.armTenants.endpoint)
                     .then(response => setTenantData(response));
             }).catch(error => {
-                console.log(error);
                 if (error instanceof InteractionRequiredAuthError) {
                     if (account && inProgress === "none") {
                         instance.acquireTokenPopup({
                             scopes: protectedResources.armTenants.scopes,
-                            account: account
                         }).then((response) => {
                             callApiWithToken(response.accessToken, protectedResources.armTenants.endpoint)
                                 .then(response => setTenantData(response));
-                        })
+                        }).catch(error => console.log(error));
                     }
                 }
             });

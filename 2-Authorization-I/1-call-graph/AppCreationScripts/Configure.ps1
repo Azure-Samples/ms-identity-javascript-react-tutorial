@@ -198,6 +198,13 @@ Function ConfigureApplications
 
    $requiredResourcesAccess.Add($requiredPermissions)
 
+   # Add Required Resources Access (from 'spa' to 'Microsoft Graph')
+   Write-Host "Getting access from 'spa' to 'Microsoft Graph'"
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+                                                -requiredDelegatedPermissions "Mail.Read" `
+
+   $requiredResourcesAccess.Add($requiredPermissions)
+
    # Add Required Resources Access (from 'spa' to 'Windows Azure Service Management API')
    Write-Host "Getting access from 'spa' to 'Windows Azure Service Management API'"
    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Windows Azure Service Management API" `

@@ -236,6 +236,10 @@ For instance, to configure this sample for **Azure AD Germany** national cloud:
 
 See [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints) for more information.
 
+## Next Tutorial
+
+Continue with the next tutorial: [Call the Microsoft Graph API](../../2-Authorization-I/1-call-graph/README-incremental.md).
+
 ## More information
 
 - [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)

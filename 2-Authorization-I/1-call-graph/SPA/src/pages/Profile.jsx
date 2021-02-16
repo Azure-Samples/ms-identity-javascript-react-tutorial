@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { MsalAuthenticationTemplate, useMsal, useAccount } from "@azure/msal-react";
-import { InteractionType } from "@azure/msal-browser";
+import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
 
 import { loginRequest, protectedResources } from "../authConfig";
 import { callApiWithToken } from "../fetch";
@@ -19,8 +19,18 @@ const ProfileContent = () => {
                 account: account
             }).then((response) => {
                 callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
-                    .then(response => setGraphData(response))
-                    .catch(error => console.log(error));
+                    .then(response => setGraphData(response));
+            }).catch((error) => {
+                if (error instanceof InteractionRequiredAuthError) {
+                    if (account && inProgress === "none") {
+                        instance.acquireTokenPopup({
+                            scopes: protectedResources.graphMe.scopes,
+                        }).then((response) => {
+                            callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
+                                .then(response => setMailsData(response));
+                        }).catch(error => console.log(error));
+                    }
+                }
             });
         }
     }, [account, inProgress, instance]);

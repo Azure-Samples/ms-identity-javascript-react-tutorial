@@ -72,6 +72,6 @@ export const protectedResources = {
     },
     armTenants: {
         endpoint: "https://management.azure.com/tenants?api-version=2020-01-01",
-        scopes: ["user_impersonation"],
+        scopes: ["https://management.azure.com/user_impersonation"],
     }
 }

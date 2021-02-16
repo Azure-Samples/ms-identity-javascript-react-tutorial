@@ -25,6 +25,10 @@
                   "DelegatedPermissions": [ "User.Read" ]
                 },
                 {
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": [ "Mail.Read" ]
+                },
+                {
                     "Resource": "Windows Azure Service Management API",
                     "DelegatedPermissions": [ "user_impersonation" ]
                 }
