@@ -2,7 +2,7 @@
   text-align: center;
 }
 
-#profile-div {
+.data-area-div {
   display: flex;
   flex-direction: column;
   align-items: center;

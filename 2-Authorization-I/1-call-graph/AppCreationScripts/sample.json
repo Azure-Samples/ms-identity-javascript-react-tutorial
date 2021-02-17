@@ -22,11 +22,7 @@
             "RequiredResourcesAccess": [
                 {
                   "Resource": "Microsoft Graph",
-                  "DelegatedPermissions": [ "User.Read" ]
-                },
-                {
-                    "Resource": "Microsoft Graph",
-                    "DelegatedPermissions": [ "Mail.Read" ]
+                  "DelegatedPermissions": [ "User.Read", "Mail.Read" ]
                 },
                 {
                     "Resource": "Windows Azure Service Management API",

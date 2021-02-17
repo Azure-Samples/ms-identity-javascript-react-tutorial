@@ -8,6 +8,11 @@ import { callApiWithToken } from "../fetch";
 import { MailsData } from "../components/DataDisplay";
 
 const MailsContent = () => {
+    /**
+     * useMsal is hook that returns the PublicClientApplication instance, 
+     * an array of all accounts currently signed in and an inProgress value 
+     * that tells you what msal is currently doing.
+     */
     const { instance, accounts, inProgress } = useMsal();
     const account = useAccount(accounts[0] || {});
     const [mailsData, setMailsData] = useState(null);
@@ -21,6 +26,7 @@ const MailsContent = () => {
                 callApiWithToken(response.accessToken, protectedResources.graphMessages.endpoint)
                     .then(response => setMailsData(response));
             }).catch(error => {
+                // in case if silent token acquisition fails, fallback to an interactive method
                 if (error instanceof InteractionRequiredAuthError) {
                     if (account && inProgress === "none") {
                         instance.acquireTokenPopup({
@@ -49,7 +55,7 @@ export const Mails = () => {
 
     return (
         <MsalAuthenticationTemplate 
-            interactionType={InteractionType.Popup} 
+            interactionType={InteractionType.Redirect} 
             authenticationRequest={authRequest}
         >
             <MailsContent />

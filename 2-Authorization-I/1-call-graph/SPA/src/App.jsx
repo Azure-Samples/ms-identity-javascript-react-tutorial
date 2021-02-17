@@ -1,9 +1,7 @@
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
-// MSAL imports
 import { MsalProvider } from "@azure/msal-react";
 
-// Sample app imports
 import { PageLayout } from "./components/PageLayout";
 import { Mails } from "./pages/Mails";
 import { Tenant } from "./pages/Tenant";

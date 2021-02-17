@@ -194,14 +194,7 @@ Function ConfigureApplications
    # Add Required Resources Access (from 'spa' to 'Microsoft Graph')
    Write-Host "Getting access from 'spa' to 'Microsoft Graph'"
    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
-                                                -requiredDelegatedPermissions "User.Read" `
-
-   $requiredResourcesAccess.Add($requiredPermissions)
-
-   # Add Required Resources Access (from 'spa' to 'Microsoft Graph')
-   Write-Host "Getting access from 'spa' to 'Microsoft Graph'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
-                                                -requiredDelegatedPermissions "Mail.Read" `
+                                                -requiredDelegatedPermissions "User.Read|Mail.Read" `
 
    $requiredResourcesAccess.Add($requiredPermissions)
 
