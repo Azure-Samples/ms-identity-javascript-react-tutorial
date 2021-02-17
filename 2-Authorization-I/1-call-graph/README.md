@@ -151,7 +151,6 @@ Locate the folder where `package.json` resides in your terminal. Then:
 ## Explore the sample
 
 1. Open your browser and navigate to `http://localhost:3000`.
-1. Disable your pop-up blocker for this address.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
 1. Select the **Profile** button on the navigation bar. This will make a call to the Graph API.
 1. Select the **Mails** button on the navigation bar. This will make a call to the Graph API.
