@@ -3,6 +3,7 @@
  1. [Overview](#overview)
  1. [Scenario](#scenario)
  1. [Contents](#contents)
+ 1. [Prerequisites](#prerequisites)
  1. [Setup](#setup)
  1. [Registration](#registration)
  1. [Running the sample](#running-the-sample)
@@ -34,6 +35,10 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 | `authConfig.js` | Contains authentication parameters.              |
 | `pages/`        | Pages and routes.                                |
 | `components/`   | Contains UI components                           |
+
+## Prerequisites
+
+- An Azure subscription (if you would like to call the [Azure Resource Management API](https://docs.microsoft.com/azure/azure-resource-manager/management/overview))
 
 ## Setup
 
