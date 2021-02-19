@@ -1,4 +1,4 @@
-# Deploy your JavaScript Applications to Azure Cloud and use Azure Services to manage your operations
+# Deploy your React Application to Azure Cloud and use Azure services to manage your operations
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -14,21 +14,18 @@
 
 ## Overview
 
-This sample demonstrates how to deploy a JavaScript single-page application (SPA) coupled with a Node.js web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively. To do so, we will use the [same code sample from Chapter 3](../3-Authorization-II/1-call-api).
+This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively. To do so, we will use the [same code sample from Chapter 3](../3-Authorization-II/1-call-api).
 
 ## Scenario
 
-1. The client application uses the **MSAL.js** library to sign-in a user and obtain a JWT **Access Token** from **Azure AD**.
+1. The client application uses **MSAL React** to sign-in a user and obtain a JWT **Access Token** from **Azure AD**.
 1. The **Access Token** is used as a **bearer** token to *authorize* the user to call the protected web API.
 1. The protected web API responds with the claims in the **Access Token**.
 
-![Overview](./ReadmeFiles/topology_dep.png)
+![Overview](./ReadmeFiles/topology.png)
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/download/) must be installed to run this sample.
-- A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
-- [Visual Studio Code](https://code.visualstudio.com/download) is recommended for running and editing this sample.
 - [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with **Azure** through VS Code interface.
 - An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://azure.microsoft.com/documentation/articles/active-directory-howto-tenant/)
 - A user account in your **Azure AD** tenant.
@@ -39,7 +36,7 @@ This sample demonstrates how to deploy a JavaScript single-page application (SPA
 - Setup the service app:
 
 ```console
-    cd ms-identity-javascript-tutorial
+    cd ms-identity-javascript-react-tutorial
     cd 3-Authorization-II/1-call-api
     cd API
     npm install
@@ -59,7 +56,7 @@ This sample demonstrates how to deploy a JavaScript single-page application (SPA
 
 Use the same app registration credentials that you've obtained during [**chapter 3-1**](../3-Authorization-II/1-call-api).
 
-### Register the client app (JavaScript SPA)
+### Register the client app (React SPA)
 
 Use the same app registration credentials that you've obtained during [**chapter 3-1**](../3-Authorization-II/1-call-api).
 
@@ -105,7 +102,7 @@ Now you need to navigate to the **Azure App Service** Portal, and locate your pr
 
 ![enable_cors](./ReadmeFiles/enable_cors.png)
 
-### Deploy the client app (JavaScript SPA)
+### Deploy the client app (React SPA)
 
 There are various ways to deploy your applications to **Azure Storage**. Here we provide steps for deployment via **VS Code Azure Tools Extension**. For more alternatives, visit: [Static website hosting in Azure Storage](https://docs.microsoft.com/azure/storage/blobs/storage-blob-static-website#uploading-content).
 
@@ -113,9 +110,15 @@ There are various ways to deploy your applications to **Azure Storage**. Here we
 
 #### Step 1: Deploy the app
 
-Create a distributable files folder, where your `html`, `css` and `javascript` files will be located (in the sample, the `SPA/App/` folder is already usable for this). Then follow the steps below:
+1. Create a distributable files folder, where your `html`, `css` and `javascript` files will be located. To do so, locate the `SPA` folder in your terminal, then type:
 
-1. Right click on the `SPA/App/` folder inside. This will open a context menu where you will see the option **Deploy to static website via Azure Storage**. Click on it.
+```console
+    npm run build
+```
+
+This will create a `build` folder. We will upload the contents of this folder next.
+
+1. Right click on the `SPA/build` folder. This will open a context menu where you will see the option **Deploy to static website via Azure Storage**. Click on it.
 
 ![spa_step1](./ReadmeFiles/spa_step1.png)
 
@@ -123,7 +126,7 @@ Create a distributable files folder, where your `html`, `css` and `javascript` f
 
 ![spa_step2](./ReadmeFiles/spa_step2.png)
 
-3. Once your storage account is created and your files are uploaded, you will see a notification on the bottom-right corner of VS Code interface. When it's done, you will be notified with the published URI of your static website (e.g. `https://javascriptspa1.z22.web.core.windows.net/`).
+3. Once your storage account is created and your files are uploaded, you will see a notification on the bottom-right corner of VS Code interface. When it's done, you will be notified with the published URI of your static website (e.g. `https://reactspa1.z22.web.core.windows.net/`).
 
 ![spa_step3](./ReadmeFiles/spa_step3.png)
 
@@ -132,7 +135,7 @@ Create a distributable files folder, where your `html`, `css` and `javascript` f
 1. Navigate back to to the [Azure Portal](https://portal.azure.com).
 1. In the left-hand navigation pane, select the **Azure Active Directory** service, and then select **App registrations**.
 1. In the resulting screen, select the name of your application.
-1. From the *Branding* menu, update the **Home page URL**, to the address of your service, for example [https://javascriptspa1.z22.web.core.windows.net/](https://javascriptspa1.z22.web.core.windows.net/). Save the configuration.
+1. From the *Branding* menu, update the **Home page URL**, to the address of your service, for example [https://reactspa1.z22.web.core.windows.net/](https://reactspa1.z22.web.core.windows.net/). Save the configuration.
 1. Add the same URI in the list of values of the *Authentication -> Redirect URIs* menu. If you have multiple redirect URIs, make sure that there a new entry using the App service's URI for each redirect URI.
 
 #### Step 3: Update the client app's configuration files
@@ -143,7 +146,7 @@ Now you need to update your authentication configuration files in the client pro
 
 Open `authConfig.js`. Then:
 
-1. Find the key `redirectUri` and replace the existing value with your static webpage's URI that you have just registered e.g. `https://javascriptspa1.z22.web.core.windows.net/`
+1. Find the key `redirectUri` and replace the existing value with your static webpage's URI that you have just registered e.g. `https://reactspa1.z22.web.core.windows.net/`
 
 Open `apiConfig.js`. Then:
 
@@ -151,7 +154,7 @@ Open `apiConfig.js`. Then:
 
 ## Explore the sample
 
-1. Open your browser and navigate to your deployed client app's URI, for instance: `https://javascriptspa1.z22.web.core.windows.net/`.
+1. Open your browser and navigate to your deployed client app's URI, for instance: `https://reactspa1.z22.web.core.windows.net/`.
 1. Click the **sign-in** button on the top right corner.
 1. Once you authenticate, click the **Call API** button at the center.
 

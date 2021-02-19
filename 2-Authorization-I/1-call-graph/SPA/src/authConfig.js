@@ -12,8 +12,8 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: "Enter_the_Application_Id_Here", // This is the ONLY mandatory field that you need to supply.
-        authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here", // Defaults to "https://login.microsoftonline.com/common"
+        clientId: "ae9deef3-a957-470e-b60b-c9a45b7dab9a", // This is the ONLY mandatory field that you need to supply.
+        authority: "https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef", // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
