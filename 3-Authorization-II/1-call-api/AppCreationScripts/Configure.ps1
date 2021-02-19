@@ -270,6 +270,13 @@ Function ConfigureApplications
 
    $requiredResourcesAccess.Add($requiredPermissions)
 
+   # Add Required Resources Access (from 'spa' to 'service')
+   Write-Host "Getting access from 'spa' to 'service'"
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "ms-identity-react-c3s1-api" `
+                                                -requiredDelegatedPermissions "access_as_user" `
+
+   $requiredResourcesAccess.Add($requiredPermissions)
+
 
    Set-AzureADApplication -ObjectId $spaAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
    Write-Host "Granted permissions."

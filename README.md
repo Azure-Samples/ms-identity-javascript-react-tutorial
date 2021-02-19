@@ -67,7 +67,7 @@ Alternatively, choose below the sample you want to review.
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./3-Authorization-II/1-call-api/ReadmeFiles/topology.png" width="200"> | [**Protect and call a web API on Azure AD**](./3-Authorization-II/1-call-api/README.md) </br> Protect your web API with the **Azure AD**. Use a client application to sign-in a user, acquire an **Access Token** for your web API and call your protected Web API. |
+| <img src="./3-Authorization-II/1-call-api/ReadmeFiles/topology.png" width="200"> | [**Protect and call a web API on Azure AD**](./3-Authorization-II/1-call-api/README.md) </br> Protect your web API with the **Azure AD**. Use a client application to sign-in a user, acquire an **Access Token** for your web API and call your protected web API. |
 | <img src="./3-Authorization-II/2-call-api-b2c/ReadmeFiles/topology.png" width="200"> | [**Protect and call a web API on Azure AD B2C**](./3-Authorization-II/2-call-api-b2c/README.md) </br> Protect your web API with **Azure AD B2C**. Use a client application to sign-in a user, acquire an **Access Token** for your web API and call your protected web API. |
 
 ### Chapter 4: Deploy your applications to Azure

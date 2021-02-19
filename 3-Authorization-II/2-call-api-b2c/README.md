@@ -1,4 +1,30 @@
-# A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory
+---
+page_type: sample
+languages:
+  - csharp
+  - javascript
+  - typescript
+  - python
+  - java
+products:
+  - node.js
+  - dotnet
+  - aspnet
+  - aspnet-core
+  - dotnet-core
+  - ms-graph
+  - azure-app-service
+  - azure-storage
+  - azure-active-directory  
+  - azure-active-directory-b2c
+name: A React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C
+urlFragment: ms-identity-javascript-react-tutorial
+description: "This sample demonstrates a React SPA calling a Node.js web API that is secured using Azure AD B2C"
+azureDeploy: <ENTER_FULLY_QUALIFIED_URL_TO_AN_AZURE_RESOURCE_MANAGER>
+extendedZipContent: <FILES_OR_FOLDERS_WITH_TWO_ABSOLUTE_PATHS_TO_INCLUDE_WITH_ZIP:PATH(NAME_IN_THE_REPO), TARGET(NAME_IN_THE_ZIP)>
+extensions: <ENTER_CONTENT_THAT_OTHER_TEAMS_CAN_USE_TO_IDENTIFY_SAMPLES>
+---
+# A React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -15,12 +41,12 @@
 
 ## Overview
 
-This sample demonstrates a React SPA calling a Node.js Web API that is secured using Azure AD.
+This sample demonstrates a React SPA calling a Node.js web API that is secured using Azure AD B2C.
 
 ## Scenario
 
-1. The client React SPA uses **MSAL React** to sign-in and obtain a JWT access token from **Azure AD**.
-2. The access token is used as a bearer token to authorize the user to call the Node.js web API protected by **Azure AD**.
+1. The client React SPA uses the Microsoft Authentication Library (MSAL) to sign-in and obtain a JWT access token from **Azure AD B2C**.
+2. The access token is used as a bearer token to authorize the user to call the Node.js web API protected **Azure AD B2C**.
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -36,8 +62,12 @@ This sample demonstrates a React SPA calling a Node.js Web API that is secured u
 
 ## Prerequisites
 
-- An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
-- A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
+- [Node.js](https://nodejs.org/en/download/) must be installed to run this sample.
+- A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
+- [Visual Studio Code](https://code.visualstudio.com/download) is recommended for running and editing this sample.
+- [VS Code Azure Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with Azure through VS Code Interface.
+- An **Azure AD B2C** tenant. For more information see: [How to get an Azure AD B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant)
+- A user account in your **Azure AD B2C** tenant.
 
 ## Setup
 
@@ -56,139 +86,111 @@ or download and extract the repository .zip file.
 ### Step 2: Install project dependencies
 
 ```console
-    cd ms-identity-javascript-react-tutorial
-    cd 3-Authorization-II/1-call-api/SPA
+    cd ms-identity-react-c3s2-spa
     npm install
 ```
 
 ```console
-    cd ..
-    cd API
+    cd ms-identity-react-c3s2-api
     npm install
 ```
 
-### Registration
+### Register the sample application(s) with your Azure Active Directory tenant
 
-There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
-
-- follow the steps below for manually register your apps
-- or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  - modify the projects' configuration files.
-
-<details>
-  <summary>Expand this section if you want to use this automation:</summary>
-
-> :warning: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-
-1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-1. If you have never used Azure AD Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-1. In PowerShell run:
-
-   ```PowerShell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-   ```
-
-1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-1. In PowerShell run:
-
-   ```PowerShell
-   cd .\AppCreationScripts\
-   .\Configure.ps1
-   ```
-
-   > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
-   > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
-
-</details>
+:warning: This sample comes with a pre-registered application for demo purposes. If you would like to use your own **Azure AD B2C** tenant and application, follow the steps below to register and configure the application on **Azure portal**. Otherwise, continue with the steps for [Running the sample](#running-the-sample).
 
 ### Choose the Azure AD tenant where you want to create your applications
 
 As a first step you'll need to:
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
-1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
+1. If your account is present in more than one Azure AD B2C tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD B2C tenant.
 
-### Register the service app (msal-react-api)
+### Create User Flows and Custom Policies
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+Please refer to: [Tutorial: Create user flows in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-user-flows)
+
+### Add External Identity Providers
+
+Please refer to: [Tutorial: Add identity providers to your applications in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
+
+### Register the service app (ms-identity-react-c3s2-api)
+
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-api`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ms-identity-react-c3s2-api`.
+   - Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
 The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
    - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
-   - For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**.
+   - For this sample, accept the proposed Application ID URI (`https://{tenantName}.onmicrosoft.com/{clientId}`) by selecting **Save**.
 1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code) for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
         - For **Scope name**, use `access_as_user`.
-        - Select **Admins and users** options for **Who can consent?**.
-        - For **Admin consent display name** type `Access msal-react-api`.
-        - For **Admin consent description** type `Allows the app to access msal-react-api as the signed-in user.`
-        - For **User consent display name** type `Access msal-react-api`.
-        - For **User consent description** type `Allow the application to access msal-react-api on your behalf.`
+        - For **Admin consent display name** type `Access ms-identity-react-c3s2-api`.
+        - For **Admin consent description** type `Allows the app to access ms-identity-react-c3s2-api as the signed-in user.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
 
-#### Configure the service app (msal-react-api) to use your app registration
+#### Configure the service app (ms-identity-react-c3s2-api) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\config.json` file.
-1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `msal-react-api` app copied from the Azure portal.
+1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `ms-identity-react-c3s2-api` app copied from the Azure portal.
 1. Find the key `tenantID` and replace the existing value with your Azure AD tenant ID.
 
-### Register the client app (msal-react-spa)
+### Register the spa app (ms-identity-react-c3s2-spa)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ms-identity-react-c3s2-spa`.
+   - Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**.
+   - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Select the **Add a permission** button and then,
-     - Ensure that the **Microsoft APIs** tab is selected.
-     - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-     - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
-     - Select the **Add permissions** button at the bottom.
-   - Select the **Add a permission** button and then,
-     - Ensure that the **My APIs** tab is selected.
-     - In the list of APIs, select the API `msal-react-api`.
-     - In the **Delegated permissions** section, select the **Access 'msal-react-api'** in the list. Use the search box if necessary.
-     - Select the **Add permissions** button at the bottom.
+   - Select the **Add a permission** button and then:
+       - Ensure that the **Microsoft APIs** tab is selected.
+       - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+       - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
+       - Select the **Add permissions** button at the bottom.
+   - Select the **Add a permission** button and then:
+       - Ensure that the **My APIs** tab is selected.
+       - In the list of APIs, select the API `ms-identity-react-c3s2-api`.
+       - In the **Delegated permissions** section, select the **Access 'ms-identity-react-c3s2-api'** in the list. Use the search box if necessary.
+       - Select the **Add permissions** button at the bottom.
 
-#### Configure the client app (msal-react-spa) to use your app registration
+#### Configure the spa app (ms-identity-react-c3s2-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ms-identity-react-c3s2-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Redirect_Uri_Here` and replace the existing value with the Redirect URI for `msal-react-spa`. (by default `http://localhost:3000/`).
-1. Find the key `Enter_the_Web_Api_Uri_Here` and replace the existing value with the base address of `msal-react-api` (by default `http://localhost:5000/api`).
-1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://****-****-********-********/access_as_user`
+1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with Scope.
+
+<!-- ENTER CONFIGURATION STEPS FOR B2C USER-FLOWS/CUSTOM POLICIES BELOW -->
 
 ## Running the sample
 
 ```console
-    cd 3-Authorization-II/1-call-api/SPA
+    cd ms-identity-react-c3s2-spa
     npm start
 ```
 
 ```console
-    cd 3-Authorization-II/1-call-api/API
+    cd ms-identity-react-c3s2-api
     npm start
 ```
 
@@ -196,12 +198,13 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open your browser and navigate to `http://localhost:3000`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
-1. Select the **Profile** button on the navigation bar. This will make a call to the Microsoft Graph API.
 1. Select the **HelloAPI** button on the navigation bar. This will make a call to your web API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../issues) page.
+
+> :information_source: if you believe your issue is with the B2C service itself rather than with the sample, please file a support ticket with the B2C team by following the instructions [here](https://docs.microsoft.com/azure/active-directory-b2c/support-options).
 
 ## We'd love your feedback!
 
@@ -210,6 +213,15 @@ Were we successful in addressing your learning objective? Consider taking a mome
 ## About the code
 
 ### Token Validation
+
+[passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) validates the token against the `issuer`, `scope` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API:
+
+```javascript
+    app.get('/api', passport.authenticate('oauth-bearer', { session: false }),
+        (req, res) => {
+            console.log('Validated claims: ', req.authInfo);
+    );
+```
 
 On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) validates the token against the `issuer`, `scope` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API:
 
@@ -224,7 +236,7 @@ Clients should treat access tokens as opaque strings, as the contents of the tok
 
 ### CORS Settings
 
-For the purpose of the sample, **cross-origin resource sharing** is enabled for **all** domains. This is insecure and not recommended. In production, you should modify this as to allow only the domains that you designate.
+For the purpose of the sample, **cross-origin resource sharing** is enabled for **all** domains. This is insecure. In production, you should modify this as to allow only the domains that you designate.
 
 ```javascript
     app.use((req, res, next) => {
@@ -236,16 +248,17 @@ For the purpose of the sample, **cross-origin resource sharing** is enabled for 
 
 ## More information
 
-- [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
-- [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
-- [Quickstart: Register an application with the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
-- [Quickstart: Configure a client application to access web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
+- [What is Azure Active Directory B2C?](https://docs.microsoft.com/azure/active-directory-b2c/overview)
+- [Application types that can be used in Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/application-types)
+- [Recommendations and best practices for Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/best-practices)
+- [Azure AD B2C session](https://docs.microsoft.com/azure/active-directory-b2c/session-overview)
 - [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
 - [Single sign-on with MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso)
 - [Handle MSAL.js exceptions and errors](https://docs.microsoft.com/azure/active-directory/develop/msal-handling-exceptions?tabs=javascript)
 - [Logging in MSAL.js applications](https://docs.microsoft.com/azure/active-directory/develop/msal-logging?tabs=javascript)
 - [Pass custom state in authentication requests using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-pass-custom-state-authentication-request)
 - [Prompt behavior in MSAL.js interactive requests](https://docs.microsoft.com/azure/active-directory/develop/msal-js-prompt-behavior)
+- [Use MSAL.js to work with Azure AD B2C](https://docs.microsoft.com/azure/active-directory/develop/msal-b2c-overview)
 
 For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Azure AD](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
 

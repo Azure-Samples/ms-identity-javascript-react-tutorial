@@ -1,0 +1,35 @@
+{
+  "name": "ms-identity-javascript-tutorial-c3s2-api",
+  "version": "1.0.0",
+  "description": "A Node.js & Express web API accepting authorized calls with Azure AD B2C",
+  "author": "derisen",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "morgan": "^1.7.0",
+    "passport": "^0.3.2",
+    "passport-azure-ad": "^4.2.1"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/issues"
+  },
+  "homepage": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  },
+  "keywords": [
+    "azure",
+    "ad",
+    "node.js",
+    "b2c",
+    "api"
+  ]
+}
