@@ -54,7 +54,7 @@ export const msalConfig = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: ["User.Read"]
+    scopes: []
 };
 
 /**
@@ -66,12 +66,8 @@ export const protectedResources = {
         endpoint: "https://graph.microsoft.com/v1.0/me",
         scopes: ["User.Read"],
     },
-    graphMessages: {
-        endpoint: "https://graph.microsoft.com/v1.0/me/messages",
-        scopes: ["Mail.Read"],
+    apiHello: {
+        endpoint: "http://localhost:5000/api",
+        scopes: ["Enter_the_Web_Api_Scope_Here"], // e.g. api://xxxxxx/access_as_user
     },
-    armTenants: {
-        endpoint: "https://management.azure.com/tenants?api-version=2020-01-01",
-        scopes: ["https://management.azure.com/user_impersonation"],
-    }
 }

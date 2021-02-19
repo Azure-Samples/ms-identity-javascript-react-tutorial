@@ -1,0 +1,38 @@
+{
+  "name": "ms-identity-react-c4s1",
+  "version": "1.0.0",
+  "description": "Node.js Azure Function web API",
+  "main": "index.js",
+  "scripts": {
+    "start": "func start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git"
+  },
+  "keywords": [
+    "javascript",
+    "azure-function",
+    "authentication",
+    "microsoft",
+    "ms-identity",
+    "azure-ad"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/issues"
+  },
+  "homepage": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial#readme",
+  "dependencies": {
+    "azure-function-express": "^2.0.0",
+    "azure-functions-core-tools": "^2.7.2913",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "morgan": "^1.10.0",
+    "passport": "^0.4.1",
+    "passport-azure-ad": "^4.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
