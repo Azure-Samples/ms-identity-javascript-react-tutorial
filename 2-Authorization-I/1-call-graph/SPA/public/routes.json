@@ -2,7 +2,7 @@
     "routes": [
       {
         "route": "/*",
-        "allowedRoles": "index.html",
+        "allowedRoles": "/index.html",
         "statusCode": 200
       }
     ],
