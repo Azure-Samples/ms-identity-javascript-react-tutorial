@@ -5,9 +5,9 @@ import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-brows
 
 import { loginRequest, protectedResources } from "../authConfig";
 import { callApiWithToken } from "../fetch";
-import { HelloData } from "../components/DataDisplay";
+import { FunctionData } from "../components/DataDisplay";
 
-const HelloContent = () => {
+const FunctionContent = () => {
     /**
      * useMsal is hook that returns the PublicClientApplication instance, 
      * an array of all accounts currently signed in and an inProgress value 
@@ -15,25 +15,25 @@ const HelloContent = () => {
      */
     const { instance, accounts, inProgress } = useMsal();
     const account = useAccount(accounts[0] || {});
-    const [helloData, setHelloData] = useState(null);
+    const [functionData, setFunctionData] = useState(null);
 
     useEffect(() => {
-        if (account && inProgress === "none" && !helloData) {
+        if (account && inProgress === "none" && !functionData) {
             instance.acquireTokenSilent({
-                scopes: protectedResources.apiHello.scopes,
+                scopes: protectedResources.functionApi.scopes,
                 account: account
             }).then((response) => {
-                callApiWithToken(response.accessToken, protectedResources.apiHello.endpoint)
-                    .then(response => setHelloData(response));
+                callApiWithToken(response.accessToken, protectedResources.functionApi.endpoint)
+                    .then(response => setFunctionData(response));
             }).catch((error) => {
                 // in case if silent token acquisition fails, fallback to an interactive method
                 if (error instanceof InteractionRequiredAuthError) {
                     if (account && inProgress === "none") {
                         instance.acquireTokenPopup({
-                            scopes: protectedResources.apiHello.scopes,
+                            scopes: protectedResources.functionApi.scopes,
                         }).then((response) => {
-                            callApiWithToken(response.accessToken, protectedResources.apiHello.endpoint)
-                                .then(response => setHelloData(response));
+                            callApiWithToken(response.accessToken, protectedResources.functionApi.endpoint)
+                                .then(response => setFunctionData(response));
                         }).catch(error => console.log(error));
                     }
                 }
@@ -43,12 +43,12 @@ const HelloContent = () => {
   
     return (
         <>
-            { helloData ? <HelloData helloData={helloData} /> : null }
+            { functionData ? <FunctionData functionData={functionData} /> : null }
         </>
     );
 };
 
-export const Hello = () => {
+export const Function = () => {
     const authRequest = {
         ...loginRequest
     };
@@ -58,7 +58,7 @@ export const Hello = () => {
             interactionType={InteractionType.Redirect} 
             authenticationRequest={authRequest}
         >
-            <HelloContent />
+            <FunctionContent />
         </MsalAuthenticationTemplate>
       )
 };

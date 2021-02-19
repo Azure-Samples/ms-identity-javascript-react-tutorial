@@ -1,7 +1,7 @@
 {
     "credentials": {
-        "tenantID": "Enter_the_Tenant_Info_Here",
-        "clientID": "Enter_the_Application_Id_Here"
+        "tenantID": "cbaf2168-de14-4c72-9d88-f5f05366dbef",
+        "clientID": "ea8b0e7f-b606-4147-9afb-dba1865392e9"
     },
     "metadata": {
         "authority": "login.microsoftonline.com",
@@ -14,8 +14,8 @@
         "loggingLevel": "info"
     },
     "protectedRoutes": {
-        "hello": {
-            "endpoint": "/hello",
+        "api": {
+            "endpoint": "/api",
             "scopes": ["access_as_user"]
         }
     }

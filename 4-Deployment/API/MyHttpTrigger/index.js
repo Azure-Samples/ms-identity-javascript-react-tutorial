@@ -14,7 +14,7 @@ const options = {
     validateIssuer: config.settings.validateIssuer,
     passReqToCallback: config.settings.passReqToCallback,
     loggingLevel: config.settings.loggingLevel,
-    scope: config.protectedRoutes.hello.scopes
+    scope: config.protectedRoutes.api.scopes
 };
 
 const bearerStrategy = new BearerStrategy(options, (token, done) => {

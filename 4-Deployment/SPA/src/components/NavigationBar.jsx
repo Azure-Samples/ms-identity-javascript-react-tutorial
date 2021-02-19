@@ -23,7 +23,7 @@ export const NavigationBar = () => {
                 <a className="navbar-brand" href="/">Microsoft identity platform</a>
                 <AuthenticatedTemplate>
                     <Nav.Link as={Button} href="/profile">Profile</Nav.Link>
-                    <Nav.Link as={Button} href="/hello">HelloAPI</Nav.Link>
+                    <Nav.Link as={Button} href="/function">FunctionAPI</Nav.Link>
                     <Button variant="warning" onClick={() => instance.logout()} className="ml-auto">Sign Out</Button>
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
