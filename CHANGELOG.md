@@ -1,13 +1,5 @@
-## [project-title] Changelog
+# CHANGELOG
 
-<a name="x.y.z"></a>
-# x.y.z (yyyy-mm-dd)
+## 19/02/2021
 
-*Features*
-* ...
-
-*Bug Fixes*
-* ...
-
-*Breaking Changes*
-* ...
+* Initial sample

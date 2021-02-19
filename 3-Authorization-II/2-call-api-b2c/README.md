@@ -15,11 +15,13 @@
 
 ## Overview
 
-This sample demonstrates a React SPA calling a Node.js web API that is secured using Azure AD B2C.
+This sample demonstrates a React single-page application (SPA) calling a protected Node.js web API using the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+
+Here you'll learn how to [register a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-app-registration), [accept authorized calls](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-verification-scope-app-roles) and [validate access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens).
 
 ## Scenario
 
-1. The client React SPA uses the Microsoft Authentication Library (MSAL) to sign-in and obtain a JWT access token from **Azure AD B2C**.
+1. The client React SPA uses **MSAL React** to sign-in and obtain a JWT access token from **Azure AD B2C**.
 1. The access token is used as a bearer token to authorize the user to call the Node.js web API protected **Azure AD B2C**.
 1. The protected web API responds with the claims in the **Access Token**.
 
@@ -37,10 +39,6 @@ This sample demonstrates a React SPA calling a Node.js web API that is secured u
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/download/) must be installed to run this sample.
-- A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
-- [Visual Studio Code](https://code.visualstudio.com/download) is recommended for running and editing this sample.
-- [VS Code Azure Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with Azure through VS Code Interface.
 - An **Azure AD B2C** tenant. For more information see: [How to get an Azure AD B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant)
 - A user account in your **Azure AD B2C** tenant.
 
@@ -60,13 +58,20 @@ or download and extract the repository .zip file.
 
 ### Step 2: Install project dependencies
 
+- Setup the service app:
+
 ```console
-    cd ms-identity-react-c3s2-spa
+    cd ms-identity-javascript-react-tutorial
+    cd 3-Authorization-II/2-call-api-b2c
+    cd API
     npm install
 ```
 
+- Setup the client app:
+
 ```console
-    cd ms-identity-react-c3s2-api
+    cd ..
+    cd SPA
     npm install
 ```
 
@@ -89,12 +94,12 @@ Please refer to: [Tutorial: Create user flows in Azure Active Directory B2C](htt
 
 Please refer to: [Tutorial: Add identity providers to your applications in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
 
-### Register the service app (ms-identity-react-c3s2-api)
+### Register the service app (msal-react-api)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ms-identity-react-c3s2-api`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-api`.
    - Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
@@ -106,27 +111,27 @@ The first thing that we need to do is to declare the unique [resource](https://d
 1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code) for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
         - For **Scope name**, use `access_as_user`.
-        - For **Admin consent display name** type `Access ms-identity-react-c3s2-api`.
-        - For **Admin consent description** type `Allows the app to access ms-identity-react-c3s2-api as the signed-in user.`
+        - For **Admin consent display name** type `Access msal-react-api`.
+        - For **Admin consent description** type `Allows the app to access msal-react-api as the signed-in user.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
 
-#### Configure the service app (ms-identity-react-c3s2-api) to use your app registration
+#### Configure the service app (msal-react-api) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\config.json` file.
-1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `ms-identity-react-c3s2-api` app copied from the Azure portal.
+1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `msal-react-api` app copied from the Azure portal.
 1. Find the key `tenantID` and replace the existing value with your Azure AD tenant ID.
 
-### Register the spa app (ms-identity-react-c3s2-spa)
+### Register the spa app (msal-react-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ms-identity-react-c3s2-spa`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
    - Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**.
    - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
 1. Select **Register** to create the application.
@@ -140,18 +145,18 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
        - Select the **Add permissions** button at the bottom.
    - Select the **Add a permission** button and then:
        - Ensure that the **My APIs** tab is selected.
-       - In the list of APIs, select the API `ms-identity-react-c3s2-api`.
-       - In the **Delegated permissions** section, select the **Access 'ms-identity-react-c3s2-api'** in the list. Use the search box if necessary.
+       - In the list of APIs, select the API `msal-react-api`.
+       - In the **Delegated permissions** section, select the **Access 'msal-react-api'** in the list. Use the search box if necessary.
        - Select the **Add permissions** button at the bottom.
 
-#### Configure the spa app (ms-identity-react-c3s2-spa) to use your app registration
+#### Configure the spa app (msal-react-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ms-identity-react-c3s2-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with Scope.
 
@@ -159,13 +164,17 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 ## Running the sample
 
+- Run the service app:
+
 ```console
-    cd ms-identity-react-c3s2-spa
+    cd 3-Authorization-II/2-call-api-b2c/API
     npm start
 ```
 
+- In a separate terminal, run the client app:
+
 ```console
-    cd ms-identity-react-c3s2-api
+    cd 3-Authorization-II/2-call-api-b2c/SPA
     npm start
 ```
 

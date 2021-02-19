@@ -15,7 +15,9 @@
 
 ## Overview
 
-This sample demonstrates a React SPA calling a Node.js Web API that is secured using Azure AD.
+This sample demonstrates a React single-page application (SPA) calling a protected Node.js web API using the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+
+Here you'll learn how to [register a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-app-registration), [accept authorized calls](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-verification-scope-app-roles) and [validate access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens).
 
 ## Scenario
 
@@ -56,15 +58,20 @@ or download and extract the repository .zip file.
 
 ### Step 2: Install project dependencies
 
+- Setup the service app:
+
 ```console
     cd ms-identity-javascript-react-tutorial
-    cd 3-Authorization-II/1-call-api/SPA
+    cd 3-Authorization-II/1-call-api
+    cd API
     npm install
 ```
 
+- Setup the client app:
+
 ```console
     cd ..
-    cd API
+    cd SPA
     npm install
 ```
 
@@ -178,18 +185,22 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Redirect_Uri_Here` and replace the existing value with the Redirect URI for `msal-react-spa`. (by default `http://localhost:3000/`).
-1. Find the key `Enter_the_Web_Api_Uri_Here` and replace the existing value with the base address of `msal-react-api` (by default `http://localhost:5000/api`).
+1. Find the key `Enter_the_Web_Api_Uri_Here` and replace the existing value with the base address of `msal-react-api` (by default `http://localhost:5000/hello`).
 1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://****-****-********-********/access_as_user`
 
 ## Running the sample
 
-```console
-    cd 3-Authorization-II/1-call-api/SPA
-    npm start
-```
+- Run the service app:
 
 ```console
     cd 3-Authorization-II/1-call-api/API
+    npm start
+```
+
+- In a separate terminal, run the client app:
+
+```console
+    cd 3-Authorization-II/1-call-api/SPA
     npm start
 ```
 

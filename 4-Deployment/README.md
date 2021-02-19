@@ -14,7 +14,7 @@
 
 ## Overview
 
-This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js web API to **Azure Cloud** using [Azure Static Web Apps (Preview)](https://docs.microsoft.com/azure/static-web-apps/overview) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively. To do so, we will use the [same code sample from Chapter 3](../3-Authorization-II/1-call-api).
+This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively. To do so, we will use the [same code sample from Chapter 3](../3-Authorization-II/1-call-api).
 
 ## Scenario
 
@@ -26,10 +26,10 @@ This sample demonstrates how to deploy a React single-page application (SPA) cou
 
 ## Prerequisites
 
-- [VS Code Azure Static Web Apps Extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps)
+- [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with **Azure** through VS Code interface.
 - An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://azure.microsoft.com/documentation/articles/active-directory-howto-tenant/)
 - A user account in your **Azure AD** tenant.
-- An **Azure subscription**. This sample uses **Azure Static Web Apps** and **Azure App Service**.
+- An **Azure subscription**. This sample uses **Azure Storage** and **Azure App Service**.
 
 ## Setup
 
@@ -104,7 +104,9 @@ Now you need to navigate to the **Azure App Service** Portal, and locate your pr
 
 ### Deploy the client app (React SPA)
 
-There are various ways to deploy your applications to **Azure Storage**. Here we provide steps for deployment via [VS Code Azure Static Web Apps Extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps). For more alternatives, visit: [Create a static web app](https://docs.microsoft.com/azure/static-web-apps/getting-started).
+There are various ways to deploy your applications to **Azure Storage**. Here we provide steps for deployment via **VS Code Azure Tools Extension**. For more alternatives, visit: [Static website hosting in Azure Storage](https://docs.microsoft.com/azure/storage/blobs/storage-blob-static-website#uploading-content).
+
+> We recommend watching the [video tutorial](https://docs.microsoft.com/azure/developer/javascript/tutorial-vscode-static-website-node-01) offered by Microsoft Docs for preparation.
 
 #### Step 1: Deploy the app
 
@@ -144,11 +146,7 @@ Now you need to update your authentication configuration files in the client pro
 
 Open `authConfig.js`. Then:
 
-1. Find the key `redirectUri` and replace the existing value with your static webpage's URI that you have just registered e.g. `https://reactspa1.z22.web.core.windows.net/`
-
-Open `apiConfig.js`. Then:
-
-1. Find the key `uri` and replace the existing value with your published web API's endpoint, e.g. `https://node-webapi-1.azurewebsites.net/api`
+1. Find the key `protectedResources.apiHello.endpoint` and replace the existing value with your published web API's endpoint, e.g. `https://node-webapi-1.azurewebsites.net/hello`
 
 ## Explore the sample
 

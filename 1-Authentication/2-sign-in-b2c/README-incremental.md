@@ -245,7 +245,7 @@ When a user selects the **Edit Profile** button on the navigation bar, we simply
 
 ## Next Tutorial
 
-Continue with the next tutorial: [Protect and call a web API](../../3-Authorization-II/1-call-api-b2c/README-incremental.md).
+Continue with the next tutorial: [Protect and call a web API](../../3-Authorization-II/2-call-api-b2c/README-incremental.md).
 
 ## More information
 
