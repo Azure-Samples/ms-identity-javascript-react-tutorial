@@ -20,7 +20,8 @@ This sample demonstrates a React SPA calling a Node.js Web API that is secured u
 ## Scenario
 
 1. The client React SPA uses **MSAL React** to sign-in and obtain a JWT access token from **Azure AD**.
-2. The access token is used as a bearer token to authorize the user to call the Node.js web API protected by **Azure AD**.
+1. The access token is used as a bearer token to authorize the user to call the Node.js web API protected by **Azure AD**.
+1. The protected web API responds with the claims in the **Access Token**.
 
 ![Overview](./ReadmeFiles/topology.png)
 

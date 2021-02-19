@@ -1,29 +1,3 @@
----
-page_type: sample
-languages:
-  - csharp
-  - javascript
-  - typescript
-  - python
-  - java
-products:
-  - node.js
-  - dotnet
-  - aspnet
-  - aspnet-core
-  - dotnet-core
-  - ms-graph
-  - azure-app-service
-  - azure-storage
-  - azure-active-directory  
-  - azure-active-directory-b2c
-name: A React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C
-urlFragment: ms-identity-javascript-react-tutorial
-description: "This sample demonstrates a React SPA calling a Node.js web API that is secured using Azure AD B2C"
-azureDeploy: <ENTER_FULLY_QUALIFIED_URL_TO_AN_AZURE_RESOURCE_MANAGER>
-extendedZipContent: <FILES_OR_FOLDERS_WITH_TWO_ABSOLUTE_PATHS_TO_INCLUDE_WITH_ZIP:PATH(NAME_IN_THE_REPO), TARGET(NAME_IN_THE_ZIP)>
-extensions: <ENTER_CONTENT_THAT_OTHER_TEAMS_CAN_USE_TO_IDENTIFY_SAMPLES>
----
 # A React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C
 
  1. [Overview](#overview)
@@ -46,7 +20,8 @@ This sample demonstrates a React SPA calling a Node.js web API that is secured u
 ## Scenario
 
 1. The client React SPA uses the Microsoft Authentication Library (MSAL) to sign-in and obtain a JWT access token from **Azure AD B2C**.
-2. The access token is used as a bearer token to authorize the user to call the Node.js web API protected **Azure AD B2C**.
+1. The access token is used as a bearer token to authorize the user to call the Node.js web API protected **Azure AD B2C**.
+1. The protected web API responds with the claims in the **Access Token**.
 
 ![Overview](./ReadmeFiles/topology.png)
 
