@@ -15,9 +15,9 @@
 
 ## Overview
 
-This sample demonstrates a React single-page application (SPA) calling [Microsoft Graph](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+In the [previous chapter](../../1-Authentication\1-sign-in\README-incremental.md), you learnt how a React single-page application (SPA) authenticating users against [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD), using the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
-Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-sign-in), [acquire a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token) and [call a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as [Dynamic Scopes and Incremental Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent), **working with multiple resources** and **securing your routes** and more.
+In this chapter we'd extend our React single-page application (SPA) by making it also call  [Microsoft Graph](https://docs.microsoft.com/graph/overview) 
 
 ## Scenario
 
@@ -38,7 +38,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 ## Prerequisites
 
-- An Azure subscription (if you would like to call the [Azure Resource Management API](https://docs.microsoft.com/azure/azure-resource-manager/management/overview))
+- An Azure subscription (if you would like to call the [Azure Resource Management API](https://docs.microsoft.com/azure/azure-resource-manager/management/overview)) as well.
 
 ## Setup
 
@@ -50,36 +50,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 ## Registration
 
-There is one project in this sample. To register it, you can:
-
-- follow the steps below for manually register your apps
-- or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  - modify the projects' configuration files.
-
-<details>
-  <summary>Expand this section if you want to use this automation:</summary>
-
-> :warning: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-
-1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-1. If you have never used Azure AD Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-1. In PowerShell run:
-
-   ```PowerShell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-   ```
-
-1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-1. In PowerShell run:
-
-   ```PowerShell
-   cd .\AppCreationScripts\
-   .\Configure.ps1
-   ```
-
-   > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
-   > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
+We'd make the following changes to our app registration
 
 </details>
 
@@ -93,7 +64,7 @@ There is one project in this sample. To register it, you can:
    - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
    - In the **Delegated permissions** section, select the **User.Read** and **Mail.Read** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
-1. Still in the **API permissions** blade,
+1. If you wish to call the Azure Service Management API, then still in the **API permissions** blade,
    - Select the **Add a permission** button and then,
    - Ensure that the **Microsoft APIs** tab is selected.
    - In the *Commonly used Microsoft APIs* section, select **Azure Service Management**
@@ -102,13 +73,7 @@ There is one project in this sample. To register it, you can:
 
 #### Configure the app (msal-react-spa) to use your app registration
 
-Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
-
-> In the steps below, "ClientID" is the same as "Application ID" or "AppId".
-
-1. Open the `App\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
+No changes are required in the configuration files.
 
 ## Running the sample
 
@@ -123,7 +88,7 @@ Locate the folder where `package.json` resides in your terminal. Then:
 1. Open your browser and navigate to `http://localhost:3000`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
 1. Select the **Profile** button on the navigation bar. This will make a call to the Graph API.
-1. Select the **Mails** button on the navigation bar. This will make a call to the Graph API.
+1. Select the **Mails** button on the navigation bar. This will make a call to the Graph API. You need to have an Office subscription for this call to work.
 1. Select the **Tenant** button on the navigation bar. This will make a call to Azure Resource Management (ARM) API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
