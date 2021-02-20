@@ -18,7 +18,7 @@ const ProfileContent = () => {
     const [graphData, setGraphData] = useState(null);
 
     useEffect(() => {
-        if (account && inProgress === "none") {
+        if (account && inProgress === "none" && !graphData) {
             instance.acquireTokenSilent({
                 scopes: protectedResources.graphMe.scopes,
                 account: account
@@ -33,7 +33,7 @@ const ProfileContent = () => {
                             scopes: protectedResources.graphMe.scopes,
                         }).then((response) => {
                             callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
-                                .then(response => setMailsData(response));
+                                .then(response => setGraphData(response));
                         }).catch(error => console.log(error));
                     }
                 }
