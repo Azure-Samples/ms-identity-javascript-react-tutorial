@@ -5,13 +5,12 @@ languages:
 products:
 - msal-react
 - ms-graph
-- azure-storage
 - azure-key-vault
 - azure-functions
-- azure-app-service
+- azure-resource-manager
+- azure-app-service-static
 - azure-active-directory
 - azure-active-directory-b2c
-- microsoft-identity-platform
 description: "Tutorial: Enable your React single-page application to sign-in users, call the Graph API and deploy on Azure"
 urlFragment: "ms-identity-javascript-react-tutorial"
 ---
@@ -24,13 +23,12 @@ We recommend following the chapters in successive order. However, the code sampl
 
 > :warning: This is a *work in progress*. Come back frequently to discover more samples.
 
-> :information_source: Samples in this tutorial use functional React components. If you want to use MSAL React with class-based React components, see: [A React & Redux single-page application](https://github.com/Azure-Samples/ms-identity-javascript-react-spa-dotnetcore-webapi-obo)
+> :information_source: Samples in this tutorial use functional React components. If you want to use MSAL React with class-based React components, see: [Docs: Class Components](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/class-components.md)
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/en/download/)
 - [Visual Studio Code](https://code.visualstudio.com/download)
-- [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack)
 - A modern web browser (to use popup experience during sign-in and token acquisition, your browser should allow popups)
 
 Please refer to each sample's README for sample-specific prerequisites.
@@ -70,11 +68,11 @@ Alternatively, choose below the sample you want to review.
 | <img src="./3-Authorization-II/1-call-api/ReadmeFiles/topology.png" width="200"> | [**Protect and call a web API on Azure AD**](./3-Authorization-II/1-call-api/README.md) </br> Protect your web API with the **Azure AD**. Use a client application to sign-in a user, acquire an **Access Token** for your web API and call your protected web API. |
 | <img src="./3-Authorization-II/2-call-api-b2c/ReadmeFiles/topology.png" width="200"> | [**Protect and call a web API on Azure AD B2C**](./3-Authorization-II/2-call-api-b2c/README.md) </br> Protect your web API with **Azure AD B2C**. Use a client application to sign-in a user, acquire an **Access Token** for your web API and call your protected web API. |
 
-### Chapter 4: Deploy your applications to Azure
+### Chapter 4: Deploy your application to Azure
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./4-Deployment/ReadmeFiles/topology.png" width="200"> | [**Deploy to Azure Storage and App Service**](./4-Deployment/README.md) </br> Prepare your app for deployment to various **Azure** services. Learn how to package and upload files, configure authentication parameters and use **Azure** services for managing your operations. |
+| <img src="./4-Deployment/ReadmeFiles/topology.png" width="200"> | [**Deploy to Azure Static Web Apps**](./4-Deployment/README.md) </br> Prepare your app for deployment to Azure Static Web Apps. Learn how to package and upload files, configure authentication parameters and use **Azure** services for managing your operations. |
 
 ## We'd love your feedback!
 
