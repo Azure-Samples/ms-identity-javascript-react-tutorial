@@ -234,29 +234,14 @@ Function ConfigureApplications
 
    $requiredResourcesAccess.Add($requiredPermissions)
 
-   # Add Required Resources Access (from 'spa' to 'spa')
-   Write-Host "Getting access from 'spa' to 'spa'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-react-static" `
-                                                -requiredDelegatedPermissions "access_as_user" `
-
-   $requiredResourcesAccess.Add($requiredPermissions)
-
 
    Set-AzureADApplication -ObjectId $spaAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
    Write-Host "Granted permissions."
 
-   # Configure known client applications for spa 
-   Write-Host "Configure known client applications for the 'spa'"
-   $knowApplications = New-Object System.Collections.Generic.List[System.String]
-    $knowApplications.Add($spaAadApplication.AppId)
-   Set-AzureADApplication -ObjectId $spaAadApplication.ObjectId -KnownClientApplications $knowApplications
-   Write-Host "Configured."
-
-
    # Update config file for 'spa'
    $configFile = $pwd.Path + "\..\App\src\authConfig.js"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_Here" = ("api://"+$spaAadApplication.AppId+"/access_as_user") };
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
 
    # Update config file for 'spa'
@@ -269,7 +254,9 @@ Function ConfigureApplications
    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
    Write-Host "- For 'spa'"
    Write-Host "  - Navigate to '$spaPortalUrl'"
-   Write-Host "  - Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'" -ForegroundColor Red 
+   Write-Host "  - Navigate to the 'Expose an API' page and set an APP ID URI. Then, add a scope named 'access_as_user'. Copy the full APP ID URI with scope to 'authConfig.js' in APP/src" -ForegroundColor Red 
+   Write-Host "  - Navigate to the Manifest page and change 'accessTokenAcceptedVersion' to 2." -ForegroundColor Red 
+   Write-Host "  - Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of reply URI to 'Spa'" -ForegroundColor Red 
 
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
      

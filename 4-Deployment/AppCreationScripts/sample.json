@@ -21,17 +21,17 @@
                     "DelegatedPermissions": [
                         "User.Read"
                     ]
-                },
-                {
-                    "Resource": "spa",
-                    "DelegatedPermissions": [
-                        "access_as_user"
-                    ]
                 }
             ],
             "ManualSteps": [
                 {
-                    "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
+                    "Comment": "Navigate to the 'Expose an API' page and set an APP ID URI. Then, add a scope named 'access_as_user'. Copy the full APP ID URI with scope to 'authConfig.js' in APP/src"
+                },
+                {
+                    "Comment": "Navigate to the Manifest page and change 'accessTokenAcceptedVersion' to 2."
+                },
+                {
+                    "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of reply URI to 'Spa'"
                 }
             ]
         }
@@ -49,10 +49,6 @@
                 {
                     "key": "Enter_the_Tenant_Info_Here",
                     "value": "$tenantId"
-                },
-                {
-                    "key": "Enter_the_Web_Api_Scope_Here",
-                    "value": "spa.Scope"
                 }
             ]
         },

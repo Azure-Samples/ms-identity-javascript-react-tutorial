@@ -232,55 +232,6 @@ Function ConfigureApplications
     # Get the user running the script to add the user as the app owner
     $user = Get-AzureADUser -ObjectId $creds.Account.Id
 
-   # Create the spa AAD application
-   Write-Host "Creating the AAD application (ms-identity-react-c3s1-spa)"
-   # create the application 
-   $spaAadApplication = New-AzureADApplication -DisplayName "ms-identity-react-c3s1-spa" `
-                                               -HomePage "http://localhost:3000/" `
-                                               -ReplyUrls "http://localhost:3000/" `
-                                               -IdentifierUris "https://$tenantName/ms-identity-react-c3s1-spa" `
-                                               -PublicClient $False
-
-   # create the service principal of the newly created application 
-   $currentAppId = $spaAadApplication.AppId
-   $spaServicePrincipal = New-AzureADServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
-
-   # add the user running the script as an app owner if needed
-   $owner = Get-AzureADApplicationOwner -ObjectId $spaAadApplication.ObjectId
-   if ($owner -eq $null)
-   { 
-        Add-AzureADApplicationOwner -ObjectId $spaAadApplication.ObjectId -RefObjectId $user.ObjectId
-        Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($spaServicePrincipal.DisplayName)'"
-   }
-
-
-   Write-Host "Done creating the spa application (ms-identity-react-c3s1-spa)"
-
-   # URL of the AAD application in the Azure portal
-   # Future? $spaPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
-   $spaPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>ms-identity-react-c3s1-spa</a></td></tr>" -Path createdApps.html
-
-   $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
-
-   # Add Required Resources Access (from 'spa' to 'Microsoft Graph')
-   Write-Host "Getting access from 'spa' to 'Microsoft Graph'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
-                                                -requiredDelegatedPermissions "User.Read" `
-
-   $requiredResourcesAccess.Add($requiredPermissions)
-
-   # Add Required Resources Access (from 'spa' to 'service')
-   Write-Host "Getting access from 'spa' to 'service'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "ms-identity-react-c3s1-api" `
-                                                -requiredDelegatedPermissions "access_as_user" `
-
-   $requiredResourcesAccess.Add($requiredPermissions)
-
-
-   Set-AzureADApplication -ObjectId $spaAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
-   Write-Host "Granted permissions."
-
    # Create the service AAD application
    Write-Host "Creating the AAD application (ms-identity-react-c3s1-api)"
    # create the application 
@@ -341,6 +292,55 @@ Function ConfigureApplications
    Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>ms-identity-react-c3s1-api</a></td></tr>" -Path createdApps.html
 
 
+   # Create the spa AAD application
+   Write-Host "Creating the AAD application (ms-identity-react-c3s1-spa)"
+   # create the application 
+   $spaAadApplication = New-AzureADApplication -DisplayName "ms-identity-react-c3s1-spa" `
+                                               -HomePage "http://localhost:3000/" `
+                                               -ReplyUrls "http://localhost:3000/" `
+                                               -IdentifierUris "https://$tenantName/ms-identity-react-c3s1-spa" `
+                                               -PublicClient $False
+
+   # create the service principal of the newly created application 
+   $currentAppId = $spaAadApplication.AppId
+   $spaServicePrincipal = New-AzureADServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
+
+   # add the user running the script as an app owner if needed
+   $owner = Get-AzureADApplicationOwner -ObjectId $spaAadApplication.ObjectId
+   if ($owner -eq $null)
+   { 
+        Add-AzureADApplicationOwner -ObjectId $spaAadApplication.ObjectId -RefObjectId $user.ObjectId
+        Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($spaServicePrincipal.DisplayName)'"
+   }
+
+
+   Write-Host "Done creating the spa application (ms-identity-react-c3s1-spa)"
+
+   # URL of the AAD application in the Azure portal
+   # Future? $spaPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
+   $spaPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
+   Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>ms-identity-react-c3s1-spa</a></td></tr>" -Path createdApps.html
+
+   $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
+
+   # Add Required Resources Access (from 'spa' to 'Microsoft Graph')
+   Write-Host "Getting access from 'spa' to 'Microsoft Graph'"
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+                                                -requiredDelegatedPermissions "User.Read" `
+
+   $requiredResourcesAccess.Add($requiredPermissions)
+
+   # Add Required Resources Access (from 'spa' to 'service')
+   Write-Host "Getting access from 'spa' to 'service'"
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "ms-identity-react-c3s1-api" `
+                                                -requiredDelegatedPermissions "access_as_user" `
+
+   $requiredResourcesAccess.Add($requiredPermissions)
+
+
+   Set-AzureADApplication -ObjectId $spaAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
+   Write-Host "Granted permissions."
+
    # Update config file for 'spa'
    $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
    Write-Host "Updating the sample code ($configFile)"
@@ -355,12 +355,12 @@ Function ConfigureApplications
    Write-Host ""
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
-   Write-Host "- For 'spa'"
-   Write-Host "  - Navigate to '$spaPortalUrl'"
-   Write-Host "  - Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'" -ForegroundColor Red 
    Write-Host "- For 'service'"
    Write-Host "  - Navigate to '$servicePortalUrl'"
    Write-Host "  - Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'" -ForegroundColor Red 
+   Write-Host "- For 'spa'"
+   Write-Host "  - Navigate to '$spaPortalUrl'"
+   Write-Host "  - Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'" -ForegroundColor Red 
 
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
      

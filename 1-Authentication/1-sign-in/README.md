@@ -225,7 +225,7 @@ This sample is meant to work with accounts in your organization (aka *single-ten
 const msalConfig = {
     auth: {
       clientId: "<YOUR_CLIENT_ID>",
-      authority: "https://login.microsoftonline.com/consumers", // allows sign-ins with personal Microsoft accounts.
+      authority: "https://login.microsoftonline.com/common", // allows sign-ins with any type of account.
       redirectUri: "<YOUR_REDIRECT_URI>",
     },
 ```

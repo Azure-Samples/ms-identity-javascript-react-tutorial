@@ -9,6 +9,18 @@
   },
   "AADApps": [
     {
+      "Id": "service",
+      "Name": "ms-identity-react-c3s1-api",
+      "Kind": "WebApi",
+      "HomePage": "http://localhost:5000/api",
+      "Audience": "AzureADMyOrg",
+      "ManualSteps": [
+        {
+          "Comment": "Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'"
+        }
+      ]
+    },
+    {
       "Id": "spa",
       "Name": "ms-identity-react-c3s1-spa",
       "Kind": "SinglePageApplication",
@@ -28,18 +40,6 @@
       "ManualSteps": [
         {
           "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
-        }
-      ]
-    },
-    {
-      "Id": "service",
-      "Name": "ms-identity-react-c3s1-api",
-      "Kind": "WebApi",
-      "HomePage": "http://localhost:5000/api",
-      "Audience": "AzureADMyOrg",
-      "ManualSteps": [
-        {
-          "Comment": "Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'"
         }
       ]
     }

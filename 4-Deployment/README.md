@@ -22,7 +22,7 @@ This sample demonstrates how to deploy a React single-page application (SPA) cou
 1. The **Access Token** is sent over to Function API using a **POST** request.
 1. The Function API responds validates the **Access Token** and responds with the claims in it.
 
-![Overview]()
+![Overview](./ReadmeFiles/topology.png)
 
 ## Prerequisites
 
