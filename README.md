@@ -15,7 +15,7 @@ description: "Tutorial: Enable your React single-page application to sign-in use
 urlFragment: "ms-identity-javascript-react-tutorial"
 ---
 
-# Tutorial: Enable your React single-page application to sign-in users, call the Graph API and deploy on Azure
+# Tutorial: Enable your React single-page application to sign-in users and call APIs with the Microsoft identity platform
 
 The [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-overview), along with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) and [Azure Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview) (Azure AD B2C) are central to the **Azure** cloud ecosystem. This tutorial aims to take you through the fundamentals of modern authentication with React, using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
@@ -37,6 +37,7 @@ Please refer to each sample's README for sample-specific prerequisites.
 
 - [jwt.ms](https://jwt.ms) for inspecting your tokens
 - [Fiddler](https://www.telerik.com/fiddler) for monitoring your network activity and troubleshooting
+- [MSAL React]
 - Follow the [Azure AD Blog](https://techcommunity.microsoft.com/t5/azure-active-directory-identity/bg-p/Identity) to stay up-to-date with the latest developments
 
 Please refer to each sample's README for sample-specific recommendations.
@@ -72,7 +73,7 @@ Alternatively, choose below the sample you want to review.
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./4-Deployment/ReadmeFiles/topology.png" width="200"> | [**Deploy to Azure Static Web Apps**](./4-Deployment/README.md) </br> Prepare your app for deployment to Azure Static Web Apps. Learn how to package and upload files, configure authentication parameters and use **Azure** services for managing your operations. |
+| <img src="./4-Deployment/ReadmeFiles/topology.png" width="200"> | [**Deploy to Azure Static Web Apps**](./4-Deployment/README.md) </br> Prepare your app for deployment to Azure Static Web Apps. Learn how to protect and call an **Azure Function** API. Learn how to configure authentication parameters and use **Azure** services for managing your operations. |
 
 ## We'd love your feedback!
 

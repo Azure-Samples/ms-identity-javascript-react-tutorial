@@ -16,6 +16,8 @@
 
 This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js [Azure Function](https://docs.microsoft.com/azure/azure-functions/) API to **Azure Cloud** using the [Azure Static Web Apps (Preview)](https://docs.microsoft.com/azure/static-web-apps/) service.
 
+> :information_source: If you would like to deploy your project to Azure Storage and/or Azure App Service, see: [Deploy your JavaScript applications to Azure](https://github.com/Azure-Samples/ms-identity-javascript-tutorial/tree/main/5-Deployment).
+
 ## Scenario
 
 1. The client application uses **MSAL React** to sign-in a user and obtain a JWT **Access Token** from **Azure AD**.
@@ -142,7 +144,7 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 #### Part 1: Deploy the app
 
 1. Locate the project in [4-Deployment/App](./App). Then, [create a GitHub repository](https://docs.github.com/en/github/getting-started-with-github/create-a-repo) and [commit the project there](https://docs.github.com/en/github/importing-your-projects-to-github/adding-an-existing-project-to-github-using-the-command-line).
-2. Open the project in **VS Code**, select the **Azure** icon on the left hand side. Sign-in if you haven't already.
+2. Open the project in **VS Code**, select the **Azure** icon on the left hand side. Sign-in if you haven't already done so.
 
 ![Icon](./ReadmeFiles/azure_icon.png)
 
@@ -155,6 +157,7 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 ![Step3](./ReadmeFiles/step3.png)
 
 ![Step4](./ReadmeFiles/step4.png)
+> choose a region appropriate for you.
 
 ![Step5](./ReadmeFiles/step5.png)
 
