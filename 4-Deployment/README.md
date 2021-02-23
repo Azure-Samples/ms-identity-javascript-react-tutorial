@@ -121,7 +121,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `App/src/authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Redirect_Uri_Here` and replace the existing value with the Redirect URI for `msal-react-spa`. (by default `http://localhost:3000/`).
 1. Find the key `Enter_the_Web_Api_Uri_Here` and replace the existing value with the URI of your function API (by default `/api/hello`).
 1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with APP ID URI that you've registered earlier, e.g. `api://****-****-********-********/access_as_user`
 
@@ -131,6 +130,7 @@ There are basically **3** stages that you will have to go through in order to de
 
 1. Create a repository on GitHub and commit your project.
 1. Create a **Static Web App** via VS Code extensions.
+1. Add **environment variables** to your static web app.
 1. Update **Azure AD** **App Registration** with deployed website URI that you have just obtained.
 
 ### Deploy the app (msal-react-spa)
@@ -139,7 +139,7 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 
 > We recommend reading the [Quickstart: Building your first static site with Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/getting-started?tabs=vanilla-javascript) for gaining familiarity with the process outlined below.
 
-#### Step 1: Deploy the app
+#### Part 1: Deploy the app
 
 1. Locate the project in [4-Deployment/App](./App). Then, [create a GitHub repository](https://docs.github.com/en/github/getting-started-with-github/create-a-repo) and [commit the project there](https://docs.github.com/en/github/importing-your-projects-to-github/adding-an-existing-project-to-github-using-the-command-line).
 2. Open the project in **VS Code**, select the **Azure** icon on the left hand side. Sign-in if you haven't already.
@@ -149,10 +149,15 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 3. Follow the steps below to create a static web app. Note its URI once it's created.
 
 ![Step1](./ReadmeFiles/step1.png)
+
 ![Step2](./ReadmeFiles/step2.png)
+
 ![Step3](./ReadmeFiles/step3.png)
+
 ![Step4](./ReadmeFiles/step4.png)
+
 ![Step5](./ReadmeFiles/step5.png)
+
 ![Step6](./ReadmeFiles/step6.png)
 
 4. Once your static web app is created, Azure will add a [GitHub action](https://docs.github.com/en/actions/learn-github-actions) to your repository. After that, each new push to your repository will trigger a deployment cycle.
@@ -160,7 +165,7 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 ![Step7](./ReadmeFiles/step7.png)
 ![Step8](./ReadmeFiles/step8.png)
 
-#### Step 2: Update the app's registration
+#### Part 2: Update the app's registration
 
 1. Navigate back to the [Azure Portal](https://portal.azure.com).
 1. In the left-hand navigation pane, select the **Azure Active Directory** service, and then select **App registrations**.
@@ -168,7 +173,7 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 1. From the *Branding* menu, update the **Home page URL**, to the address of your service, for example [https://reactspa1.z22.web.core.windows.net/](https://reactspa1.z22.web.core.windows.net/). Save the configuration.
 1. Add the same URI in the list of values of the *Authentication -> Redirect URIs* menu. If you have multiple redirect URIs, make sure that there a new entry using the App service's URI for each redirect URI.
 
-#### Step 3: Add environment variables to your static web app
+#### Part 3: Add environment variables to your static web app
 
 1. Navigate back to the [Azure Portal](https://portal.azure.com).
 1. Find the application you've created previously under **Azure Static Web Apps** and select it.
