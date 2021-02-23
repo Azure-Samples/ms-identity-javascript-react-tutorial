@@ -13,7 +13,8 @@ const IdTokenContent = () => {
     /**
      * useMsal is hook that returns the PublicClientApplication instance, 
      * an array of all accounts currently signed in and an inProgress value 
-     * that tells you what msal is currently doing.
+     * that tells you what msal is currently doing. For more, visit:
+     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
     const { accounts } = useMsal();
     const [idTokenClaims, setIdTokenClaims] = useState(null);
@@ -48,6 +49,7 @@ const MainContent = () => {
      * When registering an event callback in a react component you will need to make sure you do 2 things.
      * 1) The callback is registered only once
      * 2) The callback is unregistered before the component unmounts.
+     * For more, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
      */
     useEffect(() => {
         const callbackId = instance.addEventCallback((event) => {
@@ -103,7 +105,8 @@ const MainContent = () => {
  * msal-react is built on the React context API and all parts of your app that require authentication must be 
  * wrapped in the MsalProvider component. You will first need to initialize an instance of PublicClientApplication 
  * then pass this to MsalProvider as a prop. All components underneath MsalProvider will have access to the 
- * PublicClientApplication instance via context as well as all hooks and components provided by msal-react
+ * PublicClientApplication instance via context as well as all hooks and components provided by msal-react. For more,
+ * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
 export default function App() {
     const msalInstance = new PublicClientApplication(msalConfig);

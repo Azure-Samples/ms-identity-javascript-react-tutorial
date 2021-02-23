@@ -160,7 +160,11 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with Scope.
 
-<!-- ENTER CONFIGURATION STEPS FOR B2C USER-FLOWS/CUSTOM POLICIES BELOW -->
+To setup your B2C user-flows, do the following:
+
+1. Find the key `names` and populate it with your policy names e.g. `signUpSignIn`.
+1. Find the key `authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
+1. Find the key `authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
 
 ## Running the sample
 

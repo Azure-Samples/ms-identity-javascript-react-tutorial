@@ -14,7 +14,7 @@ export const msalConfig = {
     auth: {
         clientId: "Enter_the_Application_Id_Here", // This is the ONLY mandatory field that you need to supply.
         authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here", // Defaults to "https://login.microsoftonline.com/common"
-        redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
+        redirectUri: "/", // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
     },

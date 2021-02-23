@@ -3,6 +3,12 @@
  * Licensed under the MIT License.
  */
 
+/**
+ * Makes a GET request using authorization header. For more, visit:
+ * https://tools.ietf.org/html/rfc6750
+ * @param {string} accessToken 
+ * @param {string} apiEndpoint 
+ */
 export const callApiWithToken = async(accessToken, apiEndpoint) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;

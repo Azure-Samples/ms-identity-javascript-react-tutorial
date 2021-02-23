@@ -40,7 +40,7 @@ export const msalConfig = {
         clientId: "2fdd06f3-7b34-49a3-a78b-0cf1dd87878e", // This is the ONLY mandatory field that you need to supply.
         authority: b2cPolicies.authorities.signUpSignIn.authority, // Use a sign-up/sign-in user-flow as a default authority
         knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
-        redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
+        redirectUri: "/", // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
     },
@@ -87,7 +87,6 @@ export const loginRequest = {
  * An optional silentRequest object can be used to achieve silent SSO
  * between applications by providing a "login_hint" property.
  */
-
 const silentRequest = {
   scopes: ["openid", "profile"],
   loginHint: "example@domain.net"

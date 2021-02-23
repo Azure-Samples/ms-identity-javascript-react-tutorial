@@ -17,6 +17,12 @@ import "./styles/App.css";
 
 const Pages = () => {
 
+  /**
+   * useMsal is hook that returns the PublicClientApplication instance, 
+   * an array of all accounts currently signed in and an inProgress value 
+   * that tells you what msal is currently doing. For more, visit:
+   * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
+   */
   const { instance } = useMsal();
 
   /**
@@ -24,6 +30,7 @@ const Pages = () => {
    * When registering an event callback in a react component you will need to make sure you do 2 things.
    * 1) The callback is registered only once
    * 2) The callback is unregistered before the component unmounts.
+   * For more, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
    */
   useEffect(() => {
     const callbackId = instance.addEventCallback((event) => {

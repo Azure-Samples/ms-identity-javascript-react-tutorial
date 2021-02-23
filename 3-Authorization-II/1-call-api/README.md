@@ -184,8 +184,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `SPA\src\authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Redirect_Uri_Here` and replace the existing value with the Redirect URI for `msal-react-spa`. (by default `http://localhost:3000/`).
-1. Find the key `Enter_the_Web_Api_Uri_Here` and replace the existing value with the base address of `msal-react-api` (by default `http://localhost:5000/hello`).
 1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://****-****-********-********/access_as_user`
 
 ## Running the sample
