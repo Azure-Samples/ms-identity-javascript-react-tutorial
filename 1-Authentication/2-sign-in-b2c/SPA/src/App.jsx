@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 
 import { MsalProvider, AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
-import { PublicClientApplication, EventType, InteractionType } from "@azure/msal-browser";
+import { EventType, InteractionType } from "@azure/msal-browser";
 
 import { msalConfig, b2cPolicies } from "./authConfig";
 import { PageLayout, IdTokenClaims } from "./ui.jsx";
@@ -108,8 +108,7 @@ const MainContent = () => {
  * PublicClientApplication instance via context as well as all hooks and components provided by msal-react. For more,
  * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
-export default function App() {
-    const msalInstance = new PublicClientApplication(msalConfig);
+export default function App({msalInstance}) {
 
     return (
         <MsalProvider instance={msalInstance}>
