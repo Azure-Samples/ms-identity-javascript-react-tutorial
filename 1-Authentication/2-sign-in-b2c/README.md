@@ -121,7 +121,7 @@ Locate the folder where `package.json` resides in your terminal. Then:
 ## Explore the sample
 
 1. Open your browser and navigate to `http://localhost:3000`.
-1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
+1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows (see: [MSAL.js interaction types](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/initialization.md#choosing-an-interaction-type)).
     1. During the sign-in screen, you may select **forgot my password**. This initiates the Azure AD B2C password reset user-flow.
 1. Select the **Edit Profile** button on the top right corner. This initiates the Azure AD B2C edit profile user-flow using a popup window (hint: alternatively, you may use redirect flow here instead).
 1. Select the **View ID Token Claims** button at the center. This will display some of the important claims in your ID token.

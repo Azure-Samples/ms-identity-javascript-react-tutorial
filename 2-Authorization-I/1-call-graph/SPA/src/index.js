@@ -10,11 +10,8 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles/index.css";
 
 /**
- * msal-react is built on the React context API and all parts of your app that require authentication must be 
- * wrapped in the MsalProvider component. You will first need to initialize an instance of PublicClientApplication 
- * then pass this to MsalProvider as a prop. All components underneath MsalProvider will have access to the 
- * PublicClientApplication instance via context as well as all hooks and components provided by msal-react. For more, visit:
- * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
+ * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders. 
+ * For more, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
 const msalInstance = new PublicClientApplication(msalConfig);
 

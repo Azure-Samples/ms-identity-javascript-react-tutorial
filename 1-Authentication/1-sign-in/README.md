@@ -138,7 +138,7 @@ Locate the folder where `package.json` resides in your terminal. Then:
 ## Explore the sample
 
 1. Open your browser and navigate to `http://localhost:3000`.
-1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
+1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows (see: [MSAL.js interaction types](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/initialization.md#choosing-an-interaction-type)).
 1. Select the **View ID Token Claims** button at the center. This will display some of the important claims in your ID token.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)

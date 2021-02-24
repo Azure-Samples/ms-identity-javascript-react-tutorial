@@ -14,7 +14,11 @@
 
 ## Overview
 
-This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively. To do so, we will use the [same code sample from Chapter 3](../3-Authorization-II/1-call-api).
+This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively.
+
+Azure Storage provides a low cost static website hosting alternative. However, these static websites do not have advanced routing capabilities. As such, [the React SPA in this tutorial](./SPA) does not have a router component.
+
+For React applications with routing support, yous can use [Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/) instead. See [Static Web App Deployment](../2-deploy-static/README.md) in the next section.
 
 ## Scenario
 
@@ -37,7 +41,7 @@ This sample demonstrates how to deploy a React single-page application (SPA) cou
 
 ```console
     cd ms-identity-javascript-react-tutorial
-    cd 3-Authorization-II/1-call-api
+    cd 4-Deployment/1-deploy-storage
     cd API
     npm install
 ```
