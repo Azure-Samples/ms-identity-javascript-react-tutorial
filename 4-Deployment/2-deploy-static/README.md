@@ -16,13 +16,15 @@
 
 This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js [Azure Function](https://docs.microsoft.com/azure/azure-functions/) API to **Azure Cloud** using the [Azure Static Web Apps (Preview)](https://docs.microsoft.com/azure/static-web-apps/) service.
 
-> :information_source: If you would like to deploy your project to Azure Storage and/or Azure App Service, see: [Deploy your JavaScript applications to Azure](https://github.com/Azure-Samples/ms-identity-javascript-tutorial/tree/main/5-Deployment).
+The Azure Function API calls Microsoft Graph using the [on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow) and returns the response back to React SPA.
 
 ## Scenario
 
 1. The client application uses **MSAL React** to sign-in a user and obtain a JWT **Access Token** from **Azure AD**.
 1. The **Access Token** is sent over to Function API using a **POST** request.
-1. The Function API responds validates the **Access Token** and responds with the claims in it.
+1. The Function API responds validates the **Access Token** and then obtains a new access token from Azure AD
+1. The Function API uses the new **Access Token** as a **bearer** token to the **Microsoft Graph API**.
+1. **The Microsoft Graph API** responds and the Function API propagates it back to the client application.
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -86,6 +88,12 @@ As a first step you'll need to:
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
+1. In the app's registration screen, select the **Certificates & secrets** blade in the left to open the page where we can generate secrets and upload certificates.
+1. In the **Client secrets** section, select **New client secret**:
+   - Type a key description (for instance `app secret`),
+   - Select one of the available key durations (**In 1 year**, **In 2 years**, or **Never Expires**) as per your security posture.
+   - The generated key value will be displayed when you select the **Add** button. Copy the generated value for use in the steps later.
+   - You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Azure portal before navigating to any other screen or blade.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
 The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
    - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
@@ -123,7 +131,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `App/src/authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Uri_Here` and replace the existing value with the URI of your function API (by default `/api/hello`).
 1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with APP ID URI that you've registered earlier, e.g. `api://****-****-********-********/access_as_user`
 
 ## Deployment
@@ -157,7 +164,7 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 ![Step3](./ReadmeFiles/step3.png)
 
 ![Step4](./ReadmeFiles/step4.png)
-> choose a region appropriate for you.
+> choose a region that is appropriate for you.
 
 ![Step5](./ReadmeFiles/step5.png)
 
@@ -183,6 +190,7 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 1. Select the **Configuration** blade on the left hand side. Add the following **environment variables** there:
     1. `CLIENT_ID`: enter the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
     1. `TENANT_ID`: enter your Azure AD tenant ID.
+    1. `CLIENT_SECRET`: enter your client secret that you've obtained during app registration.
     1. `EXPECTED_SCOPES`: enter the name of the scope in APP ID URI that you've registered earlier.
 
 ![Step9](./ReadmeFiles/step9.png)
@@ -208,7 +216,7 @@ This application is such and such. Registration is combined. Authentication hand
 
 ### Handling React routes
 
-routes.json in public folder
+Routing in **Azure Static Web Apps** defines back-end routing rules and authorization behavior for both static content and APIs. The rules are defined as an array of rules in the [routes.json](./APP/public/routes.json) file, located in the **public** folder. For more information, visit [Routes in Azure Static Web Apps Preview](https://docs.microsoft.com/azure/static-web-apps/routes)
 
 ```json
 {
@@ -241,7 +249,7 @@ routes.json in public folder
 
 ### Protecting Function API
 
-Also how to call it
+Also how to call it...
 
 ```javascript
 export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
@@ -261,7 +269,7 @@ export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
 
 ### Validating access tokens
 
-Token validation details
+Before authorizing a user to call the function API, the access token needs to be validated. A typical token validation can be implemented as follows:
 
 ```javascript
 validateAccessToken = async(accessToken) => {

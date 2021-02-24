@@ -34,7 +34,7 @@ export const ProfileData = (props) => {
 }
 
 export const FunctionData = (props) => {
-    const tableRows = Object.entries(props.functionData).map((entry, index) => {
+    const tableRows = Object.entries(props.functionData.response).map((entry, index) => {
         return (<tr key={index}>
             <td><b>{entry[0]}: </b></td>
             <td>{entry[1]}</td>
@@ -44,7 +44,7 @@ export const FunctionData = (props) => {
     return (
         <>
         <div className="data-area-div">
-            <p>Calling <strong>protected Azure Function API</strong>...</p>
+            <p>Calling <strong>protected Azure Function API (which in turn calls Microsoft Graph)</strong>...</p>
             <ul>
                 <li><strong>endpoint:</strong> <mark>{protectedResources.functionApi.endpoint}</mark></li>
                 <li><strong>scope:</strong> <mark>{protectedResources.functionApi.scopes[0]}</mark></li>
