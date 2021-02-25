@@ -3,7 +3,6 @@
  1. [Overview](#overview)
  1. [Scenario](#scenario)
  1. [Prerequisites](#prerequisites)
- 1. [Setup](#setup)
  1. [Registration](#registration)
  1. [Deployment](#deployment)
  1. [Explore the sample](#explore-the-sample)
@@ -31,28 +30,7 @@ For React applications with routing support, you can use [Azure Static Web Apps]
 ## Prerequisites
 
 - [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with **Azure** through VS Code interface.
-- An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://azure.microsoft.com/documentation/articles/active-directory-howto-tenant/)
-- A user account in your **Azure AD** tenant.
 - An **Azure subscription**. This sample uses **Azure Storage** and **Azure App Service**.
-
-## Setup
-
-- Setup the service app:
-
-```console
-    cd ms-identity-javascript-react-tutorial
-    cd 4-Deployment/1-deploy-storage
-    cd API
-    npm install
-```
-
-- Setup the client app:
-
-```console
-    cd ..
-    cd SPA
-    npm install
-```
 
 ## Registration
 

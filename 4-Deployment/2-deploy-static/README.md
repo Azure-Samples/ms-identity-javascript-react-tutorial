@@ -33,8 +33,6 @@ The SPA component uses [Microsoft Authentication Library for React (Preview)](ht
 ## Prerequisites
 
 - [VS Code Azure Static Web Apps Extension (Preview)](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps) extension is recommended for interacting with **Azure** through VS Code interface.
-- An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://azure.microsoft.com/documentation/articles/active-directory-howto-tenant/)
-- A user account in your **Azure AD** tenant.
 - An **Azure subscription**. This sample uses **Azure Static Web Apps (Preview)**.
 
 ## Registration
