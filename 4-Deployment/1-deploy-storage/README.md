@@ -18,7 +18,7 @@ This sample demonstrates how to deploy a React single-page application (SPA) cou
 
 Azure Storage provides a low cost static website hosting alternative. However, these static websites do not have advanced routing capabilities. As such, [the React SPA in this tutorial](./SPA) does not have a router component.
 
-For React applications with routing support, yous can use [Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/) instead. See [Static Web App Deployment](../2-deploy-static/README.md) in the next section.
+For React applications with routing support, you can use [Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/) instead. See [Static Web App Deployment](../2-deploy-static/README.md) in the next section.
 
 ## Scenario
 

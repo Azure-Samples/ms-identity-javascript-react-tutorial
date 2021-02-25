@@ -16,7 +16,9 @@
 
 This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js [Azure Function](https://docs.microsoft.com/azure/azure-functions/) API to **Azure Cloud** using the [Azure Static Web Apps (Preview)](https://docs.microsoft.com/azure/static-web-apps/) service.
 
-The Azure Function API calls Microsoft Graph using the [on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow) and returns the response back to React SPA.
+The Azure Function API here calls Microsoft Graph using the [on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow) and returns the response back to the React SPA.
+
+The SPA component uses [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React) to sign-in a user and acquire an access token, while the Function API uses [Microsoft Authentication Library for Node.js](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node) (MSAL Node) to exchange the user's access token for a new access token to call the Graph API.
 
 ## Scenario
 
@@ -36,39 +38,6 @@ The Azure Function API calls Microsoft Graph using the [on-behalf-of flow](https
 - An **Azure subscription**. This sample uses **Azure Static Web Apps (Preview)**.
 
 ## Registration
-
-There is one project in this sample. To register it, you can:
-
-- follow the steps below for manually register your apps
-- or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  - modify the projects' configuration files.
-
-<details>
-  <summary>Expand this section if you want to use this automation:</summary>
-
-> :warning: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-
-1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-1. If you have never used Azure AD Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-1. In PowerShell run:
-
-   ```PowerShell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-   ```
-
-1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-1. In PowerShell run:
-
-   ```PowerShell
-   cd .\AppCreationScripts\
-   .\Configure.ps1
-   ```
-
-   > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
-   > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
-
-</details>
 
 ### Choose the Azure AD tenant where you want to create your applications
 
@@ -202,7 +171,7 @@ For more information, see [Configure application settings for Azure Static Web A
 1. Open your browser and navigate to your deployed client app's URI, for instance: `https://reactspa1.z22.web.core.windows.net/`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flow.
 1. Select the **Profile** button on the navigation bar. This will make a call to the Microsoft Graph API.
-1. Select the **FunctionAPI** button on the navigation bar. This will make a call to your web API.
+1. Select the **FunctionAPI** button on the navigation bar. This will make a call to your web API which in turn calls the Microsoft Graph API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
@@ -212,11 +181,13 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
-This application is such and such. Registration is combined. Authentication handled manually.
+For both the SPA and the function API components, we have used a single Azure AD app registration, as these components are tightly coupled and essentially perform as a single app. The function API endpoint is exposed under the `*/api` path, where `*` is the domain of the deployed sample. So for instance, the function API named **HelloUser** is exposed at `*/api/hello`. See the [function.json](./App/api/HelloUser/function.json) file for how to modify the endpoint.
+
+We briefly discuss other important aspects of the sample below.
 
 ### Handling React routes
 
-Routing in **Azure Static Web Apps** defines back-end routing rules and authorization behavior for both static content and APIs. The rules are defined as an array of rules in the [routes.json](./APP/public/routes.json) file, located in the **public** folder. For more information, visit [Routes in Azure Static Web Apps Preview](https://docs.microsoft.com/azure/static-web-apps/routes)
+Routing in **Azure Static Web Apps** defines back-end routing rules and authorization behavior for both static content and APIs. The rules are defined as an array of rules in the [routes.json](./APP/public/routes.json) file, located in the **public** folder. In this sample, we are serving the same file, `index.html`, for all possible routes using a wildcard character.
 
 ```json
 {
@@ -247,9 +218,45 @@ Routing in **Azure Static Web Apps** defines back-end routing rules and authoriz
 }
 ```
 
+For more information, visit [Routes in Azure Static Web Apps Preview](https://docs.microsoft.com/azure/static-web-apps/routes)
+
 ### Protecting Function API
 
-Also how to call it...
+the function API expects a valid access token to initiate the call to Microsoft Graph using on-behalf-of flow.
+
+```javascript
+module.exports = async function (context, req) {
+    context.log('JavaScript HTTP trigger function processed a request.');
+
+    const ssoToken = (req.body && req.body.ssoToken);
+
+    try {
+        const isAuthorized = await validateAccessToken(ssoToken);
+
+        if (isAuthorized) {
+            // call Graph using OBO flow
+        } else {
+            context.res = {
+                status: 401,
+                body: {
+                    response: "Invalid token"
+                }
+            };
+        }
+    } catch (error) {
+        context.log(error);
+
+        context.res = {
+            status: 500,
+            body: {
+                response: JSON.stringify(error),
+            }
+        };
+    }
+}
+```
+
+In React SPA, we call the function API using a POST request as shown below:
 
 ```javascript
 export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
@@ -258,18 +265,14 @@ export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
             body: JSON.stringify({
                   ssoToken: accessToken
                 })
-        }).then((response) => {
-            console.log(response);
-            return response;
-        })
-        .then(response => response.json())
+        }).then(response => response.json())
         .catch(error => console.log(error));
 }
 ```
 
 ### Validating access tokens
 
-Before authorizing a user to call the function API, the access token needs to be validated. A typical token validation can be implemented as follows:
+Before authorizing a user, the access token sent by the user needs to be validated. A typical token validation can be implemented as follows:
 
 ```javascript
 validateAccessToken = async(accessToken) => {
