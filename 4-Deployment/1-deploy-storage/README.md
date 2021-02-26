@@ -32,15 +32,48 @@ For React applications with routing support, you can use [Azure Static Web Apps]
 - [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with **Azure** through VS Code interface.
 - An **Azure subscription**. This sample uses **Azure Storage** and **Azure App Service**.
 
+## Setup
+
+### Step 1: Clone or download this repository
+
+From your shell or command line:
+
+```console
+    git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
+```
+
+or download and extract the repository .zip file.
+
+> :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
+
+### Step 2: Install project dependencies
+
+- Setup the service app:
+
+```console
+    cd ms-identity-javascript-react-tutorial
+    cd 4-Deployment/1-deploy-storage
+    cd API
+    npm install
+```
+
+- Setup the client app:
+
+```console
+    cd ..
+    cd SPA
+    npm install
+```
+
 ## Registration
 
 ### Register the service app (Node.js web API)
 
-Use the same app registration credentials that you've obtained during [**chapter 3-1**](../3-Authorization-II/1-call-api).
+Use the same app registration credentials that you've obtained during [**chapter 3-1**](../../3-Authorization-II/1-call-api/README.md#registration). Update your project files here as needed.
 
 ### Register the client app (React SPA)
 
-Use the same app registration credentials that you've obtained during [**chapter 3-1**](../3-Authorization-II/1-call-api).
+Use the same app registration credentials that you've obtained during [**chapter 3-1**](../../3-Authorization-II/1-call-api/README.md#registration). Update your project files here as needed.
 
 ## Deployment
 
@@ -80,10 +113,6 @@ Now you need to navigate to the **Azure App Service** Portal, and locate your pr
 
 ![disable_easy_auth](./ReadmeFiles/disable_easy_auth.png)
 
-#### Step 3: Enable cross-origin resource sharing (CORS)
-
-![enable_cors](./ReadmeFiles/enable_cors.png)
-
 ### Deploy the client app (React SPA)
 
 There are various ways to deploy your applications to **Azure Storage**. Here we provide steps for deployment via **VS Code Azure Tools Extension**. For more alternatives, visit: [Static website hosting in Azure Storage](https://docs.microsoft.com/azure/storage/blobs/storage-blob-static-website#uploading-content).
@@ -122,13 +151,19 @@ This will create a `build` folder. We will upload the contents of this folder ne
 
 #### Step 3: Update the client app's configuration files
 
-Now you need to update your authentication configuration files in the client project. To do so, go to your **Azure Storage Account** explorer via **VS Code** Azure panel. There, click on your project's name > Blob Container > Web as shown below:
+Now you need to update your authentication configuration files in the client project. To do so, go to your **Azure Storage Account** explorer via **VS Code** Azure panel. There, click on your project's name > **Blob Container** > **Web** as shown below:
 
 ![spa_step4](./ReadmeFiles/spa_step4.png)
 
 Open `authConfig.js`. Then:
 
 1. Find the key `protectedResources.apiHello.endpoint` and replace the existing value with your published web API's endpoint, e.g. `https://node-webapi-1.azurewebsites.net/hello`
+
+#### Step 4: Enable cross-origin resource sharing (CORS) for service app
+
+Finally, we need to enable Cross-Origin Resource Sharing by designating the domain of the SPA we've just deployed. Navigate to App Service portal and locate your web API. Then, enable CORS by entering your website's URI as shown below:
+
+![enable_cors](./ReadmeFiles/enable_cors.png)
 
 ## Explore the sample
 

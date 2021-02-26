@@ -46,6 +46,8 @@ As a first step you'll need to:
 
 ### Register the app
 
+> :information_source: Below, we are using a single app registration for both SPA and function API components.
+
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
@@ -156,9 +158,9 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 1. Find the application you've created previously under **Azure Static Web Apps** and select it.
 1. Select the **Configuration** blade on the left hand side. Add the following **environment variables** there:
     1. `CLIENT_ID`: enter the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
-    1. `TENANT_ID`: enter your Azure AD tenant ID.
+    1. `TENANT_INFO`: enter your Azure AD tenant ID.
     1. `CLIENT_SECRET`: enter your client secret that you've obtained during app registration.
-    1. `EXPECTED_SCOPES`: enter the name of the scope in APP ID URI that you've registered earlier.
+    1. `EXPECTED_SCOPES`: enter the name of the scope you exposed earlier, e.g. `access_as_user`.
 
 ![Step9](./ReadmeFiles/step9.png)
 
@@ -169,7 +171,7 @@ For more information, see [Configure application settings for Azure Static Web A
 1. Open your browser and navigate to your deployed client app's URI, for instance: `https://reactspa1.z22.web.core.windows.net/`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flow.
 1. Select the **Profile** button on the navigation bar. This will make a call to the Microsoft Graph API.
-1. Select the **FunctionAPI** button on the navigation bar. This will make a call to your web API which in turn calls the Microsoft Graph API.
+1. Select the **FunctionAPI** button on the navigation bar. This will make a call to your web API which in turn calls the Microsoft Graph. API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 

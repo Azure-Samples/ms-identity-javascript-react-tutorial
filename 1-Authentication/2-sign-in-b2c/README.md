@@ -138,6 +138,45 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
+MSAL React should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders. After instantiation, pass it as props to your application.
+
+```javascript
+const msalInstance = new PublicClientApplication(msalConfig);
+
+ReactDOM.render(
+    <React.StrictMode>
+        <App msalInstance={msalInstance}/>
+    </React.StrictMode>,
+    document.getElementById("root")
+);
+
+export default function App({msalInstance}) {
+
+    return (
+        <MsalProvider instance={msalInstance}>
+            <PageLayout>
+                <MainContent />
+            </PageLayout>
+        </MsalProvider>
+    );
+}
+```
+
+At the top of your component tree, wrap everything between **MsalProvider** component. All components underneath **MsalProvider** will have access to the *PublicClientApplication* instance via context as well as all hooks and components provided by msal-react.
+
+```javascript
+export default function App({msalInstance}) {
+
+    return (
+        <MsalProvider instance={msalInstance}>
+            <PageLayout>
+                <MainContent />
+            </PageLayout>
+        </MsalProvider>
+    );
+}
+```
+
 ### Sign-in
 
 MSAL.js exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`. These APIs are usable in MSAL React as well:
