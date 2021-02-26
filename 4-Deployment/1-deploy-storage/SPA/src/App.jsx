@@ -5,9 +5,12 @@
 
 import React, { useState } from "react";
 
-import { MsalProvider, AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
+import { InteractionRequiredAuthError } from "@azure/msal-browser";
+import { MsalProvider, useAccount, AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
 import { PageLayout, ProfileData } from "./ui.jsx";
+import { protectedResources } from './authConfig';
+import { callApiWithToken } from './fetch';
 
 import Button from "react-bootstrap/Button";
 import "./styles/App.css";
@@ -27,7 +30,7 @@ const ProfileContent = () => {
      * We recommend that your app calls the acquireTokenSilent API on your PublicClientApplication 	
      * object each time you need an access token to access an API.	
      */
-    RequestProfileData = () => {
+    const RequestProfileData = () => {
         instance.acquireTokenSilent({
             scopes: protectedResources.graphMe.scopes,
             account: account
