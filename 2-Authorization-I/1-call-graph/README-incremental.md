@@ -202,7 +202,13 @@ export function App() {
 }
 ```
 
-If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`.
+If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. In the sample, each of these options are illustrated:
+
+- [Profile.jsx](./SPA/src/pages/Profile.jsx) uses `acquireTokenSilent` and falls back to `acquireTokenPopup` if interaction is required
+- [Tenant.jsx](./SPA/src/pages/Tenant.jsx) uses `acquireTokenSilent` and falls back to `acquireTokenRedirect` if interaction is required
+- [Mails.jsx](./SPA/src/pages/Mails.jsx) uses `acquireTokenRedirect` only.
+
+> :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called. 
 
 ### Access Token validation
 

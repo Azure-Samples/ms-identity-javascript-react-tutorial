@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 
 import { MsalAuthenticationTemplate, useMsal, useAccount } from "@azure/msal-react";
-import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
+import { InteractionType, EventType } from "@azure/msal-browser";
 
 import { loginRequest, protectedResources } from "../authConfig";
 import { callApiWithToken } from "../fetch";
 import { MailsData } from "../components/DataDisplay";
+
+import Button from "react-bootstrap/Button";
 
 const MailsContent = () => {
     /**
@@ -19,32 +21,44 @@ const MailsContent = () => {
     const [mailsData, setMailsData] = useState(null);
 
     useEffect(() => {
-        if (account && inProgress === "none" && !mailsData) {
-            instance.acquireTokenSilent({
-                scopes: protectedResources.graphMessages.scopes,
-                account: account
-            }).then((response) => {     
+
+        /**
+         * In order to get the direct response from calling acquireTokenRedirect() API, register an event
+         * and listen for ACQUIRE_TOKEN_SUCCESS. Make sure to remove the event once component unmounts. For more, 
+         * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
+         */
+
+        // This will be run on component mount
+        const callbackId = instance.addEventCallback((message) => {
+            // This will be run every time an event is emitted after registering this callback
+            if (message.eventType === EventType.ACQUIRE_TOKEN_SUCCESS) {
+                const response = message.payload;    
+                // Do something with the response
                 callApiWithToken(response.accessToken, protectedResources.graphMessages.endpoint)
                     .then(response => setMailsData(response));
-            }).catch(error => {
-                // in case if silent token acquisition fails, fallback to an interactive method
-                if (error instanceof InteractionRequiredAuthError) {
-                    if (account && inProgress === "none") {
-                        instance.acquireTokenPopup({
-                            scopes: protectedResources.graphMessages.scopes,
-                        }).then((response) => {
-                            callApiWithToken(response.accessToken, protectedResources.graphMessages.endpoint)
-                                .then(response => setMailsData(response));
-                        }).catch(error => console.log(error));
-                    }
-                }
-            });
+            }
+        });
+        return () => {
+            // This will be run on component unmount
+            if (callbackId) {
+                instance.removeEventCallback(callbackId);
+            }
         }
     }, [account, inProgress, instance]);
+
+    const requestMailData = () => {
+        instance.acquireTokenRedirect({
+            scopes: protectedResources.graphMessages.scopes,
+        }).catch(error => console.log(error))
+    }
   
     return (
         <>
-            { mailsData ? <MailsData mailsData={mailsData} /> : null }
+            { mailsData ? 
+                <MailsData mailsData={mailsData} /> 
+                : 
+                <Button variant="secondary" onClick={requestMailData}>Request Mail Data</Button>
+            }
         </>
     );
 };

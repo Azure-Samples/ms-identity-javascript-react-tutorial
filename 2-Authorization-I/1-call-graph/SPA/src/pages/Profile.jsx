@@ -63,7 +63,7 @@ export const Profile = () => {
 
     return (
         <MsalAuthenticationTemplate 
-            interactionType={InteractionType.Redirect} 
+            interactionType={InteractionType.Popup} 
             authenticationRequest={authRequest}
         >
             <ProfileContent />

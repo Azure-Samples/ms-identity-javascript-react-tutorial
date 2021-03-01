@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { MsalAuthenticationTemplate, useMsal, useAccount } from "@azure/msal-react";
-import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
+import { InteractionRequiredAuthError, InteractionType, EventType } from "@azure/msal-browser";
 
 import { loginRequest, protectedResources } from "../authConfig";
 import { callApiWithToken } from "../fetch";
@@ -30,11 +30,8 @@ const TenantContent = () => {
                 // in case if silent token acquisition fails, fallback to an interactive method
                 if (error instanceof InteractionRequiredAuthError) {
                     if (account && inProgress === "none") {
-                        instance.acquireTokenPopup({
+                        instance.acquireTokenRedirect({
                             scopes: protectedResources.armTenants.scopes,
-                        }).then((response) => {
-                            callApiWithToken(response.accessToken, protectedResources.armTenants.endpoint)
-                                .then(response => setTenantData(response));
                         }).catch(error => console.log(error));
                     }
                 }
