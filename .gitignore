@@ -102,3 +102,10 @@ dist
 
 # TernJS port file
 .tern-port
+
+VS & VS Code cache
+.vs/
+.vscode/
+
+# React build folder
+build/

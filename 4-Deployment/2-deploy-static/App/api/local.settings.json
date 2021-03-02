@@ -1,0 +1,12 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "WEBSITE_NODE_DEFAULT_VERSION": "~12",
+    "CLIENT_ID": null,
+    "CLIENT_SECRET": null,
+    "TENANT_INFO": null,
+    "EXPECTED_SCOPES": "access_as_user"
+  }
+}
