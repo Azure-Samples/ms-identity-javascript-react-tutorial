@@ -75,8 +75,8 @@ Alternatively, choose below the sample you want to review.
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./4-Deployment/1-deploy-storage/ReadmeFiles/topology.png" width="280"> | [**Deploy to Azure Storage and App Service**](./4-Deployment/README.md) </br> Prepare your SPA for deployment to Azure storage and your API to App Service. Learn how to package and upload your files. Learn how to configure authentication parameters and use **Azure** services for managing your operations. |
-| <img src="./4-Deployment/2-deploy-static/ReadmeFiles/topology.png" width="280"> | [**Deploy to Azure Static Web Apps**](./4-Deployment/README.md) </br> Prepare your app for deployment to Azure Static Web Apps. Learn how to protect and call an **Azure Function** API. Learn how to configure authentication parameters and use **Azure** services for managing your operations. |
+| <img src="./4-Deployment/1-deploy-storage/ReadmeFiles/topology.png" width="280"> | [**Deploy to Azure Storage and App Service**](./4-Deployment/1-deploy-storage/README.md) </br> Prepare your SPA for deployment to Azure storage and your API to App Service. Learn how to package and upload your files. Learn how to configure authentication parameters and use **Azure** services for managing your operations. |
+| <img src="./4-Deployment/2-deploy-static/ReadmeFiles/topology.png" width="280"> | [**Deploy to Azure Static Web Apps**](./4-Deployment/2-deploy-static/README.md) </br> Prepare your app for deployment to Azure Static Web Apps. Learn how to protect and call an **Azure Function** API. Learn how to configure authentication parameters and use **Azure** services for managing your operations. |
 
 ## We'd love your feedback!
 
