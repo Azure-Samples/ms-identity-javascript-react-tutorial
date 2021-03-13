@@ -272,7 +272,7 @@ export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
 
 ### Validating access tokens
 
-Before authorizing a user, the access token sent by the user needs to be validated. A typical token validation can be implemented as follows:
+Before authorizing a user, the access token sent by the user needs to be validated. A minimal token validation can be illustrated as follows:
 
 ```javascript
 validateAccessToken = async(accessToken) => {
