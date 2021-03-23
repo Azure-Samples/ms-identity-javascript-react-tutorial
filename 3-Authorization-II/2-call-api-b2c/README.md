@@ -139,11 +139,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then:
-       - Ensure that the **Microsoft APIs** tab is selected.
-       - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-       - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
-       - Select the **Add permissions** button at the bottom.
-   - Select the **Add a permission** button and then:
        - Ensure that the **My APIs** tab is selected.
        - In the list of APIs, select the API `msal-react-api`.
        - In the **Delegated permissions** section, select the **Access 'msal-react-api'** in the list. Use the search box if necessary.

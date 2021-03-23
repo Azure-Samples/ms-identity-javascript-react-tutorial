@@ -44,20 +44,6 @@ Here you'll learn how to [register a protected web API](https://docs.microsoft.c
 
 ## Setup
 
-### Step 1: Clone or download this repository
-
-From your shell or command line:
-
-```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
-```
-
-or download and extract the repository .zip file.
-
-> :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
-
-### Step 2: Install project dependencies
-
 - Setup the service app:
 
 ```console
@@ -126,30 +112,18 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `msal-react-api` app copied from the Azure portal.
 1. Find the key `tenantID` and replace the existing value with your Azure AD tenant ID.
 
-### Register the spa app (msal-react-spa)
+### Update the client app registration (msal-react-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
-1. Select the **App Registrations** blade on the left, then select **New registration**.
-1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
-   - Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**.
-   - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. Select **Save** to save your changes.
+1. Select the **App Registrations** blade on the left, then find and select the application that you have registered in the previous tutorial (`msal-react-spa`).
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Select the **Add a permission** button and then:
-       - Ensure that the **Microsoft APIs** tab is selected.
-       - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-       - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
-       - Select the **Add permissions** button at the bottom.
-   - Select the **Add a permission** button and then:
-       - Ensure that the **My APIs** tab is selected.
-       - In the list of APIs, select the API `msal-react-api`.
-       - In the **Delegated permissions** section, select the **Access 'msal-react-api'** in the list. Use the search box if necessary.
-       - Select the **Add permissions** button at the bottom.
+   - Select the **Add a permission** button and then,
+     - Ensure that the **My APIs** tab is selected.
+     - In the list of APIs, select the API `msal-react-api`.
+     - In the **Delegated permissions** section, select the **Access 'msal-react-api'** in the list. Use the search box if necessary.
+     - Select the **Add permissions** button at the bottom.
 
-#### Configure the spa app (msal-react-spa) to use your app registration
+#### Configure the client app (msal-react-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
