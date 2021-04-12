@@ -3,7 +3,7 @@
     "Title": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory",
     "Level": 200,
     "Client": "React SPA",
-    "Service": "Node.js Web API",
+    "Service": "Node.js web API",
     "RepositoryUrl": "ms-identity-javascript-react-tutorial",
     "Endpoint": "AAD v2.0"
   },

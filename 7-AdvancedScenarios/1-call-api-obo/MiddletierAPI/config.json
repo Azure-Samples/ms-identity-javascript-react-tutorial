@@ -1,0 +1,23 @@
+{
+    "credentials": {
+        "tenantID": "cbaf2168-de14-4c72-9d88-f5f05366dbef",
+        "clientID": "fc488b8b-823d-4dd3-9a46-acba728d971c",
+        "clientSecret": "2nTh32dNHJOK4f_~B.5_7Kj~9YrLZfeOB2"
+    },
+    "resources": {
+        "downstreamAPI": {
+            "resourceUri": "http://localhost:7000/api",
+            "resourceScopes": [ "api://c1b960e7-0dd8-4b19-bb25-7f1d4a483eee/.default" ]
+        }
+    },
+    "metadata": {
+        "authority": "login.microsoftonline.com",
+        "discovery": ".well-known/openid-configuration",
+        "version": "v2.0"
+    },
+    "settings": {
+        "validateIssuer": true,
+        "passReqToCallback": false,
+        "loggingLevel": "info"
+    }
+}
