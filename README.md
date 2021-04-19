@@ -78,6 +78,18 @@ Alternatively, choose below the sample you want to review.
 | <img src="./4-Deployment/1-deploy-storage/ReadmeFiles/topology.png" width="280"> | [**Deploy to Azure Storage and App Service**](./4-Deployment/1-deploy-storage/README.md) </br> Prepare your SPA for deployment to Azure storage and your API to App Service. Learn how to package and upload your files. Learn how to configure authentication parameters and use **Azure** services for managing your operations. |
 | <img src="./4-Deployment/2-deploy-static/ReadmeFiles/topology.png" width="280"> | [**Deploy to Azure Static Web Apps**](./4-Deployment/2-deploy-static/README.md) </br> Prepare your app for deployment to Azure Static Web Apps. Learn how to protect and call an **Azure Function** API. Learn how to configure authentication parameters and use **Azure** services for managing your operations. |
 
+### Chapter 5: Control access to your protected API using App Roles and Security Groups
+
+|                 |               |
+|-----------------|---------------|
+| <img src="./5-AccessControl/1-call-api-roles/ReadmeFiles/topology.png" width="200"> | [**Call a web API using App Roles**](./5-AccessControl/1-call-api-roles/README.md) </br> Define App Roles and use roles claim in an ID Token to implement Role-based Access Control (RBAC) for your protected web API. |
+
+### Chapter 6: Call Microsoft Graph from your protected API on behalf-of a signed-in user
+
+|                 |               |
+|-----------------|---------------|
+| <img src="./6-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call a web API that calls Microsoft Graph on behalf of a user**](./6-AdvancedScenarios/1-call-api-obo/README.md) </br> Enhance your protected web API to acquire an **Access Token** for Microsoft Graph **on-behalf-of** a user signed-in to the client app. Enable **Conditional Access** for your downstream API and handle **MFA** requirement. |
+
 ## We'd love your feedback!
 
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu).

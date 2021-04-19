@@ -12,10 +12,11 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: "01ca9c75-1fab-4305-b46d-078cd39d0c91", // This is the ONLY mandatory field that you need to supply.
-        authority: "https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef", // Defaults to "https://login.microsoftonline.com/common"
+        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
+        navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
     },
     cache: {
         cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
@@ -50,10 +51,11 @@ export const msalConfig = {
  * Add here the endpoints and scopes when obtaining an access token for protected web APIs. For more information, see:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
- export const protectedResources = {
-    apiHello: {
-        endpoint: "http://localhost:5000/api",
-        scopes: ["api://fc488b8b-823d-4dd3-9a46-acba728d971c/.default"], // e.g. api://xxxxxx/access_as_user
+export const protectedResources = {
+    apiTodoList: {
+        todoListEndpoint: "http://localhost:5000/api/todolist",
+        dashboardEndpoint: "http://localhost:5000/api/dashboard",
+        scopes: ["Enter_the_Web_Api_Scope_here"],
     },
 }
 
@@ -64,5 +66,10 @@ export const msalConfig = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: [...protectedResources.apiHello.scopes]
+    scopes: [...protectedResources.apiTodoList.scopes]
 };
+
+export const appRoles = {
+    TaskUser: "TaskUser",
+    TaskAdmin: "TaskAdmin"
+}

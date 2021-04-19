@@ -122,8 +122,8 @@
                     "value": ".AppId"
                 },
                 {
-                    "key": "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here",
-                    "value": "\"https://login.microsoftonline.com/\"+$tenantId"
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
                 },
                 {
                     "key": "Enter_the_Web_Api_Scope_Here",
