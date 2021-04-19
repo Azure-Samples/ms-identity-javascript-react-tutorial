@@ -1,22 +1,4 @@
 {
   "todos": [
-    {
-      "owner": "admin@msaltestingjs.onmicrosoft.com",
-      "id": "57565fef-62b9-4dde-b8b1-06bd660943a3",
-      "name": "call mom,",
-      "completed": false
-    },
-    {
-      "owner": "admin@msaltestingjs.onmicrosoft.com",
-      "id": "4ff3d8f5-e178-4af7-9012-6abe3cd71fa8",
-      "name": "finish the app",
-      "completed": false
-    },
-    {
-      "owner": "DiegoS@msaltestingjs.onmicrosoft.com",
-      "id": "5c5973a7-e7d1-46a6-836d-d8d10d11db36",
-      "name": "pick up groceries",
-      "completed": false
-    }
   ]
 }
