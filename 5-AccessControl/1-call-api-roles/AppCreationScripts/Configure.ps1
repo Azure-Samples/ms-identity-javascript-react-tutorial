@@ -366,12 +366,13 @@ Function ConfigureApplications
    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
    Write-Host "- For 'service'"
    Write-Host "  - Navigate to '$servicePortalUrl'"
-   Write-Host "  - To receive the `roles` claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this service instance. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." -ForegroundColor Red 
+   Write-Host "  - Navigate to the app manifest and set 'accessTokenAcceptedVersion' to 2" -ForegroundColor Red 
+   Write-Host "  - To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this service instance. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." -ForegroundColor Red 
    Write-Host "  - Or you can run the ..\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." -ForegroundColor Red 
    Write-Host "- For 'client'"
    Write-Host "  - Navigate to '$clientPortalUrl'"
    Write-Host "  - Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" -ForegroundColor Red 
-   Write-Host "  - To receive the `roles` claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." -ForegroundColor Red 
+   Write-Host "  - To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." -ForegroundColor Red 
    Write-Host "  - Or you can run the ..\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." -ForegroundColor Red 
 
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 

@@ -27,7 +27,8 @@
         }
       ],
       "ManualSteps": [
-        { "Comment": "To receive the `roles` claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this service instance. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." },
+        { "Comment": "Navigate to the app manifest and set 'accessTokenAcceptedVersion' to 2" },
+        { "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this service instance. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." },
         { "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." }
       ]
     },
@@ -58,7 +59,7 @@
       ],
       "ManualSteps": [
         { "Comment":  "Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" },
-        { "Comment": "To receive the `roles` claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." },
+        { "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." },
         { "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." }
       ]
     }

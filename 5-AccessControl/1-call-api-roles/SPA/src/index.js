@@ -27,6 +27,10 @@ msalInstance.addEventCallback((event) => {
     const account = event.payload.account;
     msalInstance.setActiveAccount(account);
   }
+
+  if (event.eventType === EventType.LOGIN_FAILURE) {
+    console.log(JSON.stringify(event));
+  }
 });
 
 ReactDOM.render(
