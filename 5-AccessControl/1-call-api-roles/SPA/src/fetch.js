@@ -91,10 +91,7 @@ export const deleteTask = async(id) => {
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then(response => {
-            console.log(response);
-            return response.json()
-        })
+        .then(response => response.json())
         .catch(error => console.log(error));
 }
 

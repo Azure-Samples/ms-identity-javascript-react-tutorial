@@ -6,7 +6,7 @@ const routeGuard = (accessMatrix) => {
         } else {
             const roles = req.authInfo['roles'];
 
-            if (req.path === accessMatrix.todolist.path) {
+            if (req.path.includes(accessMatrix.todolist.path)) {
                 if (accessMatrix.todolist.methods.includes(req.method)) {
 
                     let intersection = accessMatrix.todolist.roles
@@ -18,7 +18,7 @@ const routeGuard = (accessMatrix) => {
                 } else {
                     return res.status(403).json({error: 'Method not allowed'});
                 }
-            } else if (req.path === accessMatrix.dashboard.path) {
+            } else if (req.path.includes(accessMatrix.dashboard.path)) {
                 if (accessMatrix.dashboard.methods.includes(req.method)) {
 
                     let intersection = accessMatrix.dashboard.roles
