@@ -70,7 +70,7 @@ const handlePagination = async (oboToken, nextPage, userGroups) => {
         graphResponse.value.map((v) => userGroups.push(v.id));
 
         if (graphResponse['@odata.nextLink']) {
-            return await handlePagination(accessToken, graphResponse['@odata.nextLink'], userGroups)
+            return await handlePagination(oboToken, graphResponse['@odata.nextLink'], userGroups)
         } else {
             return userGroups
         }
