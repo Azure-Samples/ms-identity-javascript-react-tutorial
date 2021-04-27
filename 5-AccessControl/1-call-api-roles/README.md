@@ -37,7 +37,7 @@ In the sample, a **dashboard** component allows signed-in users to see the tasks
 | `SPA/src/components/RouteGuard.jsx` | This component protects other components that require a user to be in a role. |
 | `SPA/src/index.js`                  | MSAL React is initialized here.                                               |
 | `API/authConfig.json`               | Authentication parameters for web API project.                                |
-| `API/utils/guard.js`                | Custom middleware protecting app routes that require a user to be in a role.|
+| `API/utils/guard.js`                | Custom middleware protecting app routes that require a user to be in a role.  |
 | `API/app.js`                        | passport-azure-ad is initialized here.                                        |
 
 ## Prerequisites
