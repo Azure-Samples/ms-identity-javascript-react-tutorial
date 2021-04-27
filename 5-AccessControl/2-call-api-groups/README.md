@@ -249,8 +249,8 @@ You have two different options available to you on how you can further configure
 > During **Token Configuration**, if you have chosen any other option except **groupID** (e.g. like **DNSDomain\sAMAccountName**) you should enter the **group name** (for example `contoso.com\Test Group`) instead of the **object ID** below:
 
 1. Open the `SPA\src\authConfig.js` file.
-1. Find the key `securityGroups.GroupAdmin` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
-1. Find the key `securityGroups.GroupMember` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
+1. Find the string `Enter_the_Object_Id_of_GroupAdmin_Group_Here` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
+1. Find the string `Enter_the_Object_Id_of_GroupMember_Here` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
 
 ### Configure the service app (msal-node-api) to recognize Group IDs
 
@@ -258,8 +258,8 @@ You have two different options available to you on how you can further configure
 > During **Token Configuration**, if you have chosen any other option except **groupID** (e.g. like **DNSDomain\sAMAccountName**) you should enter the **group name** (for example `contoso.com\Test Group`) instead of the **object ID** below:
 
 1. Open the `API\authConfig.json` file.
-2. Find the array `accessMatrix.todolist.groups` and add the object IDs of the **GroupAdmin** and **GroupMember** groups copied from the Azure portal.
-3. Find the array `accessMatrix.dashboard.groups` and add the object ID of the **GroupAdmin** group copied from the Azure portal.
+1. Find the string `Enter_the_Object_Id_of_GroupAdmin_Group_Here` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
+1. Find the string `Enter_the_Object_Id_of_GroupMember_Here` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
 
 ## Run the sample
 

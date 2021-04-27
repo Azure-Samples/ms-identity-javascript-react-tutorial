@@ -360,17 +360,32 @@ Function ConfigureApplications
    Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -KnownClientApplications $knowApplications
    Write-Host "Configured."
 
+   if($null -eq (Get-AzureADGroup -SearchString "GroupAdmin")) {
+    Write-Host "Creating group"
+    $newsg = New-AzureADGroup -Description "GroupAdmin"  -DisplayName "GroupAdmin" -MailEnabled $false -SecurityEnabled $true -MailNickName "GroupAdmin"
+    Write-Host "Successfully created $($newsg.DisplayName)"
+   }
+
+   Write-Host $creds
+   if($null -eq (Get-AzureADGroup -SearchString "GroupMember")) {
+    Write-Host "Creating group"
+    $newsg = New-AzureADGroup -Description "GroupMember"  -DisplayName "GroupMember" -MailEnabled $false -SecurityEnabled $true -MailNickName "GroupMember"
+    Write-Host "Successfully created $($newsg.DisplayName)"
+   }
+
+   $groupAdmin = Get-AzureADGroup -SearchString "GroupAdmin"
+   $groupMember = Get-AzureADGroup -SearchString "GroupMember"
 
    # Update config file for 'service'
    $configFile = $pwd.Path + "\..\API\authConfig.json"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Client_Secret_Here" = $serviceAppKey };
+   $dictionary = @{ "Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Client_Secret_Here" = $serviceAppKey; "Enter_the_Object_Id_of_GroupAdmin_Group_Here" = $groupAdmin.objectId; "Enter_the_Object_Id_of_GroupMember_Group_Here" = $groupMember.objectId };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
 
    # Update config file for 'client'
    $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_here" = ("api://"+$serviceAadApplication.AppId+"/access_as_user") };
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_here" = ("api://"+$serviceAadApplication.AppId+"/access_as_user"); "Enter_the_Object_Id_of_GroupAdmin_Group_Here" = $groupAdmin.objectId; "Enter_the_Object_Id_of_GroupMember_Group_Here" = $groupMember.objectId };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
    Write-Host ""
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
