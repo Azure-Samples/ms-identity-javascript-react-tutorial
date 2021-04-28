@@ -1,5 +1,5 @@
 {
-  "name": "ms-identity-react-c7s1",
+  "name": "ms-identity-react-c6s1",
   "version": "0.1.0",
   "description": "A React single-page application using MSAL React to call Microsoft Graph via Express web API using on-behalf-of flow",
   "dependencies": {

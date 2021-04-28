@@ -82,8 +82,8 @@ Alternatively, choose below the sample you want to review.
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./5-AccessControl/1-call-api-roles/ReadmeFiles/topology.png" width="200"> | [**Use App Roles to Control Access**](./5-AccessControl/1-call-api-roles/README.md) </br> Define App Roles and use roles claim in a token to implement Role-based Access Control (RBAC) for your SPA and protected web API. |
-| <img src="./5-AccessControl/2-call-api-groups/ReadmeFiles/topology.png" width="200"> | [**Use Security Groups to Control Access**](/5-AccessControl/2-call-api-groups/README.md) </br> Create Security Groups and use groups claim in a token to implement Role-based Access Control (RBAC) for your SPA and protected web API. Handle overage scenarios.  |
+| <img src="./5-AccessControl/1-call-api-roles/ReadmeFiles/topology.png" width="200"> | [**Use App Roles for access control**](./5-AccessControl/1-call-api-roles/README.md) </br> Define App Roles and use roles claim in a token to implement Role-based Access Control (RBAC) for your SPA and protected web API. |
+| <img src="./5-AccessControl/2-call-api-groups/ReadmeFiles/topology.png" width="200"> | [**Use Security Groups for access control**](/5-AccessControl/2-call-api-groups/README.md) </br> Create Security Groups and use groups claim in a token to implement Role-based Access Control (RBAC) for your SPA and protected web API. Handle overage scenarios.  |
 
 ### Chapter 6: Call Microsoft Graph from your protected API on behalf-of a signed-in user
 
