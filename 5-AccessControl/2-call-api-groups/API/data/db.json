@@ -1,16 +1,4 @@
 {
   "todos": [
-    {
-      "owner": "admin@msaltestingjs.onmicrosoft.com",
-      "id": "039859a0-04c6-4875-a30c-cd60034d7061",
-      "name": "clean the house",
-      "completed": false
-    },
-    {
-      "owner": "DiegoS@msaltestingjs.onmicrosoft.com",
-      "id": "cc386f2d-9f10-4d31-8252-ca20ba97e3e2",
-      "name": "pick up groceries",
-      "completed": false
-    }
   ]
 }

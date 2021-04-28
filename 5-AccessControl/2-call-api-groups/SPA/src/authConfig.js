@@ -74,6 +74,6 @@ export const loginRequest = {
 };
 
 export const securityGroups = {
-    GroupMember: "Enter_the_Object_Id_of_GroupMember_Here",
+    GroupMember: "Enter_the_Object_Id_of_GroupMember_Group_Here",
     GroupAdmin: "Enter_the_Object_Id_of_GroupAdmin_Group_Here"
 }

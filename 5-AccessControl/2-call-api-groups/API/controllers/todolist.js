@@ -15,7 +15,7 @@ exports.getTodo = (req, res) => {
     if (todo) {
         res.status(200).send(todo);
     } else {
-        res.status(404).json('Task not found.');
+        res.status(404).send('Task not found.');
     }
 }
 
@@ -31,7 +31,8 @@ exports.getTodos = (req, res) => {
 
 exports.postTodo = (req, res) => {
     db.get('todos').push(req.body).write();
-    res.sendStatus(200);
+
+    res.status(200).json({message: "success"});
 }
 
 exports.updateTodo = (req, res) => {
@@ -43,7 +44,7 @@ exports.updateTodo = (req, res) => {
         .assign(req.body)
         .write();
 
-    res.sendStatus(200);
+    res.status(200).json({message: "success"});
 }
 
 exports.deleteTodo = (req, res) => {
@@ -54,5 +55,5 @@ exports.deleteTodo = (req, res) => {
         .remove({owner: owner, id: id})
         .write();
 
-    res.sendStatus(200);
+    res.status(200).json({message: "success"});
 }

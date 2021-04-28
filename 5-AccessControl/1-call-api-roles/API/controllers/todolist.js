@@ -31,7 +31,7 @@ exports.getTodos = (req, res) => {
 
 exports.postTodo = (req, res) => {
     db.get('todos').push(req.body).write();
-    res.sendStatus(200);
+    res.status(200).json({message: "success"});
 }
 
 exports.updateTodo = (req, res) => {
@@ -43,7 +43,7 @@ exports.updateTodo = (req, res) => {
         .assign(req.body)
         .write();
 
-    res.sendStatus(200);
+    res.status(200).json({message: "success"});
 }
 
 exports.deleteTodo = (req, res) => {
@@ -54,5 +54,5 @@ exports.deleteTodo = (req, res) => {
         .remove({owner: owner, id: id})
         .write();
 
-    res.sendStatus(200);
+    res.status(200).json({message: "success"});
 }

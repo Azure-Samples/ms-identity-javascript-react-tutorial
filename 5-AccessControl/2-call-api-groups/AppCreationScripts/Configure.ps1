@@ -392,6 +392,7 @@ Function ConfigureApplications
    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
    Write-Host "- For 'service'"
    Write-Host "  - Navigate to '$servicePortalUrl'"
+   Write-Host "  - Navigate to the portal and set the 'accessTokenAcceptedVersion' to '2' in the application manifest" -ForegroundColor Red 
    Write-Host "  - This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
    Write-Host "  - This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
    Write-Host "- For 'client'"
