@@ -1,0 +1,23 @@
+{
+    "credentials": {
+        "tenantID": "Enter_the_Tenant_Info_Here",
+        "clientID": "Enter_the_Application_Id_Here",
+        "clientSecret": "Enter_the_Client_Secret"
+    },
+    "resources": {
+        "downstreamAPI": {
+            "resourceUri": "http://localhost:7000/api",
+            "resourceScopes": [ "api://Enter_the_Web_Api_Scope_Here/.default" ]
+        }
+    },
+    "metadata": {
+        "authority": "login.microsoftonline.com",
+        "discovery": ".well-known/openid-configuration",
+        "version": "v2.0"
+    },
+    "settings": {
+        "validateIssuer": true,
+        "passReqToCallback": false,
+        "loggingLevel": "info"
+    }
+}

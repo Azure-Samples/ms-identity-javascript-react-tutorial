@@ -26,7 +26,10 @@ const NavigationBar = () => {
     return (
         <>
             <AuthenticatedTemplate>
-                <Button variant="warning" onClick={() => instance.logout()} className="ml-auto">Sign Out</Button>
+                <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign Out">
+                    <Dropdown.Item as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/" })}>Sign out using Popup</Dropdown.Item>
+                    <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}>Sign out using Redirect</Dropdown.Item>
+                </DropdownButton>
             </AuthenticatedTemplate>
             <UnauthenticatedTemplate>
                 <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
@@ -52,7 +55,7 @@ export const PageLayout = (props) => {
             <br />
             <AuthenticatedTemplate>
                 <footer>
-                    <center>How did we do? 
+                    <center>How did we do?
                         <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu" target="_blank"> Share your experience!</a>
                     </center>
                 </footer>
@@ -71,24 +74,24 @@ export const ProfileData = (props) => {
 
     return (
         <>
-        <div className="data-area-div">
-            <p>Calling <strong>Microsoft Graph API</strong>...</p>
-            <ul>
-                <li><strong>resource:</strong> <mark>User</mark> object</li>
-                <li><strong>endpoint:</strong> <mark>https://graph.microsoft.com/v1.0/me</mark></li>
-                <li><strong>scope:</strong> <mark>user.read</mark></li>
-            </ul>
-            <p>Contents of the <strong>response</strong> is below:</p>
-        </div>
-        <div className="data-area-div">
-            <table>
-                <thead>
-                </thead>
-                <tbody>
-                    {tableRows}
-                </tbody>
-            </table>
-        </div>
+            <div className="data-area-div">
+                <p>Calling <strong>Microsoft Graph API</strong>...</p>
+                <ul>
+                    <li><strong>resource:</strong> <mark>User</mark> object</li>
+                    <li><strong>endpoint:</strong> <mark>https://graph.microsoft.com/v1.0/me</mark></li>
+                    <li><strong>scope:</strong> <mark>user.read</mark></li>
+                </ul>
+                <p>Contents of the <strong>response</strong> is below:</p>
+            </div>
+            <div className="data-area-div">
+                <table>
+                    <thead>
+                    </thead>
+                    <tbody>
+                        {tableRows}
+                    </tbody>
+                </table>
+            </div>
         </>
     );
 }

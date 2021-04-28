@@ -26,6 +26,10 @@ const NavigationBar = () => {
     return (
         <>
             <AuthenticatedTemplate>
+                <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign Out">
+                    <Dropdown.Item as="button" onClick={() => instance.logoutPopup({postLogoutRedirectUri: "/", mainWindowRedirectUri: "/"})}>Sign out using Popup</Dropdown.Item>
+                    <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({postLogoutRedirectUri: "/"})}>Sign out using Redirect</Dropdown.Item>
+                </DropdownButton>
                 <Button variant="warning" onClick={() => instance.logout()} className="ml-auto">Sign Out</Button>
             </AuthenticatedTemplate>
             <UnauthenticatedTemplate>
@@ -52,7 +56,7 @@ export const PageLayout = (props) => {
             <br />
             <AuthenticatedTemplate>
                 <footer>
-                    <center>How did we do? 
+                    <center>How did we do?
                         <a href="https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu" target="_blank"> Share your experience!</a>
                     </center>
                 </footer>

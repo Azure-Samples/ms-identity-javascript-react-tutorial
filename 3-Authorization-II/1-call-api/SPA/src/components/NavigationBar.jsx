@@ -9,7 +9,7 @@ import Dropdown from "react-bootstrap/esm/Dropdown";
 import { loginRequest } from "../authConfig";
 
 export const NavigationBar = () => {
-    
+
     const { instance } = useMsal();
 
     /**
@@ -24,7 +24,10 @@ export const NavigationBar = () => {
                 <AuthenticatedTemplate>
                     <Nav.Link as={Button} href="/profile">Profile</Nav.Link>
                     <Nav.Link as={Button} href="/hello">HelloAPI</Nav.Link>
-                    <Button variant="warning" onClick={() => instance.logout()} className="ml-auto">Sign Out</Button>
+                    <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign Out">
+                        <Dropdown.Item as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/" })}>Sign out using Popup</Dropdown.Item>
+                        <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}>Sign out using Redirect</Dropdown.Item>
+                    </DropdownButton>
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
                     <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">

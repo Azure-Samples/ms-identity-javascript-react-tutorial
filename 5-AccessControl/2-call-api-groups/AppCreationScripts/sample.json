@@ -1,0 +1,97 @@
+{
+  "Sample": {
+    "Title": "React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control",
+    "Level": 300,
+    "Client": "React SPA",
+    "Service": "Node.js & Express web API",
+    "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+    "Endpoint": "AAD v2.0"
+  },
+  "AADApps": [
+    {
+      "Id": "service",
+      "Name": "msal-node-api",
+      "Kind": "WebApi",
+      "Audience": "AzureADMyOrg",
+      "GroupMembershipClaims": "SecurityGroup",
+      "PasswordCredentials": "Auto",
+      "HomePage": "http://localhost:5000/api",
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "Microsoft Graph",
+          "DelegatedPermissions": [ "User.Read", "GroupMember.Read.All" ]
+        }
+      ],
+      "ManualSteps": [
+        { "Comment":  "Navigate to the portal and set the 'acceptedTokenVersion' to '2' in the application manifest" },
+        { "Comment": "This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." },
+        { "Comment": "This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." }
+      ]      
+    },
+    {
+      "Id": "client",
+      "Name": "msal-react-spa",
+      "Kind": "SinglePageApplication",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "http://localhost:3000/",
+      "ReplyUrls": "http://localhost:3000/",
+      "GroupMembershipClaims": "SecurityGroup",
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "service",
+          "DelegatedPermissions": [ "access_as_user" ]
+        },
+        {
+          "Resource": "Microsoft Graph",
+          "DelegatedPermissions": [ "User.Read", "GroupMember.Read.All" ]
+        }
+      ],
+      "ManualSteps": [
+        { "Comment":  "Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" },
+        { "Comment": "This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." },
+        { "Comment": "This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." }
+      ]  
+    }
+  ],
+  "CodeConfiguration": [
+    {
+      "App": "service",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\API\\authConfig.json",
+      "Mappings": [
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        },
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": "service.AppId"
+        },
+        {
+          "key": "Enter_the_Client_Secret_Here",
+          "value": "service.AppKey"
+        }
+      ]
+    },
+
+    {
+      "App": "client",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\SPA\\src\\authConfig.js",
+      "Mappings": [
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": "client.AppId"
+        },
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        },
+        {
+          "key": "Enter_the_Web_Api_Scope_here",
+          "value": "service.Scope"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "ms-identity-react-c7s1",
+  "version": "1.0.0",
+  "description": "---\r page_type: sample\r description: \"This sample demonstrates how to protect a Node.js web API with Azure AD using the Passport.js library.\"\r languages:\r - javascript\r - nodejs\r products:\r - azure\r - azure-active-directory\r urlFragment: nodejs-web-api-azure-ad\r ---",
+  "author": "derisen",
+  "license": "ISC",
+  "engines": {
+    "node": ">=6.9.1"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "express": "^4.14.0",
+    "morgan": "^1.10.0",
+    "passport": "^0.3.2",
+    "passport-azure-ad": "^4.2.1"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git"
+  },
+  "keywords": [
+    "azure-ad",
+    "ms-identity",
+    "node",
+    "api"
+  ],
+  "bugs": {
+    "url": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/issues"
+  },
+  "homepage": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
