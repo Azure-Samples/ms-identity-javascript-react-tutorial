@@ -147,6 +147,29 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
 
+#### Define Application Roles
+
+1. Still on the same app registration, select the **App roles** blade to the left.
+1. Select **Create app role**:
+    - For **Display name**, enter a suitable name, for instance **TaskAdmin**.
+    - For **Allowed member types**, choose **User**.
+    - For **Value**, enter **TaskAdmin**.
+    - For **Description**, enter **Admins can read any user's todo list**.
+1. Select **Create app role**:
+    - For **Display name**, enter a suitable name, for instance **TaskUser**.
+    - For **Allowed member types**, choose **User**.
+    - For **Value**, enter **TaskUser**.
+    - For **Description**, enter **Users can read and modify their todo lists**.
+1. Select **Apply** to save your changes.
+
+To add users to this app role, follow the guidelines here: [Assign users and groups to roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-users-and-groups-to-roles).
+
+> :bulb: **Important security tip**
+>
+> You can configure Azure AD to make sure that only users assigned to your application in the **Users and groups** blade are able to sign-in to your app. To enable this, follow the instructions [here](https://docs.microsoft.com/azure/active-directory/manage-apps/assign-user-or-group-access-portal#configure-an-application-to-require-user-assignment) to set **User assignment required?** to **Yes**. You can assign users directly or by assigning security groups they belong to.
+
+> :information_source: The number of **App Roles** that can be created for an app are limited by the [App Manifest limits](https://docs.microsoft.com/azure/active-directory/develop/reference-app-manifest#manifest-limits).
+
 #### Configure the service app (msal-node-api) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
@@ -191,14 +214,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Select **Apply** to save your changes.
 
 To add users to this app role, follow the guidelines here: [Assign users and groups to roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-users-and-groups-to-roles).
-
-> :bulb: **Important security tip**
->
-> You can configure Azure AD to make sure that only users assigned to your application in the **Users and groups** blade are able to sign-in to your app. To enable this, follow the instructions [here](https://docs.microsoft.com/azure/active-directory/manage-apps/assign-user-or-group-access-portal#configure-an-application-to-require-user-assignment) to set **User assignment required?** to **Yes**. You can assign users directly or by assigning security groups they belong to.
-
-For more information, see: [How to: Add app roles in your application and receive them in the token](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps)
-
-> :information_source: The number of **App Roles** that can be created for an app are limited by the [App Manifest limits](https://docs.microsoft.com/azure/active-directory/develop/reference-app-manifest#manifest-limits).
 
 #### Configure the client app (msal-react-spa) to use your app registration
 
