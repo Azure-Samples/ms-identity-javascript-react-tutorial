@@ -366,7 +366,6 @@ Function ConfigureApplications
     Write-Host "Successfully created $($newsg.DisplayName)"
    }
 
-   Write-Host $creds
    if($null -eq (Get-AzureADGroup -SearchString "GroupMember")) {
     Write-Host "Creating group"
     $newsg = New-AzureADGroup -Description "GroupMember"  -DisplayName "GroupMember" -MailEnabled $false -SecurityEnabled $true -MailNickName "GroupMember"
