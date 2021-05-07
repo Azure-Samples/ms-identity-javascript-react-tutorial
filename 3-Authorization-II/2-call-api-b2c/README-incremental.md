@@ -101,6 +101,9 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - For **Admin consent description** type `Allows the app to access msal-react-api as the signed-in user.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
+1. Select the `Manifest` blade on the left.
+   - Set `accessTokenAcceptedVersion` property to **2**.
+   - Click on **Save**.
 
 #### Configure the service app (msal-react-api) to use your app registration
 
