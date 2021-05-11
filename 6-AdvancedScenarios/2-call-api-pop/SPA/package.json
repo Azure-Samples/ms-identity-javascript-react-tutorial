@@ -1,5 +1,5 @@
 {
-  "name": "ms-identity-react-c3s1",
+  "name": "ms-identity-react-c6s2",
   "version": "0.1.0",
   "description": "A React single-page application using MSAL React to call a protected web API on Azure Active Directory",
   "dependencies": {
@@ -9,10 +9,11 @@
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1",
     "react": "^17.0.0",
-    "react-bootstrap": "^1.3.0",
+    "react-bootstrap": "^1.5.2",
     "react-dom": "^17.0.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "^4.0.3"
+    "react-scripts": "4.0.1",
+    "uuid": "^8.3.2"
   },
   "scripts": {
     "start": "react-scripts start",

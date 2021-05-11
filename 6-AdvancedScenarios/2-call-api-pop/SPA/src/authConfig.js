@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { LogLevel } from "@azure/msal-browser";
+import { LogLevel, AuthenticationScheme } from "@azure/msal-browser";
 
 /**
  * Configuration object to be passed to MSAL instance on creation. 
@@ -12,8 +12,8 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: "dbe9e219-febb-42b0-bbba-5f72fbc78a2e", // This is the ONLY mandatory field that you need to supply.
-        authority: "https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef", // Defaults to "https://login.microsoftonline.com/common"
+        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
@@ -48,26 +48,25 @@ export const msalConfig = {
 };
 
 /**
+ * Add here the endpoints and scopes when obtaining an access token for protected web APIs. For more information, see:
+ * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
+ */
+export const protectedResources = {
+    apiTodoList: {
+        endpoint: "http://localhost:5000/api/todolist",
+        scopes: ["Enter_the_Web_Api_Scope_here"],
+    },
+}
+
+/**
  * Scopes you add here will be prompted for user consent during sign-in.
  * By default, MSAL.js will add OIDC scopes (openid, profile, email) to any login request.
  * For more information about OIDC scopes, visit: 
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: []
+    scopes: [...protectedResources.apiTodoList.scopes],
+    authenticationScheme: AuthenticationScheme.POP,
+    resourceRequestMethod: "GET",
+    resourceRequestUri: protectedResources.apiTodoList.endpoint,
 };
-
-/**
- * Add here the endpoints and scopes when obtaining an access token for protected web APIs. For more information, see:
- * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
- */
-export const protectedResources = {
-    graphMe: {
-        endpoint: "https://graph.microsoft.com/v1.0/me",
-        scopes: ["User.Read"],
-    },
-    apiHello: {
-        endpoint: "http://localhost:5000/hello",
-        scopes: ["api://8c8dc348-7d2e-4c58-8c0f-15ec48bc16dc/access_as_user"], // e.g. api://xxxxxx/access_as_user
-    },
-}
