@@ -36,7 +36,8 @@ This sample demonstrates the [Proof of Possession](https://github.com/AzureAD/mi
 | `SPA/src/authConfig.js`             | Authentication parameters for SPA project reside here.     |
 | `SPA/src/index.js`                  | MSAL React is initialized here.                            |
 | `API/authConfig.json`               | Authentication parameters for API project reside here.     |
-| `API/Startup.cs`                    | passport-azure-ad is initialized here.                     |
+| `API/app.js`                        | Application entry. passport-azure-ad is initialized here.  |
+| `API/utils/validateToken.js`        | Contains utility methods for validating PoP tokens.        |
 
 ## Prerequisites
 
@@ -273,7 +274,7 @@ export const getTasks = async () => {
 
 ### Validating PoP tokens
 
-In [validateToken.js](./API/utils/validateToken.js)
+In [validateToken.js](./API/utils/validateToken.js), we first decode the token to grab the confirmation claim (`cnf`) that contains a JSON Web Key (JWK). Then, we parse this key, and use it to verify the signature of the token. Once this is done, we can verify the claims section of the token, importantly, the `method`, `host` and `path` claims. If the PoP token is valid, we pass the access token it envelops back to the **Authorization** header as a `bearer` token and call the next middleware in the route, where it gets validated by the [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) authentication middleware.
 
 ```javascript
 const validatePoP = async (req, res, next) => {
