@@ -1,4 +1,4 @@
-# React single-page application calling Node.js & Express web API protected by Azure AD using Proof of Possession
+# React single-page application calling Node.js & Express web API using Proof of Possession
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -15,17 +15,17 @@
 
 ## Overview
 
-This sample demonstrates an React SPA calling a Node.js & Express web API that is secured using [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD). The SPA project is secured with the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React), while the web API is secured with [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad).
+This sample demonstrates a React SPA calling a Node.js & Express web API that is secured using [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD). The SPA project is secured with the [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React), while the web API is secured with [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad).
 
 This sample demonstrates the [Proof of Possession](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/access-token-proof-of-possession.md) (PoP) authentication scheme. This authentication scheme cryptographically binds the access tokens to the browser and client application from which they are requested, meaning they cannot be used from a different application or device. This effectively prevents **token replay** attacks. The resource server that accepts the PoP token (i.e. a web API) needs to be able to decipher the incoming request for the PoP authentication scheme to work properly.
 
 ## Scenario
 
-1. The client React SPA uses **MSAL React** to sign-in and obtain a JWT access token from **Azure AD**.
-1. The client React SPA wraps the access token in a secure *envelope* and stamps it with its signature.
-1. The access token then is used with *PoP* authentication scheme to authorize the user to call the Node.js & Express web API protected by **Azure AD**.
-1. The Node.js & Express web API decrypts the secure envelope to obtain the access token.
-1. Once the access token is validated, the Node.js & Express web API responds with the protected resource.
+1. The client React SPA uses **MSAL React** to sign-in and obtain a JWT access token from **Azure AD** for the web API.
+1. The client React SPA wraps the access token in a secure *envelope* and stamps it with its signature using **MSAL React**.
+1. The access token then is used with *PoP* authentication scheme to authorize the user to call the web API protected by **Azure AD**.
+1. The web API decrypts the secure envelope to obtain the access token.
+1. Once the access token is validated, the web API responds with the protected resource.
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -35,6 +35,7 @@ This sample demonstrates the [Proof of Possession](https://github.com/AzureAD/mi
 |-------------------------------------|------------------------------------------------------------|
 | `SPA/src/authConfig.js`             | Authentication parameters for SPA project reside here.     |
 | `SPA/src/index.js`                  | MSAL React is initialized here.                            |
+| `SPA/src/fetch.js`                  | Contains token acquisition and API call utilities.         |
 | `API/authConfig.json`               | Authentication parameters for API project reside here.     |
 | `API/app.js`                        | Application entry. passport-azure-ad is initialized here.  |
 | `API/utils/validateToken.js`        | Contains utility methods for validating PoP tokens.        |
@@ -192,7 +193,7 @@ In a separate console window, execute the following commands:
 ```console
     cd ..
     cd API
-    node run
+    npm start
 ```
 
 ## Explore the sample
@@ -274,7 +275,7 @@ export const getTasks = async () => {
 
 ### Validating PoP tokens
 
-In [validateToken.js](./API/utils/validateToken.js), we first decode the token to grab the confirmation claim (`cnf`) that contains a JSON Web Key (JWK). Then, we parse this key, and use it to verify the signature of the token. Once this is done, we can verify the claims section of the token, importantly, the `method`, `host` and `path` claims. If the PoP token is valid, we pass the access token it envelops back to the **Authorization** header as a `bearer` token and call the next middleware in the route, where it gets validated by the [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) authentication middleware.
+In [validateToken.js](./API/utils/validateToken.js), we first decode the token to grab the confirmation claim (`cnf`) that contains a JSON Web Key (JWK). Then, we parse this key, and use it to verify the signature of the token. Once this is done, we can verify the claims section of the token, importantly, the `method`, `host` and `path` claims. If the PoP token is valid, we pass the access token it envelops back to the **Authorization** header of the request as a `bearer` token and call the next middleware in the route, where it gets validated by the [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) authentication middleware.
 
 ```javascript
 const validatePoP = async (req, res, next) => {

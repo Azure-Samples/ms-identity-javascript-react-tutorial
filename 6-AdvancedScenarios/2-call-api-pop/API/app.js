@@ -11,7 +11,7 @@ const BearerStrategy = require('passport-azure-ad').BearerStrategy;
 
 const options = {
     identityMetadata: `https://${config.metadata.authority}/${config.credentials.tenantID}/${config.metadata.version}/${config.metadata.discovery}`,
-    issuer: `https://sts.windows.net/cbaf2168-de14-4c72-9d88-f5f05366dbef/`,
+    issuer: `https://sts.windows.net/${config.credentials.tenantID}/`,
     clientID: config.credentials.clientID,
     audience: 'api://' + config.credentials.clientID, // audience is this application
     validateIssuer: config.settings.validateIssuer,
@@ -35,7 +35,6 @@ app.use(passport.initialize());
 
 passport.use(bearerStrategy);
 
-// Validates token, checks for role and serve
 app.use('/api',
     validatePoP,
     passport.authenticate('oauth-bearer', { session: false }),
