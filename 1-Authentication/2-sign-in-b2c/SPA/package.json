@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "React single-page application using MSAL React to sign-in users against Azure AD B2C",
   "dependencies": {
-    "@azure/msal-browser": "^2.14.1",
-    "@azure/msal-react": "^1.0.0-beta.2",
+    "@azure/msal-browser": "^2.14.2",
+    "@azure/msal-react": "^1.0.0-beta.3",
     "bootstrap": "^4.5.3",
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1",
