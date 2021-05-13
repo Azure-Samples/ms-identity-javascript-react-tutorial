@@ -1,0 +1,76 @@
+{
+  "Sample": {
+    "Title": "React single-page application calling Node.js & Express web API protected by Azure AD using Proof of Possession",
+    "Level": 400,
+    "Client": "React SPA",
+    "Service": "Node.js & Express web API",
+    "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+    "Endpoint": "AAD v2.0"
+  },
+  "AADApps": [
+    {
+      "Id": "service",
+      "Name": "msal-node-api",
+      "Kind": "WebApi",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "https://localhost:5000/api/todolist"
+    },
+    {
+      "Id": "client",
+      "Name": "msal-react-spa",
+      "Kind": "SinglePageApplication",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "http://localhost:3000/",
+      "ReplyUrls": "http://localhost:3000/",
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "service",
+          "DelegatedPermissions": [
+            "access_as_user"
+          ]
+        }
+      ],
+      "ManualSteps": [
+        {
+          "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
+        }
+      ]
+    }
+  ],
+  "CodeConfiguration": [
+    {
+      "App": "service",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\API\\authConfig.json",
+      "Mappings": [
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": ".AppId"
+        },
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        }
+      ]
+    },
+    {
+      "App": "client",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\SPA\\src\\authConfig.js",
+      "Mappings": [
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": ".AppId"
+        },
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        },
+        {
+          "key": "Enter_the_Web_Api_Scope_here",
+          "value": "service.Scope"
+        }
+      ]
+    }
+  ]
+}

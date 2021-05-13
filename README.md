@@ -85,11 +85,12 @@ Alternatively, choose below the sample you want to review.
 | <img src="./5-AccessControl/1-call-api-roles/ReadmeFiles/topology.png" width="200"> | [**Use App Roles for access control**](./5-AccessControl/1-call-api-roles/README.md) </br> Define App Roles and use roles claim in a token to implement Role-based Access Control (RBAC) for your SPA and protected web API. |
 | <img src="./5-AccessControl/2-call-api-groups/ReadmeFiles/topology.png" width="200"> | [**Use Security Groups for access control**](/5-AccessControl/2-call-api-groups/README.md) </br> Create Security Groups and use groups claim in a token to implement Role-based Access Control (RBAC) for your SPA and protected web API. Handle overage scenarios.  |
 
-### Chapter 6: Call Microsoft Graph from your protected API on behalf-of a signed-in user
+### Chapter 6: Dive into advanced scenarios
 
 |                 |               |
 |-----------------|---------------|
 | <img src="./6-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call a web API that calls Microsoft Graph on behalf of a user**](./6-AdvancedScenarios/1-call-api-obo/README.md) </br> Enhance your protected web API to acquire an **Access Token** for Microsoft Graph **on-behalf-of** a user signed-in to the client app. Enable **Conditional Access** for your downstream API and handle **MFA** requirement. |
+| <img src="./6-AdvancedScenarios/2-call-api-pop/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Proof of Possession tokens**](./6-AdvancedScenarios/2-call-api-pop/README.md) </br> Acquire proof of possession (PoP) tokens. Learn how to prevent token replay attacks with PoP authentication scheme. Learn how to validate PoP tokens.|
 
 ## We'd love your feedback!
 
