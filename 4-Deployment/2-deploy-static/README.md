@@ -14,11 +14,11 @@
 
 ## Overview
 
-This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js [Azure Function](https://docs.microsoft.com/azure/azure-functions/) API to **Azure Cloud** using the [Azure Static Web Apps (Preview)](https://docs.microsoft.com/azure/static-web-apps/) service.
+This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js [Azure Function](https://docs.microsoft.com/azure/azure-functions/) API to **Azure Cloud** using the [Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/) service.
 
 The Azure Function API here calls Microsoft Graph using the [on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow) and returns the response back to the React SPA.
 
-The SPA component uses [Microsoft Authentication Library for React (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React) to sign-in a user and acquire an access token, while the Function API uses [Microsoft Authentication Library for Node.js](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node) (MSAL Node) to exchange the user's access token for a new access token to call the Graph API.
+The SPA component uses [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React) to sign-in a user and acquire an access token, while the Function API uses [Microsoft Authentication Library for Node.js](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node) (MSAL Node) to exchange the user's access token for a new access token to call the Graph API.
 
 ## Scenario
 
@@ -32,8 +32,8 @@ The SPA component uses [Microsoft Authentication Library for React (Preview)](ht
 
 ## Prerequisites
 
-- [VS Code Azure Static Web Apps Extension (Preview)](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps) extension is recommended for interacting with **Azure** through VS Code interface.
-- An **Azure subscription**. This sample uses **Azure Static Web Apps (Preview)**.
+- [VS Code Azure Static Web Apps Extension](https://marketplace.visualstudio.com/items?itemName=ms-azuretools.vscode-azurestaticwebapps) extension is recommended for interacting with **Azure** through VS Code interface.
+- An **Azure subscription**. This sample uses **Azure Static Web Apps**.
 
 ## Registration
 
@@ -164,7 +164,7 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 
 ![Step9](./ReadmeFiles/step9.png)
 
-For more information, see [Configure application settings for Azure Static Web Apps Preview](https://docs.microsoft.com/azure/static-web-apps/application-settings#uploading-application-settings)
+For more information, see [Configure application settings for Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/application-settings#uploading-application-settings)
 
 ## Explore the sample
 
@@ -218,7 +218,7 @@ Routing in **Azure Static Web Apps** defines back-end routing rules and authoriz
 }
 ```
 
-For more information, visit [Routes in Azure Static Web Apps Preview](https://docs.microsoft.com/azure/static-web-apps/routes)
+For more information, visit [Routes in Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/routes)
 
 ### Protecting Function API
 
