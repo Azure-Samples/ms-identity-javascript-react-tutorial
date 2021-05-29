@@ -17,7 +17,7 @@
 
 In the [previous chapter](../../1-Authentication\1-sign-in\README-incremental.md), you learnt how a React single-page application (SPA) authenticating users against [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD), using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
-In this chapter we'd extend our React single-page application (SPA) by making it also call  [Microsoft Graph](https://docs.microsoft.com/graph/overview) 
+In this chapter we'd extend our React single-page application (SPA) by making it also call [Microsoft Graph](https://docs.microsoft.com/graph/overview). In addition, this sample also demonstrates how to user [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) client with a MSAL as authentication provider to call the Graph API.
 
 ## Scenario
 
@@ -30,11 +30,13 @@ In this chapter we'd extend our React single-page application (SPA) by making it
 
 | File/folder     | Description                                      |
 |-----------------|--------------------------------------------------|
-| `App.jsx`       | Main application logic resides here.             |
-| `fetch.jsx`     | Provides a helper method for making fetch calls. |
-| `authConfig.js` | Contains authentication parameters.              |
-| `pages/`        | Pages and routes.                                |
-| `components/`   | Contains UI components                           |
+| `App.jsx`           | Main application logic resides here.                                       |
+| `fetch.jsx`         | Provides a helper method for making fetch calls using bearer token scheme. |
+| `graph.jsx`         | Instantiates Graph SDK client using a custom authentication provider.      |
+| `authConfig.js`     | Contains authentication configuration parameters.                          |
+| `pages/Profile.jsx` | Calls Microsoft Graph `/me` endpoint vith Graph SDK.                       |
+| `pages/Mails.jsx`   | Calls Microsoft Graph `/me/messages` endpoint vith Graph SDK.              |
+| `pages/Tenants.jsx` | Calls Microsoft Graph `/tenants` endpoint via fetch API.                   |
 
 ## Prerequisites
 
@@ -214,9 +216,88 @@ If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one o
 
 Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
-### Calling the Graph API
+### Calling the Microsoft Graph API
 
-Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), make an authorized request to the Graph API. To do so, simply add the `Authorization` header to your request, followed by the **access token** you have obtained previously for this resource/endpoint (as a [bearer token](https://tools.ietf.org/html/rfc6750)):
+[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, 
+
+```javascript
+export const getGraphClient = () => {
+    let clientOptions = {
+        authProvider: new MyAuthenticationProvider(),
+    };
+
+    const graphClient = Client.initWithMiddleware(clientOptions);
+
+    return graphClient;
+}
+```
+
+**MyAuthenticationProvider** needs to implement the [IAuthenticationProvider](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/src/IAuthenticationProvider.ts) interface, which can be done as shown below:
+
+```javascript
+import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
+import { Client } from '@microsoft/microsoft-graph-client';
+import { msalInstance } from "./index";
+
+class MyAuthenticationProvider {
+
+    /**
+     * This method will get called before every request to the ms graph server
+     * This should return a Promise that resolves to an accessToken (in case of success) or rejects with error (in case of failure)
+     * Basically this method will contain the implementation for getting and refreshing accessTokens
+     */
+    getAccessToken() {
+        return new Promise(async (resolve, reject) => {
+            const account = msalInstance.getActiveAccount();
+            let response;
+
+            if (!account) {
+                throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
+            }
+
+            response = await msalInstance.acquireTokenSilent({
+                account: account,
+                scopes: scopes
+            });
+
+            if (response.accessToken) {
+                resolve(response.accessToken);
+            } else {
+                reject(Error('Failed to acquire an access token'));
+            }
+        });
+    }
+}
+```
+
+See [graph.js](./SPA/src/graph.js). The Graph client then can be used in your components as shown below:
+
+```javascript
+const ProfileContent = () => {
+    const { instance, accounts, inProgress } = useMsal();
+    const account = useAccount(accounts[0] || {});
+    const [graphData, setGraphData] = useState(null);
+
+    useEffect(() => {
+        if (account && inProgress === "none" && !graphData) {
+            getGraphClient(instance.getActiveAccount(), protectedResources.graphMe.scopes, InteractionType.Popup)
+                .api("/me").get()
+                    .then((response) => setGraphData(response))
+                    .catch((error) => console.log(error));
+        }
+    }, [account, inProgress, instance]);
+
+    return (
+        <>
+            { graphData ? <ProfileData graphData={graphData} /> : null}
+        </>
+    );
+};
+```
+
+### Calling a protected web API
+
+Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), simply add the `Authorization` header to your request, followed by the **access token** you have obtained previously for this resource/endpoint (as a [bearer token](https://tools.ietf.org/html/rfc6750)):
 
 ```javascript
 export const callApiWithToken = async(accessToken, apiEndpoint) => {
@@ -235,6 +316,8 @@ export const callApiWithToken = async(accessToken, apiEndpoint) => {
         .catch(error => console.log(error));
 }
 ```
+
+See [fetch.js](./SPA/src/fetch.js).
 
 ### Working with React routes
 

@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 
 import { MsalAuthenticationTemplate, useMsal, useAccount } from "@azure/msal-react";
-import { InteractionType, EventType } from "@azure/msal-browser";
+import { InteractionType } from "@azure/msal-browser";
 
-import { loginRequest, protectedResources } from "../authConfig";
-import { callApiWithToken } from "../fetch";
+import { loginRequest } from "../authConfig";
 import { MailsData } from "../components/DataDisplay";
-
-import Button from "react-bootstrap/Button";
+import { getGraphClient } from "../graph";
+import { protectedResources } from "../authConfig";
 
 const MailsContent = () => {
     /**
@@ -21,44 +20,17 @@ const MailsContent = () => {
     const [mailsData, setMailsData] = useState(null);
 
     useEffect(() => {
-
-        /**
-         * In order to get the direct response from calling acquireTokenRedirect() API, register an event
-         * and listen for ACQUIRE_TOKEN_SUCCESS. Make sure to remove the event once component unmounts. For more, 
-         * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
-         */
-
-        // This will be run on component mount
-        const callbackId = instance.addEventCallback((message) => {
-            // This will be run every time an event is emitted after registering this callback
-            if (message.eventType === EventType.ACQUIRE_TOKEN_SUCCESS) {
-                const response = message.payload;    
-                // Do something with the response
-                callApiWithToken(response.accessToken, protectedResources.graphMessages.endpoint)
-                    .then(response => setMailsData(response));
-            }
-        });
-        return () => {
-            // This will be run on component unmount
-            if (callbackId) {
-                instance.removeEventCallback(callbackId);
-            }
+        if (account && inProgress === "none" && !mailsData) {
+            getGraphClient(instance.getActiveAccount(), protectedResources.graphMessages.scopes, InteractionType.Redirect)
+                .api("/me/messages").get()
+                    .then((response) => setMailsData(response))
+                    .catch((error) => console.log(error));
         }
     }, [account, inProgress, instance]);
 
-    const requestMailData = () => {
-        instance.acquireTokenRedirect({
-            scopes: protectedResources.graphMessages.scopes,
-        }).catch(error => console.log(error))
-    }
-  
     return (
         <>
-            { mailsData ? 
-                <MailsData mailsData={mailsData} /> 
-                : 
-                <Button variant="secondary" onClick={requestMailData}>Request Mail Data</Button>
-            }
+            { mailsData ? <MailsData mailsData={mailsData} /> : null }
         </>
     );
 };
@@ -76,11 +48,11 @@ export const Mails = () => {
     };
 
     return (
-        <MsalAuthenticationTemplate 
-            interactionType={InteractionType.Redirect} 
+        <MsalAuthenticationTemplate
+            interactionType={InteractionType.Redirect}
             authenticationRequest={authRequest}
         >
             <MailsContent />
         </MsalAuthenticationTemplate>
-      )
+    )
 };

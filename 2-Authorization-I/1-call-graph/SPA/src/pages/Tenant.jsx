@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 
 import { MsalAuthenticationTemplate, useMsal, useAccount } from "@azure/msal-react";
-import { InteractionRequiredAuthError, InteractionType, EventType } from "@azure/msal-browser";
+import { InteractionType, EventType } from "@azure/msal-browser";
 
 import { loginRequest, protectedResources } from "../authConfig";
 import { callApiWithToken } from "../fetch";
 import { TenantData } from "../components/DataDisplay";
+
+import Button from "react-bootstrap/Button";
 
 const TenantContent = () => {
     /**
@@ -19,29 +21,48 @@ const TenantContent = () => {
     const [tenantData, setTenantData] = useState(null);
 
     useEffect(() => {
-        if (account && inProgress === "none" && !tenantData) {
-            instance.acquireTokenSilent({
-                scopes: protectedResources.armTenants.scopes,
-                account: account
-            }).then((response) => {
+
+        /**
+         * In order to get the direct response from calling acquireTokenRedirect() API, register an event
+         * and listen for ACQUIRE_TOKEN_SUCCESS. Make sure to remove the event once component unmounts. For more, 
+         * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
+         */
+
+        // This will be run on component mount
+        const callbackId = instance.addEventCallback((message) => {
+            // This will be run every time an event is emitted after registering this callback
+            if (message.eventType === EventType.ACQUIRE_TOKEN_SUCCESS) {
+                const response = message.payload;
+
+                // Do something with the response
                 callApiWithToken(response.accessToken, protectedResources.armTenants.endpoint)
                     .then(response => setTenantData(response));
-            }).catch(error => {
-                // in case if silent token acquisition fails, fallback to an interactive method
-                if (error instanceof InteractionRequiredAuthError) {
-                    if (account && inProgress === "none") {
-                        instance.acquireTokenRedirect({
-                            scopes: protectedResources.armTenants.scopes,
-                        }).catch(error => console.log(error));
-                    }
-                }
-            });
+            }
+        });
+        return () => {
+            // This will be run on component unmount
+            if (callbackId) {
+                instance.removeEventCallback(callbackId);
+            }
         }
     }, [account, inProgress, instance]);
-  
+
+    const requestTenantData = () => {
+        instance.acquireTokenRedirect({
+            scopes: protectedResources.armTenants.scopes,
+        }).catch(error => console.log(error))
+    }
+
     return (
         <>
-            { tenantData ? <TenantData tenantData={tenantData} /> : null }
+            { tenantData ?
+
+                <TenantData tenantData={tenantData} />
+                :
+                <div className="row justify-content-center">
+                    <Button variant="secondary" onClick={requestTenantData}>Request Tenant Data</Button>
+                </div>
+            }
         </>
     );
 };
@@ -59,11 +80,11 @@ export const Tenant = () => {
     };
 
     return (
-        <MsalAuthenticationTemplate 
-            interactionType={InteractionType.Redirect} 
+        <MsalAuthenticationTemplate
+            interactionType={InteractionType.Redirect}
             authenticationRequest={authRequest}
         >
             <TenantContent />
         </MsalAuthenticationTemplate>
-      )
+    )
 };
