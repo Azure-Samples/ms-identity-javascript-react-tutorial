@@ -17,7 +17,7 @@
 
 In the [previous chapter](../../1-Authentication\1-sign-in\README-incremental.md), you learnt how a React single-page application (SPA) authenticating users against [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD), using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
-In this chapter we'd extend our React single-page application (SPA) by making it also call [Microsoft Graph](https://docs.microsoft.com/graph/overview). In addition, this sample also demonstrates how to user [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) client with a MSAL as authentication provider to call the Graph API.
+In this chapter we'd extend our React single-page application (SPA) by making it also call [Microsoft Graph](https://docs.microsoft.com/graph/overview). In addition, this sample also demonstrates how to user [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) client with MSAL as authentication provider to call the Graph API.
 
 ## Scenario
 
@@ -28,8 +28,8 @@ In this chapter we'd extend our React single-page application (SPA) by making it
 
 ## Contents
 
-| File/folder     | Description                                      |
-|-----------------|--------------------------------------------------|
+| File/folder         | Description                                                                |
+|---------------------|----------------------------------------------------------------------------|
 | `App.jsx`           | Main application logic resides here.                                       |
 | `fetch.jsx`         | Provides a helper method for making fetch calls using bearer token scheme. |
 | `graph.jsx`         | Instantiates Graph SDK client using a custom authentication provider.      |
@@ -218,7 +218,7 @@ Clients should treat access tokens as opaque strings, as the contents of the tok
 
 ### Calling the Microsoft Graph API
 
-[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, 
+[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with [clientOptions](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md) method, which contains an `authProvider` object of class **MyAuthenticationProvider** that handles the token acquisition process for the client.
 
 ```javascript
 export const getGraphClient = () => {

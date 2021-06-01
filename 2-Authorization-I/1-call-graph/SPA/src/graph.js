@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
+import { InteractionRequiredAuthError, InteractionType, EventType } from "@azure/msal-browser";
 import { Client } from '@microsoft/microsoft-graph-client';
 
 import { msalInstance } from "./index";
@@ -36,18 +36,19 @@ class MyAuthenticationProvider {
      */
     getAccessToken() {
         return new Promise(async (resolve, reject) => {
-            const account = msalInstance.getActiveAccount();
             let response;
-
-            if (!account) {
-                throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
-            }
 
             try {
                 response = await msalInstance.acquireTokenSilent({
                     account: this.userAccount,
                     scopes: this.requiredScopes
                 });
+
+                if (response.accessToken) {
+                    resolve(response.accessToken);
+                } else {
+                    reject(Error('Failed to acquire an access token'));
+                }
             } catch (error) {
                 // in case if silent token acquisition fails, fallback to an interactive method
                 if (error instanceof InteractionRequiredAuthError) {
@@ -57,11 +58,30 @@ class MyAuthenticationProvider {
                             response = await msalInstance.acquireTokenPopup({
                                 scopes: this.requiredScopes
                             });
+
+                            if (response.accessToken) {
+                                resolve(response.accessToken);
+                            } else {
+                                reject(Error('Failed to acquire an access token'));
+                            }
                             break;
 
                         case InteractionType.Redirect:
-                            response = await msalInstance.acquireTokenRedirect({
+                            msalInstance.acquireTokenRedirect({
                                 scopes: this.requiredScopes
+                            });
+                            
+                            msalInstance.addEventCallback((message) => {
+                                // This will be run every time an event is emitted after registering this callback
+                                if (message.eventType === EventType.ACQUIRE_TOKEN_SUCCESS) {
+                                    response = message.payload;
+
+                                    if (response.accessToken) {
+                                        resolve(response.accessToken);
+                                    } else {
+                                        reject(Error('Failed to acquire an access token'));
+                                    }
+                                }
                             });
                             break;
 
@@ -69,12 +89,6 @@ class MyAuthenticationProvider {
                             break;
                     }
                 }
-            }
-
-            if (response.accessToken) {
-                resolve(response.accessToken);
-            } else {
-                reject(Error('Failed to acquire an access token'));
             }
         });
     }
