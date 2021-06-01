@@ -125,6 +125,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
      - In the list of APIs, select the API `msal-react-api`.
      - In the **Delegated permissions** section, select the **Access 'msal-react-api'** in the list. Use the search box if necessary.
      - Select the **Add permissions** button at the bottom.
+   - Finally, select the **Grant admin consent** button at the top.
 
 #### Configure the client app (msal-react-spa) to use your app registration
 
