@@ -21,8 +21,11 @@ const ProfileContent = () => {
 
     useEffect(() => {
         if (account && inProgress === "none" && !graphData) {
-            getGraphClient(instance.getActiveAccount(), protectedResources.graphMe.scopes, InteractionType.Popup)
-                .api("/me").get()
+            getGraphClient({
+                account: instance.getActiveAccount(), 
+                scopes: protectedResources.graphMe.scopes, 
+                interactionType: InteractionType.Popup
+            }).api("/me").get()
                     .then((response) => setGraphData(response))
                     .catch((error) => console.log(error));
         }

@@ -3,30 +3,46 @@
  * Licensed under the MIT License.
  */
 
-import { InteractionRequiredAuthError, InteractionType, EventType } from "@azure/msal-browser";
+import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
 import { Client } from '@microsoft/microsoft-graph-client';
 
 import { msalInstance } from "./index";
 
 /**
+ * Returns a graph client object with the provided token acquisition options
+ * @param {object} account: user account object to be used when attempting silent token acquisition  
+ * @param {array} scopes: array of scopes required for this resource endpoint
+ * @param {string} interactionType: type of interaction to fallback to when silent token acquisition fails 
+ */
+export const getGraphClient = (providerOptions) => {
+
+    /**
+     * Pass the instance as authProvider in ClientOptions to instantiate the Client which will create and set the default middleware chain.
+     * For more information, visit: https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md
+     */
+    let clientOptions = {
+        authProvider: new MsalAuthenticationProvider(providerOptions),
+    };
+
+    const graphClient = Client.initWithMiddleware(clientOptions);
+
+    return graphClient;
+}
+
+/**
  * This class implements the IAuthenticationProvider interface, which allows a custom auth provider to be
  * used with the Graph client. See: https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/src/IAuthenticationProvider.ts
  */
-class MyAuthenticationProvider {
+class MsalAuthenticationProvider {
 
-    userAccount;
-    requiredScopes;
+    account;
+    scopes;
     interactionType;
 
-    /**
-     * @param {object} userAccount: user account object to be used when attempting silent token acquisition  
-     * @param {array} requiredScopes: array of scopes required for this resource endpoint
-     * @param {string} interactionType: type of interaction to fallback to when silent token acquisition fails 
-     */
-    constructor(userAccount, requiredScopes, interactionType) {
-        this.userAccount = userAccount;
-        this.requiredScopes = requiredScopes;
-        this.interactionType = interactionType;
+    constructor(providerOptions) {
+        this.account = providerOptions.account;
+        this.scopes = providerOptions.scopes;
+        this.interactionType = providerOptions.interactionType;
     }
 
     /**
@@ -40,8 +56,8 @@ class MyAuthenticationProvider {
 
             try {
                 response = await msalInstance.acquireTokenSilent({
-                    account: this.userAccount,
-                    scopes: this.requiredScopes
+                    account: this.account,
+                    scopes: this.scopes
                 });
 
                 if (response.accessToken) {
@@ -56,7 +72,7 @@ class MyAuthenticationProvider {
                         case InteractionType.Popup:
 
                             response = await msalInstance.acquireTokenPopup({
-                                scopes: this.requiredScopes
+                                scopes: this.scopes
                             });
 
                             if (response.accessToken) {
@@ -67,21 +83,13 @@ class MyAuthenticationProvider {
                             break;
 
                         case InteractionType.Redirect:
+                            /**
+                             * This will cause the app to leave the current page and redirect to the consent screen.
+                             * Once consent is provided, the app will return back to the current page and then the 
+                             * silent token acquisition will succeed. 
+                             */
                             msalInstance.acquireTokenRedirect({
-                                scopes: this.requiredScopes
-                            });
-                            
-                            msalInstance.addEventCallback((message) => {
-                                // This will be run every time an event is emitted after registering this callback
-                                if (message.eventType === EventType.ACQUIRE_TOKEN_SUCCESS) {
-                                    response = message.payload;
-
-                                    if (response.accessToken) {
-                                        resolve(response.accessToken);
-                                    } else {
-                                        reject(Error('Failed to acquire an access token'));
-                                    }
-                                }
+                                scopes: this.scopes
                             });
                             break;
 
@@ -92,25 +100,4 @@ class MyAuthenticationProvider {
             }
         });
     }
-}
-
-/**
- * Returns a graph client object with the provided token acquisition options
- * @param {object} userAccount: user account object to be used when attempting silent token acquisition  
- * @param {array} requiredScopes: array of scopes required for this resource endpoint
- * @param {string} interactionType: type of interaction to fallback to when silent token acquisition fails 
- */
-export const getGraphClient = (userAccount, requiredScopes, interactionType) => {
-
-    /**
-     * Pass the instance as authProvider in ClientOptions to instantiate the Client which will create and set the default middleware chain.
-     * For more information, visit: https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md
-     */
-    let clientOptions = {
-        authProvider: new MyAuthenticationProvider(userAccount, requiredScopes, interactionType),
-    };
-
-    const graphClient = Client.initWithMiddleware(clientOptions);
-
-    return graphClient;
 }
