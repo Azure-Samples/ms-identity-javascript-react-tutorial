@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 
 import { MsalAuthenticationTemplate, useMsal, useAccount } from "@azure/msal-react";
-import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
+import { InteractionType } from "@azure/msal-browser";
 
-import { loginRequest, protectedResources } from "../authConfig";
-import { callApiWithToken } from "../fetch";
+import { loginRequest } from "../authConfig";
 import { ProfileData } from "../components/DataDisplay";
+import { getGraphClient } from "../graph";
+import { protectedResources } from "../authConfig";
 
 const ProfileContent = () => {
     /**
@@ -20,31 +21,19 @@ const ProfileContent = () => {
 
     useEffect(() => {
         if (account && inProgress === "none" && !graphData) {
-            instance.acquireTokenSilent({
-                scopes: protectedResources.graphMe.scopes,
-                account: account
-            }).then((response) => {
-                callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
-                    .then(response => setGraphData(response));
-            }).catch((error) => {
-                // in case if silent token acquisition fails, fallback to an interactive method
-                if (error instanceof InteractionRequiredAuthError) {
-                    if (account && inProgress === "none") {
-                        instance.acquireTokenPopup({
-                            scopes: protectedResources.graphMe.scopes,
-                        }).then((response) => {
-                            callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
-                                .then(response => setGraphData(response));
-                        }).catch(error => console.log(error));
-                    }
-                }
-            });
+            getGraphClient({
+                account: instance.getActiveAccount(), 
+                scopes: protectedResources.graphMe.scopes, 
+                interactionType: InteractionType.Popup
+            }).api("/me").get()
+                    .then((response) => setGraphData(response))
+                    .catch((error) => console.log(error));
         }
     }, [account, inProgress, instance]);
-  
+
     return (
         <>
-            { graphData ? <ProfileData graphData={graphData} /> : null }
+            { graphData ? <ProfileData graphData={graphData} /> : null}
         </>
     );
 };
@@ -62,11 +51,11 @@ export const Profile = () => {
     };
 
     return (
-        <MsalAuthenticationTemplate 
-            interactionType={InteractionType.Popup} 
+        <MsalAuthenticationTemplate
+            interactionType={InteractionType.Popup}
             authenticationRequest={authRequest}
         >
             <ProfileContent />
         </MsalAuthenticationTemplate>
-      )
+    )
 };
