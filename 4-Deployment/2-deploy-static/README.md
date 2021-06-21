@@ -78,17 +78,13 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Select the **Add a permission** button and then,
-     - Ensure that the **Microsoft APIs** tab is selected.
-     - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-     - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
-     - Select the **Add permissions** button at the bottom.
+   - Keep the Graph API User.Read permission, already provided by default.
    - Select the **Add a permission** button and then,
      - Ensure that the **My APIs** tab is selected.
      - In the list of APIs, select the API `msal-react-spa`.
      - In the **Delegated permissions** section, select the **Access 'msal-react-spa'** in the list. Use the search box if necessary.
      - Select the **Add permissions** button at the bottom.
-1. In the app's registration screen, select the **Manifest** blade. Then:
+2. In the app's registration screen, select the **Manifest** blade. Then:
    - Find the key `"accessTokenAcceptedVersion"` and replace the existing value with **2** i.e. `"accessTokenAcceptedVersion": 2`.
 
 #### Configure the app (msal-react-spa) to use your app registration
