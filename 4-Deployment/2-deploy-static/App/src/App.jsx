@@ -5,10 +5,11 @@ import { MsalProvider } from "@azure/msal-react";
 import { PageLayout } from "./components/PageLayout";
 import { Profile } from "./pages/Profile";
 import { Function } from "./pages/Function";
+import { FavoriteColor } from "./pages/FavoriteColor";
 
 import "./styles/App.css";
 
-const Pages = () => {
+const Pages = (props) => {
   return (
     <Switch>
       <Route path="/profile">
@@ -16,6 +17,9 @@ const Pages = () => {
       </Route>
       <Route path="/function">
         <Function />
+      </Route>
+      <Route path="/color">
+        <FavoriteColor />
       </Route>
     </Switch>
   )
@@ -29,6 +33,7 @@ const Pages = () => {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
 const App = ({ instance }) => {
+
   return (
     <Router>
       <MsalProvider instance={instance}>

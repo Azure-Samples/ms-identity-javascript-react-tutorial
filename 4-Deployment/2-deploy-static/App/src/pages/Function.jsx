@@ -6,6 +6,7 @@ import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-brows
 import { loginRequest, protectedResources } from "../authConfig";
 import { callOwnApiWithToken } from "../fetch";
 import { FunctionData } from "../components/DataDisplay";
+import { FavoriteColor } from "./FavoriteColor";
 
 const FunctionContent = () => {
     /**
@@ -17,6 +18,7 @@ const FunctionContent = () => {
     const { instance, accounts, inProgress } = useMsal();
     const account = useAccount(accounts[0] || {});
     const [functionData, setFunctionData] = useState(null);
+    const [accessToken, setAccessToken] = useState(null);
 
     useEffect(() => {
         if (account && inProgress === "none" && !functionData) {
@@ -24,6 +26,7 @@ const FunctionContent = () => {
                 scopes: protectedResources.functionApi.scopes,
                 account: account
             }).then((response) => {
+                setAccessToken(response.accessToken);
                 callOwnApiWithToken(response.accessToken, protectedResources.functionApi.endpoint)
                     .then(response => setFunctionData(response));
             }).catch((error) => {
@@ -33,6 +36,7 @@ const FunctionContent = () => {
                         instance.acquireTokenPopup({
                             scopes: protectedResources.functionApi.scopes,
                         }).then((response) => {
+                            setAccessToken(response.accessToken);
                             callOwnApiWithToken(response.accessToken, protectedResources.functionApi.endpoint)
                                 .then(response => setFunctionData(response));
                         }).catch(error => console.log(error));
@@ -42,9 +46,14 @@ const FunctionContent = () => {
         }
     }, [account, inProgress, instance]);
   
+    const changeFunctionData = (data) =>{
+        setFunctionData(data);
+    }
+
     return (
         <>
             { functionData ? <FunctionData functionData={functionData} /> : null }
+            <FavoriteColor changeFunctionData={changeFunctionData} accessToken={accessToken} user={(functionData && functionData.response)? functionData.response: null} endpoint={protectedResources.functionApi.endpoint}/>
         </>
     );
 };

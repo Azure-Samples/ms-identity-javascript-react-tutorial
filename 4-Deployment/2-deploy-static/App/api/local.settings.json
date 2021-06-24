@@ -7,6 +7,7 @@
     "CLIENT_ID": null,
     "CLIENT_SECRET": null,
     "TENANT_INFO": null,
-    "EXPECTED_SCOPES": "access_as_user"
+    "EXPECTED_SCOPES": "access_as_user",
+    "MONGODB_URL":""
   }
 }
