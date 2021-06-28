@@ -30,6 +30,7 @@ export const callApiWithToken = async(accessToken, apiEndpoint) => {
  * Makes a POST request sending token.
  * @param {string} accessToken 
  * @param {string} apiEndpoint 
+ * @param {object} user
  */
 export const callOwnApiWithToken = async(accessToken, apiEndpoint, user) => {
     return fetch(apiEndpoint, {

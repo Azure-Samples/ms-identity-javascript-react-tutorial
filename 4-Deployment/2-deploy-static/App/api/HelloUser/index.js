@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
 const msal = require('@azure/msal-node');
 const fetch = require('node-fetch');
-const UserService = require("../azure-cosmosdb-user");
+const UserService = require("../user.service");
 
 // Before running the sample, you will need to replace the values in the .env file, 
 const config = {
