@@ -36,5 +36,4 @@ export const FavoriteColor = ({ accessToken, endpoint, user, changeFunctionData 
             </center>
         </>
     );
-
 }
