@@ -83,6 +83,11 @@ const paginate = (schema) => {
   };
 const userSchema = mongoose.Schema(
     {
+        customAppId: {
+            type: String,
+            required: true,
+            trim: true,
+        },
         name: {
             type: String,
             required: true,

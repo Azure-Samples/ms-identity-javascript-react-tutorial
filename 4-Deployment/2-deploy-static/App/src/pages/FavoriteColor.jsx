@@ -3,29 +3,26 @@ import { callOwnApiWithToken } from "../fetch";
 
 export const FavoriteColor = ({ accessToken, endpoint, user, changeFunctionData }) => {
 
-    const [userData, setUserData] = useState({ name: null, email: null, favoriteColor: null });
+    const [color, setColor] = useState("");
 
     useEffect(() => {
-            if(user) {
-                setUserData(user);
+            if(user && user.favoriteColor) {
+                setColor(user.favoriteColor);
             }
     }, [user]);
 
     const onColorChange = (event) => {
-        setUserData({
-            ...userData,
-            favoriteColor: event.target.value
-        });
+        setColor(event.target.value);
     }
 
     const updateUserOnServer = async () => {
-        const updateUser = await callOwnApiWithToken(accessToken, endpoint, userData);
+        const updateUser = await callOwnApiWithToken(accessToken, endpoint, {favoriteColor: color});
         changeFunctionData(updateUser);
     }
 
     const onFormSubmit = async (event) => {
         event.preventDefault();
-        console.log('An color was submitted: ' + userData.favoriteColor);
+        console.log('An color was submitted: ' + color);
         updateUserOnServer().then(response => setUserData(response)).catch(error => console.log(error));
     }
 
@@ -33,7 +30,7 @@ export const FavoriteColor = ({ accessToken, endpoint, user, changeFunctionData 
         <>
             <center>
                 <form onSubmit={onFormSubmit}>
-                    <input type="text" value={userData.favoriteColor} onChange={onColorChange} name="favoriteColor" placeholder="fav color?" />
+                    <input type="text" value={color} onChange={onColorChange} name="favoriteColor" placeholder="fav color?" />
                     <input type="submit" value="Submit" />
                 </form>
             </center>

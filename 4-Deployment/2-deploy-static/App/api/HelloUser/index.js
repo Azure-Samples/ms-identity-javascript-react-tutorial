@@ -16,6 +16,8 @@ const config = {
 // Create msal application object
 const cca = new msal.ConfidentialClientApplication(config);
 
+let aadAppUniqueUser=null;
+
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
@@ -26,7 +28,7 @@ module.exports = async function (context, req) {
 
         // get appUser from client request
         // this isn't passed in on first request
-        const appUser = (req.body && req.body.user);
+        const favoriteColor = (req.body && req.body.user && req.body.user.favoriteColor) ? req.body.user.favoriteColor : null;
 
         // validate client's ssoToken
         const isAuthorized = await validateAccessToken(ssoToken);
@@ -58,26 +60,24 @@ module.exports = async function (context, req) {
         if (!foundUser) {
             // create user
             mongodbUser = {
-
+                customAppId: aadAppUniqueUser.payload.sub,
                 name: apiResponse.displayName || null,  //displayName from Graph is source of truth
                 email: apiResponse.mail || null,        //email from Graph is the source of true
                 favoriteColor: null
             };
             update = true;
         }
-        else if (foundUser && appUser){
-            // user exists and need to update
-            if (appUser && appUser.email) {
-                mongodbUser = {
-                    name: appUser.name,
-                    email: appUser.email,
-                    favoriteColor: appUser.favoriteColor
-                }
-            }
+        else if (foundUser && favoriteColor){
+            mongodbUser = {
+                customAppId: aadAppUniqueUser.payload.sub,
+                name: apiResponse.displayName || null,  //displayName from Graph is source of truth
+                email: apiResponse.mail || null,        //email from Graph is the source of true
+                favoriteColor: favoriteColor
+            };
             update=true;
         } else {
             // don't update because user not passed into API
-            console.log("nothing to update in database");
+            console.log("nothing to update");
         }
 
         // Upsert to MongoDB (CosmosDB)
@@ -184,6 +184,9 @@ validateAccessToken = async (accessToken) => {
     const checkIssuer = verifiedToken['iss'].includes(process.env['TENANT_INFO']) ? true : false;
 
     if (checkTimestamp && checkAudience && checkScope && checkIssuer) {
+        // capture decodedToken, because sub is user's unique ID
+        // for the Active Directory app
+        aadAppUniqueUser=decodedToken;
         return true;
     }
     return false;
