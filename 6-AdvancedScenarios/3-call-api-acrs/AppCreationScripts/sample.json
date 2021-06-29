@@ -1,29 +1,27 @@
 {
     "Sample": {
-        "Title": "Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a Web API",
+        "Title": "Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a web API",
         "Level": 400,
-        "Client": "ASP.NET Core Web App",
-        "Service": "ASP.NET Core Web API",
-        "RepositoryUrl": "ms-identity-ca-auth-context",
+        "Client": "React SPA",
+        "Service": "Express web API",
+        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0"
     },
     "AADApps": [
         {
             "Id": "service",
-            "Name": "TodoListService-acrs-webapi",
+            "Name": "msal-node-api",
             "Kind": "WebApi",
             "Audience": "AzureADMyOrg",
-            "HomePage": "https://localhost:44351",
-            "ReplyUrls": "https://localhost:44351/",
+            "HomePage": "http://localhost:5000/api"
         },
         {
             "Id": "client",
-            "Name": "TodoListClient-acrs-webapp",
-            "Kind": "WebApp",
+            "Name": "msal-react-spa",
+            "Kind": "SinglePageApplication",
             "Audience": "AzureADMyOrg",
-            "HomePage": "https://localhost:44321/",
-            "ReplyUrls": "https://localhost:44321/",
-            "LogoutUrl": "https://localhost:44321/signout-oidc",
+            "HomePage": "http://localhost:3000",
+            "ReplyUrls": "http://localhost:3000",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",
@@ -41,20 +39,12 @@
             "SettingFile": "\\..\\API\\authConfig.js",
             "Mappings": [
                 {
-                    "key": "Domain",
-                    "value": "$tenantName"
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": "client.AppId"
                 },
                 {
-                    "key": "TenantId",
+                    "key": "Enter_the_Tenant_Info_Here",
                     "value": "$tenantId"
-                },
-                {
-                    "key": "ClientId",
-                    "value": "service.AppId"
-                },
-                {
-                    "key": "ClientSecret",
-                    "value": ".AppKey"
                 }
             ]
         },
@@ -64,28 +54,16 @@
             "SettingFile": "\\..\\SPA\\authConfig.js",
             "Mappings": [
                 {
-                    "key": "Domain",
-                    "value": "$tenantName"
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": "client.AppId"
                 },
                 {
-                    "key": "TenantId",
+                    "key": "Enter_the_Tenant_Info_Here",
                     "value": "$tenantId"
                 },
                 {
-                    "key": "ClientId",
-                    "value": ".AppId"
-                },
-                {
-                    "key": "ClientSecret",
-                    "value": ".AppKey"
-                },
-                {
-                    "key": "TodoListScope",
+                    "key": "Enter_the_Web_Api_Scope_here",
                     "value": "service.Scope"
-                },
-                {
-                    "key": "TodoListBaseAddress",
-                    "value": "service.HomePage"
                 }
             ]
         }
