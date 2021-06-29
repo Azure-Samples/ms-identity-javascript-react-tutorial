@@ -1,8 +1,18 @@
 import "../styles/App.css";
 import { protectedResources } from "../authConfig";
+import { useState } from "react";
 
 export const ProfileData = (props) => {
     
+    const [hover, setHover] = useState(false);
+    const onHover = () => {
+      setHover(true);
+    };
+  
+    const onLeave = () => {
+      setHover(false);
+    };
+
     // Display data, remove IDs and Phone numbers
     const tableRows = Object.entries(props.graphData).map((entry, index) => {
 
@@ -13,9 +23,14 @@ export const ProfileData = (props) => {
                         ? `...` 
                         : entry[1];
 
-        return (<tr key={index}>
+        return (<tr 
+            key={index}>
             <td><b>{name}: </b></td>
-            <td><i>{val}</i></td>
+            <td><i><span 
+                onMouseEnter={onHover}
+                onMouseLeave={onLeave}>
+                    {hover ? entry[1] : val}
+            </span></i></td>
         </tr>)
     });
 
@@ -45,6 +60,15 @@ export const ProfileData = (props) => {
 
 export const FunctionData = (props) => {
 
+    const [hover, setHover] = useState(false);
+    const onHover = () => {
+      setHover(true);
+    };
+  
+    const onLeave = () => {
+      setHover(false);
+    };
+
     // Display data, remove IDs and Phone numbers
     const tableRows = Object.entries(props.functionData.response).map((entry, index) => {
 
@@ -55,9 +79,15 @@ export const FunctionData = (props) => {
                         ? `...` 
                         : entry[1];
 
-        return (<tr key={index}>
+        return (<tr 
+            
+            key={index}>
             <td><b>{name}: </b></td>
-            <td><i>{val}</i></td>
+            <td><i><span 
+                onMouseEnter={onHover}
+                onMouseLeave={onLeave}>
+                    {hover ? entry[1] : val}
+            </span></i></td>
         </tr>)
     });
 

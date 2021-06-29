@@ -1,6 +1,7 @@
 {
   "name": "ms-identity-react-c4s2",
   "version": "0.1.0",
+  "proxy": "http://localhost:7071",
   "description": "A React single-page application using MSAL React to call a protected web API on Azure Active Directory",
   "dependencies": {
     "@azure/msal-browser": "^2.14.2",

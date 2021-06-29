@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
 const msal = require('@azure/msal-node');
 const fetch = require('node-fetch');
+const UserService = require("../user.service");
 
 // Before running the sample, you will need to replace the values in the .env file, 
 const config = {
@@ -15,72 +16,94 @@ const config = {
 // Create msal application object
 const cca = new msal.ConfidentialClientApplication(config);
 
+let aadAppUniqueUser=null;
+
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
-    const ssoToken = (req.body && req.body.ssoToken);
-
     try {
+        // get ssoToken from client request
+        const ssoToken = (req.body && req.body.ssoToken);
+        if (!ssoToken) throw Error({ name: "Sample-Auth", message: "no ssoToken sent from client", "status": 401 });
+
+        // get appUser from client request
+        // this isn't passed in on first request
+        const favoriteColor = (req.body && req.body.user && req.body.user.favoriteColor) ? req.body.user.favoriteColor : null;
+
+        // validate client's ssoToken
         const isAuthorized = await validateAccessToken(ssoToken);
+        if (!isAuthorized) throw Error({ name: "Sample-Auth", message: "can't validate access token", "status": 401 });
 
-        if (isAuthorized) {
-            const oboRequest = {
-                oboAssertion: ssoToken,
-                scopes: ['User.Read'],
-            }
-
-            try {
-                let response = await cca.acquireTokenOnBehalfOf(oboRequest);
-
-                if (response.accessToken) {
-                    try {
-                        let apiResponse = await callResourceAPI(response.accessToken, 'https://graph.microsoft.com/v1.0/me');
-
-                        return context.res = {
-                            status: 200,
-                            body: {
-                                response: apiResponse,
-                            },
-                            headers: {
-                                'Content-Type': 'application/json'
-                            }
-                        };
-                    } catch (error) {
-                        context.log(error);
-
-                        return context.res = {
-                            status: 401,
-                            body: {
-                                response: "No access token"
-                            }
-                        };
-                    }
-                }
-            } catch (error) {
-                context.log(error);
-
-                return context.res = {
-                    status: 500,
-                    body: {
-                        response: JSON.stringify(error),
-                    }
-                };
-            }
-        } else {
-            context.res = {
-                status: 401,
-                body: {
-                    response: "Invalid token"
-                }
-            };
+        // construct scope for API call - must match registered scopes
+        const oboRequest = {
+            oboAssertion: ssoToken,
+            scopes: ['User.Read'],
         }
+
+        // get token on behalf of user
+        let response = await cca.acquireTokenOnBehalfOf(oboRequest);
+        if (!response.accessToken) throw Error({ name: "Sample-Auth", message: "no access token acquired", "status": 401 });
+
+        // call API on behalf of user
+        let apiResponse = await callResourceAPI(response.accessToken, 'https://graph.microsoft.com/v1.0/me');
+        if (!apiResponse) throw Error({ name: "Sample-Graph", message: "call to Graph failed", "status": 500 });
+
+        // MongoDB (CosmosDB) connect
+        const mongoDBConnected = await UserService.connect();
+        if (!mongoDBConnected) throw Error({ name: "Sample-DBConnection", message: "couldn't connect to database", "status": 500 });
+
+        let foundUser = await UserService.getUserByEmail(apiResponse.mail);
+
+        let mongodbUser = {};
+        let update = false;
+
+        if (!foundUser) {
+            // create user
+            mongodbUser = {
+                customAppId: aadAppUniqueUser.payload.sub,
+                name: apiResponse.displayName || null,  //displayName from Graph is source of truth
+                email: apiResponse.mail || null,        //email from Graph is the source of true
+                favoriteColor: null
+            };
+            update = true;
+        }
+        else if (foundUser && favoriteColor){
+            mongodbUser = {
+                customAppId: aadAppUniqueUser.payload.sub,
+                name: apiResponse.displayName || null,  //displayName from Graph is source of truth
+                email: apiResponse.mail || null,        //email from Graph is the source of true
+                favoriteColor: favoriteColor
+            };
+            update=true;
+        } else {
+            // don't update because user not passed into API
+            console.log("nothing to update");
+        }
+
+        // Upsert to MongoDB (CosmosDB)
+        if(update){
+            foundUser = await UserService.upsertByEmail(apiResponse.mail, mongodbUser);
+            if (!foundUser) throw Error({ name: "Sample-DBConnection", message: "no user returned from database", "status": 500 });
+        }
+
+        // Return to client
+        return context.res = {
+            status: 200,
+            body: {
+                response: foundUser.toJSON() || null,
+            },
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
     } catch (error) {
         context.log(error);
 
         context.res = {
-            status: 500,
+            status: error.status || 500,
             body: {
-                response: JSON.stringify(error),
+                response: error.message || JSON.stringify(error),
             }
         };
     }
@@ -161,6 +184,9 @@ validateAccessToken = async (accessToken) => {
     const checkIssuer = verifiedToken['iss'].includes(process.env['TENANT_INFO']) ? true : false;
 
     if (checkTimestamp && checkAudience && checkScope && checkIssuer) {
+        // capture decodedToken, because sub is user's unique ID
+        // for the Active Directory app
+        aadAppUniqueUser=decodedToken;
         return true;
     }
     return false;

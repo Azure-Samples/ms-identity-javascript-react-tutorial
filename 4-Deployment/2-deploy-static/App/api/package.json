@@ -6,10 +6,12 @@
     "start": "func start"
   },
   "dependencies": {
+    "@azure/msal-node": "^1.0.0",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.12.2",
-    "@azure/msal-node": "^1.0.0",
-    "node-fetch": "^2.6.1"
+    "mongoose": "^5.12.14",
+    "node-fetch": "^2.6.1",
+    "validator": "^13.6.0"
   },
   "devDependencies": {}
 }
