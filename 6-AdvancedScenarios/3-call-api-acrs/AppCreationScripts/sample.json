@@ -1,0 +1,93 @@
+{
+    "Sample": {
+        "Title": "Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a Web API",
+        "Level": 400,
+        "Client": "ASP.NET Core Web App",
+        "Service": "ASP.NET Core Web API",
+        "RepositoryUrl": "ms-identity-ca-auth-context",
+        "Endpoint": "AAD v2.0"
+    },
+    "AADApps": [
+        {
+            "Id": "service",
+            "Name": "TodoListService-acrs-webapi",
+            "Kind": "WebApi",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "https://localhost:44351",
+            "ReplyUrls": "https://localhost:44351/",
+        },
+        {
+            "Id": "client",
+            "Name": "TodoListClient-acrs-webapp",
+            "Kind": "WebApp",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "https://localhost:44321/",
+            "ReplyUrls": "https://localhost:44321/",
+            "LogoutUrl": "https://localhost:44321/signout-oidc",
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "service",
+                    "DelegatedPermissions": [
+                        "access_as_user"
+                    ]
+                }
+            ]
+        }
+    ],
+    "CodeConfiguration": [
+        {
+            "App": "service",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\API\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Domain",
+                    "value": "$tenantName"
+                },
+                {
+                    "key": "TenantId",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "ClientId",
+                    "value": "service.AppId"
+                },
+                {
+                    "key": "ClientSecret",
+                    "value": ".AppKey"
+                }
+            ]
+        },
+        {
+            "App": "client",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\SPA\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Domain",
+                    "value": "$tenantName"
+                },
+                {
+                    "key": "TenantId",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "ClientId",
+                    "value": ".AppId"
+                },
+                {
+                    "key": "ClientSecret",
+                    "value": ".AppKey"
+                },
+                {
+                    "key": "TodoListScope",
+                    "value": "service.Scope"
+                },
+                {
+                    "key": "TodoListBaseAddress",
+                    "value": "service.HomePage"
+                }
+            ]
+        }
+    ]
+}
