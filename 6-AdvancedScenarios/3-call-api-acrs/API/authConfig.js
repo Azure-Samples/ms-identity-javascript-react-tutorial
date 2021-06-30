@@ -1,7 +1,7 @@
 const authConfig = {
     credentials: {
-        tenantID: "cbaf2168-de14-4c72-9d88-f5f05366dbef",
-        clientID: "7d9f32a3-5a06-4183-9aa0-da01bc2928f6",
+        tenantID: "Enter_the_Tenant_Info_Here",
+        clientID: "Enter_the_Application_Id_Here",
     },
     metadata: {
         authority: "login.microsoftonline.com",

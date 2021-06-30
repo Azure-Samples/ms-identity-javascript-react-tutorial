@@ -13,7 +13,12 @@
             "Name": "msal-node-api",
             "Kind": "WebApi",
             "Audience": "AzureADMyOrg",
-            "HomePage": "http://localhost:5000/api"
+            "HomePage": "http://localhost:5000/api",
+            "ManualSteps": [
+                {
+                    "Comment": "Navigate to the Manifest page, find the 'optionalClaims' section and change its default value to request 'xms_cc' claims"
+                }
+            ]
         },
         {
             "Id": "client",
@@ -51,7 +56,7 @@
         {
             "App": "client",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\SPA\\authConfig.js",
+            "SettingFile": "\\..\\SPA\\src\\authConfig.js",
             "Mappings": [
                 {
                     "key": "Enter_the_Application_Id_Here",

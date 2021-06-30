@@ -1,14 +1,3 @@
 {
-  "todos": [
-    {
-      "id": "vEqBc52QQ6Mscr0w9kHEL",
-      "name": "sdfhhhhhh",
-      "owner": "admin@msaltestingjs.onmicrosoft.com"
-    },
-    {
-      "id": "OJdmXYH3abT6BqVaCMRcP",
-      "name": "wer",
-      "owner": "DiegoS@msaltestingjs.onmicrosoft.com"
-    }
-  ]
+  "todos": []
 }

@@ -12,12 +12,12 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: '99ca54be-e280-4de7-956e-c4b4f86870b8', // This is the ONLY mandatory field that you need to supply.
-        authority: 'https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef', // Defaults to "https://login.microsoftonline.com/common"
+        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
-        clientCapabilities: ["CP1"] // lets resource owner know that this client is capable of handling claims challenge
+        clientCapabilities: ["CP1"] // lets resource owner know that this client is capable of handling claims challenge.
     },
     cache: {
         cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
@@ -55,7 +55,7 @@ export const msalConfig = {
 export const protectedResources = {
     apiTodoList: {
         todoListEndpoint: "http://localhost:5000/api/todolist",
-        scopes: ["api://7d9f32a3-5a06-4183-9aa0-da01bc2928f6/access_as_user"],
+        scopes: ["api://Enter_the_Web_Api_Scope_here/access_as_user"],
     },
 }
 
