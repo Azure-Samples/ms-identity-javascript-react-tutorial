@@ -28,10 +28,10 @@ const handleClaimsChallenge = async (response) => {
 
             const claimsChallenge = authenticateHeader.split(" ")
                 .find(entry => entry.includes("claims=")).split('="')[1].split('",')[0];
-
+                
             try {
                 await msalInstance.acquireTokenPopup({
-                    claims: claimsChallenge,
+                    claims: window.atob(claimsChallenge),
                     scopes: protectedResources.apiTodoList.scopes
                 });
             } catch (error) {

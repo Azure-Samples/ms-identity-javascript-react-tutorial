@@ -1,4 +1,4 @@
-# Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a Web API
+# React single-page application calling Express web API using Conditional Access auth context to perform step-up authentication
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -15,15 +15,15 @@
 
 ## Overview
 
-This code sample uses the Conditional Access Auth Context to demand a higher bar of authentication for certain high-privileged and sensitive operations in a [protected Web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview).
+This code sample uses the Conditional Access Auth Context to demand a higher bar of authentication for certain sensitive operations in a [protected Web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview).
 
 > :information_source: Check out the recorded session on this topic: [Use Conditional Access Auth Context in your app for step-up authentication](https://www.youtube.com/watch?v=_iO7CfoktTY&ab_channel=Microsoft365Community)
 
 ## Scenario
 
 1. The client ASP.NET Core Web App uses the [Microsoft.Identity.Web](https://aka.ms/microsoft-identity-web) and Microsoft Authentication Library for .NET ([MSAL.NET](https://aka.ms/msal-net)) to sign-in and obtain a JWT access token from **Azure AD**.
-1. The access token is used as a bearer token to authorize the user to call the ASP.NET Core Web API protected **Azure AD**.
-1. For sensitive operations, the Web API can be configured to demand step-up authentication, like MFA, from the signed-in user
+1. The access token is used as a *bearer* token to authorize the user to call the Express web API protected by **Azure AD**.
+1. For sensitive operations, the web API can be configured to demand step-up authentication, like MFA, from the signed-in user
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -32,10 +32,9 @@ This code sample uses the Conditional Access Auth Context to demand a higher bar
 | File/folder                         | Description                                                                   |
 |-------------------------------------|-------------------------------------------------------------------------------|
 | `SPA/src/authConfig.js`             | Authentication parameters for SPA project reside here.                        |
-| `SPA/src/components/RouteGuard.jsx` | This component protects other components that require a user to be in a role. |
 | `SPA/src/index.js`                  | MSAL React is initialized here.                                               |
 | `API/authConfig.json`               | Authentication parameters for web API project.                                |
-| `API/utils/guard.js`                | Custom middleware protecting app routes that require a user to be in a role.  |
+| `API/utils/guard.js`                | Custom middleware protecting app routes                                       |
 | `API/app.js`                        | passport-azure-ad is initialized here.                                        |
 
 ## Prerequisites
@@ -163,24 +162,24 @@ The first thing that we need to do is to declare the unique [resource](https://d
 }
 ```
 
-#### Configure the service app (TodoListService-acrs-webapi) to use your app registration
+#### Configure the service app (msal-node-api) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `TodoListService\appsettings.json` file.
+1. Open the `API\authConfig.js` file.
 1. Find the key `Domain` and replace the existing value with your Azure AD tenant name.
 1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `TodoListService-acrs-webapi` app copied from the Azure portal.
 1. Find the key `ClientSecret` and replace the existing value with the key you saved during the creation of `TodoListService-acrs-webapi` copied from the Azure portal.
 
-### Register the client app (TodoListClient-acrs-webapp)
+### Register the client app (msal-react-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListClient-acrs-webapp`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
    - In the **Redirect URI (optional)** section, select **Web** in the combo-box and enter the following redirect URI: `https://localhost:44321/`.
 1. Select **Register** to create the application.
@@ -188,52 +187,86 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then,
    - Ensure that the **My APIs** tab is selected.
-   - In the list of APIs, select the API `TodoListService-acrs-webapi`.
-   - In the **Delegated permissions** section, select the **Access 'TodoListService-acrs-webapi'** in the list. Use the search box if necessary.
+   - In the list of APIs, select the API `msal-node-api`.
+   - In the **Delegated permissions** section, select the **Access 'msal-node-api'** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
 
-#### Configure the client app (TodoListClient-acrs-webapp) to use your app registration
+#### Configure the client app (msal-react-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `TodoListClient\appsettings.json` file.
+1. Open the `SPA\authConfig.js` file.
 1. Find the key `Domain` and replace the existing value with your Azure AD tenant name.
 1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `TodoListClient-acrs-webapp` app copied from the Azure portal.
-1. Find the key `ClientSecret` and replace the existing value with the key you saved during the creation of `TodoListClient-acrs-webapp` copied from the Azure portal.
+1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Find the key `ClientSecret` and replace the existing value with the key you saved during the creation of `msal-react-spa` copied from the Azure portal.
 1. Find the key `TodoListScope` and replace the existing value with Scope.
 1. Find the key `TodoListBaseAddress` and replace the existing value with the base address of `TodoListService-acrs-webapi` (by default `https://localhost:44351`).
 
-### Configure a Conditional Access policy to use auth context in Azure portal
+### Configure a Conditional Access policy to use auth context
 
-1. Navigate to Azure Active Directory> Security > Conditional Access
+1. Navigate to **Azure Active Directory** > **Security** > **Conditional Access**
 1. Select **New policy** and go to **Cloud apps or actions**. In dropdown select **Authentication context**. The newly created auth context values will be listed for you to be used in this CA policy.
 
-    ![Overview](./ReadmeFiles/AuthContext.png)
+![Overview](./ReadmeFiles/AuthContext.png)
 
-    Select the value and create the policy as required. For example, you might want the user to satisfy a MFA challenge if the auth context value is 'Medium'.
+Select the value and create the policy as required. For example, you might want the user to satisfy a **MFA** challenge if the auth context value is **Medium**.
 
 ## Running the sample
 
-```console
-cd TodoListClient
-dotnet restore
-dotnet run
-```
+Start the web API first:
 
 ```console
-cd TodoListService
-dotnet restore
-dotnet run
+cd API
+npm start
+```
+
+In a separate terminal, type
+
+```console
+cd SPA
+npm start
 ```
 
 ## Explore the sample
 
+* sdf
+* sdf2
+* sdf3
+
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
 ## About the code
+
+### Configuration
+
+```javascript
+```
+
+```javascript
+```
+
+### Checking for client capabilities
+
+```javascript
+```
+
+### Checking for auth context
+
+```javascript
+```
+
+### Generating claims challenge
+
+```javascript
+```
+
+### Fulfilling claims challenge
+
+```javascript
+```
 
 ## More information
 

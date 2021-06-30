@@ -55,9 +55,11 @@ export const ListView = (props) => {
     }
 
     const handleDeleteTask = (id) => {
-        deleteTask(id).then(() => {
-            const remainingTasks = tasks.filter(task => id !== task.id);
-            setTasks(remainingTasks);
+        deleteTask(id).then((response) => {
+            if (response.message === "success") {
+                const remainingTasks = tasks.filter(task => id !== task.id);
+                setTasks(remainingTasks);
+            }
         });
     }
 
