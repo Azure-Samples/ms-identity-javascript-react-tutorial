@@ -93,10 +93,10 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `App/src/authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with APP ID URI that you've registered earlier, e.g. `api://****-****-********-********/access_as_user`
+1. Open the `App/src/.env` file.
+1. Find the `REACT_APP_AAD_APP_CLIENT_ID` environment variable and add the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Find the `REACT_APP_AAD_APP_TENANT_ID` environment variable and add your Azure AD tenant ID.
+1. Find the `REACT_APP_AAD_APP_REDIRECT_URI` environment variable and add the APP ID URI that you've registered earlier, e.g. `api://****-****-********-********/`
 
 ## Deployment
 
