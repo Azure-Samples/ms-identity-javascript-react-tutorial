@@ -290,6 +290,18 @@ Function ConfigureApplications
    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
    Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-node-api-acrs</a></td></tr>" -Path createdApps.html
 
+   $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
+
+   # Add Required Resources Access (from 'service' to 'Microsoft Graph')
+   Write-Host "Getting access from 'service' to 'Microsoft Graph'"
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+                                                -requiredDelegatedPermissions "Policy.Read.ConditionalAccess|Policy.ReadWrite.ConditionalAccess" `
+
+   $requiredResourcesAccess.Add($requiredPermissions)
+
+
+   Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
+   Write-Host "Granted permissions."
 
    # Create the client AAD application
    Write-Host "Creating the AAD application (msal-react-spa-acrs)"
@@ -332,10 +344,18 @@ Function ConfigureApplications
    Set-AzureADApplication -ObjectId $clientAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
    Write-Host "Granted permissions."
 
+   # Configure known client applications for service 
+   Write-Host "Configure known client applications for the 'service'"
+   $knowApplications = New-Object System.Collections.Generic.List[System.String]
+    $knowApplications.Add($clientAadApplication.AppId)
+   Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -KnownClientApplications $knowApplications
+   Write-Host "Configured."
+
+
    # Update config file for 'service'
    $configFile = $pwd.Path + "\..\API\authConfig.js"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Enter_the_Redirect_Uri_Here" = $serviceAadApplication.ReplyUrls };
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Enter_the_Redirect_Uri_Here" = $serviceAadApplication.ReplyUrls };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
 
    # Update config file for 'client'
@@ -350,7 +370,7 @@ Function ConfigureApplications
    Write-Host "  - Navigate to Azure portal and set the 'accessTokenAcceptedVersion' to '2' in the application manifest" -ForegroundColor Red 
    Write-Host "- For client"
    Write-Host "  - Navigate to $clientPortalUrl"
-   Write-Host "  - Navigate to Azure portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" -ForegroundColor Red 
+   Write-Host "  - Navigate to Azure portal and set the 'replyUrlsWithType.type' to 'Spa' in the application manifest" -ForegroundColor Red 
 
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
       if($isOpenSSL -eq 'Y')

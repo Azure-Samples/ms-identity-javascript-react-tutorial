@@ -15,7 +15,7 @@
 
 ## Overview
 
-This sample demonstrates how to use the Conditional Access [Authentication Context](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context) feature to achieve granular access control and demand a higher bar of authentication for certain sensitive operations (e.g. HTTP DELETE requests) on an Express.js [protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview) called by a client React single-page application (SPA). 
+This sample demonstrates how to use the Conditional Access [Authentication Context](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context) feature to achieve granular access control and demand a higher bar of authentication for certain sensitive operations (e.g. HTTP DELETE requests) on an Express.js [protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview) called by a client React single-page application (SPA).
 
 The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [msal-express-wrapper](https://github.com/Azure-Samples/msal-express-wrapper) to acquire access tokens and [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for querying Microsoft Graph. For storing data, a **mock database** is implemented using the [lowdb](https://github.com/typicode/lowdb) package. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
 
@@ -23,7 +23,7 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 
 ## Scenario
 
-1. The client React SPA uses the [MSAL React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) to sign-in and obtain a JWT access token from **Azure AD**.
+1. The client React SPA uses the **MSAL React** to sign-in and obtain a JWT access token from **Azure AD**.
 1. The access token is used as a *bearer* token to authorize the user to call the Express web API protected by **Azure AD**.
 1. For sensitive operations, the web API is configured to demand step-up authentication, like MFA, from the signed-in user.
 
@@ -31,15 +31,15 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 
 ## Contents
 
-| File/folder                         | Description                                                                   |
-|-------------------------------------|-------------------------------------------------------------------------------|
-| `SPA/src/authConfig.js`             | Authentication parameters for SPA project reside here.                        |
-| `SPA/src/index.js`                  | MSAL React is initialized here.                                               |
-| `SPA/src/fetch.js`                  | Claims challenge for the client is handled here.                              |
-| `API/authConfig.json`               | Authentication parameters for the web API project.                            |
-| `API/utils/guard.js`                | Custom middleware protecting app routes                                       |
+| File/folder                         | Description                                                                           |
+|-------------------------------------|---------------------------------------------------------------------------------------|
+| `SPA/src/authConfig.js`             | Authentication parameters for SPA project reside here.                                |
+| `SPA/src/index.js`                  | MSAL React is initialized here.                                                       |
+| `SPA/src/fetch.js`                  | Claims challenge for the client is handled here.                                      |
+| `API/authConfig.js`                 | Authentication parameters for the web API project.                                    |
+| `API/utils/guard.js`                | Custom middleware protecting app routes                                               |
 | `API/utils/claims.js`               | Custom middleware handling checking for auth context and generating claims challenge. |
-| `API/app.js`                        | passport-azure-ad is initialized here.                                        |
+| `API/app.js`                        | passport-azure-ad is initialized here.                                                |
 
 ## Prerequisites
 
@@ -119,12 +119,12 @@ As a first step you'll need to:
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
-### Register the service app (msal-node-api)
+### Register the service app (msal-node-api-acrs)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-node-api`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-node-api-acrs`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
    - In the **Redirect URI (optional)** section, select **Web** in the combo-box and enter the following redirect URI: `http://localhost:5000/admin`.
      > Note that there are more than one redirect URIs used in this sample. You'll need to add them from the **Authentication** tab later after the app has been created successfully.
@@ -138,8 +138,8 @@ As a first step you'll need to:
 1. In the app's registration screen, select the **Certificates & secrets** blade in the left to open the page where we can generate secrets and upload certificates.
 1. In the **Client secrets** section, select **New client secret**:
    - Type a key description (for instance `app secret`),
-   - Select one of the available key durations (**In 1 year**, **In 2 years**, or **Never Expires**) as per your security posture.
-   - The generated key value will be displayed when you select the **Add** button. Copy the generated value for use in the steps later.
+   - Select one of the available key durations (**6 months**, **12 months** or **Custom**) as per your security posture.
+   - The generated key value will be displayed when you select the **Add** button. Copy and save the generated value for use in later steps.
    - You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Azure portal before navigating to any other screen or blade.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then,
@@ -156,10 +156,10 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
         - For **Scope name**, use `access_as_user`.
         - Select **Admins and users** options for **Who can consent?**.
-        - For **Admin consent display name** type `Access msal-node-api`.
-        - For **Admin consent description** type `Allows the app to access msal-node-api as the signed-in user.`
-        - For **User consent display name** type `Access msal-node-api`.
-        - For **User consent description** type `Allow the application to access msal-node-api on your behalf.`
+        - For **Admin consent display name** type `Access msal-node-api-acrs`.
+        - For **Admin consent description** type `Allows the app to access msal-node-api-acrs as the signed-in user.`
+        - For **User consent display name** type `Access msal-node-api-acrs`.
+        - For **User consent description** type `Allow the application to access msal-node-api-acrs on your behalf.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
 1. Select the `Manifest` blade on the left.
@@ -184,7 +184,7 @@ The first thing that we need to do is to declare the unique [resource](https://d
 
    - Click on **Save**.
 
-#### Configure the service app (msal-node-api) to use your app registration
+#### Configure the service app (msal-node-api-acrs) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
@@ -192,16 +192,19 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open the `API\authConfig.js` file.
 1. Find the key `tenantId` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `clientId` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
+1. Find the key `clientId` and replace the existing value with the application ID (clientId) of `msal-node-api-acrs` app copied from the Azure portal.
 1. Find the key `clientSecret` and replace the existing value with the client secret you recorded earlier.
 1. Find the key `redirectUri` and replace the existing value with the redirect URI you created earlier.
 
-### Register the client app (msal-react-spa)
+1. Open the `API/app.js` file.
+1. Find the string `ENTER_YOUR_SECRET_HERE` and replace it with a secret that will be used when encrypting your app's session using the [express-session](https://www.npmjs.com/package/express-session) package.
+
+### Register the client app (msal-react-spa-acrs)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa-acrs`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
    - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000`.
 1. Select **Register** to create the application.
@@ -209,20 +212,20 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then,
    - Ensure that the **My APIs** tab is selected.
-   - In the list of APIs, select the API `msal-node-api`.
-   - In the **Delegated permissions** section, select the **Access 'msal-node-api'** in the list. Use the search box if necessary.
+   - In the list of APIs, select the API `msal-node-api-acrs`.
+   - In the **Delegated permissions** section, select the **Access 'msal-node-api-acrs'** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
 
-#### Configure the client app (msal-react-spa) to use your app registration
+#### Configure the client app (msal-react-spa-acrs) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `SPA/src/authConfig.js` file.
-1. Find the string `Enter_the_Application_Id_Here` and replace it with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Open the `SPA/src/app/authConfig.js` file.
+1. Find the string `Enter_the_Application_Id_Here` and replace it with the application ID (clientId) of `msal-react-spa-acrs` app copied from the Azure portal.
 1. Find the string `Enter_the_Tenant_Info_Here` and replace it with your Azure AD tenant ID.
-1. Find the string `Enter_the_Web_Api_Scope_here` and replace it with the scope of `msal-node-api` that you've exposed earlier, e.g. `api://API_CLIENT_ID/access_as_user`.
+1. Find the string `Enter_the_Web_Api_Scope_here` and replace it with the scope of `msal-node-api-acrs` that you've exposed earlier, e.g. `api://API_CLIENT_ID/access_as_user`.
 
 ## Running the sample
 
@@ -246,7 +249,7 @@ In a separate terminal, type
 
 ![Overview](./ReadmeFiles/Admin.png)
 
-2. As a first step, you will ensure that a set of auth contexts is already available in this tenant. Click the **Create or Fetch** button to check if they exist. If they don't, the code will create three example auth context entries for you. These three entires are named `Require strong authentication`, `Require compliant devices` and `Require trusted locations`.
+2. As a first step, you will ensure that a set of auth contexts is already available in this tenant. Click the **Create or Fetch** button to check if they exist. If they don't, the code will create three example auth context entries for you. These three entires are named **Require strong authentication**, **Require compliant devices** and **Require trusted locations**.
 
 > :information_source: The Graph permission **Policy.ReadWrite.ConditionalAccess** is required for creating new records. In production, the permission **Policy.Read.ConditionalAccess** should be sufficient to read existing values and thus is recommended.
 
@@ -256,7 +259,7 @@ Select an operation in the web API and an auth context value to apply. Then sele
 
 > :warning: When changing auth context mappings, have the user sign-out and sign-back in for the changes to take effect.
 
-1. Go to **Details** page to get details of data saved on the web API side in its database. You can select **Delete** if you need to delete a mapping from the local database.
+3. Go to **Details** page to get details of data saved on the web API side in its database. You can select **Delete** if you need to delete a mapping from the local database.
 
 ![Overview](./ReadmeFiles/ViewDetails.png)
 
@@ -269,16 +272,13 @@ The web API is now ready to challenge users for step-up auth for the selected op
 
 ![Overview](./ReadmeFiles/AuthContext.png)
 
-Select the value and create the policy as required. For example, you might want the user to satisfy a **MFA** challenge if the auth context value is **c1**.
+Select the value and create the policy as required. For example, you might want the user to satisfy a **MFA** challenge if the auth context value is **Require strong authentication**.
 
 ### Test in the client app
 
 1. Browse `http://localhost:3000` and sign-in.
 1. Select **TodoList** page and perform the operations.
-
-![Overview](./ReadmeFiles/ToDoList.png)
-
-If an operation was saved for a certain authContext and there is a CA policy configured and enabled, the user will be redirected to Azure AD and ask to perform the required step(s) like MFA.
+    - If an operation was saved for a certain authContext and there is a CA policy configured and enabled, the user will be redirected to Azure AD and ask to perform the required step(s) like MFA.
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 

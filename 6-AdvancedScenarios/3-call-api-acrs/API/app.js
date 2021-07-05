@@ -4,7 +4,7 @@ const methodOverride = require('method-override');
 const cors = require('cors');
 const path = require('path');
 
-const msalWrapper = require('../../../../msal-express-wrapper/dist/index');
+const msalWrapper = require('msal-express-wrapper');
 
 const passport = require('passport');
 const BearerStrategy = require('passport-azure-ad').BearerStrategy;
@@ -34,7 +34,7 @@ app.use(express.json());
  * expose www-authenticate header in response from web API
  */
 app.use(cors({
-    origin: "http://localhost:3000",
+    origin: "http://localhost:3000", // replace with client domain
     exposedHeaders: "www-authenticate",
 }));
 

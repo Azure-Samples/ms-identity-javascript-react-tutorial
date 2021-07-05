@@ -16,6 +16,15 @@
             "HomePage": "http://localhost:5000/admin/home",
             "ReplyUrls": "http://localhost:5000/admin/redirect",
             "PasswordCredentials": "Auto",
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": [
+                        "Policy.Read.ConditionalAccess",
+                        "Policy.ReadWrite.ConditionalAccess"
+                    ]
+                }
+            ],
             "ManualSteps": [
                 {
                     "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'"
@@ -50,7 +59,7 @@
             "Mappings": [
                 {
                     "key": "Enter_the_Application_Id_Here",
-                    "value": "client.AppId"
+                    "value": "service.AppId"
                 },
                 {
                     "key": "Enter_the_Tenant_Info_Here",
@@ -58,7 +67,7 @@
                 },
                 {
                     "key": "Enter_the_Client_Secret_Here",
-                    "value": ".AppKey"
+                    "value": "service.AppKey"
                 },
                 {
                     "key": "Enter_the_Redirect_Uri_Here",
