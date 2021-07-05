@@ -8,10 +8,16 @@
     "dev": "nodemon app.js"
   },
   "dependencies": {
-    "@azure/msal-node": "^1.0.3",
+    "@microsoft/microsoft-graph-client": "^2.2.1",
+    "bootstrap": "^5.0.2",
     "cors": "^2.8.5",
+    "ejs": "^3.1.6",
     "express": "^4.14.0",
+    "express-session": "^1.17.2",
+    "isomorphic-fetch": "^3.0.0",
     "lowdb": "^1.0.0",
+    "method-override": "^3.0.0",
+    "msal-express-wrapper": "github:azure-samples/msal-express-wrapper#1.0.0-beta.2",
     "passport": "^0.3.2",
     "passport-azure-ad": "^4.2.1"
   },

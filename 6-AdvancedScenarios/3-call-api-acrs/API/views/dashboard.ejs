@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" status="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="/style.css">
+    <title>Dashboard</title>
+</head>
+
+<body>
+
+    <%- include('includes/navbar', {isAuthenticated: isAuthenticated}); %>
+
+        <div class="row" style="margin: auto">
+            <div id="card-div" class="col-md-3">
+                <div id="info">
+                    Select <b>Fetch or Create</b> button to perform following steps:
+                    <ul>
+                        <li>Creates Auth Context in Azure AD tenant if it does not exist</li>
+                        <li>Retrieves the Auth Context if it exists</li>
+                    </ul>
+                </div>
+                <form action="/admin/dashboard" method="POST">
+                    <button type="submit" class="btn btn-primary">Fetch or Create</button>
+                </form>
+            </div>
+        </div>
+
+        <% if (isLoaded) { %>
+            <div class="row" style="margin: auto">
+                <div id="card-div" class="col-md-3">
+                    <div id="info">
+                        <p><b>Save Or Update</b> in order to modify the <i>operation -> authContext</i> mappings in the database</p>
+                    </div>
+                    <form action="/admin/details" method="POST">
+                        <select class="form-select" name="operation">
+                            <option selected>Select HTTP Action</option>
+                            <option value="POST">POST</option>
+                            <option value="DELETE">DELETE</option>
+                            <option value="UPDATE">UPDATE</option>
+                        </select>
+                        <select class="form-select" name="authContext">
+                            <option selected>Select Auth Context</option>
+                            <% acrsList.forEach(ac=> { %>
+                                <option value="<%= ac.id %> <%= ac.displayName %>"><%= ac.displayName %></a>
+                            <% }); %>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Save or Update</button>
+                    </form>
+                </div>
+            </div>
+            <% } %>
+
+                <%- include('includes/footer'); %>
+
+                    <!-- importing bootstrap.js and supporting js libraries -->
+                    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+                        integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+                        crossorigin="anonymous"></script>
+                    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+                        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+                        crossorigin="anonymous"></script>
+                    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+                        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+                        crossorigin="anonymous"></script>
+</body>
+
+</html>

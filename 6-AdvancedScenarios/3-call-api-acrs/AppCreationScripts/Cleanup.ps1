@@ -59,16 +59,16 @@ Function Cleanup
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantName'"
 
-    Write-Host "Removing 'service' (msal-node-api) if needed"
+    Write-Host "Removing 'service' (msal-node-api-acrs) if needed"
     try
     {
-        Get-AzureADApplication -Filter "DisplayName eq 'msal-node-api'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+        Get-AzureADApplication -Filter "DisplayName eq 'msal-node-api-acrs'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
     }
     catch
     {
-	    Write-Host "Unable to remove the 'msal-node-api' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+	    Write-Host "Unable to remove the 'msal-node-api-acrs' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'msal-node-api'"
+    $apps = Get-AzureADApplication -Filter "DisplayName eq 'msal-node-api-acrs'"
     if ($apps)
     {
         Remove-AzureADApplication -ObjectId $apps.ObjectId
@@ -77,27 +77,27 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed msal-node-api.."
+        Write-Host "Removed msal-node-api-acrs.."
     }
     # also remove service principals of this app
     try
     {
-        Get-AzureADServicePrincipal -filter "DisplayName eq 'msal-node-api'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+        Get-AzureADServicePrincipal -filter "DisplayName eq 'msal-node-api-acrs'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
     }
     catch
     {
-	    Write-Host "Unable to remove ServicePrincipal 'msal-node-api' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+	    Write-Host "Unable to remove ServicePrincipal 'msal-node-api-acrs' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
-    Write-Host "Removing 'client' (msal-react-spa) if needed"
+    Write-Host "Removing 'client' (msal-react-spa-acrs) if needed"
     try
     {
-        Get-AzureADApplication -Filter "DisplayName eq 'msal-react-spa'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+        Get-AzureADApplication -Filter "DisplayName eq 'msal-react-spa-acrs'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
     }
     catch
     {
-	    Write-Host "Unable to remove the 'msal-react-spa' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+	    Write-Host "Unable to remove the 'msal-react-spa-acrs' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'msal-react-spa'"
+    $apps = Get-AzureADApplication -Filter "DisplayName eq 'msal-react-spa-acrs'"
     if ($apps)
     {
         Remove-AzureADApplication -ObjectId $apps.ObjectId
@@ -106,16 +106,16 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed msal-react-spa.."
+        Write-Host "Removed msal-react-spa-acrs.."
     }
     # also remove service principals of this app
     try
     {
-        Get-AzureADServicePrincipal -filter "DisplayName eq 'msal-react-spa'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+        Get-AzureADServicePrincipal -filter "DisplayName eq 'msal-react-spa-acrs'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
     }
     catch
     {
-	    Write-Host "Unable to remove ServicePrincipal 'msal-react-spa' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+	    Write-Host "Unable to remove ServicePrincipal 'msal-react-spa-acrs' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
 

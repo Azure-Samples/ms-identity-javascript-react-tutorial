@@ -17,7 +17,7 @@ export const msalConfig = {
         redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
-        clientCapabilities: ["CP1"] // lets resource owner know that this client is capable of handling claims challenge.
+        clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
     },
     cache: {
         cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
@@ -55,7 +55,7 @@ export const msalConfig = {
 export const protectedResources = {
     apiTodoList: {
         todoListEndpoint: "http://localhost:5000/api/todolist",
-        scopes: ["api://Enter_the_Web_Api_Scope_here/access_as_user"],
+        scopes: ["Enter_the_Web_Api_Scope_here"], // e.g. api://xxxxx-xxxx-xxxx-xxxx-xxxxx/access_as_user
     },
 }
 

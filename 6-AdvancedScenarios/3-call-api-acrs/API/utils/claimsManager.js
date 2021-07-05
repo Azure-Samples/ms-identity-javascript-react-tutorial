@@ -1,18 +1,10 @@
 const authConfig = require('../authConfig');
 
-const isClientCapableOfClaimsChallenge = (accessTokenClaims) => {
-    if (accessTokenClaims['xms_cc'] && accessTokenClaims['xms_cc'].includes('CP1')) {
-        return true;
-    }
-
-    return false;
-}
-
-const checkForRequiredAuthContext = (req, res, next, accessRule) => {
-    if (!req.authInfo['acrs'] || !req.authInfo['acrs'].includes(accessRule.claims)) {
+const checkForRequiredAuthContext = (req, res, next, authContextId) => {
+    if (!req.authInfo['acrs'] || !req.authInfo['acrs'].includes(authContextId)) {
         if (isClientCapableOfClaimsChallenge(req.authInfo)) {
             
-            const claimsChallenge = generateClaimsChallenge(accessRule);
+            const claimsChallenge = generateClaimsChallenge(authContextId);
 
             return res.status(claimsChallenge.statusCode)
                 .set(claimsChallenge.headers[0], claimsChallenge.headers[1])
@@ -26,12 +18,20 @@ const checkForRequiredAuthContext = (req, res, next, accessRule) => {
     }
 }
 
-const generateClaimsChallenge = (accessRule) => {
+const isClientCapableOfClaimsChallenge = (accessTokenClaims) => {
+    if (accessTokenClaims['xms_cc'] && accessTokenClaims['xms_cc'].includes('CP1')) {
+        return true;
+    }
+
+    return false;
+}
+
+const generateClaimsChallenge = (authContextId) => {
     const clientId = authConfig.credentials.clientID;
     
     const statusCode = 401;
     
-    const challenge = { access_token: { acrs: { essential: true, value: accessRule.claims }}};
+    const challenge = { access_token: { acrs: { essential: true, value: authContextId }}};
 
     const base64str = Buffer.from(JSON.stringify(challenge)).toString('base64');
     const headers = ["www-authenticate", "Bearer realm=\"\", authorization_uri=\"https://login.microsoftonline.com/common/oauth2/v2.0/authorize\", client_id=\"" + clientId + "\", error=\"insufficient_claims\", claims=\"" + base64str + "\", cc_type=\"authcontext\""];

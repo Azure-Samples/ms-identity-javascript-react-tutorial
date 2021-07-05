@@ -1,4 +1,4 @@
-const Todo = require('../model/todo');
+const Todo = require('../models/todo');
 
 exports.getTodo = (req, res) => {
     const id = req.params.id;

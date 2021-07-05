@@ -15,14 +15,16 @@
 
 ## Overview
 
-This sample demonstrates how to use the Conditional Access [Authentication Context](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context) feature to achieve granular access control and demand a higher bar of authentication for certain sensitive operations (e.g. HTTP DELETE requests) on an Express.js [protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview) called by a client React single-page application (SPA).
+This sample demonstrates how to use the Conditional Access [Authentication Context](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context) feature to achieve granular access control and demand a higher bar of authentication for certain sensitive operations (e.g. HTTP DELETE requests) on an Express.js [protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview) called by a client React single-page application (SPA). 
+
+The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [msal-express-wrapper](https://github.com/Azure-Samples/msal-express-wrapper) to acquire access tokens and [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for querying Microsoft Graph. For storing data, a **mock database** is implemented using the [lowdb](https://github.com/typicode/lowdb) package. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
 
 > :information_source: Check out the recorded session on this topic: [Use Conditional Access Auth Context in your app for step-up authentication](https://www.youtube.com/watch?v=_iO7CfoktTY&ab_channel=Microsoft365Community)
 
 ## Scenario
 
-1. The client React SPA uses the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) to sign-in and obtain a JWT access token from **Azure AD**.
-1. The access token is used as a *bearer* token to authorize the user to call the Express web API protected by **Azure AD** using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad).
+1. The client React SPA uses the [MSAL React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) to sign-in and obtain a JWT access token from **Azure AD**.
+1. The access token is used as a *bearer* token to authorize the user to call the Express web API protected by **Azure AD**.
 1. For sensitive operations, the web API is configured to demand step-up authentication, like MFA, from the signed-in user.
 
 ![Overview](./ReadmeFiles/topology.png)
@@ -124,14 +126,28 @@ As a first step you'll need to:
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-node-api`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
+   - In the **Redirect URI (optional)** section, select **Web** in the combo-box and enter the following redirect URI: `http://localhost:5000/admin`.
+     > Note that there are more than one redirect URIs used in this sample. You'll need to add them from the **Authentication** tab later after the app has been created successfully.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. In the app's registration screen, select **Authentication** in the menu.
+   - If you don't have a platform added, select **Add a platform** and select the **Web** option.
+   - In the **Redirect URIs** section, enter the following redirect URIs.
+      - `http://localhost:5000/admin/redirect`
+1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **Certificates & secrets** blade in the left to open the page where we can generate secrets and upload certificates.
 1. In the **Client secrets** section, select **New client secret**:
    - Type a key description (for instance `app secret`),
    - Select one of the available key durations (**In 1 year**, **In 2 years**, or **Never Expires**) as per your security posture.
    - The generated key value will be displayed when you select the **Add** button. Copy the generated value for use in the steps later.
    - You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Azure portal before navigating to any other screen or blade.
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
+   - Select the **Add a permission** button and then,
+   - Ensure that the **Microsoft APIs** tab is selected.
+   - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+   - In the **Delegated permissions** section, select the **Policy.Read.ConditionalAccess**, **Policy.ReadWrite.ConditionalAccess** in the list. Use the search box if necessary. `Note: The Graph permission, **Policy.ReadWrite.ConditionalAccess** is required for creating new auth context records by this sample. In production, the permission, **Policy.Read.ConditionalAccess** should be sufficient to read existing values and thus is recommended.`
+   - Select the **Add permissions** button at the bottom.
+   - Select **Grant admin consent for (your tenant)**.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
 The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
    - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
@@ -146,23 +162,27 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - For **User consent description** type `Allow the application to access msal-node-api on your behalf.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
-1. Change the app manifest of the `msal-node-api` to request client capabilities claim `xms_cc`:
+1. Select the `Manifest` blade on the left.
+   - Set `accessTokenAcceptedVersion` property to **2**.
+   - Set the `optionalClaims` property as shown below to request client capabilities claim `xms_cc`:
 
-```json
-"optionalClaims": 
-{
-  "accessToken": [
+    ```json
+    "optionalClaims": 
     {
-      "additionalProperties": [],
-      "essential": false,
-      "name": "xms_cc",
-      "source": null
+      "accessToken": [
+        {
+          "additionalProperties": [],
+          "essential": false,
+          "name": "xms_cc",
+          "source": null
+        }
+      ],
+      "idToken": [],
+      "saml2Token": []
     }
-  ],
-  "idToken": [],
-  "saml2Token": []
-}
-```
+    ```
+
+   - Click on **Save**.
 
 #### Configure the service app (msal-node-api) to use your app registration
 
@@ -171,8 +191,10 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\authConfig.js` file.
-1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
+1. Find the key `tenantId` and replace the existing value with your Azure AD tenant ID.
+1. Find the key `clientId` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
+1. Find the key `clientSecret` and replace the existing value with the client secret you recorded earlier.
+1. Find the key `redirectUri` and replace the existing value with the redirect URI you created earlier.
 
 ### Register the client app (msal-react-spa)
 
@@ -202,15 +224,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the string `Enter_the_Tenant_Info_Here` and replace it with your Azure AD tenant ID.
 1. Find the string `Enter_the_Web_Api_Scope_here` and replace it with the scope of `msal-node-api` that you've exposed earlier, e.g. `api://API_CLIENT_ID/access_as_user`.
 
-### Configure a Conditional Access policy to use auth context
-
-1. Navigate to **Azure Active Directory** > **Security** > **Conditional Access**
-1. Select **New policy** and go to **Cloud apps or actions**. In dropdown select **Authentication context**. The newly created auth context values will be listed for you to be used in this CA policy.
-
-![Overview](./ReadmeFiles/authcontext.png)
-
-Select the value and create the policy as required. For example, you might want the user to satisfy a **MFA** challenge if the auth context value is **c1**.
-
 ## Running the sample
 
 Start the web API first:
@@ -229,9 +242,43 @@ In a separate terminal, type
 
 ## Explore the sample
 
-1. Open your browser and navigate to `http://localhost:3000`.
-1. Sign-in using the button on top-right.
-1. Click on the **TodoList** button to access your (the signed-in user's) todo list.
+1. We'd first replicate the experience of an admin configuring the auth contexts. For that, browse to `http://localhost:5000/admin` and sign-in using a tenant admin account. Click on the **Dashboard** link on the menu.
+
+![Overview](./ReadmeFiles/Admin.png)
+
+2. As a first step, you will ensure that a set of auth contexts is already available in this tenant. Click the **Create or Fetch** button to check if they exist. If they don't, the code will create three example auth context entries for you. These three entires are named `Require strong authentication`, `Require compliant devices` and `Require trusted locations`.
+
+> :information_source: The Graph permission **Policy.ReadWrite.ConditionalAccess** is required for creating new records. In production, the permission **Policy.Read.ConditionalAccess** should be sufficient to read existing values and thus is recommended.
+
+![Overview](./ReadmeFiles/Create-Fetch_Click.png)
+
+Select an operation in the web API and an auth context value to apply. Then select **Save or Update**. This updates this mapping in the local app's database. We advise you use the same auth context value for operations if possible, as this ensures that the user is redirected to Azure AD just once to perform the step-up authN.
+
+> :warning: When changing auth context mappings, have the user sign-out and sign-back in for the changes to take effect.
+
+1. Go to **Details** page to get details of data saved on the web API side in its database. You can select **Delete** if you need to delete a mapping from the local database.
+
+![Overview](./ReadmeFiles/ViewDetails.png)
+
+The web API is now ready to challenge users for step-up auth for the selected operations.
+
+### Configure a conditional access policy to use auth context in Azure portal
+
+1. Navigate to **Azure Active Directory** > **Security** > **Conditional Access**
+1. Select **New policy** and go to **Cloud apps or actions**. In dropdown select **Authentication context**. The newly created auth context values will be listed for you to be used in this CA policy.
+
+![Overview](./ReadmeFiles/AuthContext.png)
+
+Select the value and create the policy as required. For example, you might want the user to satisfy a **MFA** challenge if the auth context value is **c1**.
+
+### Test in the client app
+
+1. Browse `http://localhost:3000` and sign-in.
+1. Select **TodoList** page and perform the operations.
+
+![Overview](./ReadmeFiles/ToDoList.png)
+
+If an operation was saved for a certain authContext and there is a CA policy configured and enabled, the user will be redirected to Azure AD and ask to perform the required step(s) like MFA.
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
@@ -244,85 +291,25 @@ In a separate terminal, type
 ### Checking for client capabilities
 
 ```javascript
-const isClientCapableOfClaimsChallenge = (accessTokenClaims) => {
-    if (accessTokenClaims['xms_cc'] && accessTokenClaims['xms_cc'].includes('CP1')) {
-        return true;
-    }
 
-    return false;
-}
 ```
 
 ### Checking for auth context
 
 ```javascript
-const checkForRequiredAuthContext = (req, res, next, accessRule) => {
-    if (!req.authInfo['acrs'] || !req.authInfo['acrs'].includes(accessRule.claims)) {
-        if (isClientCapableOfClaimsChallenge(req.authInfo)) {
-            
-            const claimsChallenge = generateClaimsChallenge(accessRule);
 
-            return res.status(claimsChallenge.statusCode)
-                .set(claimsChallenge.headers[0], claimsChallenge.headers[1])
-                .json({error: claimsChallenge.message});
-
-        } else {
-            return res.status(403).json({ error: 'Client is not capable' });
-        }
-    } else {
-        next();
-    }
-}
 ```
 
 ### Generating claims challenge
 
 ```javascript
-const generateClaimsChallenge = (accessRule) => {
-    const clientId = authConfig.credentials.clientID;
-    
-    const statusCode = 401;
-    
-    const challenge = { access_token: { acrs: { essential: true, value: accessRule.claims }}};
 
-    const base64str = Buffer.from(JSON.stringify(challenge)).toString('base64');
-    const headers = ["www-authenticate", "Bearer realm=\"\", authorization_uri=\"https://login.microsoftonline.com/common/oauth2/v2.0/authorize\", client_id=\"" + clientId + "\", error=\"insufficient_claims\", claims=\"" + base64str + "\", cc_type=\"authcontext\""];
-    const message = "The presented access tokens had insufficient claims. Please request for claims designated in the www-authentication header and try again.";
-
-    return {
-        headers,
-        statusCode,
-        message
-    }
-}
 ```
 
-### Fulfilling claims challenge
+### Handling claims challenge
 
 ```javascript
-const handleClaimsChallenge = async (response) => {
-    if (response.status === 401) {
-        if (response.headers.get('www-authenticate')) {
-            const authenticateHeader = response.headers.get("www-authenticate");
 
-            const claimsChallenge = authenticateHeader.split(" ")
-                .find(entry => entry.includes("claims=")).split('="')[1].split('",')[0];
-                
-            try {
-                await msalInstance.acquireTokenPopup({
-                    claims: window.atob(claimsChallenge),
-                    scopes: protectedResources.apiTodoList.scopes
-                });
-            } catch (error) {
-                console.log(error);
-            }
-        } else {
-            return { error: "unknown header" }
-        }
-    }
-
-    return response.json();
-}
 ```
 
 ## More information

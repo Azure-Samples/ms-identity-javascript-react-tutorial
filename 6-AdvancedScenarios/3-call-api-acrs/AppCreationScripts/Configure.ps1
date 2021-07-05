@@ -21,6 +21,32 @@ param(
  There are four ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
 #>
 
+# Create a password that can be used as an application key
+Function ComputePassword
+{
+    $aesManaged = New-Object "System.Security.Cryptography.AesManaged"
+    $aesManaged.Mode = [System.Security.Cryptography.CipherMode]::CBC
+    $aesManaged.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
+    $aesManaged.BlockSize = 128
+    $aesManaged.KeySize = 256
+    $aesManaged.GenerateKey()
+    return [System.Convert]::ToBase64String($aesManaged.Key)
+}
+
+# Create an application key
+# See https://www.sabin.io/blog/adding-an-azure-active-directory-application-and-key-using-powershell/
+Function CreateAppKey([DateTime] $fromDate, [double] $durationInMonths, [string]$pw)
+{
+    $endDate = $fromDate.AddMonths($durationInMonths);
+    $keyId = (New-Guid).ToString();
+    $key = New-Object Microsoft.Open.AzureAD.Model.PasswordCredential
+    $key.StartDate = $fromDate
+    $key.EndDate = $endDate
+    $key.Value = $pw
+    $key.KeyId = $keyId
+    return $key
+}
+
 # Adds the requiredAccesses (expressed as a pipe separated string) to the requiredAccess structure
 # The exposed permissions are in the $exposedPermissions collection, and the type of permission (Scope | Role) is 
 # described in $permissionType
@@ -197,10 +223,17 @@ Function ConfigureApplications
     $user = Get-AzureADUser -ObjectId $creds.Account.Id
 
    # Create the service AAD application
-   Write-Host "Creating the AAD application (msal-node-api)"
+   Write-Host "Creating the AAD application (msal-node-api-acrs)"
+   # Get a 6 months application key for the service Application
+   $pw = ComputePassword
+   $fromDate = [DateTime]::Now;
+   $key = CreateAppKey -fromDate $fromDate -durationInMonths 6 -pw $pw
+   $serviceAppKey = $pw
    # create the application 
-   $serviceAadApplication = New-AzureADApplication -DisplayName "msal-node-api" `
-                                                   -HomePage "http://localhost:5000/api" `
+   $serviceAadApplication = New-AzureADApplication -DisplayName "msal-node-api-acrs" `
+                                                   -HomePage "http://localhost:5000/admin/home" `
+                                                   -ReplyUrls "http://localhost:5000/admin/redirect" `
+                                                   -PasswordCredentials $key `
                                                    -PublicClient $False
 
    $serviceIdentifierUri = 'api://'+$serviceAadApplication.AppId
@@ -238,9 +271,9 @@ Function ConfigureApplications
     if ($scopes.Count -ge 0) 
     {
              $scope = CreateScope -value access_as_user  `
-                -userConsentDisplayName "Access msal-node-api"  `
-                -userConsentDescription "Allow the application to access msal-node-api on your behalf."  `
-                -adminConsentDisplayName "Access msal-node-api"  `
+                -userConsentDisplayName "Access msal-node-api-acrs"  `
+                -userConsentDescription "Allow the application to access msal-node-api-acrs on your behalf."  `
+                -adminConsentDisplayName "Access msal-node-api-acrs"  `
                 -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
             
                 $scopes.Add($scope)
@@ -250,18 +283,18 @@ Function ConfigureApplications
     # add/update scopes
     Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -OAuth2Permission $scopes
 
-   Write-Host "Done creating the service application (msal-node-api)"
+   Write-Host "Done creating the service application (msal-node-api-acrs)"
 
    # URL of the AAD application in the Azure portal
    # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-node-api</a></td></tr>" -Path createdApps.html
+   Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-node-api-acrs</a></td></tr>" -Path createdApps.html
 
 
    # Create the client AAD application
-   Write-Host "Creating the AAD application (msal-react-spa)"
+   Write-Host "Creating the AAD application (msal-react-spa-acrs)"
    # create the application 
-   $clientAadApplication = New-AzureADApplication -DisplayName "msal-react-spa" `
+   $clientAadApplication = New-AzureADApplication -DisplayName "msal-react-spa-acrs" `
                                                   -HomePage "http://localhost:3000" `
                                                   -ReplyUrls "http://localhost:3000" `
                                                   -PublicClient $False
@@ -279,18 +312,18 @@ Function ConfigureApplications
    }
 
 
-   Write-Host "Done creating the client application (msal-react-spa)"
+   Write-Host "Done creating the client application (msal-react-spa-acrs)"
 
    # URL of the AAD application in the Azure portal
    # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.ObjectId+"/isMSAApp/"
    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-spa</a></td></tr>" -Path createdApps.html
+   Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-spa-acrs</a></td></tr>" -Path createdApps.html
 
    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
 
    # Add Required Resources Access (from 'client' to 'service')
    Write-Host "Getting access from 'client' to 'service'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-node-api" `
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-node-api-acrs" `
                                                 -requiredDelegatedPermissions "access_as_user" `
 
    $requiredResourcesAccess.Add($requiredPermissions)
@@ -302,7 +335,7 @@ Function ConfigureApplications
    # Update config file for 'service'
    $configFile = $pwd.Path + "\..\API\authConfig.js"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Enter_the_Redirect_Uri_Here" = $serviceAadApplication.ReplyUrls };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
 
    # Update config file for 'client'

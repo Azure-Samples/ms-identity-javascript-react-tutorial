@@ -10,11 +10,16 @@
     "AADApps": [
         {
             "Id": "service",
-            "Name": "msal-node-api",
+            "Name": "msal-node-api-acrs",
             "Kind": "WebApi",
             "Audience": "AzureADMyOrg",
-            "HomePage": "http://localhost:5000/api",
+            "HomePage": "http://localhost:5000/admin/home",
+            "ReplyUrls": "http://localhost:5000/admin/redirect",
+            "PasswordCredentials": "Auto",
             "ManualSteps": [
+                {
+                    "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'"
+                },
                 {
                     "Comment": "Navigate to the Manifest page, find the 'optionalClaims' section and change its default value to request 'xms_cc' claims"
                 }
@@ -22,7 +27,7 @@
         },
         {
             "Id": "client",
-            "Name": "msal-react-spa",
+            "Name": "msal-react-spa-acrs",
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:3000",
@@ -50,6 +55,14 @@
                 {
                     "key": "Enter_the_Tenant_Info_Here",
                     "value": "$tenantId"
+                },
+                {
+                    "key": "Enter_the_Client_Secret_Here",
+                    "value": ".AppKey"
+                },
+                {
+                    "key": "Enter_the_Redirect_Uri_Here",
+                    "value": ".ReplyUrls"
                 }
             ]
         },

@@ -97,7 +97,7 @@ export const postTask = async (task) => {
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
-        .then(response => response.json())
+        .then(handleClaimsChallenge)
         .catch(error => console.log(error));
 }
 
@@ -135,24 +135,6 @@ export const editTask = async (id, task) => {
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
-}
-
-export const getAllTasks = async () => {
-    const accessToken = await getToken();
-
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-
-    headers.append("Authorization", bearer);
-
-    const options = {
-        method: "GET",
-        headers: headers,
-    };
-
-    return fetch(protectedResources.apiTodoList.dashboardEndpoint, options)
-        .then(response => response.json())
+        .then(handleClaimsChallenge)
         .catch(error => console.log(error));
 }
