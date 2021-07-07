@@ -3,7 +3,6 @@ const AuthContext = require('../models/authContext');
 
 const authContextGuard = (req, res, next) => {
     const acrs = AuthContext.getAuthContexts();
-    console.log(acrs);
 
     if (acrs.length === 0) {
         return next();

@@ -1,5 +1,11 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="/admin">Microsoft identity platform</a>
+    <div class="btn-group mr-auto dropleft">
+        <% if (isAuthenticated) { %>
+            <a class="btn btn-link" href="/admin/dashboard" role="button">Dashboard</a>
+            <a class="btn btn-link" href="/admin/details" role="button">Details</a>
+        <% } %>
+    </div>
     <div class="btn-group ml-auto dropleft">
         <% if (isAuthenticated) { %>
             <a class="btn btn-success" href="/admin/signout" role="button">Sign-out</a>

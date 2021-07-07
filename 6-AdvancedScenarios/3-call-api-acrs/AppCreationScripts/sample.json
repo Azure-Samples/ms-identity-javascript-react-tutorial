@@ -55,7 +55,7 @@
         {
             "App": "service",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\API\\authConfig.js",
+            "SettingFile": "\\..\\API\\.env",
             "Mappings": [
                 {
                     "key": "Enter_the_Application_Id_Here",
@@ -68,10 +68,6 @@
                 {
                     "key": "Enter_the_Client_Secret_Here",
                     "value": "service.AppKey"
-                },
-                {
-                    "key": "Enter_the_Redirect_Uri_Here",
-                    "value": ".ReplyUrls"
                 }
             ]
         },

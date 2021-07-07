@@ -6,7 +6,7 @@ module.exports = (authProvider) => {
 
     const router = express.Router();
 
-    // app routes
+    // main routes
     router.get('/', (req, res, next) => res.redirect('/admin/home'));
     router.get('/home', dashboardController.getHomePage);
 

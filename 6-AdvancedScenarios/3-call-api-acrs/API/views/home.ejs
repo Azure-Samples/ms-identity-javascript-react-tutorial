@@ -18,6 +18,7 @@
                     <div class="card-body">
                         <% if (isAuthenticated) { %>
                             <h5 class="card-description">Welcome <%= username %>!</h5>
+                            <br>
                             <a class="btn btn-primary" href="/admin/dashboard" "role="button">Dashboard</a>
                             <a class="btn btn-primary" href="/admin/details" "role="button">Details</a>
                         <% }  else { %>

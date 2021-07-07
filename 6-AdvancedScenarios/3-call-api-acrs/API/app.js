@@ -3,13 +3,12 @@ const session = require('express-session');
 const methodOverride = require('method-override');
 const cors = require('cors');
 const path = require('path');
+require('dotenv').config();
 
 const msalWrapper = require('msal-express-wrapper');
-
 const passport = require('passport');
 const BearerStrategy = require('passport-azure-ad').BearerStrategy;
 
-const config = require('./authConfig');
 const cache = require('./utils/cachePlugin');
 const todolistRoutes = require('./routes/todolistRoutes');
 const adminRoutes = require('./routes/adminRoutes');
@@ -34,7 +33,7 @@ app.use(express.json());
  * expose www-authenticate header in response from web API
  */
 app.use(cors({
-    origin: "http://localhost:3000", // replace with client domain
+    origin: process.env.CORS_ALLOWED_DOMAINS, // replace with client domain
     exposedHeaders: "www-authenticate",
 }));
 
@@ -43,7 +42,7 @@ app.use(cors({
  * and set them as desired. Visit: https://www.npmjs.com/package/express-session
  */
  const sessionConfig = {
-    secret: 'ENTER_YOUR_SECRET_HERE',
+    secret: process.env.EXPRESS_SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -68,14 +67,14 @@ app.use(session(sessionConfig));
 // =========== Initialize Passport ==============
 
 const bearerOptions = {
-    identityMetadata: `https://${config.metadata.authority}/${config.credentials.tenantID}/${config.metadata.version}/${config.metadata.discovery}`,
-    issuer: `https://${config.metadata.authority}/${config.credentials.tenantID}/${config.metadata.version}`,
-    clientID: config.credentials.clientID,
-    audience: config.credentials.clientID, // audience is this application
-    validateIssuer: config.settings.validateIssuer,
-    passReqToCallback: config.settings.passReqToCallback,
-    loggingLevel: config.settings.loggingLevel,
-    scope: ['access_as_user'] // scope you set during app registration
+    identityMetadata: `https://${process.env.AUTHORITY}/${process.env.TENANT_ID}/v2.0/.well-known/openid-configuration`,
+    issuer: `https://${process.env.AUTHORITY}/${process.env.TENANT_ID}/v2.0`,
+    clientID: process.env.CLIENT_ID,
+    audience: process.env.CLIENT_ID, // audience is this application
+    validateIssuer: true,
+    passReqToCallback: false,
+    loggingLevel: "info",
+    scope: [process.env.API_REQUIRED_PERMISSION] // scope you set during app registration
 };
 
 const bearerStrategy = new BearerStrategy(bearerOptions, (token, done) => {
@@ -87,23 +86,23 @@ app.use(passport.initialize());
 
 passport.use(bearerStrategy);
 
-// exposes api endpoints
+// protec api endpoints
 app.use('/api',
     passport.authenticate('oauth-bearer', { session: false }), // validate access tokens
     routeGuard, // check for auth context
     todolistRoutes
 );
 
-// =========== Initialize MSAL Wrapper==============
+// =========== Initialize MSAL Node Wrapper==============
 
 const appSettings = {
     appCredentials: {
-        clientId: config.credentials.clientID,
-        tenantId: config.credentials.tenantID,
-        clientSecret: config.credentials.clientSecret
+        clientId: process.env.CLIENT_ID,
+        tenantId: process.env.TENANT_ID,
+        clientSecret: process.env.CLIENT_SECRET,
     },
     authRoutes: {
-        redirect: "/admin/redirect", // enter the path component of the redirect URI
+        redirect: process.env.REDIRECT_URI, // enter the path component of your redirect URI
         error: "/admin/error", // the wrapper will redirect to this route in case of any error
         unauthorized: "/admin/unauthorized" // the wrapper will redirect to this route in case of unauthorized access attempt
     },

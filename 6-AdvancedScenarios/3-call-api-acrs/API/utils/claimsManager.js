@@ -1,4 +1,4 @@
-const authConfig = require('../authConfig');
+const authConfig = require('../.env');
 
 const checkForRequiredAuthContext = (req, res, next, authContextId) => {
     if (!req.authInfo['acrs'] || !req.authInfo['acrs'].includes(authContextId)) {
@@ -27,7 +27,7 @@ const isClientCapableOfClaimsChallenge = (accessTokenClaims) => {
 }
 
 const generateClaimsChallenge = (authContextId) => {
-    const clientId = authConfig.credentials.clientID;
+    const clientId = process.env.CLIENT_ID;
     
     const statusCode = 401;
     

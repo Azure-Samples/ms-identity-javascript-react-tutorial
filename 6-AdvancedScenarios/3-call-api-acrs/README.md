@@ -36,7 +36,7 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 | `SPA/src/authConfig.js`             | Authentication parameters for SPA project reside here.                                |
 | `SPA/src/index.js`                  | MSAL React is initialized here.                                                       |
 | `SPA/src/fetch.js`                  | Claims challenge for the client is handled here.                                      |
-| `API/authConfig.js`                 | Authentication parameters for the web API project.                                    |
+| `API/.env`                          | Authentication parameters for the web API project.                                    |
 | `API/utils/guard.js`                | Custom middleware protecting app routes                                               |
 | `API/utils/claims.js`               | Custom middleware handling checking for auth context and generating claims challenge. |
 | `API/app.js`                        | passport-azure-ad is initialized here.                                                |
@@ -190,14 +190,11 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `API\authConfig.js` file.
-1. Find the key `tenantId` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `clientId` and replace the existing value with the application ID (clientId) of `msal-node-api-acrs` app copied from the Azure portal.
-1. Find the key `clientSecret` and replace the existing value with the client secret you recorded earlier.
-1. Find the key `redirectUri` and replace the existing value with the redirect URI you created earlier.
-
-1. Open the `API/app.js` file.
-1. Find the string `ENTER_YOUR_SECRET_HERE` and replace it with a secret that will be used when encrypting your app's session using the [express-session](https://www.npmjs.com/package/express-session) package.
+1. Open the `API\.env` file.
+1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
+1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api-acrs` app copied from the Azure portal.
+1. Find the string `Enter_the_Client_Secret_Here` and replace the existing value with the client secret you recorded earlier.
+1. Find the string `ENTER_YOUR_SECRET_HERE` and replace the existing value with a secret that will be used when encrypting your app's session using the [express-session](https://www.npmjs.com/package/express-session) package.
 
 ### Register the client app (msal-react-spa-acrs)
 
@@ -222,7 +219,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `SPA/src/app/authConfig.js` file.
+1. Open the `SPA/src/authConfig.js` file.
 1. Find the string `Enter_the_Application_Id_Here` and replace it with the application ID (clientId) of `msal-react-spa-acrs` app copied from the Azure portal.
 1. Find the string `Enter_the_Tenant_Info_Here` and replace it with your Azure AD tenant ID.
 1. Find the string `Enter_the_Web_Api_Scope_here` and replace it with the scope of `msal-node-api-acrs` that you've exposed earlier, e.g. `api://API_CLIENT_ID/access_as_user`.

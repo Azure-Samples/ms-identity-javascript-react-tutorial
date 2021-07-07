@@ -353,9 +353,9 @@ Function ConfigureApplications
 
 
    # Update config file for 'service'
-   $configFile = $pwd.Path + "\..\API\authConfig.js"
+   $configFile = $pwd.Path + "\..\API\.env"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Enter_the_Redirect_Uri_Here" = $serviceAadApplication.ReplyUrls };
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
 
    # Update config file for 'client'
@@ -370,7 +370,7 @@ Function ConfigureApplications
    Write-Host "  - Navigate to Azure portal and set the 'accessTokenAcceptedVersion' to '2' in the application manifest" -ForegroundColor Red 
    Write-Host "- For client"
    Write-Host "  - Navigate to $clientPortalUrl"
-   Write-Host "  - Navigate to Azure portal and set the 'replyUrlsWithType.type' to 'Spa' in the application manifest" -ForegroundColor Red 
+   Write-Host "  - Navigate to Azure portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" -ForegroundColor Red 
 
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
       if($isOpenSSL -eq 'Y')
