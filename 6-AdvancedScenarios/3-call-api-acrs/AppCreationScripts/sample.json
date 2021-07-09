@@ -1,0 +1,94 @@
+{
+    "Sample": {
+        "Title": "Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a web API",
+        "Level": 400,
+        "Client": "React SPA",
+        "Service": "Express web API",
+        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+        "Endpoint": "AAD v2.0"
+    },
+    "AADApps": [
+        {
+            "Id": "service",
+            "Name": "msal-node-api-acrs",
+            "Kind": "WebApi",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "http://localhost:5000/admin/home",
+            "ReplyUrls": "http://localhost:5000/admin/redirect",
+            "PasswordCredentials": "Auto",
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": [
+                        "Policy.Read.ConditionalAccess",
+                        "Policy.ReadWrite.ConditionalAccess"
+                    ]
+                }
+            ],
+            "ManualSteps": [
+                {
+                    "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)"
+                },
+                {
+                    "Comment": "Navigate to the Manifest page, find the 'optionalClaims' section and change its default value to request 'xms_cc' claims"
+                }
+            ]
+        },
+        {
+            "Id": "client",
+            "Name": "msal-react-spa-acrs",
+            "Kind": "SinglePageApplication",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "http://localhost:3000",
+            "ReplyUrls": "http://localhost:3000",
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "service",
+                    "DelegatedPermissions": [
+                        "access_as_user"
+                    ]
+                }
+            ]
+        }
+    ],
+    "CodeConfiguration": [
+        {
+            "App": "service",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\API\\.env",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": "service.AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "Enter_the_Client_Secret_Here",
+                    "value": "service.AppKey"
+                }
+            ]
+        },
+        {
+            "App": "client",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\SPA\\src\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": "client.AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "Enter_the_Web_Api_Scope_here",
+                    "value": "service.Scope"
+                }
+            ]
+        }
+    ]
+}

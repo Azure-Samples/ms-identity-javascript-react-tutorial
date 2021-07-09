@@ -243,10 +243,6 @@ In a separate console window, execute the following commands:
    npm start
 ```
 
-> For Visual Studio Users
->
-> Clean the solution, rebuild the solution, and run it.  You might want to go into the solution properties and set both projects as startup projects, with the service project starting first.
-
 ## Explore the sample
 
 1. Open your browser and navigate to `http://localhost:3000`.

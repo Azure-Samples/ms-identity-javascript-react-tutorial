@@ -1,0 +1,50 @@
+footer {
+  position: fixed;
+  bottom: 5%;
+  width: 100%;
+}
+
+.footer-text {
+  font-size: small;
+  text-align: center;
+  flex: 1 1 auto;
+}
+
+.App {
+  text-align: center;
+}
+
+.data-area-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-evenly
+}
+
+.todo-form {
+  width: 60%;
+}
+
+.todo-list {
+  width: 60%;
+}
+
+.todo-view {
+}
+
+.todo-edit {
+
+}
+
+.todo-item {
+}
+
+.todo-label {
+  font-size: large;
+  margin-right: 22%;
+  margin-left: 3%;
+}
+
+.todo-view-btn {
+  float: right;
+}
