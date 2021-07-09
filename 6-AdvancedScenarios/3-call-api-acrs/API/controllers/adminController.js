@@ -57,24 +57,23 @@ exports.postDashboardPage = async(req, res, next) => {
         // check if acrs is empty   
         if (acrs.value.length === 0) {
 
-            // create 
             defaultAcrsList = [
                 {
                     id: 'c1',
                     displayName: 'Require strong authentication',
-                    description: 'Require strong authentication',
+                    description: 'User needs to perform multifactor authentication',
                     isAvailable: true
                 },
                 {
                     id: 'c2',
                     displayName: 'Require compliant devices',
-                    description: 'Require compliant devices',
+                    description: 'Users needs to prove using a compliant device',
                     isAvailable: true
                 },
                 {
                     id: 'c3',
                     displayName: 'Require trusted locations',
-                    description: 'Require trusted locations',
+                    description: 'User needs to prove connecting from a trusted location',
                     isAvailable: true
                 },
             ]

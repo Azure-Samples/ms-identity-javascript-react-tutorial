@@ -14,6 +14,7 @@ module.exports = (authProvider) => {
     router.get('/signin', authProvider.signIn({ successRedirect: '/admin' }));
     router.get('/signout', authProvider.signOut({ successRedirect: '/admin' }));
 
+    // check if user is authenticated, then obtain an access token for the specified resource
     router.get(
         '/dashboard',
         authProvider.isAuthenticated(),

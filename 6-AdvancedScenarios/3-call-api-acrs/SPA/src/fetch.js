@@ -1,8 +1,3 @@
-/*
- * Copyright (c) Microsoft Corporation. All rights reserved.
- * Licensed under the MIT License.
- */
-
 import { BrowserAuthError } from "@azure/msal-browser";
 import { protectedResources } from "./authConfig";
 import { msalInstance } from "./index";
@@ -22,6 +17,13 @@ const getToken = async () => {
     return response.accessToken;
 }
 
+/**
+ * This method inspects the HTTP response from a fetch call for the "www-authenticate header"
+ * If present, it grabs the claims challenge from the header, then uses msal to ask Azure AD for a new access token containing the needed claims
+ * If not present, then it simply returns the response as json
+ * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
+ * @param {Object} response: HTTP response
+ */
 const handleClaimsChallenge = async (response) => {
     if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
@@ -32,7 +34,7 @@ const handleClaimsChallenge = async (response) => {
 
             try {
                 await msalInstance.acquireTokenPopup({
-                    claims: window.atob(claimsChallenge),
+                    claims: window.atob(claimsChallenge), // decode the base64 string
                     scopes: protectedResources.apiTodoList.scopes
                 });
             } catch (error) {

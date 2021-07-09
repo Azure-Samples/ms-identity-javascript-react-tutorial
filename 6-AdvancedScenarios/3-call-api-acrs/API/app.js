@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) Microsoft Corporation. All rights reserved.
+ * Licensed under the MIT License.
+ */
+
 const express = require('express');
 const session = require('express-session');
 const methodOverride = require('method-override');
@@ -30,7 +35,7 @@ app.use(express.json());
 
 /**
  * We need to enable CORS for client's domain in order to
- * expose www-authenticate header in response from web API
+ * expose www-authenticate header in response from the web API
  */
 app.use(cors({
     origin: process.env.CORS_ALLOWED_DOMAINS, // replace with client domain
