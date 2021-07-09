@@ -27,7 +27,7 @@
             ],
             "ManualSteps": [
                 {
-                    "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'"
+                    "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)"
                 },
                 {
                     "Comment": "Navigate to the Manifest page, find the 'optionalClaims' section and change its default value to request 'xms_cc' claims"

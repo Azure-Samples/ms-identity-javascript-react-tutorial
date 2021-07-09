@@ -16,7 +16,7 @@ export const msalConfig = {
         authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
-        navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
+        navigateToLoginRequestUrl: true, // If "true", will navigate back to the original request location before processing the auth code response.
         clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
     },
     cache: {

@@ -3,6 +3,7 @@
  * Licensed under the MIT License.
  */
 
+import { BrowserAuthError } from "@azure/msal-browser";
 import { protectedResources } from "./authConfig";
 import { msalInstance } from "./index";
 
@@ -28,14 +29,22 @@ const handleClaimsChallenge = async (response) => {
 
             const claimsChallenge = authenticateHeader.split(" ")
                 .find(entry => entry.includes("claims=")).split('="')[1].split('",')[0];
-                
+
             try {
                 await msalInstance.acquireTokenPopup({
                     claims: window.atob(claimsChallenge),
                     scopes: protectedResources.apiTodoList.scopes
                 });
             } catch (error) {
-                console.log(error);
+                // catch if popups are blocked
+                if (error instanceof BrowserAuthError && 
+                    (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error")) {
+
+                    await msalInstance.acquireTokenRedirect({
+                        claims: window.atob(claimsChallenge),
+                        scopes: protectedResources.apiTodoList.scopes
+                    });
+                }
             }
         } else {
             return { error: "unknown header" }
