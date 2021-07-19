@@ -91,7 +91,7 @@ app.use(passport.initialize());
 
 passport.use(bearerStrategy);
 
-// protec api endpoints
+// protected api endpoints
 app.use('/api',
     passport.authenticate('oauth-bearer', { session: false }), // validate access tokens
     routeGuard, // check for auth context
