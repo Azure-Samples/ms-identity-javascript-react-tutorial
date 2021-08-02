@@ -5,7 +5,6 @@ languages:
 products:
 - msal-react
 - ms-graph
-- azure-key-vault
 - azure-storage
 - azure-app-service
 - azure-functions
@@ -18,6 +17,13 @@ urlFragment: "ms-identity-javascript-react-tutorial"
 ---
 
 # Tutorial: Enable your React single-page application to sign-in users and call APIs with the Microsoft identity platform
+
+[![Build](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/actions/workflows/node.js.yml/badge.svg)](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/actions/workflows/node.js.yml)
+[![Code Scan](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/actions/workflows/codeql.yml/badge.svg)](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/actions/workflows/codeql.yml)
+![GitHub issues](https://img.shields.io/github/issues/Azure-Samples/ms-identity-javascript-react-tutorial)
+![npm](https://img.shields.io/npm/v/@azure/msal-browser?label=msal-browser)
+![npm](https://img.shields.io/npm/v/@azure/msal-react?label=msal-react)
+![GitHub](https://img.shields.io/github/license/Azure-Samples/ms-identity-javascript-react-tutorial)
 
 The [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-overview), along with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) and [Azure Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview) (Azure AD B2C) are central to the **Azure** cloud ecosystem. This tutorial aims to take you through the fundamentals of modern authentication with React, using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
