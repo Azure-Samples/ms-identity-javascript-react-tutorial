@@ -36,8 +36,8 @@ app.use(passport.initialize());
 passport.use(bearerStrategy);
 
 app.use('/api',
-    validatePoP,
-    passport.authenticate('oauth-bearer', { session: false }),
+    validatePoP, // validates pop token
+    passport.authenticate('oauth-bearer', { session: false }), // validates raw access token
     router
 );
 
@@ -46,3 +46,5 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log('Listening on port ' + port);
 });
+
+module.exports = app;

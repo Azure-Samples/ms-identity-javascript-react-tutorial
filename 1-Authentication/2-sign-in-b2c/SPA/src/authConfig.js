@@ -87,7 +87,7 @@ export const loginRequest = {
  * An optional silentRequest object can be used to achieve silent SSO
  * between applications by providing a "login_hint" property.
  */
-const silentRequest = {
+export const silentRequest = {
   scopes: ["openid", "profile"],
   loginHint: "example@domain.net"
 };

@@ -7,12 +7,9 @@ import React from "react";
 
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
-import { loginRequest } from "./authConfig";
+import { Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
 
-import Navbar from "react-bootstrap/Navbar";
-import Button from "react-bootstrap/Button";
-import DropdownButton from "react-bootstrap/DropdownButton";
-import Dropdown from "react-bootstrap/esm/Dropdown";
+import { loginRequest } from "./authConfig";
 
 const NavigationBar = () => {
     /**
@@ -50,7 +47,7 @@ export const PageLayout = (props) => {
                 <NavigationBar />
             </Navbar>
             <br />
-            <h5><center>Welcome to the Microsoft Authentication Library For React Tutorial</center></h5>
+            <h5><center id="title">Welcome to the Microsoft Authentication Library For React Tutorial</center></h5>
             <br />
             {props.children}
             <br />

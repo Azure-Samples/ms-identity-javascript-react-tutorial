@@ -105,6 +105,3 @@ VS & VS Code cache
 
 # React build folder
 build/
-
-# NPM manifest
-package-lock.json

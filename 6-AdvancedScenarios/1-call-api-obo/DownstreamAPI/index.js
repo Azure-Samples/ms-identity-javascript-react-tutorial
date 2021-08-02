@@ -29,7 +29,7 @@ app.use(passport.initialize());
 
 passport.use(bearerStrategy);
 
-// enable CORS (for testing only -remove in production/deployment)
+// enable CORS (in production, modify as to allow only designated origins)
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept");
@@ -57,3 +57,5 @@ const port = process.env.PORT || 7000;
 app.listen(port, () => {
     console.log("Listening on port " + port);
 });
+
+module.exports = app;

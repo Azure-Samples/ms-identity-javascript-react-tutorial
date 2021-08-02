@@ -1,10 +1,6 @@
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
-import Nav from "react-bootstrap/Nav"
-import Navbar from "react-bootstrap/Navbar"
-import Button from "react-bootstrap/Button";
-import DropdownButton from "react-bootstrap/DropdownButton";
-import Dropdown from "react-bootstrap/esm/Dropdown";
+import { Nav, Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
 
 import { loginRequest } from "../authConfig";
 

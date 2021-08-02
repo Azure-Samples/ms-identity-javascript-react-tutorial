@@ -7,12 +7,9 @@ import React from "react";
 
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
-import { loginRequest } from "./authConfig";
+import { Navbar, Dropdown, DropdownButton} from "react-bootstrap";
 
-import Navbar from "react-bootstrap/Navbar";
-import Button from "react-bootstrap/Button";
-import DropdownButton from "react-bootstrap/DropdownButton";
-import Dropdown from "react-bootstrap/esm/Dropdown";
+import { loginRequest } from "./authConfig";
 
 const NavigationBar = () => {
     /**
