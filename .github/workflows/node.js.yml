@@ -1,0 +1,146 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: "Build"
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v2
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - run: |
+        cd 1-Authentication/1-sign-in/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 1-Authentication/2-sign-in-b2c/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 2-Authorization-I/1-call-graph/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 3-Authorization-II/1-call-api/API
+        npm ci
+        npm audit --production
+        npm run test
+
+    - run: |
+        cd 3-Authorization-II/1-call-api/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 3-Authorization-II/2-call-api-b2c/API
+        npm ci
+        npm audit --production
+        npm run test
+
+    - run: |
+        cd 3-Authorization-II/2-call-api-b2c/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 4-Deployment/1-deploy-storage/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 4-Deployment/1-deploy-storage/API
+        npm ci
+        npm audit --production
+        npm run test
+
+    - run: |
+        cd 5-AccessControl/1-call-api-roles/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 5-AccessControl/1-call-api-roles/API
+        npm ci
+        npm audit --production
+        npm run test
+
+    - run: |
+        cd 5-AccessControl/2-call-api-groups/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 5-AccessControl/2-call-api-groups/API
+        npm ci
+        npm audit --production
+        npm run test
+
+    - run: |
+        cd 6-AdvancedScenarios/1-call-api-obo/DownstreamAPI
+        npm ci
+        npm audit --production
+        npm run test
+
+    - run: |
+        cd 6-AdvancedScenarios/1-call-api-obo/MiddletierAPI
+        npm ci
+        npm audit --production
+        npm run test
+      
+    - run: |
+        cd 6-AdvancedScenarios/1-call-api-obo/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 6-AdvancedScenarios/2-call-api-pop/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 6-AdvancedScenarios/2-call-api-pop/API
+        npm ci
+        npm audit --production
+        npm run test
+
+    - run: |
+        cd 6-AdvancedScenarios/3-call-api-acrs/SPA
+        npm ci
+        npm audit --production
+        npm run test --no-watch
+
+    - run: |
+        cd 6-AdvancedScenarios/3-call-api-acrs/API
+        npm ci
+        npm audit --production
+        npm run test

@@ -5,12 +5,9 @@
 
 import React from "react";
 
-import Navbar from "react-bootstrap/Navbar";
-import Button from "react-bootstrap/Button";
-import DropdownButton from "react-bootstrap/DropdownButton";
-import Dropdown from "react-bootstrap/esm/Dropdown";
-
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
+
+import { Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
 
 import { loginRequest, b2cPolicies } from "./authConfig";
 

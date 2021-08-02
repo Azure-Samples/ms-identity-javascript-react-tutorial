@@ -66,7 +66,6 @@ const MainContent = () => {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
 export default function App({msalInstance}) {
-
     return (
         <MsalProvider instance={msalInstance}>
             <PageLayout>

@@ -5,6 +5,13 @@ const { parseJwk } = require('jose/jwk/parse');
 const validatePoP = async (req, res, next) => {
     // the access token the user sent
     const userToken = req.get('authorization').split(' ')[1];
+    
+    if (!userToken) {
+        return res.status(401).json({
+            error: 'Missing authorization header'
+        });
+    }
+
     const decodedToken = jwtDecode(userToken, { complete: true });
     
     try {

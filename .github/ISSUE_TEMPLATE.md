@@ -14,11 +14,13 @@
     - [ ] 2-1) Acquire a Token and call Microsoft Graph
     - [ ] 3-1) Protect and call a web API on Azure AD
     - [ ] 3-2) Protect and call a web API on Azure AD B2C
-    - [ ]   4) Deploy to Azure Storage and App Service
+    - [ ] 4-1) Deploy to Azure Storage and App Service
+    - [ ] 4-2) Deploy to Azure Static App Service
     - [ ] 5-1) Call a web API using App Roles
     - [ ] 5-2) Call a web API using Security Groups
     - [ ] 6-1) Call Microsoft Graph using on-behalf-of flow
     - [ ] 6-2) Call a web API using Proof of Possession tokens
+    - [ ] 6-3) Call a web API using Conditional Access Auth Context
 ```
 
 ## This issue is for a

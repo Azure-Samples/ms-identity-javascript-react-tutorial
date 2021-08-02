@@ -32,7 +32,7 @@ const Pages = () => {
  * PublicClientApplication instance via context as well as all hooks and components provided by msal-react. For more, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
-const App = ({ instance }) => {
+export const App = ({ instance }) => {
   return (
     <Router>
       <MsalProvider instance={instance}>
@@ -44,4 +44,4 @@ const App = ({ instance }) => {
   );
 }
 
-export default App;
+module.exports = App;

@@ -3,12 +3,13 @@
  * Licensed under the MIT License.
  */
 
+require('dotenv').config();
+
 const express = require('express');
 const session = require('express-session');
 const methodOverride = require('method-override');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
 
 const msalWrapper = require('msal-express-wrapper');
 const passport = require('passport');
@@ -137,3 +138,5 @@ const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log('Listening on port ' + port);
 });
+
+module.exports = app;
