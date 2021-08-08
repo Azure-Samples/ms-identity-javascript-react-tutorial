@@ -75,16 +75,6 @@ export const msalConfig = {
 };
 
 /**
- * Scopes you add here will be prompted for user consent during sign-in.
- * By default, MSAL.js will add OIDC scopes (openid, profile, email) to any login request.
- * For more information about OIDC scopes, visit: 
- * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
- */
-export const loginRequest = {
-    scopes: ["https://fabrikamb2c.onmicrosoft.com/helloapi/demo.read"]
-};
-
-/**
  * Add here the endpoints and scopes when obtaining an access token for protected web APIs. For more information, see:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
@@ -94,3 +84,13 @@ export const protectedResources = {
         scopes: ["https://fabrikamb2c.onmicrosoft.com/helloapi/demo.read"], // e.g. api://xxxxxx/access_as_user
     },
 }
+
+/**
+ * Scopes you add here will be prompted for user consent during sign-in.
+ * By default, MSAL.js will add OIDC scopes (openid, profile, email) to any login request.
+ * For more information about OIDC scopes, visit: 
+ * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
+ */
+ export const loginRequest = {
+    scopes: [...protectedResources.apiHello.scopes]
+};

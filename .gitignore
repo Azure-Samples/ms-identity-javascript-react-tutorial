@@ -99,7 +99,7 @@ dist
 # TernJS port file
 .tern-port
 
-VS & VS Code cache
+# VS & VS Code cache
 .vs/
 .vscode/
 
