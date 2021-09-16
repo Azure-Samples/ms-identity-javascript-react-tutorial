@@ -96,7 +96,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `App/src/.env` file.
 1. Find the `REACT_APP_AAD_APP_CLIENT_ID` environment variable and add the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the `REACT_APP_AAD_APP_TENANT_ID` environment variable and add your Azure AD tenant ID.
-1. Find the `REACT_APP_AAD_APP_REDIRECT_URI` environment variable and add the APP ID URI that you've registered earlier, e.g. `api://****-****-********-********/`
+1. Find the `REACT_APP_AAD_APP_REDIRECT_URI` environment variable and add the Redirect URI that you've registered earlier, e.g. `http://localhost:3000` (:warning: remember, you will update this value later on when you deploy your app to App Service)
 
 ## Deployment
 
