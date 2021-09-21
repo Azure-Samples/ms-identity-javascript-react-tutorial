@@ -267,7 +267,7 @@ The web API is now ready to challenge users for step-up auth for the selected op
 1. Navigate to **Azure Active Directory** > **Security** > **Conditional Access**
 1. Select **New policy** and go to **Cloud apps or actions**. In dropdown select **Authentication context**. The newly created auth context values will be listed for you to be used in this CA policy.
 
-![Overview](./ReadmeFiles/AuthContext.png)
+![AuthContext](./ReadmeFiles/authcontext.png)
 
 Select the value and create the policy as required. For example, you might want the user to satisfy a **MFA** challenge if the auth context value is **Require strong authentication**.
 
