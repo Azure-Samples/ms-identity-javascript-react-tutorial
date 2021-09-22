@@ -43,5 +43,3 @@ export const App = ({ instance }) => {
     </Router>
   );
 }
-
-module.exports = App;
