@@ -27,10 +27,10 @@ const getToken = async () => {
 const handleClaimsChallenge = async (response) => {
     if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
+            
             const authenticateHeader = response.headers.get("www-authenticate");
-
             const claimsChallenge = authenticateHeader.split(" ")
-                .find(entry => entry.includes("claims=")).split('="')[1].split('",')[0];
+                .find(entry => entry.includes("claims=")).split('claims="')[1].split('",')[0];
 
             try {
                 await msalInstance.acquireTokenPopup({
