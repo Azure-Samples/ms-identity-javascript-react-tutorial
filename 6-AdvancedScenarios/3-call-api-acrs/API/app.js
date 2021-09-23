@@ -15,7 +15,6 @@ const msalWrapper = require('msal-express-wrapper');
 const passport = require('passport');
 const BearerStrategy = require('passport-azure-ad').BearerStrategy;
 
-const cache = require('./utils/cachePlugin');
 const todolistRoutes = require('./routes/todolistRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const routeGuard = require('./utils/routeGuard');
@@ -123,7 +122,7 @@ const appSettings = {
 }
 
 // instantiate the wrapper
-const authProvider = new msalWrapper.AuthProvider(appSettings, cache);
+const authProvider = new msalWrapper.AuthProvider(appSettings);
 
 // initialize the wrapper
 app.use(authProvider.initialize());
