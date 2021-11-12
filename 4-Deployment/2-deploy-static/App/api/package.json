@@ -6,6 +6,7 @@
     "start": "func start"
   },
   "dependencies": {
+    "ansi-regex": ">=5.0.1",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.12.2",
     "@azure/msal-node": "^1.0.0",
