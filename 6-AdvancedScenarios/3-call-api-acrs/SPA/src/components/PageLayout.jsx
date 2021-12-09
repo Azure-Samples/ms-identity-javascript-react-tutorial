@@ -13,7 +13,7 @@ export const PageLayout = (props) => {
         <>
             <NavigationBar />
             <br />
-            <h5><center>Microsoft Authentication Library For React - Tutorial</center></h5>
+            <h5><center>Microsoft Azure AD Step-up Authentication Demo</center></h5>
             <br />
             {props.children}
             <br />
