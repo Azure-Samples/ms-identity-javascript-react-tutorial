@@ -38,15 +38,17 @@
                     </div>
                     <form action="/admin/details" method="POST">
                         <select class="form-select" name="operation">
-                            <option selected>Select HTTP Action</option>
-                            <option value="POST">POST</option>
+                            <option selected value="POST">POST</option>
                             <option value="DELETE">DELETE</option>
                             <option value="UPDATE">UPDATE</option>
                         </select>
                         <select class="form-select" name="authContext">
-                            <option selected>Select Auth Context</option>
-                            <% acrsList.forEach(ac=> { %>
-                                <option value="<%= ac.id %> <%= ac.displayName %>"><%= ac.displayName %></a>
+                            <% acrsList.forEach((ac, index)=> { %>
+                                <% if (index === 0) { %>
+                                    <option selected value="<%= ac.id %> <%= ac.displayName %>"><%= ac.displayName %></a>
+                                <% } else { %>
+                                    <option value="<%= ac.id %> <%= ac.displayName %>"><%= ac.displayName %></a>
+                                <% } %>
                             <% }); %>
                         </select>
                         <button type="submit" class="btn btn-primary">Save or Update</button>

@@ -13,6 +13,12 @@ export const NavigationBar = () => {
      * msal-react provides 2 easy ways to do this. AuthenticatedTemplate and UnauthenticatedTemplate components will 
      * only render their children if a user is authenticated or unauthenticated, respectively.
      */
+    const handelLogin =  () => {
+        instance.loginPopup(loginRequest)
+        .catch(error => {
+            console.error(error);
+        });
+    }
     return (
         <>
             <Navbar bg="primary" variant="dark">
@@ -22,7 +28,7 @@ export const NavigationBar = () => {
                     <Button  variant="warning" className="ml-auto"  drop="left" as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/" })}> Sign out </Button> 
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
-                    <Button variant="secondary"  className="ml-auto" drop="left" as="button" onClick={() => instance.loginPopup(loginRequest)}>Sign in</Button>
+                    <Button variant="secondary"  className="ml-auto" drop="left" as="button" onClick={handelLogin}>Sign in</Button>
                 </UnauthenticatedTemplate>
             </Navbar>
         </>
