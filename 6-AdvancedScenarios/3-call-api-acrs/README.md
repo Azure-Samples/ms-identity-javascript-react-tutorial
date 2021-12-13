@@ -1,4 +1,4 @@
-# React single-page application calling Express web API using Conditional Access auth context to perform step-up authentication
+# React single-page application calling Express web API that uses Conditional Access Auth Context to perform step-up authentication
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -17,7 +17,7 @@
 
 This sample demonstrates how to use the Conditional Access [Authentication Context](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context) feature to achieve granular access control and demand a higher bar of authentication for certain sensitive operations (e.g. HTTP DELETE requests) on an Express.js [protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview) called by a client React single-page application (SPA).
 
-The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [msal-express-wrapper](https://github.com/Azure-Samples/msal-express-wrapper) to acquire access tokens and [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for querying Microsoft Graph. For storing data, a **mock database** is implemented using the [lowdb](https://github.com/typicode/lowdb) package. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
+The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [msal-express-wrapper](https://github.com/Azure-Samples/msal-express-wrapper) to acquire access tokens and uses [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for working with Microsoft Graph. For storing data, a **mock database** is implemented using the [lowdb](https://github.com/typicode/lowdb) package. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
 
 > :information_source: Check out the recorded session on this topic: [Use Conditional Access Auth Context in your app for step-up authentication](https://www.youtube.com/watch?v=_iO7CfoktTY&ab_channel=Microsoft365Community)
 
