@@ -30,7 +30,7 @@
                     "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)"
                 },
                 {
-                    "Comment": "Navigate to the Manifest page, find the 'optionalClaims' section and add the 'xms_cc' optional claim for Access Token"
+                    "Comment": "Navigate to the Manifest page, find the 'optionalClaims' section and add the 'xms_cc' optional claim for Access Token. See manual setup in README.md for exact value."
                 }
             ]
         },
