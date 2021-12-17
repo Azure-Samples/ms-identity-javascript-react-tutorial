@@ -29,8 +29,9 @@ exports.postTodo = (req, res) => {
     const id = req.body.id;
     const name = req.body.name;
     const owner = req.authInfo['preferred_username'];
+    const completed = req.body.completed;
 
-    const newTodo = new Todo(id, name, owner);
+    const newTodo = new Todo(id, name, owner, completed);
 
     try {
         Todo.postTodo(newTodo);

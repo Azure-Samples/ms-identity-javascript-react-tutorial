@@ -8,11 +8,13 @@ class Todo {
     id;
     name;
     owner;
+    completed;
 
-    constructor(id, name, owner) {
+    constructor(id, name, owner, completed) {
         this.id = id;
         this.name = name;
         this.owner = owner;
+        this.completed = completed;
     }
 
     static getAllTodos() {
