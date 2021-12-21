@@ -28,13 +28,15 @@ export const ListView = (props) => {
         updatedTask.completed = !updatedTask.completed;
 
         editTask(id, updatedTask).then((response) => {
-            const updatedTasks = tasks.map(task => {
-                if (id === task.id) {
-                    return { ...task, completed: !task.completed }
-                }
-                return task;
-            });
-            setTasks(updatedTasks);
+            if(response.message === "success"){
+                const updatedTasks = tasks.map(task => {
+                    if (id === task.id) {
+                        return { ...task, completed: !task.completed }
+                    }
+                    return task;
+                });
+                setTasks(updatedTasks);
+            }
         });
     }
 
@@ -46,8 +48,10 @@ export const ListView = (props) => {
             completed: false
         };
 
-        postTask(newTask).then(() => {
-            setTasks([...tasks, newTask]);
+        postTask(newTask).then((response) => {
+            if(response.message === "success"){
+                setTasks([...tasks, newTask]);
+            }
         })
     }
 
@@ -64,14 +68,16 @@ export const ListView = (props) => {
         const updatedTask = tasks.find(task => id === task.id);
         updatedTask.name = newName;
 
-        editTask(id, updatedTask).then(() => {
-            const updatedTasks = tasks.map(task => {
-                if (id === task.id) {
-                    return { ...task, name: newName }
-                }
-                return task;
-            });
-            setTasks(updatedTasks);
+        editTask(id, updatedTask).then((response) => {
+            if(response.message === "success"){
+                const updatedTasks = tasks.map(task => {
+                    if (id === task.id) {
+                        return { ...task, name: newName }
+                    }
+                    return task;
+                });
+                setTasks(updatedTasks);
+            }
         });
     }
 
