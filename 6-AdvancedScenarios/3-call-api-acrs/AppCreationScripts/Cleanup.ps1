@@ -1,26 +1,24 @@
 [CmdletBinding()]
 param(    
-    [PSCredential] $Credential,
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
     [string] $tenantId,
     [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script (it defaults to AzureCloud)')]
     [string] $azureEnvironmentName
 )
 
-#Requires -Modules AzureAD -RunAsAdministrator
+#Requires -Modules Microsoft.Graph.Applications
 
-
-if ($null -eq (Get-Module -ListAvailable -Name "AzureAD")) { 
-    Install-Module "AzureAD" -Scope CurrentUser                                            
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) { 
+    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser                                            
 } 
-Import-Module AzureAD
+Import-Module Microsoft.Graph.Applications
 $ErrorActionPreference = "Stop"
 
 Function Cleanup
 {
     if (!$azureEnvironmentName)
     {
-        $azureEnvironmentName = "AzureCloud"
+        $azureEnvironmentName = "Global"
     }
 
     <#
@@ -31,58 +29,41 @@ Function Cleanup
     # $tenantId is the Active Directory Tenant. This is a GUID which represents the "Directory ID" of the AzureAD tenant 
     # into which you want to create the apps. Look it up in the Azure portal in the "Properties" of the Azure AD. 
 
-    # Login to Azure PowerShell (interactive if credentials are not already provided:
-    # you'll need to sign-in with creds enabling your to create apps in the tenant)
-    if (!$Credential -and $TenantId)
-    {
-        $creds = Connect-AzureAD -TenantId $tenantId -AzureEnvironmentName $azureEnvironmentName
-    }
-    else
-    {
-        if (!$TenantId)
-        {
-            $creds = Connect-AzureAD -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
-        }
-        else
-        {
-            $creds = Connect-AzureAD -TenantId $tenantId -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
-        }
-    }
-
-    if (!$tenantId)
-    {
-        $tenantId = $creds.Tenant.Id
-    }
-    $tenant = Get-AzureADTenantDetail
-    $tenantName =  ($tenant.VerifiedDomains | Where-Object { $_._Default -eq $True }).Name
+    # Connect to the Microsoft Graph API
+    Write-Host "Connecting Microsoft Graph"
+    Connect-MgGraph -TenantId $TenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
     
     # Removes the applications
-    Write-Host "Cleaning-up applications from tenant '$tenantName'"
+    Write-Host "Cleaning-up applications from tenant '$tenantId'"
 
     Write-Host "Removing 'service' (msal-node-api-acrs) if needed"
     try
     {
-        Get-AzureADApplication -Filter "DisplayName eq 'msal-node-api-acrs'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+        Get-MgApplication -Filter "DisplayName eq 'msal-node-api-acrs'"  | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
 	    Write-Host "Unable to remove the 'msal-node-api-acrs' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'msal-node-api-acrs'"
+
+    Write-Host "Making sure there are no more (msal-node-api-acrs) applications found, will remove if needed..."
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-node-api-acrs'"
+    
     if ($apps)
     {
-        Remove-AzureADApplication -ObjectId $apps.ObjectId
+        Remove-MgApplication -ApplicationId $apps.Id
     }
 
     foreach ($app in $apps) 
     {
-        Remove-AzureADApplication -ObjectId $app.ObjectId
+        Remove-MgApplication -ApplicationId $app.Id
         Write-Host "Removed msal-node-api-acrs.."
     }
+
     # also remove service principals of this app
     try
     {
-        Get-AzureADServicePrincipal -filter "DisplayName eq 'msal-node-api-acrs'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-node-api-acrs'" | ForEach-Object {Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false}
     }
     catch
     {
@@ -91,27 +72,31 @@ Function Cleanup
     Write-Host "Removing 'client' (msal-react-spa-acrs) if needed"
     try
     {
-        Get-AzureADApplication -Filter "DisplayName eq 'msal-react-spa-acrs'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
+        Get-MgApplication -Filter "DisplayName eq 'msal-react-spa-acrs'"  | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
 	    Write-Host "Unable to remove the 'msal-react-spa-acrs' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'msal-react-spa-acrs'"
+
+    Write-Host "Making sure there are no more (msal-react-spa-acrs) applications found, will remove if needed..."
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-react-spa-acrs'"
+    
     if ($apps)
     {
-        Remove-AzureADApplication -ObjectId $apps.ObjectId
+        Remove-MgApplication -ApplicationId $apps.Id
     }
 
     foreach ($app in $apps) 
     {
-        Remove-AzureADApplication -ObjectId $app.ObjectId
+        Remove-MgApplication -ApplicationId $app.Id
         Write-Host "Removed msal-react-spa-acrs.."
     }
+
     # also remove service principals of this app
     try
     {
-        Get-AzureADServicePrincipal -filter "DisplayName eq 'msal-react-spa-acrs'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-react-spa-acrs'" | ForEach-Object {Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false}
     }
     catch
     {
@@ -119,5 +104,5 @@ Function Cleanup
     }
 }
 
-Cleanup -Credential $Credential -tenantId $TenantId
+Cleanup -tenantId $TenantId
 
