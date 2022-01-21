@@ -138,9 +138,3 @@ jobs:
         npm ci
         npm audit --production
         npm run test --no-watch
-
-    - run: |
-        cd 6-AdvancedScenarios/3-call-api-acrs/API
-        npm ci
-        npm audit --production
-        npm run test
