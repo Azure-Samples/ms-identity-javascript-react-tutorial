@@ -10,8 +10,8 @@ export const PageLayout = (props) => {
     /**
      * useMsalAuthentication hook will initiate a login if a user is not already signed in. 
      * Passing the "Silent" interaction type will call ssoSilent,
-     *  and if the user is not signed in, it will open a popup interaction to sign in the user.
-     * For more information please visit https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md#usemsalauthentication-hook
+     * and if the user is not signed in, it will open a popup interaction to sign in the user.
+     * For more information, please visit https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md#usemsalauthentication-hook
      */
     const { login, error } = useMsalAuthentication(InteractionType.Silent, loginRequest);
      useEffect(() => {
