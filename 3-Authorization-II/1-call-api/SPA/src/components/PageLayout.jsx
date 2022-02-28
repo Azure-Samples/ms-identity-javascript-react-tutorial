@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { NavigationBar } from "./NavigationBar";
 import { loginRequest } from "../authConfig";
-import { InteractionType, InteractionRequiredAuthError } from '@azure/msal-browser'
-import { AuthenticatedTemplate, useMsalAuthentication} from "@azure/msal-react";
+import { InteractionType, InteractionRequiredAuthError, BrowserAuthError } from '@azure/msal-browser'
+import { AuthenticatedTemplate, useMsalAuthentication } from "@azure/msal-react";
 
 export const PageLayout = (props) => {
     
@@ -17,7 +17,12 @@ export const PageLayout = (props) => {
      useEffect(() => {
           if(error && error instanceof InteractionRequiredAuthError){
               login(InteractionType.Popup, loginRequest)
-                .catch((err) => console.log(err))
+                .catch((err) => {
+                    if(err instanceof BrowserAuthError && 
+                     (err.errorCode === "popup_window_error" || err.errorCode === "empty_window_error")){
+                        login(InteractionType.Redirect, loginRequest)
+                    }
+                })
           }
           
      },[error])
