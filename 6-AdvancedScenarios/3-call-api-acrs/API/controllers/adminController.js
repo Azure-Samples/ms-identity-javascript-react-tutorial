@@ -45,9 +45,10 @@ exports.getDashboardPage = (req, res, next) => {
 }
 
 exports.postDashboardPage = async(req, res, next) => {
+   
     try {
         // pass the access token to create a graph client
-        const graphClient = msGraph.getAuthenticatedClient(req.session.remoteResources["msGraphAcrs"].accessToken);
+        const graphClient = msGraph.getAuthenticatedClient(req.session.protectedResources["graphAPI"].accessToken);
 
         let acrs = await graphClient
             .api('/identity/conditionalAccess/authenticationContextClassReferences')

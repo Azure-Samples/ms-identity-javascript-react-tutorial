@@ -11,15 +11,15 @@ module.exports = (authProvider) => {
     router.get('/home', dashboardController.getHomePage);
 
     // authentication routes
-    router.get('/signin', authProvider.signIn({ successRedirect: '/admin' }));
-    router.get('/signout', authProvider.signOut({ successRedirect: '/admin' }));
+    router.get('/signin', authProvider.signIn({ postLoginRedirect: '/admin' }));
+    router.get('/signout', authProvider.signOut({ postLogoutRedirect: '/admin' }));
 
     // check if user is authenticated, then obtain an access token for the specified resource
     router.get(
         '/dashboard',
         authProvider.isAuthenticated(),
         authProvider.getToken({
-            resource: authProvider.appSettings.remoteResources.msGraphAcrs
+            resource: authProvider.appSettings.protectedResources.graphAPI
         }),
         dashboardController.getDashboardPage
     );
