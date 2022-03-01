@@ -11,7 +11,7 @@ const methodOverride = require('method-override');
 const cors = require('cors');
 const path = require('path');
 
-const msalWrapper = require('msal-express-wrapper');
+const MsIdExpress = require('microsoft-identity-express');
 const passport = require('passport');
 const BearerStrategy = require('passport-azure-ad').BearerStrategy;
 
@@ -111,18 +111,19 @@ const appSettings = {
         error: "/admin/error", // the wrapper will redirect to this route in case of any error
         unauthorized: "/admin/unauthorized" // the wrapper will redirect to this route in case of unauthorized access attempt
     },
-    remoteResources: {
+    protectedResources: {
         // Microsoft Graph beta authenticationContextClassReference endpoint. For more information,
         // visit: https://docs.microsoft.com/en-us/graph/api/resources/authenticationcontextclassreference?view=graph-rest-beta
-        msGraphAcrs: {
+        graphAPI: {
             endpoint: "https://graph.microsoft.com/beta/identity/conditionalAccess/policies",
             scopes: ["Policy.ReadWrite.ConditionalAccess", "Policy.Read.ConditionalAccess"]
         },
     }
 }
 
+
 // instantiate the wrapper
-const authProvider = new msalWrapper.AuthProvider(appSettings);
+const authProvider = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build()
 
 // initialize the wrapper
 app.use(authProvider.initialize());
