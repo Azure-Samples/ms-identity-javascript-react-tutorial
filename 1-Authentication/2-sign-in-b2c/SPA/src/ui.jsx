@@ -20,6 +20,11 @@ const NavigationBar = () => {
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
     const { instance } = useMsal();
+    
+    const handleLogin = () => {
+        instance.loginPopup(loginRequest)
+            .catch((error) => console.log(error))
+    }
 
     return (
         <>
@@ -34,7 +39,7 @@ const NavigationBar = () => {
             </AuthenticatedTemplate>
             <UnauthenticatedTemplate>
                 <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
-                    <Dropdown.Item as="button" onClick={() => instance.loginPopup(loginRequest)}>Sign in using Popup</Dropdown.Item>
+                    <Dropdown.Item as="button" onClick={handleLogin}>Sign in using Popup</Dropdown.Item>
                     <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>Sign in using Redirect</Dropdown.Item>
                 </DropdownButton>
             </UnauthenticatedTemplate>
