@@ -32,8 +32,8 @@ exports.postDetailsPage = async(req, res, next) => {
 
 exports.deleteDetailsPage = async(req, res, next) => {
     try {
-        const authContextId = req.body.authContextId;
-        AuthContext.deleteAuthContext(authContextId);
+        const authContextObject = JSON.parse(req.body.authContextObject);
+        AuthContext.deleteAuthContext( authContextObject);
         res.redirect('/admin/details');   
     } catch (error) {
         next(error);
