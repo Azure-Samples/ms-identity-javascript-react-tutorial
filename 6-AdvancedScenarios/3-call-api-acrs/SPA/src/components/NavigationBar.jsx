@@ -3,10 +3,27 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/
 import { Nav, Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
 
 import { loginRequest } from "../authConfig";
+import { clearStorage } from "../util/Util";
 
 export const NavigationBar = () => {
 
+
     const { instance } = useMsal();
+
+    const handleLogoutPopup = () => {
+        clearStorage();
+        instance.logoutPopup({
+            postLogoutRedirectUri: "/",
+            mainWindowRedirectUri: "/"
+        })
+    }
+
+    const handleLogoutRedirect = () => {
+        clearStorage();
+        instance.logoutRedirect({ 
+            postLogoutRedirectUri: "/"
+         })
+    }
 
     /**
      * Most applications will need to conditionally render certain components based on whether a user is signed in or not. 
@@ -20,8 +37,8 @@ export const NavigationBar = () => {
                 <AuthenticatedTemplate>
                     <Nav.Link as={Button} href="/todolist">TodoList</Nav.Link>
                     <DropdownButton variant="warning" className="ml-auto" drop="left" title="Sign Out">
-                        <Dropdown.Item as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/" })}>Sign out using Popup</Dropdown.Item>
-                        <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}>Sign out using Redirect</Dropdown.Item>
+                        <Dropdown.Item as="button" onClick={handleLogoutPopup}>Sign out using Popup</Dropdown.Item>
+                        <Dropdown.Item as="button" onClick={handleLogoutRedirect}>Sign out using Redirect</Dropdown.Item>
                     </DropdownButton>
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>

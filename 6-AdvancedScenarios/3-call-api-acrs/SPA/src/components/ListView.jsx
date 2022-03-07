@@ -53,7 +53,7 @@ export const ListView = (props) => {
 
     const handleDeleteTask = (id) => {
         deleteTask(id).then((response) => {
-            if (response.message === "success") {
+            if (response && response.message === "success") {
                 const remainingTasks = tasks.filter(task => id !== task.id);
                 setTasks(remainingTasks);
             }

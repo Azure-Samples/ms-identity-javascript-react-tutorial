@@ -1,19 +1,31 @@
 import { BrowserAuthError } from "@azure/msal-browser";
 import { protectedResources } from "./authConfig";
 import { msalInstance } from "./index";
+import { msalConfig } from "./authConfig";
+import { addClaimsToStorage } from "./util/Util";
 
-const getToken = async () => {
+
+const getToken = async (method) => {
     const account = msalInstance.getActiveAccount();
 
     if (!account) {
         throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
     }
-
-    const response = await msalInstance.acquireTokenSilent({
-        account: account,
-        scopes: protectedResources.apiTodoList.scopes
-    });
-
+    let response
+    if(msalConfig.cache.cacheLocation === "localStorage"){
+        response = await msalInstance.acquireTokenSilent({
+            account: account,
+            scopes: protectedResources.apiTodoList.scopes,
+            claims: localStorage.getItem(method) ? window.atob(localStorage.getItem(method)) : null,
+        });
+    }else {
+        response = await msalInstance.acquireTokenSilent({
+            account: account,
+            scopes: protectedResources.apiTodoList.scopes,
+            claims: sessionStorage.getItem(method) ? window.atob(sessionStorage.getItem(method)) : null,
+        });
+    }
+    
     return response.accessToken;
 }
 
@@ -24,7 +36,7 @@ const getToken = async () => {
  * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
  * @param {Object} response: HTTP response
  */
-const handleClaimsChallenge = async (response) => {
+const handleClaimsChallenge = async (response, operation) => {
     if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
             
@@ -33,15 +45,17 @@ const handleClaimsChallenge = async (response) => {
                 .find(entry => entry.includes("claims=")).split('claims="')[1].split('",')[0];
 
             try {
+                addClaimsToStorage(claimsChallenge, operation)
                 await msalInstance.acquireTokenPopup({
                     claims: window.atob(claimsChallenge), // decode the base64 string
                     scopes: protectedResources.apiTodoList.scopes
                 });
+                
             } catch (error) {
                 // catch if popups are blocked
                 if (error instanceof BrowserAuthError && 
                     (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error")) {
-
+                    addClaimsToStorage(claimsChallenge, operation)
                     await msalInstance.acquireTokenRedirect({
                         claims: window.atob(claimsChallenge),
                         scopes: protectedResources.apiTodoList.scopes
@@ -57,6 +71,7 @@ const handleClaimsChallenge = async (response) => {
 }
 
 export const getTasks = async () => {
+    const method = "GET";
     const accessToken = await getToken();
 
     const headers = new Headers();
@@ -65,7 +80,7 @@ export const getTasks = async () => {
     headers.append("Authorization", bearer);
 
     const options = {
-        method: "GET",
+        method,
         headers: headers
     };
 
@@ -75,6 +90,7 @@ export const getTasks = async () => {
 }
 
 export const getTask = async (id) => {
+    const method = "GET";
     const accessToken = await getToken();
 
     const headers = new Headers();
@@ -83,7 +99,7 @@ export const getTask = async (id) => {
     headers.append("Authorization", bearer);
 
     const options = {
-        method: "GET",
+        method,
         headers: headers
     };
 
@@ -93,8 +109,8 @@ export const getTask = async (id) => {
 }
 
 export const postTask = async (task) => {
-    const accessToken = await getToken();
-
+    const method = "POST"
+    const accessToken = await getToken(method);
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -102,18 +118,18 @@ export const postTask = async (task) => {
     headers.append('Content-Type', 'application/json');
 
     const options = {
-        method: "POST",
+        method,
         headers: headers,
         body: JSON.stringify(task)
     };
-
     return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
-        .then(handleClaimsChallenge)
+        .then((res) => handleClaimsChallenge(res, method))
         .catch(error => console.log(error));
 }
 
 export const deleteTask = async (id) => {
-    const accessToken = await getToken();
+    const method = "DELETE";
+    const accessToken = await getToken(method);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -121,17 +137,18 @@ export const deleteTask = async (id) => {
     headers.append("Authorization", bearer);
 
     const options = {
-        method: "DELETE",
+        method,
         headers: headers
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then(handleClaimsChallenge)
+        .then((res) => handleClaimsChallenge(res,  method))
         .catch(error => console.log(error));
 }
 
 export const editTask = async (id, task) => {
-    const accessToken = await getToken();
+    const method = "PUT"
+    const accessToken = await getToken(method);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -140,12 +157,12 @@ export const editTask = async (id, task) => {
     headers.append('Content-Type', 'application/json');
 
     const options = {
-        method: "PUT",
+        method,
         headers: headers,
         body: JSON.stringify(task)
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then(handleClaimsChallenge)
+        .then((res) => handleClaimsChallenge(res,  method))
         .catch(error => console.log(error));
 }
