@@ -31,7 +31,7 @@
                   <td><%= ac.operation %></td>
                   <td>
                     <form action='/admin/details?_method=DELETE' method='POST'>
-                      <input type='hidden' name='authContextId' value='<%= ac.authContextId %>'>
+                      <input type='hidden' name='authContextObject' value='<%= JSON.stringify(ac) %>'>
                       <button type='submit'>Remove</button>
                     </form>
                   </td>

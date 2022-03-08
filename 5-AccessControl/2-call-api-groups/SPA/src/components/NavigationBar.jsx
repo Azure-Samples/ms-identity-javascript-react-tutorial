@@ -8,6 +8,11 @@ export const NavigationBar = () => {
 
     const { instance } = useMsal();
 
+    const handleLogin = () => {
+        instance.loginPopup(loginRequest)
+            .catch((error) => console.log(error))
+    }
+
     /**
      * Most applications will need to conditionally render certain components based on whether a user is signed in or not. 
      * msal-react provides 2 easy ways to do this. AuthenticatedTemplate and UnauthenticatedTemplate components will 
@@ -27,7 +32,7 @@ export const NavigationBar = () => {
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
                     <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
-                        <Dropdown.Item as="button" onClick={() => instance.loginPopup(loginRequest)}>Sign in using Popup</Dropdown.Item>
+                        <Dropdown.Item as="button" onClick={handleLogin}>Sign in using Popup</Dropdown.Item>
                         <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>Sign in using Redirect</Dropdown.Item>
                     </DropdownButton>
                 </UnauthenticatedTemplate>
