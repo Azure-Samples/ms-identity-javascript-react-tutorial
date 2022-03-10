@@ -1,7 +1,6 @@
 import { BrowserAuthError } from "@azure/msal-browser";
 import { protectedResources } from "./authConfig";
 import { msalInstance } from "./index";
-import { msalConfig } from "./authConfig";
 import { addClaimsToStorage } from "./util/Util";
 
 
@@ -12,20 +11,13 @@ const getToken = async (method) => {
         throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
     }
     let response
-    if(msalConfig.cache.cacheLocation === "localStorage"){
+
         response = await msalInstance.acquireTokenSilent({
             account: account,
             scopes: protectedResources.apiTodoList.scopes,
             claims: localStorage.getItem(method) ? window.atob(localStorage.getItem(method)) : null,
         });
-    }else {
-        response = await msalInstance.acquireTokenSilent({
-            account: account,
-            scopes: protectedResources.apiTodoList.scopes,
-            claims: sessionStorage.getItem(method) ? window.atob(sessionStorage.getItem(method)) : null,
-        });
-    }
-    
+
     return response.accessToken;
 }
 
@@ -39,7 +31,6 @@ const getToken = async (method) => {
 const handleClaimsChallenge = async (response, operation) => {
     if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
-            
             const authenticateHeader = response.headers.get("www-authenticate");
             const claimsChallenge = authenticateHeader.split(" ")
                 .find(entry => entry.includes("claims=")).split('claims="')[1].split('",')[0];
@@ -55,11 +46,14 @@ const handleClaimsChallenge = async (response, operation) => {
                 // catch if popups are blocked
                 if (error instanceof BrowserAuthError && 
                     (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error")) {
+
                     addClaimsToStorage(claimsChallenge, operation)
+
                     await msalInstance.acquireTokenRedirect({
                         claims: window.atob(claimsChallenge),
                         scopes: protectedResources.apiTodoList.scopes
                     });
+
                 }
             }
         } else {

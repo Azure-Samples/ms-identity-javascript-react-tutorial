@@ -1,25 +1,27 @@
-import  { msalConfig } from '../authConfig';
 
+
+/**
+ *  This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token
+ * @param {String} claimsChallenge 
+ * @param {String} method 
+ */
 export const addClaimsToStorage = (claimsChallenge, method) => {
-    if(msalConfig.cache.cacheLocation === "localStorage"){
-        if(!localStorage.getItem(method)){
-            localStorage.setItem(method, claimsChallenge)
-        }
-    }else if(msalConfig.cache.cacheLocation === "sessionStorage"){
-        if(!sessionStorage.getItem(method)){
-            sessionStorage.setItem(method, claimsChallenge)
-        }
+
+    if(!localStorage.getItem(method)){
+        localStorage.setItem(method, claimsChallenge)
     }
+
 }   
 
+
+/**
+ * This method clears localStorage if claim challenge based on operation (POST, DELETE, PUT)
+ */
 export const clearStorage = () => {
-    if(msalConfig.cache.cacheLocation === "localStorage"){
-        localStorage.removeItem("POST");
-        localStorage.removeItem("DELETE");
-        localStorage.removeItem("PUT");
-    }else if(msalConfig.cache.cacheLocation === "sessionStorage"){
-        sessionStorage.removeItem("POST");
-        sessionStorage.removeItem("DELETE");
-        sessionStorage.removeItem("PUT");   
-    }
+
+    localStorage.removeItem("POST");
+    localStorage.removeItem("DELETE");
+    localStorage.removeItem("PUT");  
 }
+
+
