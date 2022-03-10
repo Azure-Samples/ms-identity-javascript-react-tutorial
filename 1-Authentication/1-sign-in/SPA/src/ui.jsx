@@ -20,18 +20,22 @@ const NavigationBar = () => {
      */
     const { instance } = useMsal();
 
+    const handleLogin = () => {
+        instance.loginPopup(loginRequest)
+            .catch((error) => console.log(error))
+    }
+
     return (
         <>
             <AuthenticatedTemplate>
                 <DropdownButton variant="warning" className="ml-auto" drop="left" title="Sign Out">
-                    <Dropdown.Item as="button" onClick={() => instance.logoutPopup({postLogoutRedirectUri: "/", mainWindowRedirectUri: "/"})}>Sign out using Popup</Dropdown.Item>
+                    <Dropdown.Item as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/"})}>Sign out using Popup</Dropdown.Item>
                     <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({postLogoutRedirectUri: "/"})}>Sign out using Redirect</Dropdown.Item>
                 </DropdownButton>
-                <Button variant="warning" onClick={() => instance.logout()} className="ml-auto">Sign Out</Button>
             </AuthenticatedTemplate>
             <UnauthenticatedTemplate>
                 <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
-                    <Dropdown.Item as="button" onClick={() => instance.loginPopup(loginRequest)}>Sign in using Popup</Dropdown.Item>
+                    <Dropdown.Item as="button" onClick={handleLogin}>Sign in using Popup</Dropdown.Item>
                     <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>Sign in using Redirect</Dropdown.Item>
                 </DropdownButton>
             </UnauthenticatedTemplate>

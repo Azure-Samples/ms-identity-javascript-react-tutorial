@@ -19,7 +19,7 @@ exports.postDetailsPage = async(req, res, next) => {
         const authContext = new AuthContext(
             req.session.account.idTokenClaims.tid, 
             req.body.authContext.split(' ')[0], // id
-            req.body.authContext.split(' ')[1], // displayName
+            req.body.authContext.replace(req.body.authContext.split(' ')[0],' '), // displayName
             req.body.operation
         );
 
@@ -32,8 +32,8 @@ exports.postDetailsPage = async(req, res, next) => {
 
 exports.deleteDetailsPage = async(req, res, next) => {
     try {
-        const authContextId = req.body.authContextId;
-        AuthContext.deleteAuthContext(authContextId);
+        const authContextObject = JSON.parse(req.body.authContextObject);
+        AuthContext.deleteAuthContext( authContextObject);
         res.redirect('/admin/details');   
     } catch (error) {
         next(error);
