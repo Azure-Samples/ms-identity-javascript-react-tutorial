@@ -39,16 +39,10 @@ const TodoListContent = () => {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
 export const TodoList = () => {
-    const authRequest = {
-        ...loginRequest
-    };
 
     return (
-        <MsalAuthenticationTemplate 
-            interactionType={InteractionType.Redirect} 
-            authenticationRequest={authRequest}
-        >
+        <>
             <TodoListContent />
-        </MsalAuthenticationTemplate>
+        </>
       )
 };
