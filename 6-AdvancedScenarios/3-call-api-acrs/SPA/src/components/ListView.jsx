@@ -46,8 +46,10 @@ export const ListView = (props) => {
             completed: false
         };
 
-        postTask(newTask).then(() => {
-            setTasks([...tasks, newTask]);
+        postTask(newTask).then((res) => {
+            if(res && res.message === "success"){
+                setTasks([...tasks, newTask]);
+            }   
         })
     }
 

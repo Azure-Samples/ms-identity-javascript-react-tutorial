@@ -1,7 +1,7 @@
 import { BrowserAuthError } from "@azure/msal-browser";
 import { protectedResources } from "./authConfig";
 import { msalInstance } from "./index";
-import { addClaimsToStorage } from "./util/Util";
+import { addClaimsToStorage, callAPI } from "./util/Util";
 
 
 const getToken = async (method) => {
@@ -24,7 +24,6 @@ const getToken = async (method) => {
     let response
 
         response = await msalInstance.acquireTokenSilent(tokenRequest);
-
     return response.accessToken;
 }
 
@@ -34,32 +33,49 @@ const getToken = async (method) => {
  * If not present, then it simply returns the response as json
  * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
  * @param {Object} response: HTTP response
+ * @param {options} options: task options
+ * @param {String} id: task id
  */
-const handleClaimsChallenge = async (response, operation) => {
+const handleClaimsChallenge = async (response, options, id = "") => {
     if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
+            let token;
             const authenticateHeader = response.headers.get("www-authenticate");
             const claimsChallenge = authenticateHeader.split(" ")
                 .find(entry => entry.includes("claims=")).split('claims="')[1].split('",')[0];
 
             try {
-                addClaimsToStorage(claimsChallenge, operation)
-                await msalInstance.acquireTokenPopup({
-                    claims: window.atob(claimsChallenge), // decode the base64 string
-                    scopes: protectedResources.apiTodoList.scopes
-                });
+                // add claims challenage to localSorage
+                addClaimsToStorage(claimsChallenge, options["method"])
+
+                 token = await msalInstance.acquireTokenPopup({
+                            claims: window.atob(claimsChallenge), // decode the base64 string
+                            scopes: protectedResources.apiTodoList.scopes
+                        });
+
+                if(token){
+                    //call the API with the new access token
+                    return callAPI(options, id)
+                }
                 
             } catch (error) {
                 // catch if popups are blocked
                 if (error instanceof BrowserAuthError && 
                     (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error")) {
 
-                    addClaimsToStorage(claimsChallenge, operation)
+                   // add claims challenage to localSorage
+                    addClaimsToStorage(claimsChallenge,  options["method"])
 
-                    await msalInstance.acquireTokenRedirect({
+                    token = await msalInstance.acquireTokenRedirect({
                         claims: window.atob(claimsChallenge),
                         scopes: protectedResources.apiTodoList.scopes
                     });
+
+                    
+                    if(token){
+                        //call the API with the new access token
+                        return callAPI(options, id)
+                    }
 
                 }
             }
@@ -124,7 +140,7 @@ export const postTask = async (task) => {
         body: JSON.stringify(task)
     };
     return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
-        .then((res) => handleClaimsChallenge(res, method))
+        .then((res) => handleClaimsChallenge(res, options))
         .catch(error => console.log(error));
 }
 
@@ -143,7 +159,7 @@ export const deleteTask = async (id) => {
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then((res) => handleClaimsChallenge(res,  method))
+        .then((res) => handleClaimsChallenge(res,  options, id))
         .catch(error => console.log(error));
 }
 
@@ -164,6 +180,6 @@ export const editTask = async (id, task) => {
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then((res) => handleClaimsChallenge(res,  method))
+        .then((res) => handleClaimsChallenge(res,  options, id))
         .catch(error => console.log(error));
 }
