@@ -366,10 +366,12 @@ Function ConfigureApplications
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
    Write-Host "- For service"
+   Write-Host "  - Navigate to '$servicePortalUrl'"
    Write-Host "  - Navigate to Azure portal and set the 'accessTokenAcceptedVersion' to '2' in the application manifest" -ForegroundColor Red
    Write-Host "  - Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)" -ForegroundColor Red
    Write-Host "  - Navigate to the Manifest page, find the 'optionalClaims' section and change its default value to request 'xms_cc' claims" -ForegroundColor Red  
    Write-Host "- For client"
+   Write-Host "  - Navigate to '$clientPortalUrl'"
    Write-Host "  - Navigate to Azure portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" -ForegroundColor Red 
 
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
