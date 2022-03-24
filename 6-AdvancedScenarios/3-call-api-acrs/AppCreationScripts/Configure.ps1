@@ -1,9 +1,9 @@
 [CmdletBinding()]
 param(
     [PSCredential] $Credential,
-    [Parameter(Mandatory = $False, HelpMessage = 'Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
+    [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
     [string] $tenantId,
-    [Parameter(Mandatory = $False, HelpMessage = 'Azure environment to use while running the script (it defaults to AzureCloud)')]
+    [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script (it defaults to AzureCloud)')]
     [string] $azureEnvironmentName
 )
 
@@ -22,7 +22,8 @@ param(
 #>
 
 # Create a password that can be used as an application key
-Function ComputePassword {
+Function ComputePassword 
+{
     $aesManaged = New-Object "System.Security.Cryptography.AesManaged"
     $aesManaged.Mode = [System.Security.Cryptography.CipherMode]::CBC
     $aesManaged.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
@@ -34,7 +35,8 @@ Function ComputePassword {
 
 # Create an application key
 # See https://www.sabin.io/blog/adding-an-azure-active-directory-application-and-key-using-powershell/
-Function CreateAppKey([DateTime] $fromDate, [double] $durationInMonths, [string]$pw) {
+Function CreateAppKey([DateTime] $fromDate, [double] $durationInMonths, [string]$pw) 
+{
     $endDate = $fromDate.AddMonths($durationInMonths);
     $keyId = (New-Guid).ToString();
     $key = New-Object Microsoft.Open.AzureAD.Model.PasswordCredential
@@ -49,10 +51,16 @@ Function CreateAppKey([DateTime] $fromDate, [double] $durationInMonths, [string]
 # The exposed permissions are in the $exposedPermissions collection, and the type of permission (Scope | Role) is 
 # described in $permissionType
 Function AddResourcePermission($requiredAccess, `
-        $exposedPermissions, [string]$requiredAccesses, [string]$permissionType) {
-    foreach ($permission in $requiredAccesses.Trim().Split("|")) {
-        foreach ($exposedPermission in $exposedPermissions) {
-            if ($exposedPermission.Value -eq $permission) {
+        $exposedPermissions, [string]$requiredAccesses, [string]$permissionType) 
+{
+    foreach ($permission in $requiredAccesses.Trim().Split("|")) 
+    {
+
+        foreach ($exposedPermission in $exposedPermissions) 
+
+        {
+            if ($exposedPermission.Value -eq $permission)
+            {
                 $resourceAccess = New-Object Microsoft.Open.AzureAD.Model.ResourceAccess
                 $resourceAccess.Type = $permissionType # Scope = Delegated permissions | Role = Application permissions
                 $resourceAccess.Id = $exposedPermission.Id # Read directory data
@@ -65,12 +73,15 @@ Function AddResourcePermission($requiredAccess, `
 #
 # Example: GetRequiredPermissions "Microsoft Graph"  "Graph.Read|User.Read"
 # See also: http://stackoverflow.com/questions/42164581/how-to-configure-a-new-azure-ad-application-through-powershell
-Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requiredDelegatedPermissions, [string]$requiredApplicationPermissions, $servicePrincipal) {
+Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requiredDelegatedPermissions, [string]$requiredApplicationPermissions, $servicePrincipal) 
+{
     # If we are passed the service principal we use it directly, otherwise we find it from the display name (which might not be unique)
-    if ($servicePrincipal) {
+    if ($servicePrincipal) 
+    {
         $sp = $servicePrincipal
     }
-    else {
+    else 
+    {
         $sp = Get-AzureADServicePrincipal -Filter "DisplayName eq '$applicationDisplayName'"
     }
     $appid = $sp.AppId
@@ -79,34 +90,42 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
     $requiredAccess.ResourceAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.ResourceAccess]
 
     # $sp.Oauth2Permissions | Select Id,AdminConsentDisplayName,Value: To see the list of all the Delegated permissions for the application:
-    if ($requiredDelegatedPermissions) {
+    if ($requiredDelegatedPermissions) 
+    {
         AddResourcePermission $requiredAccess -exposedPermissions $sp.Oauth2Permissions -requiredAccesses $requiredDelegatedPermissions -permissionType "Scope"
     }
     
     # $sp.AppRoles | Select Id,AdminConsentDisplayName,Value: To see the list of all the Application permissions for the application
-    if ($requiredApplicationPermissions) {
+    if ($requiredApplicationPermissions) 
+    {
         AddResourcePermission $requiredAccess -exposedPermissions $sp.AppRoles -requiredAccesses $requiredApplicationPermissions -permissionType "Role"
     }
     return $requiredAccess
 }
 
 
-Function ReplaceInLine([string] $line, [string] $key, [string] $value) {
+Function ReplaceInLine([string] $line, [string] $key, [string] $value) 
+{
     $index = $line.IndexOf($key)
-    if ($index -ige 0) {
+    if ($index -ige 0) 
+    {
         $index2 = $index + $key.Length
         $line = $line.Substring(0, $index) + $value + $line.Substring($index2)
     }
     return $line
 }
 
-Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary) {
+Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary) 
+{
     $lines = Get-Content $configFilePath
     $index = 0
-    while ($index -lt $lines.Length) {
+    while ($index -lt $lines.Length) 
+    {
         $line = $lines[$index]
-        foreach ($key in $dictionary.Keys) {
-            if ($line.Contains($key)) {
+        foreach ($key in $dictionary.Keys)
+         {
+            if ($line.Contains($key)) 
+            {
                 $lines[$index] = ReplaceInLine $line $key $dictionary[$key]
             }
         }
@@ -118,7 +137,8 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 <#.Description
    This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
 #>  
-Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription) {
+Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription) 
+{
     $scope = New-Object Microsoft.Open.AzureAD.Model.OAuth2Permission
     $scope.Id = New-Guid
     $scope.Value = $value
@@ -134,11 +154,13 @@ Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string
 <#.Description
    This function creates a new Azure AD AppRole with default and provided values
 #>  
-Function CreateAppRole([string] $types, [string] $name, [string] $description) {
+Function CreateAppRole([string] $types, [string] $name, [string] $description) 
+{
     $appRole = New-Object Microsoft.Open.AzureAD.Model.AppRole
     $appRole.AllowedMemberTypes = New-Object System.Collections.Generic.List[string]
     $typesArr = $types.Split(',')
-    foreach ($type in $typesArr) {
+    foreach ($type in $typesArr) 
+    {
         $appRole.AllowedMemberTypes.Add($type);
     }
     $appRole.DisplayName = $name
@@ -154,7 +176,8 @@ Add-Content -Value "<thead><tr><th>Application</th><th>AppId</th><th>Url in the 
 
 $ErrorActionPreference = "Stop"
 
-Function ConfigureApplications {
+Function ConfigureApplications 
+{
     <#.Description
    This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
    configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
@@ -162,7 +185,8 @@ Function ConfigureApplications {
 #> 
     $commonendpoint = "common"
     
-    if (!$azureEnvironmentName) {
+    if (!$azureEnvironmentName) 
+    {
         $azureEnvironmentName = "AzureCloud"
     }
 
@@ -171,19 +195,23 @@ Function ConfigureApplications {
 
     # Login to Azure PowerShell (interactive if credentials are not already provided:
     # you'll need to sign-in with creds enabling your to create apps in the tenant)
-    if (!$Credential -and $TenantId) {
+    if (!$Credential -and $TenantId) 
+    {
         $creds = Connect-AzureAD -TenantId $tenantId -AzureEnvironmentName $azureEnvironmentName
     }
     else {
-        if (!$TenantId) {
+        if (!$TenantId) 
+        {
             $creds = Connect-AzureAD -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
         }
-        else {
+        else 
+        {
             $creds = Connect-AzureAD -TenantId $tenantId -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
         }
     }
 
-    if (!$tenantId) {
+    if (!$tenantId) 
+    {
         $tenantId = $creds.Tenant.Id
     }
 
@@ -218,7 +246,8 @@ Function ConfigureApplications {
 
     # add the user running the script as an app owner if needed
     $owner = Get-AzureADApplicationOwner -ObjectId $serviceAadApplication.ObjectId
-    if ($owner -eq $null) { 
+    if ($owner -eq $null) 
+    { 
         Add-AzureADApplicationOwner -ObjectId $serviceAadApplication.ObjectId -RefObjectId $user.ObjectId
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($serviceServicePrincipal.DisplayName)'"
     }
@@ -228,7 +257,8 @@ Function ConfigureApplications {
    
     # delete default scope i.e. User_impersonation
     $scope = $serviceAadApplication.Oauth2Permissions | Where-Object { $_.Value -eq "User_impersonation" }
-    if ($scope -ne $null) {
+    if ($scope -ne $null) 
+    {
         # disable the scope
         $scope.IsEnabled = $false
         $scopes.Add($scope)
@@ -239,7 +269,8 @@ Function ConfigureApplications {
         Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -Oauth2Permissions $scopes
     }
 
-    if ($scopes.Count -ge 0) {
+    if ($scopes.Count -ge 0) 
+    {
         $scope = CreateScope -value access_as_user  `
             -userConsentDisplayName "Access msal-node-api-acrs"  `
             -userConsentDescription "Allow the application to access msal-node-api-acrs on your behalf."  `
@@ -257,7 +288,7 @@ Function ConfigureApplications {
 
     # URL of the AAD application in the Azure portal
     # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
-    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/" + $serviceAadApplication.AppId + "/objectId/" + $serviceAadApplication.ObjectId + "/isMSAApp/"
+    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+ $serviceAadApplication.ObjectId+"/isMSAApp/"
     Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-node-api-acrs</a></td></tr>" -Path createdApps.html
 
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
@@ -287,7 +318,8 @@ Function ConfigureApplications {
 
     # add the user running the script as an app owner if needed
     $owner = Get-AzureADApplicationOwner -ObjectId $clientAadApplication.ObjectId
-    if ($owner -eq $null) { 
+    if ($owner -eq $null) 
+    { 
         Add-AzureADApplicationOwner -ObjectId $clientAadApplication.ObjectId -RefObjectId $user.ObjectId
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
     }
@@ -297,7 +329,7 @@ Function ConfigureApplications {
 
     # URL of the AAD application in the Azure portal
     # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.ObjectId+"/isMSAApp/"
-    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/" + $clientAadApplication.AppId + "/objectId/" + $clientAadApplication.ObjectId + "/isMSAApp/"
+    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.ObjectId+"/isMSAApp/"
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-spa-acrs</a></td></tr>" -Path createdApps.html
 
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
@@ -354,7 +386,8 @@ Function ConfigureApplications {
 }
 
 # Pre-requisites
-if ((Get-Module -ListAvailable -Name "AzureAD") -eq $null) { 
+if ((Get-Module -ListAvailable -Name "AzureAD") -eq $null) 
+{ 
     Install-Module "AzureAD" -Scope CurrentUser
 }
 
