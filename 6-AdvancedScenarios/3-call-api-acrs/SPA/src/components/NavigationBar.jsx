@@ -3,14 +3,31 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/
 import { Nav, Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
 
 import { loginRequest } from "../authConfig";
+import { clearStorage } from "../util/Util";
 
 export const NavigationBar = () => {
 
+
     const { instance } = useMsal();
 
-    const handleLogin = () => {
+    const handleLogoutPopup = () => {
+        clearStorage();
+        instance.logoutPopup({
+            postLogoutRedirectUri: "http://localhost:3000/",
+            mainWindowRedirectUri: "http://localhost:3000/"
+        })
+    }
+
+    const handleLogoutRedirect = () => {
+        clearStorage();
+        instance.logoutRedirect({ 
+            postLogoutRedirectUri: "http://localhost:3000/"
+         })
+    }
+
+    const loginPopup = () => {
         instance.loginPopup(loginRequest)
-            .catch((error) => console.log(error))
+         .catch( error => console.log(error))
     }
 
     /**
@@ -25,13 +42,13 @@ export const NavigationBar = () => {
                 <AuthenticatedTemplate>
                     <Nav.Link as={Button} href="/todolist">TodoList</Nav.Link>
                     <DropdownButton variant="warning" className="ml-auto" drop="left" title="Sign Out">
-                        <Dropdown.Item as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/" })}>Sign out using Popup</Dropdown.Item>
-                        <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}>Sign out using Redirect</Dropdown.Item>
+                        <Dropdown.Item as="button" onClick={handleLogoutPopup}>Sign out using Popup</Dropdown.Item>
+                        <Dropdown.Item as="button" onClick={handleLogoutRedirect}>Sign out using Redirect</Dropdown.Item>
                     </DropdownButton>
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
                     <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
-                        <Dropdown.Item as="button" onClick={handleLogin}>Sign in using Popup</Dropdown.Item>
+                        <Dropdown.Item as="button" onClick={loginPopup}>Sign in using Popup</Dropdown.Item>
                         <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>Sign in using Redirect</Dropdown.Item>
                     </DropdownButton>
                 </UnauthenticatedTemplate>

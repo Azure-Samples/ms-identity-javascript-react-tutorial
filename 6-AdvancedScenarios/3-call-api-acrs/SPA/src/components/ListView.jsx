@@ -46,14 +46,16 @@ export const ListView = (props) => {
             completed: false
         };
 
-        postTask(newTask).then(() => {
-            setTasks([...tasks, newTask]);
+        postTask(newTask).then((res) => {
+            if(res && res.message === "success"){
+                setTasks([...tasks, newTask]);
+            }   
         })
     }
 
     const handleDeleteTask = (id) => {
         deleteTask(id).then((response) => {
-            if (response.message === "success") {
+            if (response && response.message === "success") {
                 const remainingTasks = tasks.filter(task => id !== task.id);
                 setTasks(remainingTasks);
             }
