@@ -1,3 +1,8 @@
+# IMPORTANT: PLEASE READ
+
+# This sample corresponds to an implementation of PoP without server nonce that is no longer recommended. If you start new projects don’t use this sample. The recommended approach will be documented in the future
+
+
 # React single-page application calling Node.js & Express web API using Proof of Possession
 
  1. [Overview](#overview)
