@@ -4,7 +4,7 @@
 From your shell or command line:
 
 ```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutoria.git
+    git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
 ```
 
 or download and extract the repository .zip file.
@@ -13,14 +13,16 @@ or download and extract the repository .zip file.
 
 ### Step 2: Install project dependencies
 
+- Install Node.js & Express web:
+  
 ```console
     cd 6-AdvancedScenarios\4-hybrid-SPA
     npm install
 ```
 
-- Setup the client app:
-
+- Install React SPA dependencies:
+  
 ```console
-    cd 6-AdvancedScenarios\\client
+    cd 6-AdvancedScenarios\client
     npm install
 ```

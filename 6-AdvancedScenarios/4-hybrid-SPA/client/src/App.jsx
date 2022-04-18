@@ -1,4 +1,4 @@
-import React,{ useEffect  } from 'react';
+import React,{ useEffect, useState  } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
@@ -27,23 +27,28 @@ export const App = ({ instance }) => {
   const search = useLocation().search;
   const getCode = new URLSearchParams(search).get('getCode');
   const { inProgress } = useMsal();
+  const [data, setdata] = useState(null);
 
   useEffect(() => {
 
     if(getCode){
+
       callApiToGetSpaCode()
         .then((data) => {
+        
         if(inProgress === "none"){
+          // SPA auth code
           let code = data.code;
+
           instance.acquireTokenByCode({code})
             .then((res) => {
-              console.log(res, " res")
+              setdata(res)
             }).catch((error) => {
               if(error instanceof InteractionRequiredAuthError){
                  if (inProgress === "none") {
                    instance.acquireTokenPopup({code})
                       .then((res) => {
-                        console.log(res, " res")
+                        setdata(res)
                       }).catch((error) => {
                         console.log(error)
                       })
@@ -53,6 +58,7 @@ export const App = ({ instance }) => {
         }
       })
     }
+
   });
 
 /**

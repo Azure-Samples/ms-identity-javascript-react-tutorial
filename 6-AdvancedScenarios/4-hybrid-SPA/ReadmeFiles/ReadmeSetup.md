@@ -11,9 +11,7 @@ or download and extract the repository .zip file.
 
 > :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
 
-### Step 2: Navigate to project folder
-
-### Step 3: Install project dependencies
+### Step 2: Install project dependencies
 
 - Setup the service app:
 
@@ -30,7 +28,7 @@ or download and extract the repository .zip file.
     ```
 
 
-### Step 4: Application Registration
+### Step 3: Application Registration
 
 There is one project in this sample. To register it, you can:
 
@@ -149,7 +147,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Redirect_URI` and replace the existing value with the Redirect URI for `msal-hybrid-spa`. (by default `https://localhost:5000`).
 
 
-### Step 5: Running the sample
+### Step 4: Running the sample
 
 For command line run the next commands:
 

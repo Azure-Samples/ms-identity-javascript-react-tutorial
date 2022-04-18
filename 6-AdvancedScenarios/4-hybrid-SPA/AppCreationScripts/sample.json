@@ -31,6 +31,12 @@
     "ReadmeLearnMore": {
         "IncludeFilePath": "../ReadmeFiles/ReadmeLearnMore.md"
     },
+    "ReadmeTroubleshooting": {
+        "IncludeFilePath": "../ReadmeFiles/ReadmeTroubleshooting.md"
+    },
+    "ReadmeCreateProject": {
+        "IncludeFilePath": "../ReadmeFiles/ReadmeCreateProject.md"
+    },
     "AADApps": [
         {
             "Id": "service",
