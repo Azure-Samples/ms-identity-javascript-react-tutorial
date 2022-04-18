@@ -1,0 +1,113 @@
+{
+    "Sample": {
+        "Author": "Salman Salem",
+        "Title": "Hybrid SPA sample",
+        "Level": 300,
+        "Client": "React SPA",
+        "Service": "Node.js web API",
+        "RepositoryUrl": "ms-identity-javascript-react-tutoria",
+        "Endpoint": "AAD v2.0",
+        "Languages": [ "JavaScript" ],
+        "Products": ["React", "Express"]
+    },
+    "ReadmeScenario": {
+        "IncludeFilePath": "../ReadmeFiles/ReadmeScenario.md"
+    },
+    "ReadmePrerequirements": {
+        "IncludeFilePath": "../ReadmeFiles/ReadmePrerequirements.md"
+    },
+    "ReadmeSetup": {
+        "IncludeFilePath": "../ReadmeFiles/ReadmeSetup.md"
+    },
+    "ReadmeNextSteps": {
+        "IncludeFilePath": "../ReadmeFiles/ReadmeNextSteps.md"
+    },
+    "ReadmeContributing": {
+        "IncludeFilePath": "../ReadmeFiles/ReadmeContributing.md"
+    },
+    "ReadmeAboutTheCode": {
+        "IncludeFilePath": "../ReadmeFiles/ReadmeAboutTheCode.md"
+    },
+    "ReadmeLearnMore": {
+        "IncludeFilePath": "../ReadmeFiles/ReadmeLearnMore.md"
+    },
+    "AADApps": [
+        {
+            "Id": "service",
+            "Name": "msal-hybrid-spa",
+            "Kind": "WebApi",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "https://localhost:5000",
+            "ReplyUrls": "http://localhost:5000/redirect",
+            "PasswordCredentials": "Auto",
+            "Sample": {
+                "SampleSubPath": "6-AdvancedScenarios\\4-hybrid-SPA",
+                "ProjectDirectory": "\\hybrid"
+            },
+            
+            "ManualSteps": [
+                {
+                    "Comment": "Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'"
+                }
+            ],
+            "RequiredResourcesAccess": [ 
+                {
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": [
+                        "User.Read"
+                    ]
+                },
+                {
+                    "Resource": "service",
+                    "DelegatedPermissions": [
+                        "access_as_user"
+                    ]
+                }
+            ]
+        }
+    ],  
+     "CodeConfiguration": [
+         {
+            "App": "service",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\appSettings.js",
+            "Mappings": [
+               {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": ".AppId"
+               },
+               {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+               },
+               {
+                    "key": "Enter_the_Client_Secret_Here",
+                    "value": ".AppKey"
+               },
+               {
+                   "key": "Redirect_URI",
+                   "value": ".ReplyUrls"
+               }
+            ]
+         },
+         {
+            "App": "service",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\client\\src\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": ".AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                },
+                 {
+                    "key": "Enter_the_Web_Api_Scope_Here",
+                    "value": "service.Scope"
+                }
+            ]
+         }
+     ]
+}
