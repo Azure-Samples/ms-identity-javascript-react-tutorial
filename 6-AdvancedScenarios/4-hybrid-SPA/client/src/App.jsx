@@ -39,7 +39,6 @@ export const App = ({ instance }) => {
         if(inProgress === "none"){
           // SPA auth code
           let code = data.code;
-
           instance.acquireTokenByCode({code})
             .then((res) => {
               setdata(res)

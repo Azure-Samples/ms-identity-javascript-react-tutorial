@@ -8,6 +8,7 @@
         "RepositoryUrl": "ms-identity-javascript-react-tutoria",
         "Endpoint": "AAD v2.0",
         "Languages": [ "JavaScript" ],
+        "Description": "This sample demonstrates an Express web app calling a React SPA using the Hybrid SPA flow",
         "Products": ["React", "Express"]
     },
     "ReadmeScenario": {

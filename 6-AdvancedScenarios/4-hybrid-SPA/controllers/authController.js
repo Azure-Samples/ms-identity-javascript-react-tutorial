@@ -4,16 +4,21 @@ const url = require('url');
 
 
 exports.loginUser = async (req, res) => {
+
     const authCodeUrlParameters = {
         redirectUri: appSettings.appCredentials.redirectUri,
         responseMode: "form_post",
     };
 
-    const urls  = await msalInstance.getAuthCodeUrl(authCodeUrlParameters)
-    res.json(urls)
-}
+    msalInstance.getAuthCodeUrl(authCodeUrlParameters)
+        .then((response) => {
+            res.json(response);
+        }).catch((error) => console.log(error))
+ }
+
 
 exports.handleRedirectWithCode = (req, res) => {
+    
     const tokenRequest = {
             code: req.body.code,
             redirectUri: appSettings.appCredentials.redirectUri,

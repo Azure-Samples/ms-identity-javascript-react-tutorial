@@ -4,7 +4,7 @@ name: Hybrid SPA sample
 services: active-directory
 platforms: dotnet
 urlFragment: ms-identity-javascript-react-tutoria
-description: 
+description: This sample demonstrates an Express web app calling a React SPA using the Hybrid SPA flow
 languages:
  - JavaScript
 products:
@@ -28,7 +28,7 @@ Table Of Contents
 
 ## Scenario
 
-This sample demonstrates the hybrid SPA Flow where an Express web application will authenticate the back end using  **MSAL-Node** and generates the Spa Authorization Code for React SPA application. The React SPA will redeem the Spa Authorization Code sent by Express web to authenticate the client-side.
+This sample demonstrates the hybrid SPA Flow where an Express web application will authenticate the back-end using  **MSAL-Node** and generates the Spa Authorization Code for React SPA application. The React SPA will redeem the Spa Authorization Code sent by Express web to authenticate the client-side.
 
 1- The Express web application uses **MSAL-Node** to sign and obtain JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD** as well as an additional Spa Authorization Code to be passed to a client-side single page application.
 
@@ -65,16 +65,16 @@ or download and extract the repository .zip file.
 
 * Setup the service app:
 
-```console
-    cd 6-AdvancedScenarios\4-hybrid-SPA
-    npm install
-```
+    ```console
+        cd 6-AdvancedScenarios\4-hybrid-SPA
+        npm install
+    ```
 
 * Setup the client app:
 
-  ```console
-    cd cd 6-AdvancedScenarios\4-hybrid-SPA\client
-    npm install
+    ```console
+        cd cd 6-AdvancedScenarios\4-hybrid-SPA\client
+        npm install
     ```
 
 ### Step 3: Application Registration
@@ -86,7 +86,7 @@ There is one project in this sample. To register it, you can:
   * **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
   * modify the projects' configuration files.
 
-  <details>
+<details>
    <summary>Expand this section if you want to use this automation:</summary>
 
 > **WARNING**: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
@@ -168,25 +168,7 @@ The first thing that we need to do is to declare the unique [resource](https://d
         * For **User consent description** type `Allow the application to [ex, Read ToDo list items] as the signed-in user on your behalf.`
         * Keep **State** as **Enabled**.
         * Select the **Add scope** button on the bottom to save this scope.
-   * Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-        * For **Scope name**, use `Read.Data`.
-        * Select **Admins and users** options for **Who can consent?**.
-        * For **Admin consent display name** type `Allow the app msal-hybrid-spa to [ex, read ToDo list items] as the signed-in user`.
-        * For **Admin consent description** type `Allow the application to [ex, read ToDo list items] as the signed-in user.`
-        * For **User consent display name** type `[ex, Read ToDo list items] as yourself`.
-        * For **User consent description** type `Allow the application to [ex, Read ToDo list items] as the signed-in user on your behalf.`
-        * Keep **State** as **Enabled**.
-        * Select the **Add scope** button on the bottom to save this scope.
-   * Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-        * For **Scope name**, use `Write.Data`.
-        * Select **Admins and users** options for **Who can consent?**.
-        * For **Admin consent display name** type `Allow the app msal-hybrid-spa to [ex, read ToDo list items] as the signed-in user`.
-        * For **Admin consent description** type `Allow the application to [ex, read ToDo list items] as the signed-in user.`
-        * For **User consent display name** type `[ex, Read ToDo list items] as yourself`.
-        * For **User consent description** type `Allow the application to [ex, Read ToDo list items] as the signed-in user on your behalf.`
-        * Keep **State** as **Enabled**.
-        * Select the **Add scope** button on the bottom to save this scope.
-1. Select the `Manifest` blade on the left.
+2. Select the `Manifest` blade on the left.
    * Set `accessTokenAcceptedVersion` property to **2**.
    * Click on **Save**.
 
@@ -226,6 +208,124 @@ For command line run the next commands:
     cd Hybrid-SPA
     npm start
     ```
+
+## About the code
+
+### Confidential client
+
+In this sample, the user is first authenticated using an MSAL Node confidential client.
+
+```javascript
+const msal = require('@azure/msal-node');
+const appSettings = require('./appSettings.js');
+
+const msalInstance = new msal.ConfidentialClientApplication({
+    auth: {
+        clientId: appSettings.appCredentials.clientId,
+        authority: `https://login.microsoftonline.com/${appSettings.appCredentials.tenantId}`,
+        clientSecret: appSettings.appCredentials.clientSecret
+    },
+    system: {
+        loggerOptions: {
+            loggerCallback: (loglevel, message, containsPii) => {
+                console.log(message);
+            },
+            piiLoggingEnabled: false,
+            logLevel: msal.LogLevel.Verbose,
+        }
+    }
+});
+
+```
+
+Next, generate an auth code url and navigate the user:
+
+```javascript
+const authCodeUrlParameters = {
+        redirectUri: appSettings.appCredentials.redirectUri,
+        responseMode: "form_post",
+    };
+
+    msalInstance.getAuthCodeUrl(authCodeUrlParameters)
+        .then((response) => {
+            res.json(response);
+        }).catch((error) => console.log(error))
+```
+
+Next, parse the authorization code, and invoke the acquireTokenByCode API on the ConfidentialClientApplication instance.
+
+When invoking this API, set enableSpaAuthorizationCode to true, which will enable MSAL to acquire a second authorization code to be redeemed by your single-page application.
+
+```javascript
+
+    const tokenRequest = {
+            code: req.body.code,
+            redirectUri: appSettings.appCredentials.redirectUri,
+            enableSpaAuthorizationCode: appSettings.appCredentials.enableSpaAuthorizationCode
+        };
+
+    msalInstance.acquireTokenByCode(tokenRequest)
+        .then((response) => {
+
+            const { code } = response;
+            req.session.code = code;
+            const urlFrom = (urlObject) => String(Object.assign(new URL("http://localhost:5000"), urlObject))
+            res.redirect(urlFrom({
+                 protocol: 'http',
+                 pathname: '/',
+                 search: 'getCode=true'
+            }))
+        }).catch((err) => {
+            console.log(err)
+        })
+```
+
+### Public client
+
+First, configure a new PublicClientApplication from MSAL.js in your single-page application:
+
+```javascript
+export const msalInstance = new PublicClientApplication(msalConfig);
+
+ReactDOM.render(
+  <BrowserRouter>
+    <App instance={msalInstance}/>
+  </BrowserRouter>,
+  document.getElementById('root')
+);
+```
+
+Next, render the code that was acquired server-side, and provide it to the acquireTokenByCode API on the MSAL.js PublicClientApplication instance.
+
+```javascript
+seEffect(() => {
+  if(getCode){
+    callApiToGetSpaCode()
+      .then((data) => {      
+        if(inProgress === "none"){
+          // SPA auth code
+          let code = data.code;
+          instance.acquireTokenByCode({code})
+            .then((res) => {
+              setdata(res)
+            }).catch((error) => {
+              if(error instanceof InteractionRequiredAuthError){
+                 if (inProgress === "none") {
+                   instance.acquireTokenPopup({code})
+                      .then((res) => {
+                        setdata(res)
+                      }).catch((error) => {
+                        console.log(error)
+                      })
+                 }
+              }
+          })
+        }
+      })
+    }
+  });
+```
+
 
 ## Troubleshooting
 
