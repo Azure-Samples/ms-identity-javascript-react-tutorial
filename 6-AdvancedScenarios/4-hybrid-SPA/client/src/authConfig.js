@@ -12,7 +12,7 @@ export const msalConfig = {
         redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
     },
      cache: {
-        cacheLocation: "localStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+        cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
         storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
     },
     system: {
