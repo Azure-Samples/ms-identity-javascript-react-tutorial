@@ -16,7 +16,10 @@ exports.loginUser = async (req, res) => {
         }).catch((error) => console.log(error))
  }
 
-
+/**
+ * We parse the authorization code in this method and invoke the acquireTokenByCode on the MSAL instance. 
+ * Setting set enableSpaAuthorizationCode to true will enable MSAL to acquire a second authorization code to be redeemed by your single-page application. 
+ */
 exports.handleRedirectWithCode = (req, res) => {
     
     const tokenRequest = {
@@ -25,11 +28,13 @@ exports.handleRedirectWithCode = (req, res) => {
             enableSpaAuthorizationCode: appSettings.appCredentials.enableSpaAuthorizationCode
         };
 
+
+    
     msalInstance.acquireTokenByCode(tokenRequest)
         .then((response) => {
-
             const { code } = response;
             req.session.code = code;
+            req.session.authenticated = true;
             const urlFrom = (urlObject) => String(Object.assign(new URL("http://localhost:5000"), urlObject))
             res.redirect(urlFrom({
                  protocol: 'http',
@@ -48,7 +53,13 @@ exports.logoutUser = (req, res) => {
 }
 
 exports.sendSPACode = (req, res) => {
-    res.status(200).json({code: req.session.code});
+
+    if(req.session.authenticated) {
+        res.status(200).json({code: req.session.code});
+    }else {
+        res.status(401).json({ message: "user is not authenticated"})
+    }
+
 }
 
 exports.handleProtectedPath = (req,  res) => {

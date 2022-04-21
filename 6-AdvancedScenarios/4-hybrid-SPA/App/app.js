@@ -2,8 +2,6 @@ const express = require("express");
 const path = require("path");
 const app = express();
 const appSettings = require('./appSettings.js');
-
-
 const expressSession = require('express-session');
 const passport = require('passport');
 const BearerStrategy = require('passport-azure-ad').BearerStrategy;
@@ -13,14 +11,11 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(express.urlencoded({ extended: false }));
 
-
 app.use(expressSession({
     secret: appSettings.appCredentials.clientSecret,
     resave: false,
     saveUninitialized: false
 }));
-
-
 
 const bearerOptions = {
     identityMetadata: `https://login.microsoftonline.com/${appSettings.appCredentials.tenantId}/v2.0/.well-known/openid-configuration`,
@@ -32,7 +27,6 @@ const bearerOptions = {
     loggingLevel: "info",
     scope: appSettings.protectedRoutes.hello.scopes // scope you set during app registration
 }
-
 
 const bearerStrategy = new BearerStrategy(bearerOptions, (token, done) => {
     // Send user info using the second argument
@@ -47,9 +41,7 @@ app.use('/api/hello',
     passport.authenticate('oauth-bearer', { session: false }), // validate access tokens    
 );
 
-
 const port = process.env.PORT || 5000;
-
 
 app.use(mainRouter(__dirname));
 app.listen(port);

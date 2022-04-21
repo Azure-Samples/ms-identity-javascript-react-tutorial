@@ -5,7 +5,7 @@
         "Level": 300,
         "Client": "React SPA",
         "Service": "Node.js web API",
-        "RepositoryUrl": "ms-identity-javascript-react-tutoria",
+        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0",
         "Languages": [ "JavaScript" ],
         "Description": "This sample demonstrates an Express web app calling a React SPA using the Hybrid SPA flow",
@@ -48,8 +48,8 @@
             "ReplyUrls": "http://localhost:5000/redirect",
             "PasswordCredentials": "Auto",
             "Sample": {
-                "SampleSubPath": "6-AdvancedScenarios\\4-hybrid-SPA",
-                "ProjectDirectory": "\\hybrid"
+                "SampleSubPath": "6-AdvancedScenarios\\4-hybrid-spa\\App",
+                "ProjectDirectory": "\\4-hybrid-spa\\App"
             },
             
             "ManualSteps": [
@@ -77,7 +77,7 @@
          {
             "App": "service",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\appSettings.js",
+            "SettingFile": "\\..\\App\\appSettings.js",
             "Mappings": [
                {
                     "key": "Enter_the_Application_Id_Here",
@@ -100,7 +100,7 @@
          {
             "App": "service",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\client\\src\\authConfig.js",
+            "SettingFile": "\\..\\App\\client\\src\\authConfig.js",
             "Mappings": [
                 {
                     "key": "Enter_the_Application_Id_Here",

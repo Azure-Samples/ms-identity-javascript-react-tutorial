@@ -1,5 +1,4 @@
 const appSettings = {
-
     appCredentials: {
         clientId: "Enter_the_Application_Id_Here",
         tenantId: "Enter_the_Tenant_Info_Here",
@@ -14,6 +13,8 @@ const appSettings = {
         }
     }
 }
+
+
 
 
 module.exports = appSettings;

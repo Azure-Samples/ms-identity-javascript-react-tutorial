@@ -32,10 +32,8 @@ export const App = ({ instance }) => {
   useEffect(() => {
 
     if(getCode){
-
       callApiToGetSpaCode()
         .then((data) => {
-        
         if(inProgress === "none"){
           // SPA auth code
           let code = data.code;
@@ -57,7 +55,6 @@ export const App = ({ instance }) => {
         }
       })
     }
-
   });
 
 /**

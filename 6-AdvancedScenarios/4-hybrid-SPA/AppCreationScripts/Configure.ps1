@@ -189,14 +189,14 @@ Function ConfigureApplications
                                                        @{ `
                                                            RedirectUris = "http://localhost:5000/redirect"; `
                                                            HomePageUrl = "https://localhost:5000"; `
-                                                           implicitGrantSettings = 
+                                                           implicitGrantSettings =
                                                            @{
                                                                EnableIdTokenIssuance = $true
                                                            }
                                                          } `
                                                          -Spa `
-                                                        @{ `
-                                                            RedirectUris = "http://localhost:5000"; `
+                                                         @{ `
+                                                             RedirectUris = "http://localhost:5000"
                                                          } `
                                                         -SignInAudience AzureADMyOrg `
                                                        #end of command
@@ -296,7 +296,7 @@ Function ConfigureApplications
     Write-Host "Configured."
     
     # Update config file for 'service'
-    $configFile = $pwd.Path + "\..\appSettings.js"
+    $configFile = $pwd.Path + "\..\App\appSettings.js"
     $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Redirect_URI" = $serviceAadApplication.ReplyUrls };
 
     Write-Host "Updating the sample code ($configFile)"
@@ -304,7 +304,7 @@ Function ConfigureApplications
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     
     # Update config file for 'service'
-    $configFile = $pwd.Path + "\..\client\src\authConfig.js"
+    $configFile = $pwd.Path + "\..\App\client\src\authConfig.js"
     $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_Here" = ("api://"+$serviceAadApplication.AppId+"/access_as_user") };
 
     Write-Host "Updating the sample code ($configFile)"
