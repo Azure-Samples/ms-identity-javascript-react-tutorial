@@ -1,11 +1,11 @@
 const msal = require('@azure/msal-node');
-const appSettings = require('./appSettings.js');
+require('dotenv').config();
 
 const msalInstance = new msal.ConfidentialClientApplication({
     auth: {
-        clientId: appSettings.appCredentials.clientId,
-        authority: `https://login.microsoftonline.com/${appSettings.appCredentials.tenantId}`,
-        clientSecret: appSettings.appCredentials.clientSecret
+        clientId: process.env.CLIENT_ID,
+        authority: `https://login.microsoftonline.com/${process.env.TENANT_ID}`,
+        clientSecret: process.env.CLIENT_SECRET
     },
     system: {
         loggerOptions: {

@@ -296,7 +296,7 @@ Function ConfigureApplications
     Write-Host "Configured."
     
     # Update config file for 'service'
-    $configFile = $pwd.Path + "\..\App\appSettings.js"
+    $configFile = $pwd.Path + "\..\App\.env"
     $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Redirect_URI" = $serviceAadApplication.ReplyUrls };
 
     Write-Host "Updating the sample code ($configFile)"

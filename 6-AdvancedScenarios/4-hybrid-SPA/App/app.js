@@ -1,7 +1,8 @@
+require('dotenv').config();
+
 const express = require("express");
 const path = require("path");
 const app = express();
-const appSettings = require('./appSettings.js');
 const expressSession = require('express-session');
 const passport = require('passport');
 const BearerStrategy = require('passport-azure-ad').BearerStrategy;
@@ -12,20 +13,20 @@ app.use(express.static(path.join(__dirname, 'client/build')));
 app.use(express.urlencoded({ extended: false }));
 
 app.use(expressSession({
-    secret: appSettings.appCredentials.clientSecret,
+    secret: process.env.CLIENT_SECRET,
     resave: false,
     saveUninitialized: false
 }));
 
 const bearerOptions = {
-    identityMetadata: `https://login.microsoftonline.com/${appSettings.appCredentials.tenantId}/v2.0/.well-known/openid-configuration`,
-    issuer: `https://login.microsoftonline.com/${appSettings.appCredentials.tenantId}/v2.0`,
-    clientID: appSettings.appCredentials.clientId,
-    audience: appSettings.appCredentials.clientId, // audience is this application
+    identityMetadata: `https://login.microsoftonline.com/${process.env.TENANT_ID}/v2.0/.well-known/openid-configuration`,
+    issuer: `https://login.microsoftonline.com/${process.env.TENANT_ID}/v2.0`,
+    clientID: process.env.CLIENT_ID,
+    audience: process.env.CLIENT_ID, // audience is this application
     validateIssuer: true,
     passReqToCallback: false,
     loggingLevel: "info",
-    scope: appSettings.protectedRoutes.hello.scopes // scope you set during app registration
+    scope: [process.env.API_REQUIRED_PERMISSION] // scope you set during app registration
 }
 
 const bearerStrategy = new BearerStrategy(bearerOptions, (token, done) => {

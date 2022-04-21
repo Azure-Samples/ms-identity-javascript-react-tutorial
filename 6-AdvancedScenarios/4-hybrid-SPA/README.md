@@ -179,7 +179,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `appSettings.js` file.
+1. Open the `.env` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-hybrid-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Client_Secret_Here` and replace the existing value with the key you saved during the creation of `msal-hybrid-spa` copied from the Azure portal.
@@ -212,33 +212,33 @@ For command line run the next commands:
 In this sample, the user is first authenticated using an MSAL Node confidential client.
 
 ```javascript
-const msal = require('@azure/msal-node');
-const appSettings = require('./appSettings.js');
+  const msal = require('@azure/msal-node');
+  require('dotenv').config();
 
-const msalInstance = new msal.ConfidentialClientApplication({
-    auth: {
-        clientId: appSettings.appCredentials.clientId,
-        authority: `https://login.microsoftonline.com/${appSettings.appCredentials.tenantId}`,
-        clientSecret: appSettings.appCredentials.clientSecret
-    },
-    system: {
-        loggerOptions: {
-            loggerCallback: (loglevel, message, containsPii) => {
-                console.log(message);
-            },
-            piiLoggingEnabled: false,
-            logLevel: msal.LogLevel.Verbose,
-        }
-    }
-});
+  const msalInstance = new msal.ConfidentialClientApplication({
+      auth: {
+          clientId: process.env.CLIENT_ID,
+          authority: `https://login.microsoftonline.com/${process.env.TENANT_ID}`,
+          clientSecret: process.env.CLIENT_SECRET
+      },
+      system: {
+          loggerOptions: {
+              loggerCallback: (loglevel, message, containsPii) => {
+                  console.log(message);
+              },
+              piiLoggingEnabled: false,
+              logLevel: msal.LogLevel.Verbose,
+          }
+      }
+  });
 
 ```
 
 Next, generate an auth code url and navigate the user:
 
 ```javascript
-const authCodeUrlParameters = {
-        redirectUri: appSettings.appCredentials.redirectUri,
+ const authCodeUrlParameters = {
+        redirectUri: process.env.REDIRECT_URI,
         responseMode: "form_post",
     };
 
@@ -253,27 +253,27 @@ Next, parse the authorization code, and invoke the acquireTokenByCode API on the
 When invoking this API, set enableSpaAuthorizationCode to true, which will enable MSAL to acquire a second authorization code to be redeemed by your single-page application.
 
 ```javascript
+  const tokenRequest = {
+              code: req.body.code,
+              redirectUri: process.env.REDIRECT_URI,
+              enableSpaAuthorizationCode: true
+          };
 
-    const tokenRequest = {
-            code: req.body.code,
-            redirectUri: appSettings.appCredentials.redirectUri,
-            enableSpaAuthorizationCode: appSettings.appCredentials.enableSpaAuthorizationCode
-        };
-
-    msalInstance.acquireTokenByCode(tokenRequest)
-        .then((response) => {
-
-            const { code } = response;
-            req.session.code = code;
-            const urlFrom = (urlObject) => String(Object.assign(new URL("http://localhost:5000"), urlObject))
-            res.redirect(urlFrom({
-                 protocol: 'http',
-                 pathname: '/',
-                 search: 'getCode=true'
-            }))
-        }).catch((err) => {
-            console.log(err)
-        })
+      
+      msalInstance.acquireTokenByCode(tokenRequest)
+          .then((response) => {
+              const { code } = response;
+              req.session.code = code;
+              req.session.authenticated = true;
+              const urlFrom = (urlObject) => String(Object.assign(new URL("http://localhost:5000"), urlObject))
+              res.redirect(urlFrom({
+                  protocol: 'http',
+                  pathname: '/',
+                  search: 'getCode=true'
+              }))
+          }).catch((err) => {
+              console.log(err)
+          })
 ```
 
 ### Public client

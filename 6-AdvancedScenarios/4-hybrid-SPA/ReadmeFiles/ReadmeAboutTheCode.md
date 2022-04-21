@@ -4,33 +4,33 @@
 In this sample, the user is first authenticated using an MSAL Node confidential client.
 
 ```javascript
-const msal = require('@azure/msal-node');
-const appSettings = require('./appSettings.js');
+  const msal = require('@azure/msal-node');
+  require('dotenv').config();
 
-const msalInstance = new msal.ConfidentialClientApplication({
-    auth: {
-        clientId: appSettings.appCredentials.clientId,
-        authority: `https://login.microsoftonline.com/${appSettings.appCredentials.tenantId}`,
-        clientSecret: appSettings.appCredentials.clientSecret
-    },
-    system: {
-        loggerOptions: {
-            loggerCallback: (loglevel, message, containsPii) => {
-                console.log(message);
-            },
-            piiLoggingEnabled: false,
-            logLevel: msal.LogLevel.Verbose,
-        }
-    }
-});
+  const msalInstance = new msal.ConfidentialClientApplication({
+      auth: {
+          clientId: process.env.CLIENT_ID,
+          authority: `https://login.microsoftonline.com/${process.env.TENANT_ID}`,
+          clientSecret: process.env.CLIENT_SECRET
+      },
+      system: {
+          loggerOptions: {
+              loggerCallback: (loglevel, message, containsPii) => {
+                  console.log(message);
+              },
+              piiLoggingEnabled: false,
+              logLevel: msal.LogLevel.Verbose,
+          }
+      }
+  });
 
 ```
 
 Next, generate an auth code url and navigate the user:
 
 ```javascript
-const authCodeUrlParameters = {
-        redirectUri: appSettings.appCredentials.redirectUri,
+ const authCodeUrlParameters = {
+        redirectUri: process.env.REDIRECT_URI,
         responseMode: "form_post",
     };
 

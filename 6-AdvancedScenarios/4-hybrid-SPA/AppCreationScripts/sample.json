@@ -77,7 +77,7 @@
          {
             "App": "service",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\App\\appSettings.js",
+            "SettingFile": "\\..\\App\\.env",
             "Mappings": [
                {
                     "key": "Enter_the_Application_Id_Here",

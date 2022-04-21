@@ -1,12 +1,12 @@
-const appSettings = require('../appSettings');
 const msalInstance = require('../msal');
+require('dotenv').config();
 const url = require('url');
 
 
 exports.loginUser = async (req, res) => {
 
     const authCodeUrlParameters = {
-        redirectUri: appSettings.appCredentials.redirectUri,
+        redirectUri: process.env.REDIRECT_URI,
         responseMode: "form_post",
     };
 
@@ -24,8 +24,8 @@ exports.handleRedirectWithCode = (req, res) => {
     
     const tokenRequest = {
             code: req.body.code,
-            redirectUri: appSettings.appCredentials.redirectUri,
-            enableSpaAuthorizationCode: appSettings.appCredentials.enableSpaAuthorizationCode
+            redirectUri: process.env.REDIRECT_URI,
+            enableSpaAuthorizationCode: true
         };
 
 
