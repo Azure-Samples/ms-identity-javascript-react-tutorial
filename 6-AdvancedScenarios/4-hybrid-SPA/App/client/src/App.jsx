@@ -29,33 +29,40 @@ export const App = ({ instance }) => {
   const { inProgress } = useMsal();
   const [data, setdata] = useState(null);
 
+  /**
+   * We render the SPA code that was acquired server-side, and provide it to the acquireTokenByCode API on the MSAL.js PublicClientApplication instance.
+   * The application should also render any account hints, as they will be needed for any interactive requests to ensure the same user is used for both requests.
+   * For more information about using loginHint and sid, visit:
+   * https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-core#2-login-the-user
+   */
   useEffect(() => {
-
-    if(getCode){
+    if(getCode && !data){
       callApiToGetSpaCode()
-        .then((data) => {
+        .then((response) => {
         if(inProgress === "none"){
-          // SPA auth code
-          let code = data.code;
-          instance.acquireTokenByCode({code})
-            .then((res) => {
+          const { code, loginHint, sid, referredUsername } = response;
+          instance.acquireTokenByCode({
+            code
+          }).then((res) => {
               setdata(res)
-            }).catch((error) => {
+            }).catch((error ) => {
               if(error instanceof InteractionRequiredAuthError){
                  if (inProgress === "none") {
-                   instance.acquireTokenPopup({code})
-                      .then((res) => {
-                        setdata(res)
-                      }).catch((error) => {
-                        console.log(error)
-                      })
+                   //If loginHint claim is provided, dont use sid
+                   instance.loginPopup({
+                     loginHint //Prefer loginHint claim over referredUsername (email)
+                    }).then((res) => {
+                      setdata(res)
+                    }).catch((error) => {
+                      console.log(error)
+                    })
                  }
               }
           })
         }
       })
     }
-  });
+  }, [instance, inProgress]);
 
 /**
  * msal-react is built on the React context API and all parts of your app that require authentication must be 

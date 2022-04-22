@@ -32,9 +32,21 @@ exports.handleRedirectWithCode = (req, res) => {
     
     msalInstance.acquireTokenByCode(tokenRequest)
         .then((response) => {
-            const { code } = response;
+
+            const { code } = response; //SPA authorization code
+            const {
+                sid, // Session ID claim, used for non-hybrid
+                login_hint: loginHint, // New login_hint claim (used instead of sid or email)
+                preferred_username: preferredUsername // Email
+            } = response.idTokenClaims;
+
+
             req.session.code = code;
+            req.session.loginHint = loginHint;
+            req.session.sid = sid;
+            req.session.referredUsername = preferredUsername;
             req.session.authenticated = true;
+
             const urlFrom = (urlObject) => String(Object.assign(new URL("http://localhost:5000"), urlObject))
             res.redirect(urlFrom({
                  protocol: 'http',
@@ -55,7 +67,7 @@ exports.logoutUser = (req, res) => {
 exports.sendSPACode = (req, res) => {
 
     if(req.session.authenticated) {
-        res.status(200).json({code: req.session.code});
+        res.status(200).json({ ...req.session});
     }else {
         res.status(401).json({ message: "user is not authenticated"})
     }

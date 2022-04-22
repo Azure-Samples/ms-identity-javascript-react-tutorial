@@ -55,9 +55,13 @@
             "ManualSteps": [
                 {
                     "Comment": "Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'"
+                },
+                {
+                    "Comment": "Navigate to the Manifest page, find the 'optionalClaims' section and change its default value to request  'idToken' claims"
+
                 }
             ],
-            "RequiredResourcesAccess": [ 
+            "RequiredResourcesAccess": [    
                 {
                     "Resource": "Microsoft Graph",
                     "DelegatedPermissions": [

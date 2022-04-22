@@ -196,7 +196,7 @@ Function ConfigureApplications
                                                          } `
                                                          -Spa `
                                                          @{ `
-                                                             RedirectUris = "http://localhost:5000"
+                                                            RedirectUris = "http://localhost:5000";
                                                          } `
                                                         -SignInAudience AzureADMyOrg `
                                                        #end of command
@@ -315,6 +315,7 @@ Function ConfigureApplications
     Write-Host "- For service"
     Write-Host "  - Navigate to $servicePortalUrl"
     Write-Host "  - Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'" -ForegroundColor Red 
+    Write-Host "  - Navigate to the Manifest page, find the 'optionalClaims' section and change its default value to request  'idToken' claims" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
     {

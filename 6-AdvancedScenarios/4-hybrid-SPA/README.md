@@ -171,6 +171,28 @@ The first thing that we need to do is to declare the unique [resource](https://d
         * Select the **Add scope** button on the bottom to save this scope.
 1. Select the `Manifest` blade on the left.
    * Set `accessTokenAcceptedVersion` property to **2**.
+   * Set the `optionalClaims` property as shown below to request client capabilities claim `idToken`:
+   ```json
+   "optionalClaims": {
+        "idToken": [
+            {
+                "name": "sid",
+                "source": null,
+                "essential": false,
+                "additionalProperties": []
+            },
+            {
+                "name": "login_hint",
+                "source": null,
+                "essential": false,
+                "additionalProperties": []
+            }
+        ],
+        "accessToken": [],
+        "saml2Token": []
+    }
+   ```
+
    * Click on **Save**.
 
 #### Configure the service app (msal-hybrid-spa) to use your app registration
@@ -252,28 +274,43 @@ Next, parse the authorization code, and invoke the acquireTokenByCode API on the
 
 When invoking this API, set enableSpaAuthorizationCode to true, which will enable MSAL to acquire a second authorization code to be redeemed by your single-page application.
 
-```javascript
-  const tokenRequest = {
-              code: req.body.code,
-              redirectUri: process.env.REDIRECT_URI,
-              enableSpaAuthorizationCode: true
-          };
+Your application should parse this second authorization code, as well as any account hints (e.g. sid, login_hint, preferred_username) and return them such that they can be rendered client-side:
 
-      
-      msalInstance.acquireTokenByCode(tokenRequest)
-          .then((response) => {
-              const { code } = response;
-              req.session.code = code;
-              req.session.authenticated = true;
-              const urlFrom = (urlObject) => String(Object.assign(new URL("http://localhost:5000"), urlObject))
-              res.redirect(urlFrom({
-                  protocol: 'http',
-                  pathname: '/',
-                  search: 'getCode=true'
-              }))
-          }).catch((err) => {
-              console.log(err)
-          })
+```javascript
+   const tokenRequest = {
+            code: req.body.code,
+            redirectUri: process.env.REDIRECT_URI,
+            enableSpaAuthorizationCode: true
+        };
+
+
+    
+    msalInstance.acquireTokenByCode(tokenRequest)
+        .then((response) => {
+
+            const { code } = response; //SPA authorization code
+            const {
+                sid, // Session ID claim, used for non-hybrid
+                login_hint: loginHint, // New login_hint claim (used instead of sid or email)
+                preferred_username: preferredUsername // Email
+            } = response.idTokenClaims;
+
+
+            req.session.code = code;
+            req.session.loginHint = loginHint;
+            req.session.sid = sid;
+            req.session.referredUsername = preferredUsername;
+            req.session.authenticated = true;
+
+            const urlFrom = (urlObject) => String(Object.assign(new URL("http://localhost:5000"), urlObject))
+            res.redirect(urlFrom({
+                 protocol: 'http',
+                 pathname: '/',
+                 search: 'getCode=true'
+            }))
+        }).catch((err) => {
+            console.log(err)
+        })
 ```
 
 ### Public client
@@ -293,33 +330,36 @@ ReactDOM.render(
 
 Next, render the code that was acquired server-side, and provide it to the acquireTokenByCode API on the MSAL.js PublicClientApplication instance.
 
+The application should also render any account hints, as they will be needed for any interactive requests to ensure the same user is used for both requests.
+
 ```javascript
-seEffect(() => {
-  if(getCode){
-    callApiToGetSpaCode()
-      .then((data) => {      
+if(getCode && !data){
+      callApiToGetSpaCode()
+        .then((response) => {
         if(inProgress === "none"){
-          // SPA auth code
-          let code = data.code;
-          instance.acquireTokenByCode({code})
-            .then((res) => {
+          const { code, loginHint, sid, referredUsername } = response;
+          instance.acquireTokenByCode({
+            code
+          }).then((res) => {
               setdata(res)
-            }).catch((error) => {
+            }).catch((error ) => {
               if(error instanceof InteractionRequiredAuthError){
                  if (inProgress === "none") {
-                   instance.acquireTokenPopup({code})
-                      .then((res) => {
-                        setdata(res)
-                      }).catch((error) => {
-                        console.log(error)
-                      })
+                   //If loginHint claim is provided, dont use sid
+                   instance.loginPopup({
+                     loginHint //Prefer loginHint claim over referredUsername (email)
+                    }).then((res) => {
+                      setdata(res)
+                    }).catch((error) => {
+                      console.log(error)
+                    })
                  }
               }
           })
         }
       })
     }
-  });
+  }, [instance, inProgress]);
 ```
 
 ## Troubleshooting
