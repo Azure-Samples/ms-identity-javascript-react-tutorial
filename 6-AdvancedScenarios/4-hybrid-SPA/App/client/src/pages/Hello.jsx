@@ -12,28 +12,45 @@ const HelloContent = () => {
     const [helloData, setHelloData] = useState(null);
 
     useEffect(() => {
-        if (account && inProgress === "none" && !helloData) {
-            instance.acquireTokenSilent({
-                scopes: protectedResources.apiAccess.scopes,
-                account: account
-            }).then((response) => {
-                callApiWithToken(response.accessToken, protectedResources.apiAccess.endpoint)
-                    .then(response => setHelloData(response))
-            }).catch((error) => {
-                if (error instanceof InteractionRequiredAuthError) {
-                    if (account && inProgress === "none") {
-                        instance.acquireTokenPopup({
-                            scopes: protectedResources.apiAccess.scopes,
-                             account: account
-                        }).then((response) => {
-                            callApiWithToken(response.accessToken, protectedResources.apiAccess.endpoint)
-                                .then(response => setHelloData(response))
-                        }).catch(error => console.log(error));
+        let token
+        let apiData
+        const fetchData = async () => {
+            if (account && inProgress === "none" && !helloData) {
+                try {
+
+                    token = await instance.acquireTokenSilent({
+                        scopes: protectedResources.apiAccess.scopes,
+                        account: account
+                    });
+
+                    apiData  = await callApiWithToken(token.accessToken,  protectedResources.apiAccess.endpoint);
+                    setHelloData(apiData);
+
+                }catch(error){
+                
+                    if (error instanceof InteractionRequiredAuthError) {
+                        if (account && inProgress === "none") {
+                            try{
+
+                                token = await instance.acquireTokenSilent({
+                                    scopes: protectedResources.apiAccess.scopes,
+                                    account: account
+                                });
+
+                                apiData  = await callApiWithToken(token.accessToken,  protectedResources.apiAccess.endpoint);
+                                setHelloData(apiData);
+
+                            }catch(error){
+                                console.log(error)
+                            }
+                            
+                        }
                     }
                 }
-
-            })
+            }
         }
+
+        fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [account, inProgress, instance])
     return (

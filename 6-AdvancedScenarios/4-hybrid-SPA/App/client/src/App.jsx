@@ -36,32 +36,52 @@ export const App = ({ instance }) => {
    * https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-core#2-login-the-user
    */
   useEffect(() => {
-    if(getCode && !data){
-      callApiToGetSpaCode()
-        .then((response) => {
+
+    const fetchData = async () => {
+      let apiData;
+      let token;
+
+      if(getCode && !data){
+
+        apiData = await callApiToGetSpaCode();
+        const { code, loginHint, sid, referredUsername } = apiData;
+
         if(inProgress === "none"){
-          const { code, loginHint, sid, referredUsername } = response;
-          instance.acquireTokenByCode({
-            code
-          }).then((res) => {
-              setdata(res)
-            }).catch((error ) => {
-              if(error instanceof InteractionRequiredAuthError){
-                 if (inProgress === "none") {
-                   //If loginHint claim is provided, dont use sid
-                   instance.loginPopup({
-                     loginHint //Prefer loginHint claim over referredUsername (email)
-                    }).then((res) => {
-                      setdata(res)
-                    }).catch((error) => {
-                      console.log(error)
-                    })
-                 }
+          try {
+
+            token = await instance.acquireTokenByCode({
+              code //Spa Auth code
+            });
+
+            console.log(token)
+            setdata(token)
+
+          }catch(error){
+            if (error instanceof InteractionRequiredAuthError) {
+              if (inProgress === "none") {
+                //If loginHint claim is provided, dont use sid
+                try {
+
+                  token = await instance.loginPopup({
+                    loginHint //Prefer loginHint claim over referredUsername (email)
+                  });
+
+                  console.log(token)
+                  setdata(token)
+                  
+                }catch(error){
+
+                  console.log(error)
+
+                }
               }
-          })
+            }
+          }
         }
-      })
+      }
     }
+
+    fetchData();
   }, [instance, inProgress]);
 
 /**

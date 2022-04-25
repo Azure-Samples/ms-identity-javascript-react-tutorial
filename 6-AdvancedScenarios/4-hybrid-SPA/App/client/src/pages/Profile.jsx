@@ -13,29 +13,45 @@ import { ProfileData } from "../components/ProfileData";
     const [graphData, setGraphData] = useState(null);
 
     useEffect(() => {
-       
-      if (account && inProgress === "none" && !graphData) {
-         instance.acquireTokenSilent({
-                scopes: protectedResources.graphMe.scopes,
-                account: account
-          }).then((response) => {
-            callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
-              .then(response => setGraphData(response))
-          }).catch((error) => {
-               if (error instanceof InteractionRequiredAuthError) {
-                 if (account && inProgress === "none") {
-                    instance.acquireTokenPopup({
-                            scopes: protectedResources.graphMe.scopes,
-                            account: account
-                        }).then((response) => {
-                            callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
-                                .then(response => setGraphData(response));
-                        }).catch(error => console.log(error));
-                 }
-               }
-          })
+
+      const fetchData = async () => {
+        let token;
+        let graphInfo;
+        if (account && inProgress === "none" && !graphData) {
+          try {
+            token = await instance.acquireTokenSilent({
+              scopes: protectedResources.graphMe.scopes,
+              account: account
+            });
+
+            graphInfo = await callApiWithToken(token.accessToken, protectedResources.graphMe.endpoint);
+            setGraphData(graphInfo)
+
+          }catch(error){
+
+             if (error instanceof InteractionRequiredAuthError) {
+                if (account && inProgress === "none") {
+                  try {
+
+                    token = await instance.acquireTokenPopup({
+                      scopes: protectedResources.graphMe.scopes,
+                      account: account
+                    });
+
+                    graphInfo = await callApiWithToken(token.accessToken, protectedResources.graphMe.endpoint);
+                    setGraphData(graphInfo);
+
+                  }catch(error){
+                    console.log(error);
+                  }
+
+                }
+             }
+          }
+        }
       }
 
+      fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [account, inProgress, instance]);
    return (
