@@ -51,7 +51,7 @@
                 "SampleSubPath": "6-AdvancedScenarios\\4-hybrid-spa\\App",
                 "ProjectDirectory": "\\4-hybrid-spa\\App"
             },
-            
+            "AppScopes": ["access_as_user"],
             "ManualSteps": [
                 {
                     "Comment": "Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'"

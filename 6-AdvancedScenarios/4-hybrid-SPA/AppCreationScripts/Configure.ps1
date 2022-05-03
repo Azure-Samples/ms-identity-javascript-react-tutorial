@@ -189,18 +189,18 @@ Function ConfigureApplications
                                                        @{ `
                                                            RedirectUris = "http://localhost:5000/redirect"; `
                                                            HomePageUrl = "https://localhost:5000"; `
-                                                           implicitGrantSettings =
+                                                           implicitGrantSettings = 
                                                            @{
                                                                EnableIdTokenIssuance = $true
                                                            }
                                                          } `
                                                          -Spa `
                                                          @{ `
-                                                            RedirectUris = "http://localhost:5000";
+                                                            RedirectUris = "http://localhost:5000"; 
                                                          } `
                                                         -SignInAudience AzureADMyOrg `
                                                        #end of command
-    #add password to the application
+    #add a secret to the application
     $pwdCredential = Add-MgApplicationPassword -ApplicationId $serviceAadApplication.Id -PasswordCredential $key
     $serviceAppKey = $pwdCredential.SecretText
     $serviceIdentifierUri = 'api://'+$serviceAadApplication.AppId
@@ -238,20 +238,6 @@ Function ConfigureApplications
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
     $scope = CreateScope -value access_as_user  `
-    -userConsentDisplayName "Access msal-hybrid-spa"  `
-    -userConsentDescription "Allow the application to access msal-hybrid-spa on your behalf."  `
-    -adminConsentDisplayName "Access msal-hybrid-spa"  `
-    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
-            
-    $scopes.Add($scope)
-    $scope = CreateScope -value Read.Data  `
-    -userConsentDisplayName "Access msal-hybrid-spa"  `
-    -userConsentDescription "Allow the application to access msal-hybrid-spa on your behalf."  `
-    -adminConsentDisplayName "Access msal-hybrid-spa"  `
-    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
-            
-    $scopes.Add($scope)
-    $scope = CreateScope -value Write.Data  `
     -userConsentDisplayName "Access msal-hybrid-spa"  `
     -userConsentDescription "Allow the application to access msal-hybrid-spa on your behalf."  `
     -adminConsentDisplayName "Access msal-hybrid-spa"  `
