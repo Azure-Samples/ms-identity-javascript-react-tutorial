@@ -1,24 +1,25 @@
 {
-  "name": "hybrid-spa-app",
+  "name": "ms-identity-hybrid-spa",
   "version": "1.0.0",
-  "description": "",
+  "description": "Node & express web App accepting authorized calls with Azure Active Directory",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "cd client && npm run build",
+    "prestart": "npm run build",
     "start": "node app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "salem",
   "license": "ISC",
   "dependencies": {
-    "@azure/msal-node": "^1.7.0",
+    "@azure/msal-node": "^1.9.0",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "express-session": "^1.17.2",
     "passport": "^0.5.2",
-    "passport-azure-ad": "^4.3.1",
+    "passport-azure-ad": "^4.3.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   }

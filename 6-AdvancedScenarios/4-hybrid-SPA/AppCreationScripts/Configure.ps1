@@ -189,10 +189,6 @@ Function ConfigureApplications
                                                        @{ `
                                                            RedirectUris = "http://localhost:5000/redirect"; `
                                                            HomePageUrl = "https://localhost:5000"; `
-                                                           implicitGrantSettings = 
-                                                           @{
-                                                               EnableIdTokenIssuance = $true
-                                                           }
                                                          } `
                                                          -Spa `
                                                          @{ `

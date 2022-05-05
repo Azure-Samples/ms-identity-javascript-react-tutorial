@@ -133,8 +133,7 @@ There is one project in this sample. To register it, you can:
    * In the **Redirect URIs** section, enter the following redirect URIs.
      * `http://localhost:5000/redirect`
    * Click on the **Add a platform** button in the **Platform configurations** section of the page.
-     * Select the **Single-page application** button and enter `https://localhost:5000` as the **Redirect URI** and click the **Configure** button.
-   * Under the **Implicit grant and hybrid flows** section enable both the **Access tokens** and **ID tokens** options.
+     * Select the **Single-page application** button and enter `https://localhost:5000` as the **Redirect URI** and click the **Configure** button. 
 1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **Certificates & secrets** blade in the left to open the page where you can generate secrets and upload certificates.
 1. In the **Client secrets** section, select **New client secret**:
@@ -223,7 +222,6 @@ For command line run the next commands:
 
   ```console
     cd 6-AdvancedScenarios\4-hybrid-SPA\App
-    npm run build
     npm start
     ```
 

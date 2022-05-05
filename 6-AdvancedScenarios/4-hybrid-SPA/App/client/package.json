@@ -1,10 +1,12 @@
 {
-  "name": "client",
+  "name": "ms-identity-hybrid-spa",
   "version": "0.1.0",
+  "description": "A React single-page application using MSAL React to redeem spa auth code to sign-in users against Azure Active Directory",
   "private": true,
+  "author": "salem",
   "dependencies": {
-    "@azure/msal-browser": "^2.22.1",
-    "@azure/msal-react": "^1.3.1",
+    "@azure/msal-browser": "^2.24.0",
+    "@azure/msal-react": "^1.4.0",
     "bootstrap": "^4.5.3",
     "react": "^17.0.2",
     "react-bootstrap": "^1.5.2",
