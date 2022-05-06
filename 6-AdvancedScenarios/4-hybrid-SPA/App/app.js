@@ -24,7 +24,7 @@ const bearerOptions = {
   identityMetadata: `https://login.microsoftonline.com/${process.env.TENANT_ID}/v2.0/.well-known/openid-configuration`,
   issuer: `https://login.microsoftonline.com/${process.env.TENANT_ID}/v2.0`,
   clientID: process.env.CLIENT_ID,
-  audience: process.env.CLIENT_ID, // audience is this application
+  audience: process.env.AUDIENCE, //The audience must be a string or an array of strings. The default value of audience is the client_id of the application 
   validateIssuer: true,
   passReqToCallback: false,
   loggingLevel: "info",

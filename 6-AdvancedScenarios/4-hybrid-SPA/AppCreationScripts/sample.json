@@ -96,6 +96,10 @@
                     "value": ".AppKey"
                },
                {
+                   "key": "Enter_the_Audience_Here",
+                   "value": ".AppId"
+               },
+               {
                    "key": "Redirect_URI",
                    "value": ".ReplyUrls"
                }

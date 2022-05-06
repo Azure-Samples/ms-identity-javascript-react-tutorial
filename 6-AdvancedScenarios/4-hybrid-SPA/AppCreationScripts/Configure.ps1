@@ -190,10 +190,10 @@ Function ConfigureApplications
                                                            RedirectUris = "http://localhost:5000/redirect"; `
                                                            HomePageUrl = "https://localhost:5000"; `
                                                          } `
-                                                         -Spa `
-                                                         @{ `
-                                                            RedirectUris = "http://localhost:5000"; 
-                                                         } `
+                                                        -Spa `
+                                                        @{ `
+                                                            RedirectUris = "http://localhost:5000";
+                                                        } `
                                                         -SignInAudience AzureADMyOrg `
                                                        #end of command
     #add a secret to the application
@@ -279,7 +279,7 @@ Function ConfigureApplications
     
     # Update config file for 'service'
     $configFile = $pwd.Path + "\..\App\.env"
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Redirect_URI" = $serviceAadApplication.ReplyUrls };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Enter_the_Audience_Here" = $serviceAadApplication.AppId;"Redirect_URI" = $serviceAadApplication.ReplyUrls };
 
     Write-Host "Updating the sample code ($configFile)"
 
