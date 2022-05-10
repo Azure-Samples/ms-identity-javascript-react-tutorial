@@ -1,6 +1,6 @@
 ---
 page_type: sample
-name: Hybrid SPA sample
+name: Hybrid Express web app and React SPA sample
 services: active-directory
 platforms: React & Express
 urlFragment: ms-identity-javascript-react-tutorial 
@@ -12,7 +12,7 @@ products:
  - Express
 ---
 
-# Hybrid SPA sample
+# Sign-in users interactively server-side (Node.js) and silently acquire token for MS Graph for a React Single-page app (SPA)
 
 [![Build status](https://identitydivision.visualstudio.com/IDDP/_apis/build/status/AAD%20Samples/.NET%20client%20samples/ASP.NET%20Core%20Web%20App%20tutorial)](https://identitydivision.visualstudio.com/IDDP/_build/latest?definitionId=819)
 
@@ -29,15 +29,21 @@ Table Of Contents
 
 ## Scenario
 
-This sample demonstrates the hybrid SPA Flow where an Express web application will authenticate the back-end using  **MSAL-Node** and generates the Spa Authorization Code for React SPA application. The React SPA will redeem the Spa Authorization Code sent by Express web to authenticate the client-side.
+This sample demonstrates how a React SPA app can silently redeem an authorization code for an [access token](https://aka.ms/access-tokens) for **Microsoft Graph API** for a user who has already authenticated earlier in another Node.Js application
 
-1- The Express web application uses **MSAL-Node** to sign and obtain JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD** as well as an additional Spa Authorization Code to be passed to a client-side single page application.
+The Express web application will interactively authenticate a user using **MSAL-Node** and obtains both an [Access Token](https://aka.ms/access-tokens) and as well as an additional [Spa Authorization Code](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/SPA-Authorization-Code) using the Hybrid SPA flow.
 
-2- The Spa Authorization Code is passed to the React SPA to be exchanged for an access token client-side.
+This SPA authorization code is then transferred by the Node Express app to the React SPA app which then silently (without the need to re-authenticate the user) redeems it for another [access token](https://aka.ms/access-tokens) for **Microsoft Graph API**.
 
-3- The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**
+The order of operations is as follows:
 
-4-The **Microsoft Graph API** responds with the resource if user is authorized.
+1- The Express web application uses **MSAL-Node** to sign and obtain JWT [access token](https://aka.ms/access-tokens) from **Azure AD** as well as an additional Spa Authorization Code to be passed to a client-side single page application.
+
+1- The Spa Authorization Code is passed to the React SPA to be exchanged for an access token client-side.
+
+1- The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**
+
+1-The **Microsoft Graph API** responds with the resource if user is authorized.
 
 ## Prerequisites
 
@@ -96,7 +102,7 @@ There is one project in this sample. To register it, you can:
 
   1. In PowerShell run:
 
-    ```PowerShell
+```PowerShell
     Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
     ```
 
@@ -216,7 +222,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 ### Step 4: Running the sample
 
 For command line run the next commands:
-
 
 * Run the app:
 
