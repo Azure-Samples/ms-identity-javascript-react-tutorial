@@ -29,7 +29,7 @@ Table Of Contents
 
 ## Scenario
 
-This sample demonstrates how a React SPA app can silently redeem an authorization code for an [access token](https://aka.ms/access-tokens) for **Microsoft Graph API** for a user who has already authenticated earlier in another Node.Js application
+This sample demonstrates how a React SPA app can silently redeem an [authorization code](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow) for an [access token](https://aka.ms/access-tokens) for **Microsoft Graph API** for a user who has already authenticated earlier in another Node.Js application
 
 The Express web application will interactively authenticate a user using **MSAL-Node** and obtains both an [Access Token](https://aka.ms/access-tokens) and as well as an additional [Spa Authorization Code](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/SPA-Authorization-Code) using the Hybrid SPA flow.
 
@@ -37,7 +37,7 @@ This SPA authorization code is then transferred by the Node Express app to the R
 
 The order of operations is as follows:
 
-1- The Express web application uses **MSAL-Node** to sign and obtain JWT [access token](https://aka.ms/access-tokens) from **Azure AD** as well as an additional Spa Authorization Code to be passed to a client-side single page application.
+1- The Express web application uses [MSAL-Node](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node) to sign and obtain JWT [access token](https://aka.ms/access-tokens) from **Azure AD** as well as an additional Spa Authorization Code to be passed to a client-side single page application.
 
 1- The Spa Authorization Code is passed to the React SPA to be exchanged for an access token client-side.
 
@@ -336,32 +336,41 @@ Next, render the code that was acquired server-side, and provide it to the acqui
 The application should also render any account hints, as they will be needed for any interactive requests to ensure the same user is used for both requests.
 
 ```javascript
-if(getCode && !data){
-      callApiToGetSpaCode()
-        .then((response) => {
-        if(inProgress === "none"){
-          const { code, loginHint, sid, referredUsername } = response;
-          instance.acquireTokenByCode({
-            code
-          }).then((res) => {
-              setdata(res)
-            }).catch((error ) => {
-              if(error instanceof InteractionRequiredAuthError){
-                 if (inProgress === "none") {
-                   //If loginHint claim is provided, dont use sid
-                   instance.loginPopup({
-                     loginHint //Prefer loginHint claim over referredUsername (email)
-                    }).then((res) => {
-                      setdata(res)
-                    }).catch((error) => {
-                      console.log(error)
-                    })
-                 }
+ useEffect(() => {
+    const fetchData = async () => {
+      let apiData;
+      let token;
+
+      if (getCode && !data) {
+        apiData = await callApiToGetSpaCode();
+        const { code, loginHint, sid, referredUsername } = apiData;
+
+        if (inProgress === "none") {
+          try {
+            token = await instance.acquireTokenByCode({
+              code, //Spa Auth code
+            });
+
+            setdata(token);
+          } catch (error) {
+            if (error instanceof InteractionRequiredAuthError) {
+              //If loginHint claim is provided, dont use sid
+              try {
+                token = await instance.loginPopup({
+                  loginHint, //Prefer loginHint claim over referredUsername (email)
+                });
+
+                setdata(token);
+              } catch (error) {
+                console.log(error);
               }
-          })
+            }
+          }
         }
-      })
-    }
+      }
+    };
+
+    fetchData();
   }, [instance, inProgress]);
 ```
 

@@ -48,17 +48,15 @@ export const App = ({ instance }) => {
             setdata(token);
           } catch (error) {
             if (error instanceof InteractionRequiredAuthError) {
-              if (inProgress === "none") {
-                //If loginHint claim is provided, dont use sid
-                try {
-                  token = await instance.loginPopup({
-                    loginHint, //Prefer loginHint claim over referredUsername (email)
-                  });
+              //If loginHint claim is provided, dont use sid
+              try {
+                token = await instance.loginPopup({
+                  loginHint, //Prefer loginHint claim over referredUsername (email)
+                });
 
-                  setdata(token);
-                } catch (error) {
-                  console.log(error);
-                }
+                setdata(token);
+              } catch (error) {
+                console.log(error);
               }
             }
           }

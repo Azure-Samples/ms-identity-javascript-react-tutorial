@@ -28,21 +28,19 @@ const HelloContent = () => {
           setHelloData(apiData);
         } catch (error) {
           if (error instanceof InteractionRequiredAuthError) {
-            if (account && inProgress === "none") {
-              try {
-                token = await instance.acquireTokenSilent({
-                  scopes: protectedResources.apiAccess.scopes,
-                  account: account,
-                });
+            try {
+              token = await instance.acquireTokenSilent({
+                scopes: protectedResources.apiAccess.scopes,
+                account: account,
+              });
 
-                apiData = await callApiWithToken(
-                  token.accessToken,
-                  protectedResources.apiAccess.endpoint
-                );
-                setHelloData(apiData);
-              } catch (error) {
-                console.log(error);
-              }
+              apiData = await callApiWithToken(
+                token.accessToken,
+                protectedResources.apiAccess.endpoint
+              );
+              setHelloData(apiData);
+            } catch (error) {
+              console.log(error);
             }
           }
         }

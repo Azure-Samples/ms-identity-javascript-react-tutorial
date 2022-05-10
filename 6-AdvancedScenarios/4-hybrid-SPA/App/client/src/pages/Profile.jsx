@@ -29,21 +29,19 @@ const ProfileContent = () => {
           setGraphData(graphInfo);
         } catch (error) {
           if (error instanceof InteractionRequiredAuthError) {
-            if (account && inProgress === "none") {
-              try {
-                token = await instance.acquireTokenPopup({
-                  scopes: protectedResources.graphMe.scopes,
-                  account: account,
-                });
+            try {
+              token = await instance.acquireTokenPopup({
+                scopes: protectedResources.graphMe.scopes,
+                account: account,
+              });
 
-                graphInfo = await callApiWithToken(
-                  token.accessToken,
-                  protectedResources.graphMe.endpoint
-                );
-                setGraphData(graphInfo);
-              } catch (error) {
-                console.log(error);
-              }
+              graphInfo = await callApiWithToken(
+                token.accessToken,
+                protectedResources.graphMe.endpoint
+              );
+              setGraphData(graphInfo);
+            } catch (error) {
+              console.log(error);
             }
           }
         }
