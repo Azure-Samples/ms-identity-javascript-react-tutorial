@@ -13,9 +13,6 @@ module.exports = () => {
   //fetches SPA authorization code if user is authenticated
   router.get("/api/fetchCode", authController.sendSPACode);
 
-  // protected path route
-  router.get("/api/hello", authController.handleProtectedPath);
-
   router.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "../" + "client/build/index.html"));
   });

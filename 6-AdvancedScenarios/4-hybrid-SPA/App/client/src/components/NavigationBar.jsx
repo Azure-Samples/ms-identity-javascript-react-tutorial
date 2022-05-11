@@ -42,9 +42,6 @@ export const NavigationBar = () => {
           <Nav.Link as={Button} href="/profile">
             Profile
           </Nav.Link>
-          <Nav.Link as={Button} href="/hello">
-            Call API{" "}
-          </Nav.Link>
 
           <Button
             variant="warning"

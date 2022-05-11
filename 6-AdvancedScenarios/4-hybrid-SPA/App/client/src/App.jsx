@@ -4,7 +4,6 @@ import { InteractionRequiredAuthError } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
 import { Profile } from "./pages/Profile";
 import { PageLayout } from "./components/PageLayout";
-import { Hello } from "./pages/Hello";
 import { callApiToGetSpaCode } from "./fetch";
 
 import "./styles/App.css";
@@ -13,7 +12,6 @@ const Pages = () => {
   return (
     <Routes>
       <Route path="/profile" element={<Profile />} />
-      <Route path="/hello" element={<Hello />} />
     </Routes>
   );
 };

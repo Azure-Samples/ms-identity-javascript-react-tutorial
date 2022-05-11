@@ -96,28 +96,28 @@ There is one project in this sample. To register it, you can:
 <details>
    <summary>Expand this section if you want to use this automation:</summary>
 
-  > **WARNING**: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+> **WARNING**: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
 
-  1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
+1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
 
-  1. In PowerShell run:
+1. In PowerShell run:
 
-```PowerShell
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-    ```
+ ```PowerShell
+ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+ ```
 
-  1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-  1. For interactive process - in PowerShell run:
+1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
+1. For interactive process - in PowerShell run:
 
-    ```PowerShell
-      cd .\AppCreationScripts\
-      .\Configure.ps1 -TenantId "[Optional] - your tenant id" -Environment "[Optional] - Azure environment, defaults to 'Global'"
-     ```
+ ```PowerShell
+ cd .\AppCreationScripts\
+ .\Configure.ps1 -TenantId "[Optional] - your tenant id" -Environment "[Optional] - Azure environment, defaults to 'Global'"
+ ```
 
-  > Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md)
-  > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
+ > Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md)
+ > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
 
- </details>
+</details>
 
 ### Choose the Azure AD tenant where you want to create your applications
 
@@ -154,28 +154,7 @@ There is one project in this sample. To register it, you can:
       * In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
       * In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
       * Select the **Add permissions** button at the bottom.
-      * Select the **Add a permission** button and then:
-
-      * Ensure that the **My APIs** tab is selected.
-      * In the list of APIs, select the API `msal-hybrid-spa`.
-      * In the **Delegated permissions** section, select the **Access 'msal-hybrid-spa'** in the list. Use the search box if necessary.
-      * Select the **Add permissions** button at the bottom.
-1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for.
-The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI (Application ID URI), follow the following steps:
-   * Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
-   * For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
-1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permissions](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token successfully. To publish a scope, follow these steps:
-   * Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-        * For **Scope name**, use `access_as_user`.
-        * Select **Admins and users** options for **Who can consent?**.
-        * For **Admin consent display name** type `Allow the app msal-hybrid-spa to [ex, read ToDo list items] as the signed-in user`.
-        * For **Admin consent description** type `Allow the application to [ex, read ToDo list items] as the signed-in user.`
-        * For **User consent display name** type `[ex, Read ToDo list items] as yourself`.
-        * For **User consent description** type `Allow the application to [ex, Read ToDo list items] as the signed-in user on your behalf.`
-        * Keep **State** as **Enabled**.
-        * Select the **Add scope** button on the bottom to save this scope.
 1. Select the `Manifest` blade on the left.
-   * Set `accessTokenAcceptedVersion` property to **2**.
    * Set the `optionalClaims` property as shown below to request client capabilities claim `idToken`:
    ```json
    "optionalClaims": {
@@ -217,7 +196,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-hybrid-spa` app copied
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-hybrid-spa` app copied
-1. Find the string `Enter_the_Web_Api_Scope_here` and replace it with the scope of `msal-hybrid-spa` that you've exposed earlier, e.g. `api://API_CLIENT_ID/access_as_user`.
 
 ### Step 4: Running the sample
 

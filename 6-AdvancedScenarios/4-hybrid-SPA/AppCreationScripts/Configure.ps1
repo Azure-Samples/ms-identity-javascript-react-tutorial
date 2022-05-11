@@ -115,42 +115,6 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 
     Set-Content -Path $configFilePath -Value $lines -Force
 }
-<#.Description
-   This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
-#>  
-Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription)
-{
-    $scope = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope
-    $scope.Id = New-Guid
-    $scope.Value = $value
-    $scope.UserConsentDisplayName = $userConsentDisplayName
-    $scope.UserConsentDescription = $userConsentDescription
-    $scope.AdminConsentDisplayName = $adminConsentDisplayName
-    $scope.AdminConsentDescription = $adminConsentDescription
-    $scope.IsEnabled = $true
-    $scope.Type = "User"
-    return $scope
-}
-
-<#.Description
-   This function creates a new Azure AD AppRole with default and provided values
-#>  
-Function CreateAppRole([string] $types, [string] $name, [string] $description)
-{
-    $appRole = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole
-    $appRole.AllowedMemberTypes = New-Object System.Collections.Generic.List[string]
-    $typesArr = $types.Split(',')
-    foreach($type in $typesArr)
-    {
-        $appRole.AllowedMemberTypes += $type;
-    }
-    $appRole.DisplayName = $name
-    $appRole.Id = New-Guid
-    $appRole.IsEnabled = $true
-    $appRole.Description = $description
-    $appRole.Value = $name;
-    return $appRole
-}
 
 Function ConfigureApplications
 {
@@ -192,15 +156,15 @@ Function ConfigureApplications
                                                          } `
                                                         -Spa `
                                                         @{ `
-                                                            RedirectUris = "http://localhost:5000";
+                                                            RedirectUris = "http://localhost:5000"; `
                                                         } `
                                                         -SignInAudience AzureADMyOrg `
                                                        #end of command
     #add a secret to the application
     $pwdCredential = Add-MgApplicationPassword -ApplicationId $serviceAadApplication.Id -PasswordCredential $key
     $serviceAppKey = $pwdCredential.SecretText
-    $serviceIdentifierUri = 'api://'+$serviceAadApplication.AppId
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -IdentifierUris @($serviceIdentifierUri)
+    $tenantName = (Get-MgApplication -ApplicationId $serviceAadApplication.Id).PublisherDomain
+    Update-MgApplication -ApplicationId $serviceAadApplication.Id -IdentifierUris @("https://$tenantName/msal-hybrid-spa")
     
     # create the service principal of the newly created application 
     $currentAppId = $serviceAadApplication.AppId
@@ -213,36 +177,6 @@ Function ConfigureApplications
         New-MgApplicationOwnerByRef -ApplicationId $serviceAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($serviceServicePrincipal.DisplayName)'"
     }
-    
-    # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
-       
-    # delete default scope i.e. User_impersonation
-    # Alex: the scope deletion doesn't work - see open issue - https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/1054
-    $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = $serviceAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "User_impersonation" }
-    
-    if($scope -ne $null)
-    {    
-        # disable the scope
-        $scope.IsEnabled = $false
-        $scopes.Add($scope)
-        Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
-
-        # clear the scope
-        Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{Oauth2PermissionScopes = @()}
-    }
-
-    $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value access_as_user  `
-    -userConsentDisplayName "Access msal-hybrid-spa"  `
-    -userConsentDescription "Allow the application to access msal-hybrid-spa on your behalf."  `
-    -adminConsentDisplayName "Access msal-hybrid-spa"  `
-    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
-            
-    $scopes.Add($scope)
-    
-    # add/update scopes
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
     Write-Host "Done creating the service application (msal-hybrid-spa)"
 
     # URL of the AAD application in the Azure portal
@@ -259,23 +193,8 @@ Function ConfigureApplications
     
 
     $requiredResourcesAccess.Add($requiredPermissions)
-    
-    # Add Required Resources Access (from 'service' to 'service')
-    Write-Host "Getting access from 'service' to 'service'"
-    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-hybrid-spa" `
-        -requiredDelegatedPermissions "access_as_user" `
-    
-
-    $requiredResourcesAccess.Add($requiredPermissions)
     Update-MgApplication -ApplicationId $serviceAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
-
-    # Configure known client applications for service 
-    Write-Host "Configure known client applications for the 'service'"
-    $knowApplications = New-Object System.Collections.Generic.List[System.String]
-    $knowApplications.Add($serviceAadApplication.AppId)
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{KnownClientApplications = $knowApplications}
-    Write-Host "Configured."
     
     # Update config file for 'service'
     $configFile = $pwd.Path + "\..\App\.env"
@@ -287,7 +206,7 @@ Function ConfigureApplications
     
     # Update config file for 'service'
     $configFile = $pwd.Path + "\..\App\client\src\authConfig.js"
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_Here" = ("api://"+$serviceAadApplication.AppId+"/access_as_user") };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
 
     Write-Host "Updating the sample code ($configFile)"
 
@@ -296,7 +215,6 @@ Function ConfigureApplications
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For service"
     Write-Host "  - Navigate to $servicePortalUrl"
-    Write-Host "  - Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'" -ForegroundColor Red 
     Write-Host "  - Navigate to the Manifest page, find the 'optionalClaims' section and change its default value to request  'idToken' claims" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')

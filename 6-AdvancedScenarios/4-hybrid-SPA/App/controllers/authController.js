@@ -70,12 +70,3 @@ exports.sendSPACode = (req, res) => {
     res.status(401).json({ message: "user is not authenticated" });
   }
 };
-
-exports.handleProtectedPath = (req, res) => {
-  res.status(200).json({
-    name: req.authInfo["name"],
-    "issued-by": req.authInfo["iss"],
-    "issued-for": req.authInfo["aud"],
-    scope: req.authInfo["scp"],
-  });
-};
