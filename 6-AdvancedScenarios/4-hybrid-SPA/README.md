@@ -39,11 +39,11 @@ The order of operations is as follows:
 
 1- The Express web application uses [MSAL-Node](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node) to sign and obtain JWT [access token](https://aka.ms/access-tokens) from **Azure AD** as well as an additional Spa Authorization Code to be passed to a client-side single page application.
 
-1- The Spa Authorization Code is passed to the React SPA to be exchanged for an access token client-side.
+2- The Spa Authorization Code is passed to the React SPA to be exchanged for an access token client-side.
 
-1- The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**
+3- The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**
 
-1-The **Microsoft Graph API** responds with the resource if user is authorized.
+4-The **Microsoft Graph API** responds with the resource if user is authorized.
 
 ## Prerequisites
 
