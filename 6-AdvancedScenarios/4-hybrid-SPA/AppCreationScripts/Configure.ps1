@@ -156,7 +156,7 @@ Function ConfigureApplications
                                                          } `
                                                         -Spa `
                                                         @{ `
-                                                            RedirectUris = "http://localhost:5000"; `
+                                                            RedirectUris = "http://localhost:5000/blank"; `
                                                         } `
                                                         -SignInAudience AzureADMyOrg `
                                                        #end of command

@@ -194,8 +194,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 #### Configure the client app (msal-hybrid-spa) to use your app registration
 
 1. Open the `authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-hybrid-spa` app copied
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-hybrid-spa` app copied
+1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-hybrid-spa` app copied
+1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 
 ### Step 4: Running the sample
 
