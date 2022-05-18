@@ -154,30 +154,14 @@ There is one project in this sample. To register it, you can:
       * In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
       * In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
       * Select the **Add permissions** button at the bottom.
-1. Select the `Manifest` blade on the left.
-   * Set the `optionalClaims` property as shown below to request client capabilities claim `idToken`:
-   ```json
-   "optionalClaims": {
-        "idToken": [
-            {
-                "name": "sid",
-                "source": null,
-                "essential": false,
-                "additionalProperties": []
-            },
-            {
-                "name": "login_hint",
-                "source": null,
-                "essential": false,
-                "additionalProperties": []
-            }
-        ],
-        "accessToken": [],
-        "saml2Token": []
-    }
-   ```
-
-   * Click on **Save**.
+1. Still on the same app registration, select the **Token configuration** blade to the left.
+1. Select *Add optional claim**:
+    * Select optional claim type,choose **ID**.
+    * Select optional claim name, choose **sid**.
+1. Select *Add optional claim**:
+    * Select optional claim type,choose **ID**.
+    * Select optional claim name, choose **login_hint**.
+1. Select **Add** to save changes.
 
 #### Configure the service app (msal-hybrid-spa) to use your app registration
 
