@@ -155,10 +155,10 @@ There is one project in this sample. To register it, you can:
       * In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
       * Select the **Add permissions** button at the bottom.
 1. Still on the same app registration, select the **Token configuration** blade to the left.
-1. Select *Add optional claim**:
+1. Select **Add optional claim**:
     * Select optional claim type,choose **ID**.
     * Select optional claim name, choose **sid**.
-1. Select *Add optional claim**:
+1. Select **Add optional claim**:
     * Select optional claim type,choose **ID**.
     * Select optional claim name, choose **login_hint**.
 1. Select **Add** to save changes.
