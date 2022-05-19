@@ -1,5 +1,5 @@
-const msalInstance = require("../msal");
 require("dotenv").config();
+const msalInstance = require("../msal");
 
 exports.loginUser = async (req, res) => {
   const authCodeUrlParameters = {
@@ -17,7 +17,8 @@ exports.loginUser = async (req, res) => {
 
 /**
  * We parse the authorization code in this method and invoke the acquireTokenByCode on the MSAL instance.
- * Setting set enableSpaAuthorizationCode to true will enable MSAL to acquire a second authorization code to be redeemed by your single-page application.
+ * Setting set enableSpaAuthorizationCode to true will enable MSAL to acquire a second authorization code
+ * to be redeemed by your single-page application.
  */
 exports.handleRedirectWithCode = (req, res) => {
   const tokenRequest = {
@@ -30,10 +31,11 @@ exports.handleRedirectWithCode = (req, res) => {
     .acquireTokenByCode(tokenRequest)
     .then((response) => {
       const { code } = response; //SPA authorization code
+
       const {
-        sid, // Session ID claim, used for non-hybrid
-        login_hint: loginHint, // New login_hint claim (used instead of sid or email)
-        preferred_username: preferredUsername, // Email
+        sid, // session ID claim, used for non-hybrid
+        login_hint: loginHint, // new login_hint claim (used instead of sid or email)
+        preferred_username: preferredUsername,
       } = response.idTokenClaims;
 
       req.session.code = code;
@@ -43,7 +45,8 @@ exports.handleRedirectWithCode = (req, res) => {
       req.session.authenticated = true;
 
       const urlFrom = (urlObject) =>
-        String(Object.assign(new URL("http://localhost:5000"), urlObject));
+        String(Object.assign(new URL(`http://localhost:${process.env.port ? port : 5000}`), urlObject));
+
       res.redirect(
         urlFrom({
           protocol: "http",

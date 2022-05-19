@@ -1,10 +1,14 @@
 require("dotenv").config();
 
 const express = require("express");
-const path = require("path");
-const app = express();
 const expressSession = require("express-session");
+const path = require("path");
+
 const mainRouter = require("./routes/mainRoutes");
+
+const port = process.env.PORT || 5000;
+
+const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "client/build")));
@@ -18,9 +22,6 @@ app.use(
   })
 );
 
-const port = process.env.PORT || 5000;
+app.use(mainRouter);
 
-app.use(mainRouter());
-app.listen(port);
-
-console.log("App is listening on port " + port);
+app.listen(port, () => console.log(`Sample app listening on port ${port}!`));

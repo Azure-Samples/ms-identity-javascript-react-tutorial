@@ -12,9 +12,7 @@ products:
  - Express
 ---
 
-# Sign-in users interactively server-side (Node.js) and silently acquire token for MS Graph for a React Single-page app (SPA)
-
-[![Build status](https://identitydivision.visualstudio.com/IDDP/_apis/build/status/AAD%20Samples/.NET%20client%20samples/ASP.NET%20Core%20Web%20App%20tutorial)](https://identitydivision.visualstudio.com/IDDP/_build/latest?definitionId=819)
+# Sign-in users interactively server-side (Node.js) and silently acquire a token for MS Graph from a React single-page app (SPA)
 
 Table Of Contents
 
@@ -29,21 +27,21 @@ Table Of Contents
 
 ## Scenario
 
-This sample demonstrates how a React SPA app can silently redeem an [authorization code](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-oauth2-auth-code-flow) for an [access token](https://aka.ms/access-tokens) for **Microsoft Graph API** for a user who has already authenticated earlier in another Node.Js application
+This sample demonstrates how a React SPA can silently redeem an [authorization code](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) for an [access token](https://aka.ms/access-tokens) for the **Microsoft Graph API** for a user who has already authenticated earlier in another Node.js application.
 
-The Express web application will interactively authenticate a user using **MSAL-Node** and obtains both an [Access Token](https://aka.ms/access-tokens) and as well as an additional [Spa Authorization Code](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/SPA-Authorization-Code) using the Hybrid SPA flow.
+The Express web application will interactively authenticate a user using **MSAL-Node** and obtain both an [Access Token](https://aka.ms/access-tokens) and as well as an additional [Spa Authorization Code](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet/wiki/SPA-Authorization-Code) using the **Hybrid SPA Code** flow.
 
-This SPA authorization code is then transferred by the Node Express app to the React SPA app which then silently (without the need to re-authenticate the user) redeems it for another [access token](https://aka.ms/access-tokens) for **Microsoft Graph API**.
+This SPA authorization code is then transferred by the Node Express app to the React SPA app which then silently (without the need to re-authenticate the user) redeems it for another [access token](https://aka.ms/access-tokens) for **Microsoft Graph**.
 
 The order of operations is as follows:
 
-1- The Express web application uses [MSAL-Node](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node) to sign and obtain JWT [access token](https://aka.ms/access-tokens) from **Azure AD** as well as an additional Spa Authorization Code to be passed to a client-side single page application.
+1. The Express web application uses [MSAL-Node](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node) to sign and obtain JWT [access token](https://aka.ms/access-tokens) from **Azure AD** as well as an additional SPA Authorization Code to be passed to a client-side single page application.
 
-2- The Spa Authorization Code is passed to the React SPA to be exchanged for an access token client-side.
+2. The SPA Authorization Code is passed to the React SPA to be exchanged for an access token client-side.
 
-3- The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**
+3. The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**
 
-4-The **Microsoft Graph API** responds with the resource if user is authorized.
+4. The **Microsoft Graph API** responds with the resource if user is authorized.
 
 ## Prerequisites
 
@@ -73,14 +71,14 @@ or download and extract the repository .zip file.
 * Setup the service app:
 
     ```console
-        cd 6-AdvancedScenarios\4-hybrid-SPA\App
+        cd 6-AdvancedScenarios\4-sign-in-hybrid\App
         npm install
     ```
 
 * Setup the client app:
 
     ```console
-        cd cd 6-AdvancedScenarios\4-hybrid-SPA\App\client
+        cd cd 6-AdvancedScenarios\4-sign-in-hybrid\App\client
         npm install
     ```
 
@@ -139,7 +137,7 @@ There is one project in this sample. To register it, you can:
    * In the **Redirect URIs** section, enter the following redirect URIs.
      * `http://localhost:5000/redirect`
    * Click on the **Add a platform** button in the **Platform configurations** section of the page.
-     * Select the **Single-page application** button and enter `https://localhost:5000` as the **Redirect URI** and click the **Configure** button. 
+     * Select the **Single-page application** button and enter `https://localhost:5000/blank` as the **Redirect URI** and click the **Configure** button.
 1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **Certificates & secrets** blade in the left to open the page where you can generate secrets and upload certificates.
 1. In the **Client secrets** section, select **New client secret**:
@@ -149,35 +147,31 @@ There is one project in this sample. To register it, you can:
    * You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Azure portal before navigating to any other screen or blade.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
       * Select the **Add a permission** button and then:
-
       * Ensure that the **Microsoft APIs** tab is selected.
       * In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
       * In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
       * Select the **Add permissions** button at the bottom.
 1. Still on the same app registration, select the **Token configuration** blade to the left.
 1. Select **Add optional claim**:
-    * Select optional claim type,choose **ID**.
+    * Select optional claim type, choose **ID**.
     * Select optional claim name, choose **sid**.
-1. Select **Add optional claim**:
-    * Select optional claim type,choose **ID**.
     * Select optional claim name, choose **login_hint**.
 1. Select **Add** to save changes.
 
-#### Configure the service app (msal-hybrid-spa) to use your app registration
+#### Configure the app (msal-hybrid-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `.env` file.
+1. Open the `App/.env` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-hybrid-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Client_Secret_Here` and replace the existing value with the key you saved during the creation of `msal-hybrid-spa` copied from the Azure portal.
-1. Find the key `Redirect_URI` and replace the existing value with the Redirect URI for `msal-hybrid-spa`. (by default `http://localhost:5000/redirect`).
 
-#### Configure the client app (msal-hybrid-spa) to use your app registration
+In addition:
 
-1. Open the `authConfig.js` file.
+1. Open the `App/client/authConfig.js` file.
 1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-hybrid-spa` app copied
 1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 
@@ -188,7 +182,7 @@ For command line run the next commands:
 * Run the app:
 
   ```console
-    cd 6-AdvancedScenarios\4-hybrid-SPA\App
+    cd 6-AdvancedScenarios\4-sign-in-hybrid\App
     npm start
     ```
 
@@ -196,7 +190,7 @@ For command line run the next commands:
 
 ### Confidential client
 
-In this sample, the user is first authenticated using an MSAL Node confidential client.
+In this sample, the user is first authenticated to backend using an MSAL Node confidential client application.
 
 ```javascript
   const msal = require('@azure/msal-node');
@@ -221,7 +215,7 @@ In this sample, the user is first authenticated using an MSAL Node confidential 
 
 ```
 
-Next, generate an auth code url and navigate the user:
+Begin by generating an authorization code URL and redirect the app to it:
 
 ```javascript
  const authCodeUrlParameters = {
@@ -235,11 +229,7 @@ Next, generate an auth code url and navigate the user:
         }).catch((error) => console.log(error))
 ```
 
-Next, parse the authorization code, and invoke the acquireTokenByCode API on the ConfidentialClientApplication instance.
-
-When invoking this API, set enableSpaAuthorizationCode to true, which will enable MSAL to acquire a second authorization code to be redeemed by your single-page application.
-
-Your application should parse this second authorization code, as well as any account hints (e.g. sid, login_hint, preferred_username) and return them such that they can be rendered client-side:
+Next, parse the authorization code, and invoke the `acquireTokenByCode` API by setting the `enableSpaAuthorizationCode` to true,  which will enable MSAL to acquire a second authorization code to be redeemed by your single-page application. Your application should parse this second authorization code, as well as any account hints (e.g. sid, login_hint, preferred_username) and return them such that they can be obtained client-side:
 
 ```javascript
    const tokenRequest = {
@@ -247,8 +237,6 @@ Your application should parse this second authorization code, as well as any acc
             redirectUri: process.env.REDIRECT_URI,
             enableSpaAuthorizationCode: true
         };
-
-
     
     msalInstance.acquireTokenByCode(tokenRequest)
         .then((response) => {
@@ -280,7 +268,7 @@ Your application should parse this second authorization code, as well as any acc
 
 ### Public client
 
-First, configure a new PublicClientApplication from MSAL.js in your single-page application:
+First, configure a new **PublicClientApplication** from MSAL.js in your single-page application:
 
 ```javascript
 export const msalInstance = new PublicClientApplication(msalConfig);
@@ -293,9 +281,7 @@ ReactDOM.render(
 );
 ```
 
-Next, render the code that was acquired server-side, and provide it to the acquireTokenByCode API on the MSAL.js PublicClientApplication instance.
-
-The application should also render any account hints, as they will be needed for any interactive requests to ensure the same user is used for both requests.
+Next, obtain the authorization code that was acquired server-side for the SPA, and pass it to `acquireTokenByCode`. The application should also obtain any account hints, as they will be needed for any interactive requests to ensure the same user is used for both requests.
 
 ```javascript
  useEffect(() => {
@@ -305,7 +291,7 @@ The application should also render any account hints, as they will be needed for
 
       if (getCode && !data) {
         apiData = await callApiToGetSpaCode();
-        const { code, loginHint, sid, referredUsername } = apiData;
+        const { code, loginHint, sid } = apiData;
 
         if (inProgress === "none") {
           try {
@@ -316,10 +302,10 @@ The application should also render any account hints, as they will be needed for
             setdata(token);
           } catch (error) {
             if (error instanceof InteractionRequiredAuthError) {
-              //If loginHint claim is provided, dont use sid
+
               try {
                 token = await instance.loginPopup({
-                  loginHint, //Prefer loginHint claim over referredUsername (email)
+                  loginHint, // prefer loginHint claim over sid
                 });
 
                 setdata(token);
@@ -348,18 +334,6 @@ If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../
 To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
 </details>
-
-### SPA Authorization Code issuing and redemption
-
-On the web app side,
-
-## Next Steps
-
-Learn how to:
-
-* MSAL React to authorize users for calling a protected web API on Azure AD B2C](<https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/3-Authorization-II/2-call-api-b2c>)
-* [On-behalf-of flow and Conditional Access challenges](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/6-AdvancedScenarios/1-call-api-obo)
-* [Express web API using Conditional Access auth context to perform step-up authentication](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/6-AdvancedScenarios/3-call-api-acrs)
 
 ## Contributing
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import { InteractionRequiredAuthError } from "@azure/msal-browser";
 import { MsalProvider, useMsal } from "@azure/msal-react";
+
 import { Profile } from "./pages/Profile";
 import { PageLayout } from "./components/PageLayout";
 import { Blank } from "./pages/Blank";
@@ -22,11 +23,12 @@ export const App = ({ instance }) => {
   const search = useLocation().search;
   const getCode = new URLSearchParams(search).get("getCode");
   const { inProgress } = useMsal();
-  const [data, setdata] = useState(null);
+  const [data, setData] = useState(null);
 
   /**
-   * We render the SPA code that was acquired server-side, and provide it to the acquireTokenByCode API on the MSAL.js PublicClientApplication instance.
-   * The application should also render any account hints, as they will be needed for any interactive requests to ensure the same user is used for both requests.
+   * We render the SPA code that was acquired server-side, and provide it to the acquireTokenByCode API
+   * on the MSAL.js PublicClientApplication instance. The application should also render any account hints,
+   * as they will be needed for any interactive requests to ensure the same user is used for both requests.
    * For more information about using loginHint and sid, visit:
    * https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-core#2-login-the-user
    */
@@ -37,7 +39,7 @@ export const App = ({ instance }) => {
 
       if (getCode && !data) {
         apiData = await callApiToGetSpaCode();
-        const { code, loginHint, sid, referredUsername } = apiData;
+        const { code, loginHint, sid } = apiData;
 
         if (inProgress === "none") {
           try {
@@ -45,16 +47,16 @@ export const App = ({ instance }) => {
               code, //Spa Auth code
             });
 
-            setdata(token);
+            setData(token);
           } catch (error) {
             if (error instanceof InteractionRequiredAuthError) {
-              //If loginHint claim is provided, dont use sid
+
               try {
                 token = await instance.loginPopup({
-                  loginHint, //Prefer loginHint claim over referredUsername (email)
+                  loginHint, // Prefer loginHint claim over sid or preferredUsername
                 });
 
-                setdata(token);
+                setData(token);
               } catch (error) {
                 console.log(error);
               }

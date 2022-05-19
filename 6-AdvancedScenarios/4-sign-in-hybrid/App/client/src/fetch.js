@@ -19,19 +19,19 @@ export const callApiWithToken = async (accessToken, apiEndpoint) => {
 };
 
 export const callApiToLogin = () => {
-  return fetch("/api/login")
+  return fetch("/auth/login")
     .then((response) => response.json())
     .catch((error) => console.log(error));
 };
 
 export const callApiToLogout = () => {
-  return fetch("/api/logout")
+  return fetch("/auth/logout")
     .then((response) => response.json())
     .catch((error) => console.log(error));
 };
 
 export const callApiToGetSpaCode = () => {
-  return fetch("/api/fetchCode")
+  return fetch("/auth/fetchCode")
     .then((response) => response.json())
     .catch((error) => console.log(error));
 };
