@@ -215,7 +215,7 @@ Function ConfigureApplications
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For service"
     Write-Host "  - Navigate to $servicePortalUrl"
-    Write-Host "  - Navigate to the Manifest page, find the 'optionalClaims' section and change its default value to request  'idToken' claims" -ForegroundColor Red 
+    Write-Host "  - Navigate to the Token configuration page, find the 'Add optional claim' section, select `ID`, then select `sid` and ' login_hint` claims" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
     {
