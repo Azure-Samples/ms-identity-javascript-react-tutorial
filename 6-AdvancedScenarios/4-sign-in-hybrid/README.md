@@ -19,9 +19,9 @@ Table Of Contents
 * [Scenario](#Scenario)
 * [Prerequisites](#Prerequisites)
 * [Setup the sample](#Setup-the-sample)
+* [Explore the sample](#Explore-the-sample)
 * [About the code](#about-the-code)
 * [Troubleshooting](#Troubleshooting)
-* [Next Steps](#Next-Steps)
 * [Contributing](#Contributing)
 * [Learn More](#Learn-More)
 
@@ -68,19 +68,10 @@ or download and extract the repository .zip file.
 
 ### Step 2: Install project dependencies
 
-* Setup the service app:
-
-    ```console
-        cd 6-AdvancedScenarios\4-sign-in-hybrid\App
-        npm install
-    ```
-
-* Setup the client app:
-
-    ```console
-        cd cd 6-AdvancedScenarios\4-sign-in-hybrid\App\client
-        npm install
-    ```
+  ```console
+    cd 6-AdvancedScenarios\4-sign-in-hybrid\App
+    npm install
+  ```
 
 ### Step 3: Application Registration
 
@@ -186,11 +177,21 @@ For command line run the next commands:
     npm start
     ```
 
+## Explore the sample
+
+1. Open your browser and navigate to `http://localhost:5000`.
+2. Sign-in using the button on the top-right corner.
+3. Select the **Profile** button on the navigation bar. This will make a call to the Graph API.
+
+![Screenshot](./ReadmeFiles/Images/screenshot.png)
+
+> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
+
 ## About the code
 
-### Confidential client
+### MSAL Node confidential client
 
-In this sample, the user is first authenticated to backend using an MSAL Node confidential client application.
+In this sample, the user is first authenticated to backend as shown in the `authController.js` file using the MSAL Node confidential client application.
 
 ```javascript
   const msal = require('@azure/msal-node');
@@ -229,7 +230,7 @@ Begin by generating an authorization code URL and redirect the app to it:
         }).catch((error) => console.log(error))
 ```
 
-Next, parse the authorization code, and invoke the `acquireTokenByCode` API by setting the `enableSpaAuthorizationCode` to true,  which will enable MSAL to acquire a second authorization code to be redeemed by your single-page application. Your application should parse this second authorization code, as well as any account hints (e.g. sid, login_hint, preferred_username) and return them such that they can be obtained client-side:
+Next, get the auth code from the request body, and invoke the `acquireTokenByCode` API by setting the `enableSpaAuthorizationCode` to true,  which will enable MSAL to acquire a second authorization code to be redeemed by your single-page application. Your application should parse this second authorization code, as well as any account hints (e.g. sid, login_hint, preferred_username), and return them such that they can be obtained client-side:
 
 ```javascript
    const tokenRequest = {
@@ -266,7 +267,7 @@ Next, parse the authorization code, and invoke the `acquireTokenByCode` API by s
         })
 ```
 
-### Public client
+### SPA Public clients
 
 First, configure a new **PublicClientApplication** from MSAL.js in your single-page application:
 

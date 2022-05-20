@@ -1,10 +1,11 @@
 require("dotenv").config();
 const msalInstance = require("../msal");
 
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
   const authCodeUrlParameters = {
     redirectUri: process.env.REDIRECT_URI,
     responseMode: "form_post",
+    scopes: ["User.Read"],
   };
 
   msalInstance
@@ -12,7 +13,9 @@ exports.loginUser = async (req, res) => {
     .then((response) => {
       res.json(response);
     })
-    .catch((error) => console.log(error));
+    .catch((error) => {
+      next(error);
+    });
 };
 
 /**
@@ -20,11 +23,12 @@ exports.loginUser = async (req, res) => {
  * Setting set enableSpaAuthorizationCode to true will enable MSAL to acquire a second authorization code
  * to be redeemed by your single-page application.
  */
-exports.handleRedirectWithCode = (req, res) => {
+exports.handleRedirectWithCode = (req, res, next) => {
   const tokenRequest = {
     code: req.body.code,
     redirectUri: process.env.REDIRECT_URI,
     enableSpaAuthorizationCode: true,
+    scopes: ["User.Read"],
   };
 
   msalInstance
@@ -45,7 +49,12 @@ exports.handleRedirectWithCode = (req, res) => {
       req.session.authenticated = true;
 
       const urlFrom = (urlObject) =>
-        String(Object.assign(new URL(`http://localhost:${process.env.port ? port : 5000}`), urlObject));
+        String(
+          Object.assign(
+            new URL(`http://localhost:${process.env.port ? port : 5000}`),
+            urlObject
+          )
+        );
 
       res.redirect(
         urlFrom({
@@ -56,7 +65,7 @@ exports.handleRedirectWithCode = (req, res) => {
       );
     })
     .catch((err) => {
-      console.log(err);
+      next(err);
     });
 };
 
