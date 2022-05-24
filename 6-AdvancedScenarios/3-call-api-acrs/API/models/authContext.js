@@ -1,48 +1,33 @@
-const lowdb = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('./data/db.json');
-const db = lowdb(adapter);
+const mongoHelper = require('../utils/mongoHelper');
 
 class AuthContext {
 
+    _id;
     tenantId;
     authContextId;
     authContextDisplayName;
     operation;
 
-    constructor(tenantId, authContextId, authContextDisplayName, operation) {
+    constructor(id, tenantId, authContextId, authContextDisplayName, operation) {
+        this._id = id;
         this.tenantId = tenantId;
         this.authContextId = authContextId;
         this.authContextDisplayName = authContextDisplayName;
         this.operation = operation;
     }
 
-    static getAuthContexts() {
-        return db.get('acrs')
-            .value();
+    static async getAuthContexts() {
+        const data = await mongoHelper.getDB().collection('acrs').find().toArray();
+        return data;
     }
 
-    static getAuthContext(authContextId) {
-        return db.get('acrs')
-        .find({authContextId: authContextId})
-        .value();
+    static async postAuthContext(newAcrs) {
+        const data = await mongoHelper.getDB().collection('acrs').insertOne(newAcrs);
+        return data;
     }
 
-    static updateAuthContext(authContextId, acrs) {
-        db.get('acrs')
-            .find({authContextId: authContextId})
-            .assign(acrs)
-            .write();
-    }
-
-    static postAuthContext(newAcrs) {
-        db.get('acrs').push(newAcrs).write();
-    }
-
-    static deleteAuthContext(authContextObject) {
-        db.get('acrs')
-            .remove({ authContextId: authContextObject.authContextId,  operation: authContextObject.operation})
-            .write();
+    static async deleteAuthContext(id) {
+        return (await mongoHelper.getDB().collection('acrs').deleteOne({ _id: id }));
     }
 }
 

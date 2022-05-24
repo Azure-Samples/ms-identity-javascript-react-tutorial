@@ -19,6 +19,8 @@ const todolistRoutes = require('./routes/todolistRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const routeGuard = require('./utils/routeGuard');
 
+const mongoHelper = require('./utils/mongoHelper');
+
 const app = express();
 
 app.set('views', path.join(__dirname, './views'));
@@ -59,7 +61,7 @@ if (app.get('env') === 'production') {
 
     /**
      * In App Service, SSL termination happens at the network load balancers, so all HTTPS requests reach your app as unencrypted HTTP requests.
-     * The line below is needed for getting the correct absolute URL for redirectUri configuration. For more information, visit: 
+     * The line below is needed for getting the correct absolute URL for redirectUri configuration. For more information, visit:
      * https://docs.microsoft.com/azure/app-service/configure-language-nodejs?pivots=platform-linux#detect-https-session
      */
 
@@ -114,7 +116,7 @@ const appSettings = {
     protectedResources: {
         // Microsoft Graph beta authenticationContextClassReference endpoint. For more information,
         // visit: https://docs.microsoft.com/en-us/graph/api/resources/authenticationcontextclassreference?view=graph-rest-beta
-        graphAPI: {
+        msGraphAcrs: {
             endpoint: "https://graph.microsoft.com/beta/identity/conditionalAccess/policies",
             scopes: ["Policy.ReadWrite.ConditionalAccess", "Policy.Read.ConditionalAccess"]
         },
@@ -123,7 +125,7 @@ const appSettings = {
 
 
 // instantiate the wrapper
-const authProvider = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build()
+const authProvider = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
 
 // initialize the wrapper
 app.use(authProvider.initialize());
@@ -135,8 +137,10 @@ app.use('/admin',
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => {
-    console.log('Listening on port ' + port);
+mongoHelper.mongoConnect(() => {
+  app.listen(port, () => {
+      console.log('Listening on port ' + port);
+  });
 });
 
 module.exports = app;

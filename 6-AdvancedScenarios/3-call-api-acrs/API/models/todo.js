@@ -1,53 +1,46 @@
-const lowdb = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('./data/db.json');
-const db = lowdb(adapter);
+const mongodb = require('mongodb');
+const mongoHelper = require('../utils/mongoHelper');
 
 class Todo {
 
-    id;
+    _id;
     name;
     owner;
+    completed;
 
-    constructor(id, name, owner) {
-        this.id = id;
+    constructor(id, name, owner, completed) {
+        this._id = id;
         this.name = name;
         this.owner = owner;
+        this.completed = completed;
     }
 
-    static getAllTodos() {
-        return db.get('todos')
-            .value();
+    static async getAllTodos() {
+        const data = await mongoHelper.getDB().collection('todo').find().toArray()
+        return data;
     }
 
-    static getTodos(owner) {
-        return db.get('todos')
-            .filter({ owner: owner })
-            .value();
+    static async getTodos(owner) {
+        const data = await mongoHelper.getDB().collection('todo').find({ owner: owner }).toArray()
+        return data;
     }
 
-    static getTodo(owner, id) {
-        return db.get('todos')
-        .filter({owner: owner})
-        .find({id: id})
-        .value();
+    static async getTodo(id) {
+        const data = await mongoHelper.getDB().collection('todo').find({ _id: id });
+        return data;
     }
 
-    static updateTodo(owner, id, todo) {
-        db.get('todos')
-            .find({owner: owner, id: id})
-            .assign(todo)
-            .write();
+    static async updateTodo(id, todo) {
+        return (await mongoHelper.getDB().collection('todo')
+            .updateOne({ _id: new mongodb.ObjectId(id) }, { $set: { name: todo.name, completed: todo.completed } }));
     }
 
-    static postTodo(newTodo) {
-        db.get('todos').push(newTodo).write();
+    static async postTodo(newTodo) {
+        return (await mongoHelper.getDB().collection('todo').insertOne(newTodo));
     }
 
-    static deleteTodo(id, owner) {
-        db.get('todos')
-            .remove({ owner: owner, id: id })
-            .write();
+    static async deleteTodo(id) {
+        return (await mongoHelper.getDB().collection('todo').deleteOne({ _id: new mongodb.ObjectId(id) }));
     }
 }
 

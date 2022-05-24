@@ -17,7 +17,7 @@
 
 This sample demonstrates how to use the Conditional Access [Authentication Context](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context) feature to achieve granular access control and demand a higher bar of authentication for certain sensitive operations (e.g. HTTP DELETE requests) on an Express.js [protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview) called by a client React single-page application (SPA).
 
-The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [msal-express-wrapper](https://github.com/Azure-Samples/msal-express-wrapper) to acquire access tokens and [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for querying Microsoft Graph. For storing data, a **mock database** is implemented using the [lowdb](https://github.com/typicode/lowdb) package. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
+The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [msal-express-wrapper](https://github.com/Azure-Samples/msal-express-wrapper) to acquire access tokens and [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for querying Microsoft Graph. For storing data, the [Azure Cosmos DB API for MongoDB](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) is used. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
 
 > :information_source: Check out the recorded session on this topic: [Use Conditional Access Auth Context in your app for step-up authentication](https://www.youtube.com/watch?v=_iO7CfoktTY&ab_channel=Microsoft365Community)
 
@@ -46,6 +46,7 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 - An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
 - A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
 - [Azure AD premium P1](https://azure.microsoft.com/pricing/details/active-directory/) is required to work with **Conditional Access** policies.
+- An [Azure CosmosDB API for MongoDB](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) instance is required to. See how to create here one [here](https://docs.microsoft.com/azure/cosmos-db/sql/create-cosmosdb-resources-portal#create-an-azure-cosmos-db-account).
 
 ## Setup
 
@@ -194,6 +195,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api-acrs` app copied from the Azure portal.
 1. Find the string `Enter_the_Client_Secret_Here` and replace the existing value with the client secret you recorded earlier.
+1. Find the string `Enter_Database_Connection_String_Here` and replace the existing value with the connection string of your Azure CosmosDB instance.
 1. Find the string `ENTER_YOUR_SECRET_HERE` and replace the existing value with a secret that will be used when encrypting your app's session using the [express-session](https://www.npmjs.com/package/express-session) package.
 
 ### Register the client app (msal-react-spa-acrs)
@@ -203,7 +205,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa-acrs`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000`.
+   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/redirect`.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
@@ -294,7 +296,7 @@ const msalConfig = {
     auth: {
         clientId: 'Enter_the_Application_Id_Here', 
         authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
-        redirectUri: "/", 
+        redirectUri: "/redirect", 
         postLogoutRedirectUri: "/",
         navigateToLoginRequestUrl: true, 
         clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.

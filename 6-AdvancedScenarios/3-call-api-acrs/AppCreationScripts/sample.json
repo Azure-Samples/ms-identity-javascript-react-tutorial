@@ -40,7 +40,7 @@
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:3000",
-            "ReplyUrls": "http://localhost:3000",
+            "ReplyUrls": "http://localhost:3000/redirect",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",

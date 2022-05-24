@@ -1,3 +1,4 @@
+const { nanoid } = require('nanoid');
 const AuthContext = require('../models/authContext');
 const msGraph = require('../utils/graphClient');
 
@@ -5,36 +6,37 @@ exports.getHomePage = (req, res, next) => {
     res.render('home', { isAuthenticated: req.session.isAuthenticated, username: req.session.isAuthenticated ? req.session.account.username : null });
 }
 
-exports.getDetailsPage = (req, res, next) => {
+exports.getDetailsPage = async (req, res, next) => {
     try {
-        const acrsList = AuthContext.getAuthContexts();
-        res.render('details', { isAuthenticated: req.session.isAuthenticated, acrsList: acrsList });   
+        const acrsList = await AuthContext.getAuthContexts();
+        res.render('details', { isAuthenticated: req.session.isAuthenticated, acrsList: acrsList });
     } catch (error) {
         next(error);
     }
 }
 
-exports.postDetailsPage = async(req, res, next) => {
+exports.postDetailsPage = async (req, res, next) => {
     try {
         const authContext = new AuthContext(
-            req.session.account.idTokenClaims.tid, 
+            nanoid(),
+            req.session.account.idTokenClaims.tid,
             req.body.authContext.split(' ')[0], // id
-            req.body.authContext.replace(req.body.authContext.split(' ')[0],' '), // displayName
+            req.body.authContext.replace(req.body.authContext.split(' ')[0], ' '), // displayName
             req.body.operation
         );
 
-        AuthContext.postAuthContext(authContext);
-        res.redirect('/admin/details');   
+        await AuthContext.postAuthContext(authContext);
+        res.redirect('/admin/details');
     } catch (error) {
         next(error);
     }
 }
 
-exports.deleteDetailsPage = async(req, res, next) => {
+exports.deleteDetailsPage = async (req, res, next) => {
     try {
-        const authContextObject = JSON.parse(req.body.authContextObject);
-        AuthContext.deleteAuthContext( authContextObject);
-        res.redirect('/admin/details');   
+        const id = req.body._id;
+        await AuthContext.deleteAuthContext(id);
+        res.redirect('/admin/details');
     } catch (error) {
         next(error);
     }
@@ -44,18 +46,17 @@ exports.getDashboardPage = (req, res, next) => {
     res.render('dashboard', { isAuthenticated: req.session.isAuthenticated, isLoaded: false });
 }
 
-exports.postDashboardPage = async(req, res, next) => {
-   
+exports.postDashboardPage = async (req, res, next) => {
     try {
         // pass the access token to create a graph client
-        const graphClient = msGraph.getAuthenticatedClient(req.session.protectedResources["graphAPI"].accessToken);
+        const graphClient = msGraph.getAuthenticatedClient(req.session.protectedResources["msGraphAcrs"].accessToken);
 
         let acrs = await graphClient
             .api('/identity/conditionalAccess/authenticationContextClassReferences')
-		    .version('beta')
-		    .get();
+            .version('beta')
+            .get();
 
-        // check if acrs is empty   
+        // check if acrs is empty
         if (acrs.value.length === 0) {
 
             defaultAcrsList = [
@@ -82,7 +83,7 @@ exports.postDashboardPage = async(req, res, next) => {
             try {
 
                 // create default auth contexts
-                defaultAcrsList.forEach(async(ac) => {
+                defaultAcrsList.forEach(async (ac) => {
                     await graphClient
                         .api('/identity/conditionalAccess/authenticationContextClassReferences')
                         .version('beta')
@@ -93,12 +94,11 @@ exports.postDashboardPage = async(req, res, next) => {
             } catch (error) {
                 next(error);
             }
-        } 
-            
-        res.render('dashboard', { isAuthenticated: req.session.isAuthenticated, isLoaded: true, acrsList: acrs.value });  
+        }
+
+        res.render('dashboard', { isAuthenticated: req.session.isAuthenticated, isLoaded: true, acrsList: acrs.value });
     } catch (error) {
         console.log(error);
         next(error);
     }
 }
-    

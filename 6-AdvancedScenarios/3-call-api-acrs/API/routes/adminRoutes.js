@@ -19,7 +19,7 @@ module.exports = (authProvider) => {
         '/dashboard',
         authProvider.isAuthenticated(),
         authProvider.getToken({
-            resource: authProvider.appSettings.protectedResources.graphAPI
+            resource: authProvider.appSettings.protectedResources.msGraphAcrs
         }),
         dashboardController.getDashboardPage
     );
@@ -31,19 +31,19 @@ module.exports = (authProvider) => {
     );
 
     router.get(
-        '/details', 
+        '/details',
         authProvider.isAuthenticated(),
         dashboardController.getDetailsPage
     );
 
     router.post(
-        '/details', 
+        '/details',
         authProvider.isAuthenticated(),
         dashboardController.postDetailsPage
     );
 
     router.delete(
-        '/details', 
+        '/details',
         authProvider.isAuthenticated(),
         dashboardController.deleteDetailsPage
     );

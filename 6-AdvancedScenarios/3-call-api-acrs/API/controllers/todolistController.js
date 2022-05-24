@@ -1,11 +1,10 @@
 const Todo = require('../models/todo');
 
-exports.getTodo = (req, res) => {
+exports.getTodo = async(req, res) => {
     const id = req.params.id;
-    const owner = req.authInfo['preferred_username'];
 
     try {
-        const todo = Todo.getTodo(owner, id);
+        const todo = await Todo.getTodo(id);
         res.status(200).send(todo);
     } catch (error) {
         console.log(error);
@@ -13,11 +12,11 @@ exports.getTodo = (req, res) => {
     }
 }
 
-exports.getTodos = (req, res) => {
+exports.getTodos = async(req, res) => {
     const owner = req.authInfo['preferred_username'];
 
     try {
-        const todos = Todo.getTodos(owner);
+        const todos = await Todo.getTodos(owner);
         res.status(200).send(todos);
     } catch (error) {
         console.log(error);
@@ -25,42 +24,40 @@ exports.getTodos = (req, res) => {
     }
 }
 
-exports.postTodo = (req, res) => {
+exports.postTodo = async(req, res, next) => {
     const id = req.body.id;
     const name = req.body.name;
     const owner = req.authInfo['preferred_username'];
+    const completed = req.body.completed;
 
-    const newTodo = new Todo(id, name, owner);
+    const newTodo = new Todo(id, name, owner, completed);
 
     try {
-        Todo.postTodo(newTodo);
-        res.status(200).json({ message: "success" });   
+        let todoItem = await Todo.postTodo(newTodo);
+        res.status(200).json({ message: "success", id: todoItem.insertedId });
     } catch (error) {
         console.log(error);
         next(error);
     }
 }
 
-exports.updateTodo = (req, res) => {
+exports.updateTodo = async(req, res, next) => {
     const id = req.params.id;
-    const owner = req.authInfo['preferred_username'];
 
     try {
-        Todo.updateTodo(owner, id, req.body)
-        res.status(200).json({ message: "success" });   
+        await Todo.updateTodo(id, req.body)
+        res.status(200).json({ message: "success" });
     } catch (error) {
         console.log(error);
         next(error);
     }
 }
 
-exports.deleteTodo = (req, res) => {
-    const id = req.params.id;;
-    const owner = req.authInfo['preferred_username'];
-
+exports.deleteTodo = async(req, res, next) => {
+    const id = req.params.id;
     try {
-        Todo.deleteTodo(id, owner);
-        res.status(200).json({ message: "success" });   
+        await Todo.deleteTodo(id);
+        res.status(200).json({ message: "success" });
     } catch (error) {
         console.log(error);
         next(error);
