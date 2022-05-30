@@ -3,11 +3,10 @@ const AuthContext = require('../models/authContext');
 
 const authContextGuard = async (req, res, next) => {
     const acrs = await AuthContext.getAuthContexts();
-    const isPut = req.method === "PUT";
 
     const authContext = acrs
         .filter(ac => ac.tenantId === req.authInfo.tid)
-        .find(ac => isPut ? ac.operation === 'UPDATE' : ac.operation === req.method)
+        .find(ac => ac.operation === req.method)
 
     if (!!authContext) {
         // if found, check the request for the required claims

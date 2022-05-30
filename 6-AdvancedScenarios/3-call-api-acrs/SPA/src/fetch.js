@@ -1,8 +1,7 @@
 import { BrowserAuthError } from "@azure/msal-browser";
-import { protectedResources } from "./authConfig";
+import { msalConfig, protectedResources } from "./authConfig";
 import { msalInstance } from "./index";
-import { addClaimsToStorage, callAPI } from "./util/Util";
-
+import { addClaimsToStorage, callAPI } from "./utils/storageUtils";
 
 const getToken = async (method) => {
     const account = msalInstance.getActiveAccount();
@@ -20,7 +19,8 @@ const getToken = async (method) => {
     const tokenRequest = {
         account: account,
         scopes: protectedResources.apiTodoList.scopes,
-        claims: localStorage.getItem(method) ? window.atob(localStorage.getItem(method)) : null //atob is a function that decodes the encoded claim challenge
+        claims: localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${method}`) ?
+            window.atob(localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${method}`)) : null
     }
 
     const response = await msalInstance.acquireTokenSilent(tokenRequest);
@@ -38,6 +38,8 @@ const getToken = async (method) => {
  */
 const handleClaimsChallenge = async (response, options, id = "") => {
     if (response.status === 401) {
+        const account = msalInstance.getActiveAccount();
+
         if (response.headers.get('www-authenticate')) {
             let token;
             const authenticateHeader = response.headers.get("www-authenticate");
@@ -45,8 +47,12 @@ const handleClaimsChallenge = async (response, options, id = "") => {
                 .find(entry => entry.includes("claims=")).split('claims="')[1].split('",')[0];
 
             try {
-                // add claims challenge to localStorage
-                addClaimsToStorage(claimsChallenge, options["method"])
+                /**
+                 * Here we add the claims challenge to localStorage, using <cc.appId.userId.method> scheme as key
+                 * This allows us to use the claim challenge string as a parameter in subsequent acquireTokenSilent calls
+                 * as MSAL will cache access tokens with different claims separately
+                 */
+                addClaimsToStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${options["method"]}`, claimsChallenge)
 
                 token = await msalInstance.acquireTokenPopup({
                     claims: window.atob(claimsChallenge), // decode the base64 string
@@ -54,8 +60,11 @@ const handleClaimsChallenge = async (response, options, id = "") => {
                 });
 
                 if (token) {
-                    //call the API with the new access token
-                    return callAPI(options, id)
+                    /**
+                     * Call the API automatically with the new access token
+                     * This is purely for user experience.
+                     */
+                    return callAPI(options, id);
                 }
 
             } catch (error) {
@@ -63,7 +72,7 @@ const handleClaimsChallenge = async (response, options, id = "") => {
                 if (error instanceof BrowserAuthError &&
                     (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error")) {
 
-                    // add claims challenage to localSorage
+                    // add claims challenge to localStorage
                     addClaimsToStorage(claimsChallenge, options["method"])
 
                     token = await msalInstance.acquireTokenRedirect({
@@ -71,10 +80,12 @@ const handleClaimsChallenge = async (response, options, id = "") => {
                         scopes: protectedResources.apiTodoList.scopes
                     });
 
-
                     if (token) {
-                        //call the API with the new access token
-                        return callAPI(options, id)
+                        /**
+                         * Call the API automatically with the new access token
+                         * This is purely for user experience.
+                         */
+                        return callAPI(options, id);
                     }
 
                 }
@@ -128,6 +139,7 @@ export const getTask = async (id) => {
 export const postTask = async (task) => {
     const method = "POST"
     const accessToken = await getToken(method);
+
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -139,6 +151,7 @@ export const postTask = async (task) => {
         headers: headers,
         body: JSON.stringify(task)
     };
+
     return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
         .then((res) => handleClaimsChallenge(res, options))
         .catch(error => console.log(error));

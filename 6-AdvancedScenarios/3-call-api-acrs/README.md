@@ -17,7 +17,7 @@
 
 This sample demonstrates how to use the Conditional Access [Authentication Context](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context) feature to achieve granular access control and demand a higher bar of authentication for certain sensitive operations (e.g. HTTP DELETE requests) on an Express.js [protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview) called by a client React single-page application (SPA).
 
-The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [msal-express-wrapper](https://github.com/Azure-Samples/msal-express-wrapper) to acquire access tokens and [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for querying Microsoft Graph. For storing data, the [Azure Cosmos DB API for MongoDB](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) is used. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
+The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [microsoft-identity-express](https://github.com/Azure-Samples/microsoft-identity-express) to acquire access tokens and [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for querying Microsoft Graph. For storing data, the [Azure Cosmos DB API for MongoDB](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) is used. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
 
 > :information_source: Check out the recorded session on this topic: [Use Conditional Access Auth Context in your app for step-up authentication](https://www.youtube.com/watch?v=_iO7CfoktTY&ab_channel=Microsoft365Community)
 
@@ -37,8 +37,8 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 | `SPA/src/index.js`                  | MSAL React is initialized here.                                                       |
 | `SPA/src/fetch.js`                  | Claims challenge for the client is handled here.                                      |
 | `API/.env`                          | Authentication parameters for the web API project.                                    |
-| `API/utils/guard.js`                | Custom middleware protecting app routes                                               |
-| `API/utils/claims.js`               | Custom middleware handling checking for auth context and generating claims challenge. |
+| `API/utils/routeGuard.js`           | Custom middleware protecting app routes                                               |
+| `API/utils/claimsManager.js`        | Custom middleware handling checking for auth context and generating claims challenge. |
 | `API/app.js`                        | passport-azure-ad is initialized here.                                                |
 
 ## Prerequisites
@@ -77,6 +77,16 @@ or download and extract the repository .zip file.
     cd SPA
     npm install
 ```
+
+### Create an Azure Cosmos DB for MongoDB instance
+
+1. From the Azure portal menu or the **Home** page, select **Create a resource**.
+1. On the New page, search for and select **Azure Cosmos DB**.
+1. On the **Select API option** page, select the **Azure Cosmos DB API for MongoDB** option.
+1. In the Create Azure Cosmos DB Account page, enter the basic settings for the new Azure Cosmos account (Subscription, Resource Group, Account Name etc.).
+1. Once you are done, select **Review + create** and your MongoDB instance will be created.
+1. Navigate to your newly created Azure CosmosDB resource, and select the **Connection String** blade to the left.
+1. Copy and note down the **primary connection string**, which you will use later in sample configuration parameters.
 
 ### Register the sample application(s) with your Azure Active Directory tenant
 
@@ -318,7 +328,7 @@ app.use('/api',
 );
 ```
 
-The `routeGuard` middleware checks the mock database for any auth context entries, and inspects the access token in the authorization header of the incoming request to see if it contains the necessary claims. If it does, it passes the request to the next middleware in chain. If it doesn't, the `checkForRequiredAuthContext` middleware takes over. This is shown in [routeGuard.js](./API/utils/routeGuard.js):
+The `routeGuard` middleware checks the database for any auth context entries, and inspects the access token in the authorization header of the incoming request to see if it contains the necessary claims. If it does, it passes the request to the next middleware in chain. If it doesn't, the `checkForRequiredAuthContext` middleware takes over. This is shown in [routeGuard.js](./API/utils/routeGuard.js):
 
 ```javascript
 const authContextGuard = (req, res, next) => {
@@ -330,7 +340,7 @@ const authContextGuard = (req, res, next) => {
     } else {
         const authContext = acrs.find(ac => ac.operation === req.method && ac.tenantId === req.authInfo.tid); 
 
-        if (authContext) {
+        if (!!authContext) {
             // if found, check the request for the required claims
             return checkForRequiredAuthContext(req, res, next, authContext.authContextId);
         }
@@ -372,7 +382,7 @@ const isClientCapableOfClaimsChallenge = (accessTokenClaims) => {
 
 ### Generating claims challenge
 
-If there is an auth context entry in the mock database and the incoming request does not contain an access token with the necessary claims, the web API needs to create a **claims challenge** and send it to client application to allow the user to satisfy the challenge (for instance, perform multi-factor authentication). This is shown in [claimsManager.js](./API/utils/claimsManager.js):
+If there is an auth context entry in the database and the incoming request does not contain an access token with the necessary claims, the web API needs to create a **claims challenge** and send it to client application to allow the user to satisfy the challenge (for instance, perform multi-factor authentication). This is shown in [claimsManager.js](./API/utils/claimsManager.js):
 
 ```javascript
 const generateClaimsChallenge = (authContextId) => {

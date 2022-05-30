@@ -3,7 +3,7 @@ import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/
 import { Nav, Navbar, Button } from "react-bootstrap";
 
 import { loginRequest } from "../authConfig";
-import { clearStorage } from "../util/Util";
+import { clearStorage } from "../utils/storageUtils";
 
 export const NavigationBar = () => {
 
@@ -12,6 +12,7 @@ export const NavigationBar = () => {
 
     const handleLogoutPopup = () => {
         clearStorage();
+
         instance.logoutPopup({
             postLogoutRedirectUri: "/",
             mainWindowRedirectUri: "/"
