@@ -1,0 +1,118 @@
+{
+  "Sample": {
+    "Author": "Salman Salem",
+    "Title": "Hybrid SPA sample",
+    "Level": 300,
+    "Client": "React SPA",
+    "Service": "Node.js webapp",
+    "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+    "Endpoint": "AAD v2.0",
+    "Languages": [
+      "JavaScript"
+    ],
+    "Description": "This sample demonstrates an Express web app calling a React SPA using the Hybrid SPA flow",
+    "Products": [
+      "React",
+      "Express"
+    ]
+  },
+  "ReadmeScenario": {
+    "IncludeFilePath": "../ReadmeFiles/ReadmeScenario.md"
+  },
+  "ReadmePrerequirements": {
+    "IncludeFilePath": "../ReadmeFiles/ReadmePrerequirements.md"
+  },
+  "ReadmeSetup": {
+    "IncludeFilePath": "../ReadmeFiles/ReadmeSetup.md"
+  },
+  "ReadmeNextSteps": {
+    "IncludeFilePath": "../ReadmeFiles/ReadmeNextSteps.md"
+  },
+  "ReadmeContributing": {
+    "IncludeFilePath": "../ReadmeFiles/ReadmeContributing.md"
+  },
+  "ReadmeAboutTheCode": {
+    "IncludeFilePath": "../ReadmeFiles/ReadmeAboutTheCode.md"
+  },
+  "ReadmeLearnMore": {
+    "IncludeFilePath": "../ReadmeFiles/ReadmeLearnMore.md"
+  },
+  "ReadmeTroubleshooting": {
+    "IncludeFilePath": "../ReadmeFiles/ReadmeTroubleshooting.md"
+  },
+  "ReadmeCreateProject": {
+    "IncludeFilePath": "../ReadmeFiles/ReadmeCreateProject.md"
+  },
+  "AADApps": [
+    {
+      "Id": "service",
+      "Name": "msal-hybrid-spa",
+      "Kind": "WebApp",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "https://localhost:5000",
+      "ReplyUrls": "http://localhost:5000/redirect",
+      "PasswordCredentials": "Auto",
+      "Sample": {
+        "SampleSubPath": "6-AdvancedScenarios\\4-sign-in-hybrid\\App",
+        "ProjectDirectory": "\\4-sign-in-hybrid\\App"
+      },
+      "ManualSteps": [
+        {
+          "Comment": "Navigate to the Token configuration page, find the 'Add optional claim' section, select `ID`, then select `sid` and ' login_hint` claims"
+        }
+      ],
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "Microsoft Graph",
+          "DelegatedPermissions": [
+            "User.Read"
+          ]
+        }
+      ]
+    }
+  ],
+  "CodeConfiguration": [
+    {
+      "App": "service",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\App\\.env",
+      "Mappings": [
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": ".AppId"
+        },
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        },
+        {
+          "key": "Enter_the_Client_Secret_Here",
+          "value": ".AppKey"
+        },
+        {
+          "key": "Enter_the_Audience_Here",
+          "value": ".AppId"
+        },
+        {
+          "key": "Redirect_URI",
+          "value": ".ReplyUrls"
+        }
+      ]
+    },
+    {
+      "App": "service",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\App\\client\\src\\authConfig.js",
+      "Mappings": [
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": ".AppId"
+        },
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        }
+      ]
+    }
+  ]
+}
