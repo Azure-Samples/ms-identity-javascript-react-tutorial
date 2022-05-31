@@ -98,8 +98,9 @@ Alternatively, choose below the sample you want to review.
 | <img src="./6-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call a web API that calls Microsoft Graph on behalf of a user**](./6-AdvancedScenarios/1-call-api-obo/README.md) </br> Enhance your protected web API to acquire an **Access Token** for Microsoft Graph **on-behalf-of** a user signed-in to the client app. Enable **Conditional Access** for your downstream API and handle **MFA** requirement. |
 | <img src="./6-AdvancedScenarios/2-call-api-pop/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Proof of Possession tokens**](./6-AdvancedScenarios/2-call-api-pop/README.md) </br> Acquire proof of possession (PoP) tokens. Learn how to prevent token replay attacks with PoP authentication scheme. Learn how to validate PoP tokens.|
 | <img src="./6-AdvancedScenarios/3-call-api-acrs/ReadmeFiles/topology.png" width="200"> | [**Use Conditional Access Authentication Context**](./6-AdvancedScenarios/3-call-api-acrs/README.md) </br> Enable conditional access for your web API. Use auth context to implement granular access control to resources. Handle claims challenge in client applications. |
+| <img src="./6-AdvancedScenarios/4-sign-in-hybrid/ReadmeFiles/topology.png" width="200"> | [**Use Conditional Access Authentication Context**](./6-AdvancedScenarios/4-sign-in-hybrid/README.md) </br> Authenticate users both server side and client side. Use hybrid SPA flow to achieve SSO between backend and frontend applications. |
 
-## We'd love your feedback!
+## We'd love your feedback
 
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu).
 
