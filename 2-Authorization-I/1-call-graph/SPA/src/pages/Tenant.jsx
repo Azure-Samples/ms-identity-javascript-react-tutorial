@@ -20,37 +20,22 @@ const TenantContent = () => {
     const account = useAccount(accounts[0] || {});
     const [tenantData, setTenantData] = useState(null);
 
-    useEffect(() => {
-
-        /**
-         * In order to get the direct response from calling acquireTokenRedirect() API, register an event
-         * and listen for ACQUIRE_TOKEN_SUCCESS. Make sure to remove the event once component unmounts. For more, 
-         * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
-         */
-
-        // This will be run on component mount
-        const callbackId = instance.addEventCallback((message) => {
-            // This will be run every time an event is emitted after registering this callback
-            if (message.eventType === EventType.ACQUIRE_TOKEN_SUCCESS) {
-                const response = message.payload;
-
-                // Do something with the response
-                callApiWithToken(response.accessToken, protectedResources.armTenants.endpoint)
-                    .then(response => setTenantData(response));
-            }
-        });
-        return () => {
-            // This will be run on component unmount
-            if (callbackId) {
-                instance.removeEventCallback(callbackId);
-            }
-        }
-    }, [account, inProgress, instance]);
-
     const requestTenantData = () => {
-        instance.acquireTokenRedirect({
-            scopes: protectedResources.armTenants.scopes,
-        }).catch(error => console.log(error))
+        if (inProgress === "none") {
+          instance
+            .acquireTokenPopup({
+              scopes: protectedResources.armTenants.scopes,
+              account: account,
+            })
+            .then((response) => {
+              console.log(response.accessToken);
+              callApiWithToken(
+                response.accessToken,
+                protectedResources.armTenants.endpoint
+              ).then((response) => setTenantData(response));
+            })
+            .catch((error) => console.log(error));
+        }
     }
 
     return (

@@ -1,13 +1,14 @@
 import React from "react";
-import ReactDOM from "react-dom";
-
+import { createRoot } from "react-dom/client";
 import { PublicClientApplication } from "@azure/msal-browser";
-
 import { App } from "./App.jsx";
 import { msalConfig } from "./authConfig";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles/index.css";
+
+const container = document.getElementById("root");
+const root = createRoot(container);
+
 
 /**
  * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders. 
@@ -22,9 +23,8 @@ if (accounts.length > 0) {
   msalInstance.setActiveAccount(accounts[0]);
 }
 
-ReactDOM.render(
+root.render(
   <React.StrictMode>
     <App instance={msalInstance} />
-  </React.StrictMode>,
-  document.getElementById('root')
+  </React.StrictMode>
 );

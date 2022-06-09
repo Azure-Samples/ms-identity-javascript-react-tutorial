@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { MsalProvider } from "@azure/msal-react";
 
@@ -11,18 +11,12 @@ import "./styles/App.css";
 
 const Pages = () => {
   return (
-    <Switch>
-      <Route path="/profile">
-        <Profile />
-      </Route>
-      <Route path="/mails">
-        <Mails />
-      </Route>
-      <Route path="/tenant">
-        <Tenant />
-      </Route>
-    </Switch>
-  )
+    <Routes>
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/mails" element={<Mails />} />
+      <Route path="/tenant" element={<Tenant />} />
+    </Routes>
+  );
 }
 
 /**
