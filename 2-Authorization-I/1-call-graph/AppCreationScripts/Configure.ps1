@@ -134,7 +134,7 @@ Function ConfigureApplications
    $spaAadApplication = New-MgApplication -DisplayName "ms-identity-react-c2s1" `
                                                    -Spa `
                                                    @{ `
-                                                       RedirectUris = "http://localhost:3000/"; `
+                                                       RedirectUris = "http://localhost:3000/redirect"; `
                                                      } `
                                                     -SignInAudience AzureADMyOrg `
                                                    #end of command
@@ -181,7 +181,7 @@ Function ConfigureApplications
     
     # Update config file for 'spa'
     $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Redirect_Uri" = $spaAadApplication.Spa.RedirectUris[0] };
 
     Write-Host "Updating the sample code ($configFile)"
 

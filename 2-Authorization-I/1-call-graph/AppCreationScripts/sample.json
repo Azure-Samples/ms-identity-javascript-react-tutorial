@@ -12,7 +12,7 @@
             "Name": "ms-identity-react-c2s1",
             "Kind": "SinglePageApplication",
             "HomePage": "http://localhost:3000/",
-            "ReplyUrls": "http://localhost:3000/",
+            "ReplyUrls": "http://localhost:3000/redirect",
             "Audience": "AzureADMyOrg",
             "RequiredResourcesAccess": [
                 {
@@ -39,6 +39,10 @@
                 {
                     "key": "Enter_the_Tenant_Info_Here",
                     "value": "$tenantId"
+                },
+                {
+                    "key": "Enter_the_Redirect_Uri",
+                    "value": "$spaAadApplication.Spa.RedirectUris[0]"
                 }
             ]
         }
