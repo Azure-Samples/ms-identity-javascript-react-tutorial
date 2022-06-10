@@ -6,6 +6,7 @@ import { PageLayout } from "./components/PageLayout";
 import { Mails } from "./pages/Mails";
 import { Tenant } from "./pages/Tenant";
 import { Profile } from "./pages/Profile";
+import { Redirect } from './pages/Redirect';
 
 import "./styles/App.css";
 
@@ -15,6 +16,7 @@ const Pages = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/mails" element={<Mails />} />
       <Route path="/tenant" element={<Tenant />} />
+      <Route path="/redirect" element={<Redirect />} />
     </Routes>
   );
 }
