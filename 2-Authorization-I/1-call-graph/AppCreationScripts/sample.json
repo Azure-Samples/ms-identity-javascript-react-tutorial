@@ -23,7 +23,10 @@
               "Resource": "Windows Azure Service Management API",
               "DelegatedPermissions": ["user_impersonation"]
             }
-          ]
+          ],
+          "OptionalClaims": {
+            "IdTokenClaims": ["sid", "login_hint"]
+          }
         }
     ],
     "CodeConfiguration": [

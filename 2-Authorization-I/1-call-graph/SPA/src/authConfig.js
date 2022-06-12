@@ -18,7 +18,7 @@ export const msalConfig = {
     postLogoutRedirectUri: "Enter_the_Post_Redirect_Uri", // Indicates the page to navigate after logout.
   },
   cache: {
-    cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+    cacheLocation: "localStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
     storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
   },
   system: {

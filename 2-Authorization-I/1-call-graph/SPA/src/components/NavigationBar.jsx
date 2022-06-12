@@ -1,17 +1,24 @@
+import { useState } from "react";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
-
-import { Nav, Navbar, Button, Dropdown, DropdownButton, Container} from "react-bootstrap";
-
+import { Nav, Navbar, Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { loginRequest } from "../authConfig";
+import { AccountPicker } from  "./AccountPicker";
+
+
 
 export const NavigationBar = () => {
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const { instance } = useMsal();
 
-    const { instance } = useMsal();
+  const handleLogin = () => {
+    instance.loginPopup(loginRequest)
+      .catch((error) => console.log(error))
+  }
 
-    const handleLogin = () => {
-        instance.loginPopup(loginRequest)
-            .catch((error) => console.log(error))
-    }
+
+  const handleSwitchAccount = () => {
+    setShowDatePicker(!showDatePicker);
+  }
     
 
     /**
@@ -36,11 +43,10 @@ export const NavigationBar = () => {
               Tenant
             </Nav.Link>
             <div className="collapse navbar-collapse justify-content-end">
-              <DropdownButton
-                variant="warning"
-                drop="start"
-                title="Sign Out"
-              >
+              <DropdownButton variant="warning" drop="start" title="Sign Out">
+                <Dropdown.Item as="button" onClick={handleSwitchAccount}>
+                  Switch account
+                </Dropdown.Item>
                 <Dropdown.Item
                   as="button"
                   onClick={() =>
@@ -84,6 +90,10 @@ export const NavigationBar = () => {
             </div>
           </UnauthenticatedTemplate>
         </Navbar>
+        <AccountPicker
+          show={showDatePicker}
+          handleSwitchAccount={handleSwitchAccount}
+        />
       </>
     );
 };
