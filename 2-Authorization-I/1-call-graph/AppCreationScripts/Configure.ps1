@@ -180,6 +180,12 @@ Function ConfigureApplications
     $optionalClaims.IdToken += ($newClaim)
     $newClaim =  CreateOptionalClaim  -name "login_hint" 
     $optionalClaims.IdToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "email" 
+    $optionalClaims.IdToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "upn" 
+    $optionalClaims.IdToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "acct" 
+    $optionalClaims.IdToken += ($newClaim)
     Update-MgApplication -ApplicationId $spaAadApplication.Id -OptionalClaims $optionalClaims
     Write-Host "Done creating the spa application (ms-identity-react-c2s1)"
 

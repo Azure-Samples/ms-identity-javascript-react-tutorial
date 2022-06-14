@@ -25,7 +25,7 @@
             }
           ],
           "OptionalClaims": {
-            "IdTokenClaims": ["sid", "login_hint"]
+            "IdTokenClaims": ["sid", "login_hint", "email", "upn", "acct"]
           }
         }
     ],

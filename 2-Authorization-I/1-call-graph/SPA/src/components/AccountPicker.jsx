@@ -1,79 +1,86 @@
-import { Modal, ListGroup } from "react-bootstrap";
-import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "../authConfig";
-import { BsPersonPlus, BsPersonCircle } from "react-icons/bs";
-import { InteractionRequiredAuthError } from "@azure/msal-browser";
-import { IconContext } from "react-icons";
+import { Modal, ListGroup } from 'react-bootstrap';
+import { useMsal } from '@azure/msal-react';
+import { loginRequest } from '../authConfig';
+import { BsPersonPlus, BsPersonCircle } from 'react-icons/bs';
+import { InteractionRequiredAuthError } from '@azure/msal-browser';
+import { IconContext } from 'react-icons';
+import styles from '../styles/AccountPicker.module.css';
 
 export const AccountPicker = (props) => {
     const { instance, accounts } = useMsal();
 
-    const handleListItemClick = (account) => {
+    const handleListItemClick = async (account) => {
         const activeAccount = instance.getActiveAccount();
-        if(!account){
+        if (!account) {
             instance.setActiveAccount(account);
             instance.loginRedirect({
                 ...loginRequest,
-                prompt: "login"
+                prompt: 'login',
             });
-        } else if(account && activeAccount.homeAccountId != account.homeAccountId){
-          const { idTokenClaims } = account;
-          instance.setActiveAccount(account);
-          instance
-            .ssoSilent({
-              scopes: loginRequest.scopes,
-              login_hint: idTokenClaims.login_hint,
-            }).catch((error) => {
-              if(error instanceof InteractionRequiredAuthError){
-                 instance.loginRedirect({
-                   ...loginRequest,
-                   prompt: "login",
-                 });
-              }
-            });
-        }
-    }
+        } else if (account && activeAccount.homeAccountId != account.homeAccountId) {
+            instance.setActiveAccount(account);
+            try {
+                await instance.ssoSilent({
+                    ...loginRequest,
+                    account: account,
+                });
 
-  return (
-    <>
-      <Modal show={props.show} onHide={props.handleSwitchAccount}>
-        <Modal.Header closeButton>
-          <Modal.Title>Set active account</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <ListGroup as="ul">
-            {accounts.map((account) => (
-              <ListGroup.Item
-                as="li"
-                active={
-                  instance.getActiveAccount().localAccountId ===
-                  account.localAccountId ? true : false
+                props.handleSwitchAccount(false);
+
+                // To ensure account related page attributes update after the account is changed
+                window.location.reload();
+            } catch (error) {
+                if (error instanceof InteractionRequiredAuthError) {
+                    instance.loginRedirect({
+                        ...loginRequest,
+                        prompt: 'login',
+                    });
                 }
-                key={account.homeAccountId}
-                onClick={() => handleListItemClick(account)}
-                style={{ flexDirection: "row", display: "flex" }}
-                className="flex-row align-items-start"
-              >
-                <IconContext.Provider value={{ size: "1.5rem" }}>
-                  <BsPersonCircle />
-                </IconContext.Provider>
-                <p style={{ margin: "0 .5rem" }}>{account.name}</p>
-              </ListGroup.Item>
-            ))}
-            <ListGroup.Item
-              className="flex-row align-items-start"
-              style={{ flexDirection: "row", display: "flex" }}
-              as="li"
-              onClick={() => handleListItemClick(null)}
-            >
-              <IconContext.Provider value={{ size: "1.5rem" }}>
-                <BsPersonPlus />
-              </IconContext.Provider>
-              <p style={{ margin: "0 .5rem" }}>New Account</p>
-            </ListGroup.Item>
-          </ListGroup>
-        </Modal.Body>
-      </Modal>
-    </>
-  );
+            }
+        } else {
+            props.handleSwitchAccount(false);
+        }
+    };
+
+    return (
+        <>
+            <Modal show={props.show} onHide={props.handleSwitchAccount}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Set active account</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <ListGroup as="ul">
+                        {accounts.map((account) => (
+                            <ListGroup.Item
+                                as="li"
+                                role="button"
+                                active={
+                                    instance.getActiveAccount().localAccountId === account.localAccountId ? true : false
+                                }
+                                key={account.homeAccountId}
+                                onClick={() => handleListItemClick(account)}
+                                className="d-flex flex-row align-items-start"
+                            >
+                                <IconContext.Provider value={{ size: '1.5rem' }}>
+                                    <BsPersonCircle />
+                                </IconContext.Provider>
+                                <p className={styles.iconText}>{account.name}</p>
+                            </ListGroup.Item>
+                        ))}
+                        <ListGroup.Item
+                            className="d-flex flex-row align-items-start"
+                            as="li"
+                            role="button"
+                            onClick={() => handleListItemClick(null)}
+                        >
+                            <IconContext.Provider value={{ size: '1.5rem' }}>
+                                <BsPersonPlus />
+                            </IconContext.Provider>
+                            <p className={styles.iconText}>New Account</p>
+                        </ListGroup.Item>
+                    </ListGroup>
+                </Modal.Body>
+            </Modal>
+        </>
+    );
 };
