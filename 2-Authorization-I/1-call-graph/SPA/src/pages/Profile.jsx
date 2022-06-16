@@ -1,61 +1,49 @@
-import { useEffect, useState } from "react";
-
-import { MsalAuthenticationTemplate, useMsal, useAccount } from "@azure/msal-react";
-import { InteractionType } from "@azure/msal-browser";
-
-import { loginRequest } from "../authConfig";
-import { ProfileData } from "../components/DataDisplay";
-import { getGraphClient } from "../graph";
-import { protectedResources } from "../authConfig";
+import { useEffect, useState } from 'react';
+import { MsalAuthenticationTemplate } from '@azure/msal-react';
+import { InteractionType } from '@azure/msal-browser';
+import { loginRequest } from '../authConfig';
+import { ProfileData } from '../components/DataDisplay';
+import { protectedResources } from '../authConfig';
+import useTokenAcquisition from '../customHooks/useTokenAcquisition';
+import { getGraphClient } from '../graph';
 
 const ProfileContent = () => {
-    /**
-     * useMsal is hook that returns the PublicClientApplication instance, 
-     * an array of all accounts currently signed in and an inProgress value 
-     * that tells you what msal is currently doing. For more, visit: 
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
-     */
-    const { instance, accounts, inProgress } = useMsal();
-    const account = useAccount(accounts[0] || {});
+    const [response] = useTokenAcquisition(protectedResources.graphMe.scopes);
     const [graphData, setGraphData] = useState(null);
-
     useEffect(() => {
-        if (account && inProgress === "none" && !graphData) {
-            getGraphClient({
-                account: instance.getActiveAccount(), 
-                scopes: protectedResources.graphMe.scopes, 
-                interactionType: InteractionType.Popup
-            }).api("/me").get()
-                    .then((response) => setGraphData(response))
-                    .catch((error) => console.log(error));
-        }
-    }, [account, inProgress, instance]);
+        const fetchData = async () => {
+            if (response && !graphData) {
+                try {
+                    const graphClient = getGraphClient(response.accessToken);
+                    let data = await graphClient.api(protectedResources.graphMe.endpoint).get();
+                    setGraphData(data);
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        };
 
-    return (
-        <>
-            { graphData ? <ProfileData graphData={graphData} /> : null}
-        </>
-    );
+        fetchData();
+    }, [response]);
+
+    return <>{graphData ? <ProfileData graphData={graphData} /> : null}</>;
 };
 
 /**
- * The `MsalAuthenticationTemplate` component will render its children if a user is authenticated 
- * or attempt to sign a user in. Just provide it with the interaction type you would like to use 
+ * The `MsalAuthenticationTemplate` component will render its children if a user is authenticated
+ * or attempt to sign a user in. Just provide it with the interaction type you would like to use
  * (redirect or popup) and optionally a [request object](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/request-response-object.md)
  * to be passed to the login API, a component to display while authentication is in progress or a component to display if an error occurs. For more, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
 export const Profile = () => {
     const authRequest = {
-        ...loginRequest
+        ...loginRequest,
     };
 
     return (
-        <MsalAuthenticationTemplate
-            interactionType={InteractionType.Popup}
-            authenticationRequest={authRequest}
-        >
+        <MsalAuthenticationTemplate interactionType={InteractionType.Popup} authenticationRequest={authRequest}>
             <ProfileContent />
         </MsalAuthenticationTemplate>
-    )
+    );
 };
