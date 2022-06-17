@@ -15,9 +15,9 @@
 
 ## Overview
 
-This sample demonstrates a React single-page application (SPA) calling [Microsoft Graph](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React). In addition, this sample also demonstrates how to user [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) client with MSAL as a custom authentication provider to call the Graph API.
+This sample demonstrates a React single-page application (SPA) calling [Microsoft Graph](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React). In addition, this sample also demonstrates how to use the [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) client with MSAL as a custom authentication provider to call the Graph API.
 
-> :information_source: Note that you are not required to implement a custom provider, as the v3.0 (preview) of the SDK offers a [default provider](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/AuthCodeMSALBrowserAuthenticationProvider.md) that implements MSAL.js.
+> :information_source: Note that you are not required to implement a custom provider, as the v3.0 of the SDK offers a [default provider](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/AuthCodeMSALBrowserAuthenticationProvider.md) that implements MSAL.js.
 
 Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-sign-in), [acquire a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token) and [call a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as [Dynamic Scopes and Incremental Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent), **working with multiple resources** and **securing your routes** and more.
 
@@ -36,13 +36,13 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 | `App.jsx`                           | Main application logic resides here.                                       |
 | `fetch.jsx`                         | Provides a helper method for making fetch calls using bearer token scheme. |
 | `graph.jsx`                         | Instantiates Graph SDK client                                              |
-| `customHooks/useTokenAcquisition.js`| Custom hook to handle token acquisition with MSAL.js                       |
 | `authConfig.js`                     | Contains authentication configuration parameters.                          |
 | `pages/Home.jsx`                    | Contains a table with ID token claims and description                      |
 | `pages/Redirect.jsx`                | Blank page for redirect purposes. When using popup and silent APIs         |
 | `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` endpoint vith Graph SDK.                       |
 | `pages/Mails.jsx`                   | Calls Microsoft Graph `/me/messages` endpoint vith Graph SDK.              |
 | `pages/Tenants.jsx`                 | Calls Microsoft Graph `/tenants` endpoint via fetch API.                   |
+| `hooks/useTokenAcquisition.js`      | Custom hook to handle token acquisition with MSAL.js                       |
 | `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js         |
 
 ## Prerequisites
@@ -123,7 +123,7 @@ As a first step you'll need to:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
 1. Select **Register** to create the application.
-1. In the app's registration screen, select Authentication in the menu.
+1. In the app's registration screen, select the **Authentication** blade.
    - If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
    - In the **Redirect URI** section enter the following redirect URIs:
      - `http://localhost:3000/`
@@ -152,8 +152,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `App\authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
-1. Find the key `Enter_the_Redirect_Uri` and replace the existing value with `http://localhost:3000/redirect`
-1. Find the key `Enter_the_Post_Redirect_Uri` and replace the existing value with `http://localhost:3000/`
 
 ## Running the sample
 
@@ -246,7 +244,9 @@ In the code snippet above, the user will be prompted for consent once they authe
 
 ### Acquire a Token
 
-**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from cache *silently*.
+**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from cache *silently*, or acquire a fresh access token using a non-expired refresh token. If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. In the sample, a custom hook named `useTokenAcquisition` is used to implement this logic.
+
+> :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called.
 
 ```javascript
 const useTokenAcquisition = (scopes) => {
@@ -265,15 +265,15 @@ const useTokenAcquisition = (scopes) => {
             if (account && inProgress === 'none' && !response) {
                  try {
                     token = await instance.acquireTokenSilent({
-                        scopes: scopes, //ex ["User.Read", "Mail.Read"]
+                        scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
                         account: account,
                     });
                     setResponse(token);
-                 }catch(error) {
-                    if(error instanceof InteractionRequiredAuthError) {
+                 } catch (error) {
+                    if (error instanceof InteractionRequiredAuthError) {
                         try {
                             token = await instance.acquireTokenPopup({
-                                 scopes: scopes, // ex ["User.Read", "Mail.Read"]
+                                 scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
                                  account: account,
                             });
                             setResponse(token);
@@ -292,14 +292,6 @@ const useTokenAcquisition = (scopes) => {
 
 export default useTokenAcquisition;
 ```
-
-If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. In the sample, each of these options are illustrated:
-
-- [Profile.jsx](./SPA/src/pages/Profile.jsx) uses `acquireTokenSilent` and falls back to `acquireTokenPopup` if interaction is required
-- [Tenant.jsx](./SPA/src/pages/Tenant.jsx) uses `acquireTokenSilent` and falls back to `acquireTokenRedirect` if interaction is required
-- [Mails.jsx](./SPA/src/pages/Mails.jsx) uses `acquireTokenRedirect` only.
-
-> :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called.
 
 ### Access Token validation
 
@@ -385,7 +377,6 @@ root.render(
         <App instance={msalInstance} />
     </React.StrictMode>
 );
-
 
 const App = ({pca}) => {
   return (

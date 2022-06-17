@@ -1,38 +1,12 @@
 /**
- *
- * @param {String} claim
- * @param {String} value
- * @param {String} description
- * @param {Number} index
- * @param {Object} claimsObject
- * Populates claim, description, and value into an claimsObject
- */
-const populateClaim = (claim, value, description, index, claimsObject) => {
-    let claimsArray = [];
-    claimsArray[0] = claim;
-    claimsArray[1] = value;
-    claimsArray[2] = description;
-    claimsObject[index] = claimsArray;
-};
-
-/**
- *
- * @param {String} date unix timestamp
- * @returns transforms  Unix timestamp to date and returns a string value of that date
- */
-const changeDateFormat = (date) => {
-    let dateObj = new Date(date * 1000);
-    return dateObj.toString();
-};
-
-/**
- *
- * @param {Object} claims  ID token calims
- * @returns Object ID token claims with description for each claim
+ * Populate claims table with appropriate description
+ * @param {Object} claims ID token claims
+ * @returns claimsObject
  */
 export const createClaimsTable = (claims) => {
     let claimsObj = {};
     let index = 0;
+
     Object.keys(claims).map((key) => {
         switch (key) {
             case 'aud':
@@ -174,5 +148,32 @@ export const createClaimsTable = (claims) => {
                 console.log('Claims not found');
         }
     });
+
     return claimsObj;
+};
+
+/**
+ * Populates claim, description, and value into an claimsObject
+ * @param {String} claim
+ * @param {String} value
+ * @param {String} description
+ * @param {Number} index
+ * @param {Object} claimsObject
+ */
+const populateClaim = (claim, value, description, index, claimsObject) => {
+    let claimsArray = [];
+    claimsArray[0] = claim;
+    claimsArray[1] = value;
+    claimsArray[2] = description;
+    claimsObject[index] = claimsArray;
+};
+
+/**
+* Transforms Unix timestamp to date and returns a string value of that date
+* @param {String} date Unix timestamp
+* @returns
+*/
+const changeDateFormat = (date) => {
+    let dateObj = new Date(date * 1000);
+    return dateObj.toString();
 };

@@ -170,49 +170,54 @@ In the code snippet above, the user will be prompted for consent once they authe
 
 ### Acquire a Token
 
-**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from cache *silently*.
+**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from cache *silently*, or acquire a fresh access token using a non-expired refresh token. If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. In the sample, a custom hook named `useTokenAcquisition` is used to implement this logic.
+
+> :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called.
 
 ```javascript
-export function App() {
-    const { instance, accounts, inProgress } = useMsal();
-    const account = useAccount(accounts[0]);
-    const [apiData, setApiData] = useState(null);
-
+const useTokenAcquisition = (scopes) => {
+    /**
+     * useMsal is hook that returns the PublicClientApplication instance,
+     * an array of all accounts currently signed in and an inProgress value
+     * that tells you what msal is currently doing. For more, visit:
+     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
+     */
+    const { instance, inProgress } = useMsal();
+    const account = instance.getActiveAccount();
+    const [response, setResponse] = useState(null);
     useEffect(() => {
-        if (account) {
-            instance.acquireTokenSilent({
-                scopes: ["User.Read"],
-                account: account
-            }).then((response) => {
-                if(response) {
-                    callMsGraph(response.accessToken).then((result) => setApiData(result));
-                }
-            });
+        const getToken = async () => {
+            let token;
+            if (account && inProgress === 'none' && !response) {
+                 try {
+                    token = await instance.acquireTokenSilent({
+                        scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
+                        account: account,
+                    });
+                    setResponse(token);
+                 } catch (error) {
+                    if (error instanceof InteractionRequiredAuthError) {
+                        try {
+                            token = await instance.acquireTokenPopup({
+                                 scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
+                                 account: account,
+                            });
+                            setResponse(token);
+                        } catch (error) {
+                            console.log(error);
+                        }
+                    }
+                 }
+            }
         }
-    }, [account, instance]);
+        getToken();
+    }, [account, inProgress, instance]);
 
-    if (accounts.length > 0) {
-        return (
-            <>
-                <span>There are currently {accounts.length} users signed in!</span>
-                {apiData && (<span>Data retrieved from API: {JSON.stringify(apiData)}</span>)}
-            </>
-        );
-    } else if (inProgress === "login") {
-        return <span>Login is currently in progress!</span>
-    } else {
-        return <span>There are currently no users signed in!</span>
-    }
-}
+    return [response];
+};
+
+export default useTokenAcquisition;
 ```
-
-If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. In the sample, each of these options are illustrated:
-
-- [Profile.jsx](./SPA/src/pages/Profile.jsx) uses `acquireTokenSilent` and falls back to `acquireTokenPopup` if interaction is required
-- [Tenant.jsx](./SPA/src/pages/Tenant.jsx) uses `acquireTokenSilent` and falls back to `acquireTokenRedirect` if interaction is required
-- [Mails.jsx](./SPA/src/pages/Mails.jsx) uses `acquireTokenRedirect` only.
-
-> :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called. 
 
 ### Access Token validation
 
@@ -220,80 +225,45 @@ Clients should treat access tokens as opaque strings, as the contents of the tok
 
 ### Calling the Microsoft Graph API
 
-[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with [clientOptions](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md) method, which contains an `authProvider` object of class **MyAuthenticationProvider** that handles the token acquisition process for the client.
+[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. The SDK has a default authentication provider that can be used in basic scenarios. To do so, we will initialize the Graph SDK client with [clientOptions](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md) method, which contains an `authProvider` object. We will pass the obtained access token to the `authProvider` object as shown in the code below:
 
 ```javascript
-export const getGraphClient = () => {
-    let clientOptions = {
-        authProvider: new MyAuthenticationProvider(),
-    };
+export const getGraphClient = (accessToken) => {
+    // Initialize Graph client
+    const client = Client.init({
+        // Use the provided access token to authenticate requests
+        authProvider: (done) => {
+            done(null, accessToken);
+        },
+    });
 
-    const graphClient = Client.initWithMiddleware(clientOptions);
-
-    return graphClient;
-}
-```
-
-**MyAuthenticationProvider** needs to implement the [IAuthenticationProvider](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/src/IAuthenticationProvider.ts) interface, which can be done as shown below:
-
-```javascript
-import { InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
-import { Client } from '@microsoft/microsoft-graph-client';
-import { msalInstance } from "./index";
-
-class MyAuthenticationProvider {
-
-    /**
-     * This method will get called before every request to the ms graph server
-     * This should return a Promise that resolves to an accessToken (in case of success) or rejects with error (in case of failure)
-     * Basically this method will contain the implementation for getting and refreshing accessTokens
-     */
-    getAccessToken() {
-        return new Promise(async (resolve, reject) => {
-            const account = msalInstance.getActiveAccount();
-            let response;
-
-            if (!account) {
-                throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
-            }
-
-            response = await msalInstance.acquireTokenSilent({
-                account: account,
-                scopes: scopes
-            });
-
-            if (response.accessToken) {
-                resolve(response.accessToken);
-            } else {
-                reject(Error('Failed to acquire an access token'));
-            }
-        });
-    }
-}
+    return client;
+};
 ```
 
 See [graph.js](./SPA/src/graph.js). The Graph client then can be used in your components as shown below:
 
 ```javascript
 const ProfileContent = () => {
-    const { instance, accounts, inProgress } = useMsal();
-    const account = useAccount(accounts[0] || {});
+    const [response] = useTokenAcquisition(protectedResources.graphMe.scopes);
     const [graphData, setGraphData] = useState(null);
-
     useEffect(() => {
-        if (account && inProgress === "none" && !graphData) {
-            getGraphClient(instance.getActiveAccount(), protectedResources.graphMe.scopes, InteractionType.Popup)
-                .api("/me").get()
-                    .then((response) => setGraphData(response))
-                    .catch((error) => console.log(error));
-        }
-    }, [account, inProgress, instance]);
+        const fetchData = async () => {
+            if (response && !graphData) {
+                try {
+                    const graphClient = getGraphClient(response.accessToken);
+                    let data = await graphClient.api(protectedResources.graphMe.endpoint).get();
+                    setGraphData(data);
+                } catch (error) {
+                    console.log(error);
+                }
+            }
+        };
 
-    return (
-        <>
-            { graphData ? <ProfileData graphData={graphData} /> : null}
-        </>
-    );
+        fetchData();
+    }, [response]);
+
+    return <>{graphData ? <ProfileData graphData={graphData} /> : null}</>;
 };
 ```
 
@@ -328,11 +298,10 @@ You can use [React Router](https://reactrouter.com/) component in conjunction wi
 ```javascript
 const msalInstance = new PublicClientApplication(msalConfig);
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App pca={msalInstance} />
-  </React.StrictMode>,
-  document.getElementById('root')
+root.render(
+    <React.StrictMode>
+        <App instance={msalInstance} />
+    </React.StrictMode>
 );
 
 const App = ({pca}) => {
@@ -348,17 +317,16 @@ const App = ({pca}) => {
 }
 
 const Pages = () => {
-  return (
-    <Switch>
-      <Route path="/profile">
-        <Profile />
-      </Route>
-      <Route path="/">
-        <Home />
-      </Route>
-    </Switch>
-  )
-}
+    return (
+        <Routes>
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/mails" element={<Mails />} />
+            <Route path="/tenant" element={<Tenant />} />
+            <Route path="/redirect" element={<Redirect />} />
+            <Route path="/" element={<Home />} />
+        </Routes>
+    );
+};
 ```
 
 ### Securing your React routes
@@ -374,9 +342,7 @@ export const Profile = () => {
     return (
         <MsalAuthenticationTemplate 
             interactionType={InteractionType.Popup} 
-            authenticationRequest={authRequest} 
-            errorComponent={ErrorComponent} 
-            loadingComponent={Loading}
+            authenticationRequest={authRequest}
         >
             <ProfileContent />
         </MsalAuthenticationTemplate>

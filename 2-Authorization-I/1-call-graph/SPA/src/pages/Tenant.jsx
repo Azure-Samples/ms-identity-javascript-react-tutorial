@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { MsalAuthenticationTemplate } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
+
 import { loginRequest, protectedResources } from '../authConfig';
 import { callApiWithToken } from '../fetch';
 import { TenantData } from '../components/DataDisplay';
-import useTokenAcquisition from '../customHooks/useTokenAcquisition';
+
+import useTokenAcquisition from '../hooks/useTokenAcquisition';
 
 const TenantContent = () => {
     const [tenantData, setTenantData] = useState(null);
@@ -41,7 +43,10 @@ export const Tenant = () => {
     };
 
     return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
+        <MsalAuthenticationTemplate
+            interactionType={InteractionType.Redirect}
+            authenticationRequest={authRequest}
+        >
             <TenantContent />
         </MsalAuthenticationTemplate>
     );

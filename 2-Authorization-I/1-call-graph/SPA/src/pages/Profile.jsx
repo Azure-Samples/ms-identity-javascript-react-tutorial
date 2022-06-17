@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { MsalAuthenticationTemplate } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
+
 import { loginRequest } from '../authConfig';
 import { ProfileData } from '../components/DataDisplay';
 import { protectedResources } from '../authConfig';
-import useTokenAcquisition from '../customHooks/useTokenAcquisition';
 import { getGraphClient } from '../graph';
+
+import useTokenAcquisition from '../hooks/useTokenAcquisition';
 
 const ProfileContent = () => {
     const [response] = useTokenAcquisition(protectedResources.graphMe.scopes);
@@ -42,7 +44,10 @@ export const Profile = () => {
     };
 
     return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Popup} authenticationRequest={authRequest}>
+        <MsalAuthenticationTemplate
+            interactionType={InteractionType.Popup}
+            authenticationRequest={authRequest}
+        >
             <ProfileContent />
         </MsalAuthenticationTemplate>
     );

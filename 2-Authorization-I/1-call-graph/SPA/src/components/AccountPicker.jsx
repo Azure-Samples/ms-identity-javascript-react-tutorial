@@ -4,7 +4,6 @@ import { loginRequest } from '../authConfig';
 import { BsPersonPlus, BsPersonCircle } from 'react-icons/bs';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
 import { IconContext } from 'react-icons';
-import styles from '../styles/AccountPicker.module.css';
 
 export const AccountPicker = (props) => {
     const { instance, accounts } = useMsal();
@@ -64,7 +63,7 @@ export const AccountPicker = (props) => {
                                 <IconContext.Provider value={{ size: '1.5rem' }}>
                                     <BsPersonCircle />
                                 </IconContext.Provider>
-                                <p className={styles.iconText}>{account.name}</p>
+                                <p className="iconText">{account.name}</p>
                             </ListGroup.Item>
                         ))}
                         <ListGroup.Item
@@ -76,7 +75,7 @@ export const AccountPicker = (props) => {
                             <IconContext.Provider value={{ size: '1.5rem' }}>
                                 <BsPersonPlus />
                             </IconContext.Provider>
-                            <p className={styles.iconText}>New Account</p>
+                            <p className="iconText">New Account</p>
                         </ListGroup.Item>
                     </ListGroup>
                 </Modal.Body>

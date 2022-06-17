@@ -4,7 +4,6 @@ import { Nav, Navbar, Button, Dropdown, DropdownButton } from 'react-bootstrap';
 import { loginRequest } from '../authConfig';
 import { AccountPicker } from './AccountPicker';
 import { msalConfig } from '../authConfig';
-import styles from '../styles/Navigation.module.css';
 
 export const NavigationBar = () => {
     const [showProfilePicker, setShowProfilePicker] = useState(false);
@@ -31,18 +30,18 @@ export const NavigationBar = () => {
      */
     return (
         <>
-            <Navbar bg="primary" variant="dark" className={styles.navbarStyle}>
+            <Navbar bg="primary" variant="dark" className="navbarStyle">
                 <a className="navbar-brand" href="/">
                     Microsoft identity platform
                 </a>
                 <AuthenticatedTemplate>
-                    <Nav.Link className={styles.navbarButton} href="/profile">
+                    <Nav.Link className="navbarButton" href="/profile">
                         Profile
                     </Nav.Link>
-                    <Nav.Link as={Button} className={styles.navbarButton} href="/mails">
+                    <Nav.Link as={Button} className="navbarButton" href="/mails">
                         Mails
                     </Nav.Link>
-                    <Nav.Link as={Button} className={styles.navbarButton} href="/tenant">
+                    <Nav.Link as={Button} className="navbarButton" href="/tenant">
                         Tenant
                     </Nav.Link>
                     <div className="collapse navbar-collapse justify-content-end">

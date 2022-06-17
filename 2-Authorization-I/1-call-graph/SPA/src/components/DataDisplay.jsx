@@ -1,6 +1,7 @@
-import '../styles/App.css';
 import Table from 'react-bootstrap/Table';
-import { createClaimsTable } from '../utility/util';
+import { createClaimsTable } from '../utils/claimUtils';
+
+import '../styles/App.css';
 
 export const ProfileData = (props) => {
     const tableRows = Object.entries(props.graphData).map((entry, index) => {
@@ -77,7 +78,7 @@ export const MailsData = (props) => {
                         <strong>endpoint:</strong> <mark>https://graph.microsoft.com/v1.0/me/messages</mark>
                     </li>
                     <li>
-                        <strong>scope:</strong> <mark>user.read</mark>
+                        <strong>scope:</strong> <mark>mail.read</mark>
                     </li>
                 </ul>
                 <p>
