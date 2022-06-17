@@ -4,7 +4,7 @@
 
 const request = require('supertest');
 
-const app = require('./index.js');
+const app = require('./app.js');
 
 describe('Sanitize configuration object', () => {
     beforeAll(() => {
@@ -26,7 +26,7 @@ describe('Sanitize configuration object', () => {
     });
 });
 
-describe('Ensure pages served', () => {
+describe('Ensure routes served', () => {
 
     beforeAll(() => {
         process.env.NODE_ENV = 'test';
