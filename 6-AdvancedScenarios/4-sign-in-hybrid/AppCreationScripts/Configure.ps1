@@ -115,6 +115,20 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 
     Set-Content -Path $configFilePath -Value $lines -Force
 }
+Function CreateOptionalClaim([string] $name)
+{
+    <#.Description
+    This function creates a new Azure AD optional claims  with default and provided values
+    #>  
+
+    $appClaim = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim
+    $appClaim.AdditionalProperties =  New-Object System.Collections.Generic.List[string]
+    $appClaim.Source =  $null
+    $appClaim.Essential = $false
+    $appClaim.Name = $name
+    return $appClaim
+}
+
 
 Function ConfigureApplications
 {
@@ -154,15 +168,16 @@ Function ConfigureApplications
                                                            RedirectUris = "http://localhost:5000/redirect"; `
                                                            HomePageUrl = "https://localhost:5000"; `
                                                          } `
-                                                        -Spa `
-                                                        @{ `
-                                                            RedirectUris = "http://localhost:5000/blank"; `
-                                                        } `
+                                                       -Spa `
+                                                       @{ `
+                                                           RedirectUris = "http://localhost:5000/blank"; `
+                                                         } `
                                                         -SignInAudience AzureADMyOrg `
                                                        #end of command
     #add a secret to the application
     $pwdCredential = Add-MgApplicationPassword -ApplicationId $serviceAadApplication.Id -PasswordCredential $key
     $serviceAppKey = $pwdCredential.SecretText
+
     $tenantName = (Get-MgApplication -ApplicationId $serviceAadApplication.Id).PublisherDomain
     Update-MgApplication -ApplicationId $serviceAadApplication.Id -IdentifierUris @("https://$tenantName/msal-hybrid-spa")
     
@@ -177,6 +192,22 @@ Function ConfigureApplications
         New-MgApplicationOwnerByRef -ApplicationId $serviceAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($serviceServicePrincipal.DisplayName)'"
     }
+
+    # Add Claims
+
+    $optionalClaims = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaims
+    $optionalClaims.AccessToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+    $optionalClaims.IdToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+    $optionalClaims.Saml2Token = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+
+
+    # Add Optional Claims
+
+    $newClaim =  CreateOptionalClaim  -name "sid" 
+    $optionalClaims.IdToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "login_hint" 
+    $optionalClaims.IdToken += ($newClaim)
+    Update-MgApplication -ApplicationId $serviceAadApplication.Id -OptionalClaims $optionalClaims
     Write-Host "Done creating the service application (msal-hybrid-spa)"
 
     # URL of the AAD application in the Azure portal
@@ -198,7 +229,7 @@ Function ConfigureApplications
     
     # Update config file for 'service'
     $configFile = $pwd.Path + "\..\App\.env"
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Enter_the_Audience_Here" = $serviceAadApplication.AppId;"Redirect_URI" = $serviceAadApplication.ReplyUrls };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Enter_the_Audience_Here" = $serviceAadApplication.AppId };
 
     Write-Host "Updating the sample code ($configFile)"
 
@@ -211,13 +242,7 @@ Function ConfigureApplications
     Write-Host "Updating the sample code ($configFile)"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
-    Write-Host "- For service"
-    Write-Host "  - Navigate to $servicePortalUrl"
-    Write-Host "  - Navigate to the Token configuration page, find the 'Add optional claim' section, select `ID`, then select `sid` and ' login_hint` claims" -ForegroundColor Red 
-    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-       if($isOpenSSL -eq 'Y')
+    if($isOpenSSL -eq 'Y')
     {
         Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
         Write-Host "You have generated certificate using OpenSSL so follow below steps: "
