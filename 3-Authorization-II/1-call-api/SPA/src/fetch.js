@@ -2,32 +2,9 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-
-import { InteractionRequiredAuthError } from '@azure/msal-browser';
-
 import { protectedResources } from "./authConfig";
-import { msalInstance } from "./index";
 
-
-const getToken = async () => {
-    const account = msalInstance.getActiveAccount();
-
-    if (!account) {
-        throw new InteractionRequiredAuthError("No active account! Verify that a user has been signed in and setActiveAccount has been called.");
-    }
-
-    const tokenRequest = {
-        account: account,
-        scopes: [...protectedResources.apiTodoList.scopes],
-    }
-
-    const response = await msalInstance.acquireTokenSilent(tokenRequest);
-
-    return response.accessToken;
-}
-
-export const getTasks = async () => {
-    const accessToken = await getToken();
+export const getTasks = async (accessToken) => {
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -44,9 +21,7 @@ export const getTasks = async () => {
         .catch(error => console.log(error));
 }
 
-export const getTask = async (id) => {
-    const accessToken = await getToken();
-
+export const getTask = async (accessToken, id) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -62,9 +37,7 @@ export const getTask = async (id) => {
         .catch(error => console.log(error));
 }
 
-export const postTask = async (task) => {
-    const accessToken = await getToken();
-
+export const postTask = async (accessToken, task) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -82,9 +55,7 @@ export const postTask = async (task) => {
         .catch(error => console.log(error));
 }
 
-export const deleteTask = async (id) => {
-    const accessToken = await getToken();
-
+export const deleteTask = async (accessToken, id) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -100,9 +71,7 @@ export const deleteTask = async (id) => {
         .catch(error => console.log(error));
 }
 
-export const editTask = async (id, task) => {
-    const accessToken = await getToken();
-
+export const editTask = async (accessToken, id, task) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 

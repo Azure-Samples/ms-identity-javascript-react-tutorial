@@ -1,4 +1,4 @@
-# A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory
+# A React single-page application using MSAL React to authorize users for calling a protected web API on Microsoft identity platform
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -22,7 +22,7 @@ Here you'll learn how to [register a protected web API](https://docs.microsoft.c
 
 1. The client React SPA uses **MSAL React** to sign-in and obtain a JWT access token from **Azure AD**.
 1. The access token is used as a bearer token to authorize the user to call the Node.js web API protected by **Azure AD**.
-1. The protected web API responds with the claims in the **Access Token**.
+1. The protected web API responds with the signed-in user's todolist.
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -31,10 +31,11 @@ Here you'll learn how to [register a protected web API](https://docs.microsoft.c
 | File/folder         | Description                                         |
 |---------------------|-----------------------------------------------------|
 | `SPA/App.jsx`       | Main application logic resides here.                |
-| `SPA/fetch.jsx`     | Provides a helper method for making fetch calls.    |
+| `SPA/fetch.jsx`     | Provides helper methods for making fetch calls.     |
 | `SPA/authConfig.js` | Contains authentication parameters for SPA project. |
 | `API/config.js`     | Contains authentication parameters for API project. |
-| `API/index.js`      | Main application logic of custom web API.           |
+| `API/app.js`        | Main application logic of custom web API.             |
+| `API/auth/permissionUtils.js` | Contains helper methods for ensuring client permissions. |
 
 ## Setup
 
@@ -97,12 +98,12 @@ As a first step you'll need to:
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
-### Register the service app (msal-react-api)
+### Register the service app (msal-node-api)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-api`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-node-api`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
@@ -111,28 +112,39 @@ As a first step you'll need to:
 The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
    - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
    - For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**.
-1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code) for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
+1. All APIs have to publish a minimum of two [scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [delegated permissions](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token successfully. To publish a scope, follow these steps:
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-        - For **Scope name**, use `access_as_user`.
+        - For **Scope name**, enter `Todolist.Read`.
         - Select **Admins and users** options for **Who can consent?**.
-        - For **Admin consent display name** type `Access msal-react-api`.
-        - For **Admin consent description** type `Allows the app to access msal-react-api as the signed-in user.`
-        - For **User consent display name** type `Access msal-react-api`.
-        - For **User consent description** type `Allow the application to access msal-react-api on your behalf.`
+        - For **Admin consent display name** type `Access msal-node-api`.
+        - For **Admin consent description** type `Allows the app to access msal-node-api to read todo list.`
+        - For **User consent display name** type `Access msal-node-api`.
+        - For **User consent description** type `Allows the app to access msal-node-api to read todo list.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
+   - Repeat the steps above for publishing another scope named `TodoList.ReadWrite`.
+1. APIs should also publish scopes that can only be consumed by applications (not users), also known as [application permissions](https://docs.microsoft.com/azure/active-directory/develop/permissions-consent-overview#types-of-permissions). To do so, select the **App roles** blade to the left.
+   - Select **Create app role**:
+        - For **Display name**, enter a suitable name, for instance **Todolist.Read.All**.
+        - For **Allowed member types**, choose **Application**.
+        - For **Value**, enter **Todolist.Read.All**.
+        - For **Description**, enter **Application can only read ToDo list**.
+        - Select **Apply** to save your changes.
+   - Repeat the steps above for permission **Todolist.ReadWrite.All**
 1. Select the `Manifest` blade on the left.
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
 
-#### Configure the service app (msal-react-api) to use your app registration
+> :information_source: See how to use **application permissions** in a client app here: [Node.js console application acquiring tokens using OAuth 2.0 Client Credentials Grant](https://github.com/Azure-Samples/ms-identity-javascript-nodejs-console).
+
+#### Configure the service app (msal-node-api) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `API\config.json` file.
-1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `msal-react-api` app copied from the Azure portal.
+1. Open the `API\authConfig.js` file.
+1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
 1. Find the key `tenantID` and replace the existing value with your Azure AD tenant ID.
 
 ### Update the client app registration (msal-react-spa)
@@ -142,8 +154,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then,
      - Ensure that the **My APIs** tab is selected.
-     - In the list of APIs, select the API `msal-react-api`.
-     - In the **Delegated permissions** section, select the **Access 'msal-react-api'** in the list. Use the search box if necessary.
+     - In the list of APIs, select the API `msal-node-api`.
+     - In the **Delegated permissions** section, select the **Todolist.Read** and **Todolist.ReadWrite** in the list. Use the search box if necessary.
      - Select the **Add permissions** button at the bottom.
 
 #### Configure the client app (msal-react-spa) to use your app registration
@@ -155,7 +167,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `SPA\src\authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Scope_Here` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://****-****-********-********/access_as_user`
+1. Find the key `Enter_the_Web_Api_App_Id_Uri` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://<msal-node-api-client-id>`
 
 ## Running the sample
 
@@ -177,8 +189,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open your browser and navigate to `http://localhost:3000`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
-1. Select the **Profile** button on the navigation bar. This will make a call to the Microsoft Graph API.
-1. Select the **HelloAPI** button on the navigation bar. This will make a call to your web API.
+1. Select the **Todolist** button on the navigation bar. This will make a call to the Todolist web API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
@@ -190,29 +201,136 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
-### Token Validation
+### CORS settings
 
-On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) validates the token against the `issuer`, `scope` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API:
+For the purpose of the sample, **cross-origin resource sharing** is enabled for **all** domains and methods. This is insecure and only used for demonstration purposes here. In production, you should modify this as to allow only the domains that you designate. If your web API is going to be hosted on **Azure App Service**, we recommend configuring CORS on the App Service itself.
 
 ```javascript
-    app.get('/api', passport.authenticate('oauth-bearer', { session: false }),
-        (req, res) => {
-            console.log('Validated claims: ', req.authInfo);
-    );
+const express = require('express');
+const cors = require('cors');
+
+const app = express();
+
+app.use(cors());
 ```
 
-Clients should treat access tokens as opaque strings, as the contents of the token are intended for the resource only (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
+### Access token validation
 
-### CORS Settings
-
-For the purpose of the sample, **cross-origin resource sharing** is enabled for **all** domains. This is insecure and not recommended. In production, you should modify this as to allow only the domains that you designate.
+On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) validates the incoming access token against the `issuer`, `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API. In the `BearerStrategy` callback, you can add further validation steps as shown below:
 
 ```javascript
-    app.use((req, res, next) => {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "Authorization, Origin, X-Requested-With, Content-Type, Accept");
-        next();
-    });
+const express = require('express');
+const passport = require('passport');
+const passportAzureAd = require('passport-azure-ad');
+
+const app = express();
+
+const bearerStrategy = new passportAzureAd.BearerStrategy({
+    identityMetadata: `https://${authConfig.metadata.authority}/${authConfig.credentials.tenantID}/${authConfig.metadata.version}/${authConfig.metadata.discovery}`,
+    issuer: `https://${authConfig.metadata.authority}/${authConfig.credentials.tenantID}/${authConfig.metadata.version}`,
+    clientID: authConfig.credentials.clientID,
+    audience: authConfig.credentials.clientID, // audience is this application
+    validateIssuer: authConfig.settings.validateIssuer,
+    passReqToCallback: authConfig.settings.passReqToCallback,
+    loggingLevel: authConfig.settings.loggingLevel
+}, (req, token, done) => {
+    /**
+     * Below you can do extended token validation and check for additional claims, such as:
+     * - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
+     * - check if the caller's account is homed or guest via the 'acct' optional claim
+     * - check if the caller belongs to right roles or groups via the 'roles' or 'groups' claim, respectively
+     *
+     * Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
+     * For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
+     */
+    if (requiredScopeOrAppPermission(token, [
+        ...authConfig.protectedRoutes.todolist.delegatedPermissions.read,
+        ...authConfig.protectedRoutes.todolist.delegatedPermissions.write,
+        ...authConfig.protectedRoutes.todolist.applicationPermissions.read,
+        ...authConfig.protectedRoutes.todolist.applicationPermissions.write,
+    ])) {
+        return done(null, {}, token);
+    } else {
+        return done(new Error('Unauthorized'), {}, "Unauthorized");
+    }
+});
+
+app.use(passport.initialize());
+
+passport.use(bearerStrategy);
+
+// exposed API endpoint
+app.use('/api',
+    passport.authenticate('oauth-bearer', {
+        session: false,
+    }),
+    router
+);
+```
+
+For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using [jwt.ms](https://jwt.ms).
+
+### Verifying permissions
+
+Access tokens that have neither the **scp** (for delegated permissions) nor **roles** (for application permissions) claim should not be accepted. In the sample, this is illustrated via the `requiredScopeOrAppPermission` method in [permissionUtils.js](./API/auth/permissionUtils.js)
+
+```JavaScript
+exports.requiredScopeOrAppPermission = (accessTokenPayload, allowedPermissions) => {
+    /**
+     * To determine whether an access token was issued to a user (i.e delegated) or an application
+     * more easily, we recommend enabling the optional claim 'idtyp'. For more information, see:
+     * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
+     */
+    if (!accessTokenPayload.hasOwnProperty('scp') && !accessTokenPayload.hasOwnProperty('roles')) {
+        return false;
+    } else if (accessTokenPayload.hasOwnProperty('scp')) {
+        return accessTokenPayload.scp.split(' ').some(scope => allowedPermissions.includes(scope));
+    } else if (accessTokenPayload.hasOwnProperty('roles')) {
+        return accessTokenPayload.roles.some(role => allowedPermissions.includes(role));
+    }
+}
+```
+
+### Access to data
+
+Web API endpoints should be prepared to accept calls from both users and applications, and should have control structures in place to respond each accordingly. This is illustrated in the [todolist](./API/controllers/todolist.js) controller:
+
+```JavaScript
+exports.getTodo = (req, res, next) => {
+    if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
+        try {
+            /**
+             * The 'oid' (object id) is the only claim that should be used to uniquely identify
+             * a user in an Azure AD tenant.
+             */
+            const owner = req.authInfo['oid'];
+            const id = req.params.id;
+
+            const todo = db.get('todos')
+                .filter({ owner: owner })
+                .find({ id: id })
+                .value();
+
+            res.status(200).send(todo);
+        } catch (error) {
+            next(error);
+        }
+    } else if (hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)) {
+        try {
+            const id = req.params.id;
+
+            const todo = db.get('todos')
+                .find({ id: id })
+                .value();
+
+            res.status(200).send(todo);
+        } catch (error) {
+            next(error);
+        }
+    } else (
+        next(new Error('The user or application does not have the required permission(s)'))
+    )
+}
 ```
 
 ## Next Tutorial

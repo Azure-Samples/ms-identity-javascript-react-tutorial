@@ -5,6 +5,7 @@ import { MsalProvider } from "@azure/msal-react";
 import { PageLayout } from "./components/PageLayout";
 import { Home } from "./pages/Home";
 import { TodoList } from "./pages/TodoList";
+import { Redirect } from "./pages/Redirect";
 
 import "./styles/App.css";
 
@@ -12,6 +13,7 @@ const Pages = () => {
     return (
         <Routes>
             <Route path="/todolist" element={<TodoList />} />
+            <Route path="/redirect" element={<Redirect />} />
             <Route path="/" element={<Home />} />
         </Routes>
     )

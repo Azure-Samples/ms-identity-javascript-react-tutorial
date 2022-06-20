@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 
-import { MsalAuthenticationTemplate, useMsal } from "@azure/msal-react";
-import { InteractionStatus, InteractionType } from "@azure/msal-browser";
+import { MsalAuthenticationTemplate } from "@azure/msal-react";
+import { InteractionType } from "@azure/msal-browser";
 
-import { loginRequest } from "../authConfig";
+import { loginRequest, protectedResources } from "../authConfig";
 import { getTasks } from "../fetch";
 
 import { ListView } from '../components/ListView';
+
+import useTokenAcquisition from '../hooks/useTokenAcquisition';
 
 const TodoListContent = () => {
     /**
@@ -15,14 +17,14 @@ const TodoListContent = () => {
      * that tells you what msal is currently doing. For more, visit:
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
-    const { inProgress } = useMsal();
     const [todoListData, setTodoListData] = useState(null);
+    const [tokenResponse] = useTokenAcquisition(protectedResources.apiTodoList.scopes);
 
     useEffect(() => {
-        if (!todoListData && inProgress === InteractionStatus.None) {
-            getTasks().then(response => setTodoListData(response));
+        if (tokenResponse && !todoListData) {
+            getTasks(tokenResponse.accessToken).then(response => setTodoListData(response));
         }
-    }, [inProgress]);
+    }, [tokenResponse]);
 
     return (
         <>
