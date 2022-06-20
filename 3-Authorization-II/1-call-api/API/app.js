@@ -7,6 +7,7 @@ const passportAzureAd = require('passport-azure-ad');
 
 const authConfig = require('./authConfig');
 const router = require('./routes/index');
+
 const { requiredScopeOrAppPermission } = require('./auth/permissionUtils')
 
 const app = express();
@@ -53,8 +54,7 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
     } else {
         return done(new Error('Unauthorized'), {}, "Unauthorized");
     }
-}
-);
+});
 
 app.use(passport.initialize());
 

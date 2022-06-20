@@ -1,17 +1,27 @@
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
-
-import { Nav, Navbar, Button, Dropdown, DropdownButton, Container } from "react-bootstrap";
-
-import { loginRequest } from "../authConfig";
+import { useState } from 'react';
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
+import { Nav, Navbar, Dropdown, DropdownButton } from 'react-bootstrap';
+import { loginRequest } from '../authConfig';
+import { AccountPicker } from './AccountPicker';
+import { msalConfig } from '../authConfig';
 
 export const NavigationBar = () => {
-
+    const [showProfilePicker, setShowProfilePicker] = useState(false);
     const { instance } = useMsal();
 
-    const handleLogin = () => {
-        instance.loginPopup(loginRequest)
-            .catch((error) => console.log(error))
+    let activeAccount;
+
+    if (instance) {
+        activeAccount = instance.getActiveAccount();
     }
+
+    const handleLogin = () => {
+        instance.loginPopup(loginRequest).catch((error) => console.log(error));
+    };
+
+    const handleSwitchAccount = () => {
+        setShowProfilePicker(!showProfilePicker);
+    };
 
     /**
      * Most applications will need to conditionally render certain components based on whether a user is signed in or not.
@@ -20,29 +30,65 @@ export const NavigationBar = () => {
      */
     return (
         <>
-            <Navbar bg="primary" variant="dark">
-                <Container>
-                    <Navbar.Brand href="/">Microsoft identity platform</Navbar.Brand>
-                    <AuthenticatedTemplate>
-                        <Nav className="me-auto">
-                            <Nav.Link as={Button} href="/todolist">Todolist</Nav.Link>
-                        </Nav>
-                        <Navbar.Collapse className="justify-content-end">
-                            <Navbar.Text className="me-2">{instance.getActiveAccount()?.username}</Navbar.Text>
-                            <DropdownButton variant="warning" align="end" title="Sign Out">
-                                <Dropdown.Item as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/" })}>Sign out using Popup</Dropdown.Item>
-                                <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}>Sign out using Redirect</Dropdown.Item>
-                            </DropdownButton>
-                        </Navbar.Collapse>
-                    </AuthenticatedTemplate>
-                    <UnauthenticatedTemplate>
-                        <DropdownButton variant="secondary" align="end" title="Sign In">
-                            <Dropdown.Item as="button" onClick={handleLogin}>Sign in using Popup</Dropdown.Item>
-                            <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>Sign in using Redirect</Dropdown.Item>
+            <Navbar bg="primary" variant="dark" className="navbarStyle">
+                <a className="navbar-brand" href="/">
+                    Microsoft identity platform
+                </a>
+                <AuthenticatedTemplate>
+                    <Nav.Link className="navbarButton" href="/todolist">
+                        Todolist
+                    </Nav.Link>
+                    <div className="collapse navbar-collapse justify-content-end">
+                        <DropdownButton
+                            variant="warning"
+                            drop="start"
+                            title={activeAccount ? activeAccount.name : 'Unknown'}
+                        >
+                            <Dropdown.Item as="button" onClick={handleSwitchAccount}>
+                                Switch account
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                                as="button"
+                                onClick={() =>
+                                    instance.logoutPopup({
+                                        postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
+                                    })
+                                }
+                            >
+                                Sign out using Popup
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                                as="button"
+                                onClick={() =>
+                                    instance.logoutRedirect({
+                                        postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
+                                    })
+                                }
+                            >
+                                Sign out using Redirect
+                            </Dropdown.Item>
                         </DropdownButton>
-                    </UnauthenticatedTemplate>
-                </Container>
+                    </div>
+                </AuthenticatedTemplate>
+                <UnauthenticatedTemplate>
+                    <div className="collapse navbar-collapse justify-content-end">
+                        <DropdownButton
+                            variant="secondary"
+                            className="justify-content-end ml-auto"
+                            title="Sign In"
+                            drop="start"
+                        >
+                            <Dropdown.Item as="button" onClick={handleLogin}>
+                                Sign in using Popup
+                            </Dropdown.Item>
+                            <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>
+                                Sign in using Redirect
+                            </Dropdown.Item>
+                        </DropdownButton>
+                    </div>
+                </UnauthenticatedTemplate>
             </Navbar>
+            <AccountPicker show={showProfilePicker} handleSwitchAccount={handleSwitchAccount} />
         </>
     );
 };
