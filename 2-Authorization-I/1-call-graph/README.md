@@ -249,7 +249,7 @@ In the code snippet above, the user will be prompted for consent once they authe
 > :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called.
 
 ```javascript
-const useTokenAcquisition = (scopes, type) => {
+const useTokenAcquisition = (scopes, interactionType) => {
     /**
      * useMsal is a hook that returns the PublicClientApplication instance,
      * an array of all accounts currently signed in and an inProgress value
@@ -267,7 +267,7 @@ const useTokenAcquisition = (scopes, type) => {
             if (account && inProgress === InteractionStatus.None && !response) {
                 try {
                     token = await instance.acquireTokenSilent({
-                        scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
+                        scopes: scopes,
                         account: account,
                     });
 
@@ -275,18 +275,25 @@ const useTokenAcquisition = (scopes, type) => {
                 } catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
-                            if (InteractionType.Popup === type) {
-                                token = await instance.acquireTokenPopup({
-                                    scopes: scopes,  // e.g. ["User.Read", "Mail.Read"]
-                                    account: account,
-                                });
-                            } else if (InteractionType.Redirect === type) {
-                                token = await instance.acquireTokenRedirect({
-                                    scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
-                                    account: account,
-                                });
+                            switch (interactionType) {
+                                case InteractionType.Popup:
+                                    token = await instance.acquireTokenPopup({
+                                        scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
+                                        account: account,
+                                    });
+                                    break;
+                                case InteractionType.Redirect:
+                                    token = await instance.acquireTokenRedirect({
+                                        scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
+                                        account: account,
+                                    });
+                                    break;
+                                default:
+                                    token = await instance.acquireTokenPopup({
+                                        scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
+                                        account: account,
+                                    });
                             }
-
                             setResponse(token);
                         } catch (error) {
                             console.log(error);

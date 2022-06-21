@@ -5,10 +5,10 @@ import { useMsal } from '@azure/msal-react';
 /**
  * A custom hook for acquiring tokens using MSAL
  * @param {Array} scopes
- * @param {String} type
+ * @param {String} interactionType
  * @returns response object which contains an access token
  */
-const useTokenAcquisition = (scopes, type) => {
+const useTokenAcquisition = (scopes, interactionType) => {
     /**
      * useMsal is a hook that returns the PublicClientApplication instance,
      * an array of all accounts currently signed in and an inProgress value
@@ -34,18 +34,25 @@ const useTokenAcquisition = (scopes, type) => {
                 } catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
-                            if (InteractionType.Popup === type) {
-                                token = await instance.acquireTokenPopup({
-                                    scopes: scopes,
-                                    account: account,
-                                });
-                            } else if (InteractionType.Redirect === type) {
-                                token = await instance.acquireTokenRedirect({
-                                    scopes: scopes,
-                                    account: account,
-                                });
+                            switch (interactionType) {
+                                case InteractionType.Popup:
+                                    token = await instance.acquireTokenPopup({
+                                        scopes: scopes,
+                                        account: account,
+                                    });
+                                    break;
+                                case InteractionType.Redirect:
+                                    token = await instance.acquireTokenRedirect({
+                                        scopes: scopes,
+                                        account: account,
+                                    });
+                                    break;
+                                default:
+                                    token = await instance.acquireTokenPopup({
+                                        scopes: scopes,
+                                        account: account,
+                                    });
                             }
-
                             setResponse(token);
                         } catch (error) {
                             console.log(error);
