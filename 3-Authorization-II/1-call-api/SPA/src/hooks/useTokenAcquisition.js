@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
-import { InteractionRequiredAuthError, InteractionStatus } from '@azure/msal-browser';
+import { InteractionRequiredAuthError, InteractionStatus, InteractionType } from '@azure/msal-browser';
 import { useMsal } from '@azure/msal-react';
 
 /**
  * A custom hook for acquiring tokens using MSAL
  * @param {Array} scopes
+ * @param {String} interactionType
  * @returns response object which contains an access token
  */
-const useTokenAcquisition = (scopes) => {
-
+const useTokenAcquisition = (scopes, interactionType) => {
     /**
      * useMsal is a hook that returns the PublicClientApplication instance,
      * an array of all accounts currently signed in and an inProgress value
@@ -17,8 +17,8 @@ const useTokenAcquisition = (scopes) => {
      */
 
     const { instance, inProgress } = useMsal();
-    const [response, setResponse] = useState(null);
     const account = instance.getActiveAccount();
+    const [response, setResponse] = useState(null);
 
     useEffect(() => {
         const getToken = async () => {
@@ -34,11 +34,22 @@ const useTokenAcquisition = (scopes) => {
                 } catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
-                            token = await instance.acquireTokenPopup({
-                                scopes: scopes,
-                                account: account,
-                            });
-
+                            switch (interactionType) {
+                                case InteractionType.Popup:
+                                    token = await instance.acquireTokenPopup({
+                                        scopes: scopes,
+                                        account: account,
+                                    });
+                                    break;
+                                case InteractionType.Redirect:
+                                    token = await instance.acquireTokenRedirect({
+                                        scopes: scopes,
+                                        account: account,
+                                    });
+                                    break;
+                                default:
+                                    interactionType = InteractionType.Popup;
+                            }
                             setResponse(token);
                         } catch (error) {
                             console.log(error);
@@ -46,8 +57,7 @@ const useTokenAcquisition = (scopes) => {
                     }
                 }
             }
-        }
-
+        };
         getToken();
     }, [account, inProgress, instance]);
 
