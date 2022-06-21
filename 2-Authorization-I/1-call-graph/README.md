@@ -282,21 +282,24 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                         account: account,
                                     });
                                     break;
+                                default:
                                 case InteractionType.Redirect:
                                     token = await instance.acquireTokenRedirect({
                                         scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
                                         account: account,
                                     });
                                     break;
-                                default:
-                                    token = await instance.acquireTokenPopup({
-                                        scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
-                                        account: account,
-                                    });
                             }
                             setResponse(token);
                         } catch (error) {
-                            console.log(error);
+                            if (error.errorCode === 'popup_window_error') {
+                                token = await instance.acquireTokenRedirect({
+                                    scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
+                                    account: account,
+                                });
+                            }else {
+                                console.log(error);
+                            }
                         }
                     }
                 }
