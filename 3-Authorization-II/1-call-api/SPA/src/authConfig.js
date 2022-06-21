@@ -59,8 +59,8 @@ export const protectedResources = {
     apiTodoList: {
         endpoint: "http://localhost:4000/api/todolist",
         scopes: {
-            read: [ "Enter_the_Web_Api_Scope_Here/Todolist.Read" ],
-            write: [ "Enter_the_Web_Api_Scope_Here/Todolist.ReadWrite" ]
+            read: [ "Enter_the_Web_Api_App_Id_Uri_Here/Todolist.Read" ],
+            write: [ "Enter_the_Web_Api_App_Id_Uri_Here/Todolist.ReadWrite" ]
         }
     }
 }
