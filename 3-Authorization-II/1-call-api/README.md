@@ -142,7 +142,7 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - For **User consent description** type `Allows the app to access msal-node-api to read todo list.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
-   - Repeat the steps above for publishing another scope named `TodoList.ReadWrite`.
+   - Repeat the steps above for publishing another scope named `Todolist.ReadWrite`.
 1. APIs should also publish scopes that can only be consumed by applications (not users), also known as [application permissions](https://docs.microsoft.com/azure/active-directory/develop/permissions-consent-overview#types-of-permissions). To do so, select the **App roles** blade to the left.
    - Select **Create app role**:
         - For **Display name**, enter a suitable name, for instance **Todolist.Read.All**.
