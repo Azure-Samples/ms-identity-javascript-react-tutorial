@@ -1,83 +1,152 @@
 {
-  "Sample": {
-    "Title": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory",
-    "Level": 200,
-    "Client": "React SPA",
-    "Service": "Node.js web API",
-    "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-    "Endpoint": "AAD v2.0"
-  },
-  "AADApps": [
-    {
-      "Id": "service",
-      "Name": "ms-identity-react-c3s1-api",
-      "Kind": "WebApi",
-      "HomePage": "http://localhost:5000/api",
-      "Audience": "AzureADMyOrg",
-      "ManualSteps": [
-        {
-          "Comment": "Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'"
-        }
-      ]
+    "Sample": {
+        "Author": "derisen",
+        "Title": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory",
+        "Level": 200,
+        "Client": "React SPA",
+        "Service": "Node.js web API",
+        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+        "Endpoint": "AAD v2.0",
+        "Languages": [
+            "JavaScript"
+        ],
+        "Description": "This sample demonstrates how to protect a web API",
+        "Products": [
+            "React",
+            "Express"
+        ]
     },
-    {
-      "Id": "spa",
-      "Name": "ms-identity-react-c3s1-spa",
-      "Kind": "SinglePageApplication",
-      "Audience": "AzureADMyOrg",
-      "HomePage": "http://localhost:3000/",
-      "ReplyUrls": "http://localhost:3000/",
-      "RequiredResourcesAccess": [
-        {
-          "Resource": "Microsoft Graph",
-          "DelegatedPermissions": ["User.Read"]
-        },
-        {
-          "Resource": "service",
-          "DelegatedPermissions": [ "access_as_user" ]
-        }
-      ],
-      "ManualSteps": [
-        {
-          "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
-        }
-      ]
-    }
-  ],
-  "CodeConfiguration": [
-    {
-      "App": "spa",
-      "SettingKind": "Replace",
-      "SettingFile": "\\..\\SPA\\src\\authConfig.js",
-      "Mappings": [
-        {
-          "key": "Enter_the_Application_Id_Here",
-          "value": ".AppId"
-        },
-        {
-          "key": "Enter_the_Tenant_Info_Here",
-          "value": "$tenantId"
-        },
-        {
-          "key": "Enter_the_Web_Api_Scope_Here",
-          "value": "service.Scope"
-        }
-      ]
+    "ReadmeScenario": {
+        "IncludeFilePath": "",
+        "Image": "",
+        "AdditionalNotes": ""
     },
-    {
-      "App": "service",
-      "SettingKind": "JSON",
-      "SettingFile": "\\..\\API\\config.json",
-      "Mappings": [
+    "ReadmePrerequirements": {
+        "FreeText": "",
+        "IncludeFilePath": ""
+    },
+    "ReadmeSetup": {
+        "FreeText": "",
+        "IncludeFilePath": "",
+        "UseNewSetup": "1",
+        "CertificateOption": "0",
+        "CreateProjectIncludeFilePath": "",
+        "AppRegistrationIncludeFilePath": "",
+        "RunSampleIncludeFilePath": ""
+    },
+    "ReadmeTroubleshooting": {
+        "IncludeFilePath": ""
+    },
+    "ReadmeNextSteps": {
+        "FreeText": "",
+        "IncludeFilePath": ""
+    },
+    "ReadmeContributing": {
+        "FreeText": "",
+        "IncludeFilePath": ""
+    },
+    "ReadmeHowTheCodeWasCreated": {
+        "IncludeFilePath": ""
+    },
+    "ReadmeAboutTheCode": {
+        "IncludeFilePath": ""
+    },
+    "ReadmeAzureDeploy": {
+        "IncludeFilePath": ""
+    },
+    "ReadmeUsingTheSample": {
+        "IncludeFilePath": ""
+    },
+    "ReadmeLearnMore": {
+        "IncludeFilePath": ""
+    },
+    "AADApps": [
         {
-          "key": "clientID",
-          "value": ".AppId"
+            "Id": "service",
+            "Name": "msal-node-api",
+            "Kind": "WebApi",
+            "Audience": "AzureADMyOrg",
+            "Sample": {
+                "SampleSubPath": "3-Authorization-II\\1-call-api\\API",
+                "ProjectDirectory": "\\1-call-api\\API"
+            },
+            "Scopes": [
+                "Todolist.Read",
+                "Todolist.ReadWrite"
+            ],
+            "AppRoles": [
+                {
+                    "Types": [
+                        "Application"
+                    ],
+                    "Name": "Todolist.Read.All",
+                    "Description": "Application can only read Todo list"
+                },
+                {
+                    "Types": [
+                        "Application"
+                    ],
+                    "Name": "Todolist.ReadWrite.All",
+                    "Description": "Application can read and write into Todo list"
+                }
+            ]
         },
         {
-          "key": "tenantID",
-          "value": "$tenantId"
+            "Id": "client",
+            "Name": "msal-react-spa",
+            "Kind": "SinglePageApplication",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "https://localhost:3000",
+            "ReplyUrls": "http://localhost:3000/redirect",
+            "Sample": {
+                "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
+                "ProjectDirectory": "\\1-call-api\\SPA"
+            },
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "service",
+                    "DelegatedPermissions": [
+                        "Todolist.Read",
+                        "Todolist.ReadWrite"
+                    ]
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ],
+    "CodeConfiguration": [
+        {
+            "App": "service",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\API\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": ".AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                }
+            ]
+        },
+        {
+            "App": "client",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\SPA\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": ".AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "Enter_the_Web_Api_App_Id_Uri_Here",
+                    "value": "service.AppId"
+                }
+            ]
+        }
+    ]
 }
