@@ -5,6 +5,7 @@ import { useMsal } from '@azure/msal-react';
 /**
  * A custom hook for acquiring tokens using MSAL
  * @param {Array} scopes
+ * @param {String} type
  * @returns response object which contains an access token
  */
 const useTokenAcquisition = (scopes, type) => {

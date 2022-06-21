@@ -127,7 +127,7 @@ As a first step you'll need to:
    - If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
    - In the **Redirect URI** section enter the following redirect URIs:
      - `http://localhost:3000/`
-     - `https://localhost:3000/redirect`
+     - `http://localhost:3000/redirect`
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
@@ -249,41 +249,52 @@ In the code snippet above, the user will be prompted for consent once they authe
 > :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called.
 
 ```javascript
-const useTokenAcquisition = (scopes) => {
+const useTokenAcquisition = (scopes, type) => {
     /**
-     * useMsal is hook that returns the PublicClientApplication instance,
+     * useMsal is a hook that returns the PublicClientApplication instance,
      * an array of all accounts currently signed in and an inProgress value
      * that tells you what msal is currently doing. For more, visit:
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
+
     const { instance, inProgress } = useMsal();
     const account = instance.getActiveAccount();
     const [response, setResponse] = useState(null);
+
     useEffect(() => {
         const getToken = async () => {
             let token;
-            if (account && inProgress === 'none' && !response) {
-                 try {
+            if (account && inProgress === InteractionStatus.None && !response) {
+                try {
                     token = await instance.acquireTokenSilent({
                         scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
                         account: account,
                     });
+
                     setResponse(token);
-                 } catch (error) {
+                } catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
-                            token = await instance.acquireTokenPopup({
-                                 scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
-                                 account: account,
-                            });
+                            if (InteractionType.Popup === type) {
+                                token = await instance.acquireTokenPopup({
+                                    scopes: scopes,  // e.g. ["User.Read", "Mail.Read"]
+                                    account: account,
+                                });
+                            } else if (InteractionType.Redirect === type) {
+                                token = await instance.acquireTokenRedirect({
+                                    scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
+                                    account: account,
+                                });
+                            }
+
                             setResponse(token);
                         } catch (error) {
                             console.log(error);
                         }
                     }
-                 }
+                }
             }
-        }
+        };
         getToken();
     }, [account, inProgress, instance]);
 
