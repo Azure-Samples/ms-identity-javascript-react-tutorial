@@ -16,7 +16,6 @@ export const msalConfig = {
         authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here", // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: "/redirect", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
-        navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
         clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
     },
     cache: {
@@ -25,6 +24,10 @@ export const msalConfig = {
     },
     system: {
         loggerOptions: {
+            /**
+             * Below you can configure MSAL.js logs. For more information, visit:
+             * https://docs.microsoft.com/azure/active-directory/develop/msal-logging-js
+             */
             loggerCallback: (level, message, containsPii) => {
                 if (containsPii) {
                     return;
@@ -55,10 +58,10 @@ export const msalConfig = {
 export const protectedResources = {
     apiTodoList: {
         endpoint: "http://localhost:4000/api/todolist",
-        scopes: [
-            "Enter_the_Web_Api_Scope_Here/Todolist.Read",
-            "Enter_the_Web_Api_Scope_Here/Todolist.ReadWrite"
-        ]
+        scopes: {
+            read: [ "Enter_the_Web_Api_Scope_Here/Todolist.Read" ],
+            write: [ "Enter_the_Web_Api_Scope_Here/Todolist.ReadWrite" ]
+        }
     }
 }
 
@@ -69,5 +72,5 @@ export const protectedResources = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: [...protectedResources.apiTodoList.scopes]
+    scopes: [...protectedResources.apiTodoList.scopes.read]
 };

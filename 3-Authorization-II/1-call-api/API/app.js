@@ -29,7 +29,8 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
     audience: authConfig.credentials.clientID, // audience is this application
     validateIssuer: authConfig.settings.validateIssuer,
     passReqToCallback: authConfig.settings.passReqToCallback,
-    loggingLevel: authConfig.settings.loggingLevel
+    loggingLevel: authConfig.settings.loggingLevel,
+    loggingNoPII: authConfig.settings.loggingNoPII,
 }, (req, token, done) => {
     /**
      * Below you can do extended token validation and check for additional claims, such as:

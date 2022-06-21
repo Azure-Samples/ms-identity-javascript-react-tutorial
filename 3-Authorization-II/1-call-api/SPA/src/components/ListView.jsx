@@ -24,7 +24,7 @@ function usePrevious(value) {
 export const ListView = (props) => {
     const { instance } = useMsal();
     const [tasks, setTasks] = useState(props.todoListData);
-    const [tokenResponse] = useTokenAcquisition(protectedResources.apiTodoList.scopes);
+    const [tokenResponse] = useTokenAcquisition(protectedResources.apiTodoList.scopes.write);
     const account = instance.getActiveAccount();
 
     const handleCompleteTask = (id) => {
