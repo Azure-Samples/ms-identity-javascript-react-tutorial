@@ -1,7 +1,3 @@
-/**
- * @jest-environment jsdom
- */
-
 const request = require('supertest');
 
 const app = require('./app.js');
@@ -32,9 +28,9 @@ describe('Ensure routes served', () => {
         process.env.NODE_ENV = 'test';
     });
 
-    it('should protect hello endpoint', async () => {
+    it('should protect todolist endpoint', async () => {
         const res = await request(app)
-            .get('/hello');
+            .get('/api');
 
         expect(res.statusCode).toEqual(401);
     });
