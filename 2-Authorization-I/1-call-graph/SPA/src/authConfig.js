@@ -23,6 +23,10 @@ export const msalConfig = {
         storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
     },
     system: {
+        /**
+         * Below you can configure MSAL.js logs. For more information, visit:
+         * https://docs.microsoft.com/azure/active-directory/develop/msal-logging-js
+         */
         loggerOptions: {
             loggerCallback: (level, message, containsPii) => {
                 if (containsPii) {
