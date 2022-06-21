@@ -23,7 +23,7 @@ const useTokenAcquisition = (scopes) => {
     useEffect(() => {
         const getToken = async () => {
             let token;
-            if (account && inProgress === 'none' && !response) {
+            if (account && inProgress === InteractionStatus.None && !response) {
                 try {
                     token = await instance.acquireTokenSilent({
                         scopes: scopes,
