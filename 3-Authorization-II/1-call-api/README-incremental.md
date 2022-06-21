@@ -135,6 +135,8 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
 
+> :information_source: Be aware of [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+
 > :information_source: See how to use **application permissions** in a client app here: [Node.js console application acquiring tokens using OAuth 2.0 Client Credentials Grant](https://github.com/Azure-Samples/ms-identity-javascript-nodejs-console).
 
 #### Configure the service app (msal-node-api) to use your app registration
@@ -216,7 +218,7 @@ app.use(cors());
 
 ### Access token validation
 
-On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) validates the incoming access token against the `issuer`, `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API. In the `BearerStrategy` callback, you can add further validation steps as shown below:
+On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) verifies the incoming access token's signature and validates it's payload against the `issuer` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API. In the `BearerStrategy` callback, you can add further validation steps as shown below:
 
 ```javascript
 const express = require('express');
@@ -332,6 +334,8 @@ exports.getTodo = (req, res, next) => {
     )
 }
 ```
+
+When granting access to data based on scopes, be sure to follow [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access).
 
 ## Next Tutorial
 

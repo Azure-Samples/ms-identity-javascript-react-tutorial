@@ -155,6 +155,8 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
 
+> :information_source: Be aware of [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+
 > :information_source: See how to use **application permissions** in a client app here: [Node.js console application acquiring tokens using OAuth 2.0 Client Credentials Grant](https://github.com/Azure-Samples/ms-identity-javascript-nodejs-console).
 
 #### Configure the service app (msal-node-api) to use your app registration
@@ -174,8 +176,12 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
+   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000`.
 1. Select **Register** to create the application.
+1. In the app's registration screen, select the **Authentication** blade.
+   - If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
+   - In the **Redirect URI** section enter the following redirect URIs:
+     - `https://localhost:3000/redirect`
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
@@ -230,7 +236,7 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ### CORS settings
 
-For the purpose of the sample, **cross-origin resource sharing** is enabled for **all** domains and methods. This is insecure and only used for demonstration purposes here. In production, you should modify this as to allow only the domains that you designate. If your web API is going to be hosted on **Azure App Service**, we recommend configuring CORS on the App Service itself.
+For the purpose of the sample, **cross-origin resource sharing** (CORS) is enabled for **all** domains and methods, using the Express.js cors middleware. This is insecure and only used for demonstration purposes here. In production, you should modify this as to allow only the domains that you designate. If your web API is going to be hosted on **Azure App Service**, we recommend configuring CORS on the App Service itself.
 
 ```javascript
 const express = require('express');
@@ -243,7 +249,7 @@ app.use(cors());
 
 ### Access token validation
 
-On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) validates the incoming access token against the `issuer`, `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API. In the `BearerStrategy` callback, you can add further validation steps as shown below:
+On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) verifies the incoming access token's signature and validates it's payload against the `issuer` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API. In the `BearerStrategy` callback, you can add further validation steps as shown below:
 
 ```javascript
 const express = require('express');
@@ -359,6 +365,8 @@ exports.getTodo = (req, res, next) => {
     )
 }
 ```
+
+When granting access to data based on scopes, be sure to follow [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access).
 
 ## More information
 

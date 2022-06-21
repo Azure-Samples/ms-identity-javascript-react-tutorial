@@ -18,7 +18,7 @@ const TodoListContent = () => {
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
     const [todoListData, setTodoListData] = useState(null);
-    const [tokenResponse] = useTokenAcquisition(protectedResources.apiTodoList.scopes);
+    const [tokenResponse] = useTokenAcquisition(protectedResources.apiTodoList.scopes.read);
 
     useEffect(() => {
         if (tokenResponse && !todoListData) {

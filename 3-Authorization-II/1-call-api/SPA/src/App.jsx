@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { MsalProvider } from "@azure/msal-react";
 
 import { PageLayout } from "./components/PageLayout";
+
 import { Home } from "./pages/Home";
 import { TodoList } from "./pages/TodoList";
 import { Redirect } from "./pages/Redirect";
