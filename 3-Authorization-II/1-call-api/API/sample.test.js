@@ -8,7 +8,7 @@ const app = require('./app.js');
 
 describe('Sanitize configuration object', () => {
     beforeAll(() => {
-        global.config = require('./config.json');
+        global.config = require('./authConfig.js');
     });
 
     it('should define the config object', () => {

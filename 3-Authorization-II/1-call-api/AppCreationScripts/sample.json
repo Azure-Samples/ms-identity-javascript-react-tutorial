@@ -132,7 +132,7 @@
         {
             "App": "client",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\SPA\\authConfig.js",
+            "SettingFile": "\\..\\SPA\\src\\authConfig.js",
             "Mappings": [
                 {
                     "key": "Enter_the_Application_Id_Here",
