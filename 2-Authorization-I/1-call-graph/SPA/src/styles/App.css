@@ -21,3 +21,7 @@
 .navbarButton {
   color: #fff !important
 }
+
+.tableColumn {
+  word-break: break-all
+}

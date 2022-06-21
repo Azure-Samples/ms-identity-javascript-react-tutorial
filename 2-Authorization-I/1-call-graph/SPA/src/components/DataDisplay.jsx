@@ -140,7 +140,9 @@ export const IdTokenData = (props) => {
         return (
             <tr key={key}>
                 {tokenClaims[key].map((claimItem) => (
-                    <td key={claimItem}>{claimItem}</td>
+                    <td key={claimItem} className="tableColumn">
+                        {claimItem}
+                    </td>
                 ))}
             </tr>
         );

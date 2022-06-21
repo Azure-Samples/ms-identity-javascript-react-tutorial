@@ -13,18 +13,17 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     claims[key],
-                    "Identifies the intended recipient of the token. In id_tokens, the audience is your app's Application ID, assigned to your app in the Azure portal. This value should be validated. The token should be rejected if it fails to match your app's Application ID",
+                    "Identifies the intended recipient of the token. In ID tokens, the audience is your app's Application ID, assigned to your app in the Azure portal.",
                     index,
                     claimsObj
                 );
                 index++;
                 break;
-
             case 'iss':
                 populateClaim(
                     key,
                     claims[key],
-                    'Identifies the issuer, or authorization server that constructs and returns the token. It also identifies the Azure AD tenant for which the user was authenticated. If the token was issued by the v2.0 endpoint, the URI will end in /v2.0. The GUID that indicates that the user is a consumer user from a Microsoft account is 9188040d-6c67-4c5b-b112-36a304b66dad. Your app should use the GUID portion of the claim to restrict the set of tenants that can sign in to the app, if applicable.',
+                    'Identifies the issuer, or authorization server that constructs and returns the token. It also identifies the Azure AD tenant for which the user was authenticated. If the token was issued by the v2.0 endpoint, the URI will end in /v2.0. The GUID that indicates that the user is a consumer user from a Microsoft account is 9188040d-6c67-4c5b-b112-36a304b66dad.',
                     index,
                     claimsObj
                 );
@@ -44,7 +43,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     changeDateFormat(claims[key]),
-                    'The nbf (not before) claim identifies the time before which the JWT MUST NOT be accepted for processing.',
+                    'The nbf (not before) claim identifies the time (as UNIX timestamp) before which the JWT must not be accepted for processing.',
                     index,
                     claimsObj
                 );
@@ -54,7 +53,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     changeDateFormat(claims[key]),
-                    "The exp (expiration time) claim identifies the expiration time on or after which the JWT must not be accepted for processing. It's important to note that in certain circumstances, a resource may reject the token before this time. For example, if a change in authentication is required or a token revocation has been detected.",
+                    "The exp (expiration time) claim identifies the expiration time (as UNIX timestamp) on or after which the JWT must not be accepted for processing. It's important to note that in certain circumstances, a resource may reject the token before this time. For example, if a change in authentication is required or a token revocation has been detected.",
                     index,
                     claimsObj
                 );
@@ -74,7 +73,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     claims[key],
-                    'The primary username that represents the user. It could be an email address, phone number, or a generic username without a specified format. Its value is mutable and might change over time. Since it is mutable, this value must not be used to make authorization decisions. It can be used for username hints, however, and in human-readable UI as a username. The profile scope is required in order to receive this claim. Present only in v2.0 tokens.',
+                    'The primary username that represents the user. It could be an email address, phone number, or a generic username without a specified format. Its value is mutable and might change over time. Since it is mutable, this value must not be used to make authorization decisions. It can be used for username hints, however, and in human-readable UI as a username. The profile scope is required in order to receive this claim.',
                     index,
                     claimsObj
                 );
@@ -94,7 +93,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     claims[key],
-                    'The **oid** (User’s object id) is the only claim that should be used to uniquely identify a user in an Azure AD tenant. The token might have one or more of the following claim, that might seem like a unique identifier, but is not and should not be used as such, especially for systems which act as system of record (SOR)',
+                    'The oid (user’s object id) is the only claim that should be used to uniquely identify a user in an Azure AD tenant. The token might have one or more of the following claim, that might seem like a unique identifier, but is not and should not be used as such.',
                     index,
                     claimsObj
                 );
@@ -104,7 +103,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     claims[key],
-                    'The tenant id. You will use this claim to ensure that only users from the current Azure Ad tenant can access this app',
+                    'The tenant ID. You will use this claim to ensure that only users from the current Azure AD tenant can access this app.',
                     index,
                     claimsObj
                 );
@@ -124,7 +123,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     claims[key],
-                    'might be unique amongst the active set of users in a tenant but tend to get reassigned to new employees as employees leave the organization and others take their place.',
+                    'Email might be unique amongst the active set of users in a tenant but tend to get reassigned to new employees as employees leave the organization and others take their place.',
                     index,
                     claimsObj
                 );
@@ -134,7 +133,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     claims[key],
-                    'Available as an optional claim, it lets you know what the type of user (homed, guest) is. For example, for an individual’s access to their data you might not care for this claim, but you would use this along with tenant id (tid) to control access to say a companywide dashboard to just employees (homed users) and not contractors (guest users) ',
+                    'Available as an optional claim, it lets you know what the type of user (homed, guest) is. For example, for an individual’s access to their data you might not care for this claim, but you would use this along with tenant id (tid) to control access to say a company-wide dashboard to just employees (homed users) and not contractors (guest users).',
                     index,
                     claimsObj
                 );
@@ -144,8 +143,43 @@ export const createClaimsTable = (claims) => {
                 populateClaim(key, claims[key], 'Session ID, used for per-session user sign-out.', index, claimsObj);
                 index++;
                 break;
+            case 'sub':
+                populateClaim(
+                    key,
+                    claims[key],
+                    'The sub claim is a pairwise identifier - it is unique to a particular application ID. If a single user signs into two different apps using two different client IDs, those apps will receive two different values for the subject claim.',
+                    index,
+                    claimsObj
+                );
+                index++;
+                break;
+            case 'ver':
+                populateClaim(
+                    key,
+                    claims[key],
+                    'Version of the token issued by the Microsoft identity platform',
+                    index,
+                    claimsObj
+                );
+                index++;
+                break;
+            case "login_hint":
+                 populateClaim(
+                     key,
+                     claims[key],
+                     ' An opaque, reliable login hint claim. This claim is the best value to use for the login_hint OAuth parameter in all flows to get SSO.',
+                     index,
+                     claimsObj
+                 );
+                index++;
+                break;
+            case 'uti':
+            case 'rh':
+                index++;
+                break;
             default:
-                console.log('Claims not found');
+                populateClaim(key, claims[key], '', index, claimsObj);
+                index++;
         }
     });
 
@@ -169,11 +203,11 @@ const populateClaim = (claim, value, description, index, claimsObject) => {
 };
 
 /**
-* Transforms Unix timestamp to date and returns a string value of that date
-* @param {String} date Unix timestamp
-* @returns
-*/
+ * Transforms Unix timestamp to date and returns a string value of that date
+ * @param {String} date Unix timestamp
+ * @returns
+ */
 const changeDateFormat = (date) => {
     let dateObj = new Date(date * 1000);
-    return dateObj.toString();
+    return `${date} - [${dateObj.toString()}]`;
 };
