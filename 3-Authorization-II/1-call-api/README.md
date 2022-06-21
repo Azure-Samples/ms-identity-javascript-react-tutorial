@@ -181,7 +181,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the app's registration screen, select the **Authentication** blade.
    - If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
    - In the **Redirect URI** section enter the following redirect URIs:
-     - `https://localhost:3000/redirect`
+     - `http://localhost:3000/redirect`
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
