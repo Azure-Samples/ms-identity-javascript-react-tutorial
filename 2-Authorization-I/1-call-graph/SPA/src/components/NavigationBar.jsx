@@ -15,9 +15,13 @@ export const NavigationBar = () => {
         activeAccount = instance.getActiveAccount();
     }
 
-    const handleLogin = () => {
+    const handleLoginPopup = () => {
         instance.loginPopup(loginRequest).catch((error) => console.log(error));
     };
+
+    const handleLoginRedirect = () => {
+        instance.loginRedirect(loginRequest);
+    } 
 
     const handleSwitchAccount = () => {
         setShowProfilePicker(!showProfilePicker);
@@ -84,10 +88,10 @@ export const NavigationBar = () => {
                             title="Sign In"
                             drop="start"
                         >
-                            <Dropdown.Item as="button" onClick={handleLogin}>
+                            <Dropdown.Item as="button" onClick={handleLoginPopup}>
                                 Sign in using Popup
                             </Dropdown.Item>
-                            <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>
+                            <Dropdown.Item as="button" onClick={handleLoginRedirect}>
                                 Sign in using Redirect
                             </Dropdown.Item>
                         </DropdownButton>

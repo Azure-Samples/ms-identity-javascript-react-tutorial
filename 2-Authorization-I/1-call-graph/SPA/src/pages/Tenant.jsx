@@ -10,7 +10,7 @@ import useTokenAcquisition from '../hooks/useTokenAcquisition';
 
 const TenantContent = () => {
     const [tenantData, setTenantData] = useState(null);
-    const [response] = useTokenAcquisition(protectedResources.armTenants.scopes);
+    const [response] = useTokenAcquisition(protectedResources.armTenants.scopes, InteractionType.Redirect);
 
     useEffect(() => {
         const fetchData = async () => {

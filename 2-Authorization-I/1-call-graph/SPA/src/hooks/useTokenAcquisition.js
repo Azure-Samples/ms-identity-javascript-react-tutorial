@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { InteractionRequiredAuthError } from '@azure/msal-browser';
+import { InteractionRequiredAuthError, InteractionStatus, InteractionType } from '@azure/msal-browser';
 import { useMsal } from '@azure/msal-react';
 
 /**
@@ -7,8 +7,7 @@ import { useMsal } from '@azure/msal-react';
  * @param {Array} scopes
  * @returns response object which contains an access token
  */
-const useTokenAcquisition = (scopes) => {
-
+const useTokenAcquisition = (scopes, type) => {
     /**
      * useMsal is a hook that returns the PublicClientApplication instance,
      * an array of all accounts currently signed in and an inProgress value
@@ -34,10 +33,17 @@ const useTokenAcquisition = (scopes) => {
                 } catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
-                            token = await instance.acquireTokenPopup({
-                                scopes: scopes,
-                                account: account,
-                            });
+                            if (InteractionType.Popup === type) {
+                                token = await instance.acquireTokenPopup({
+                                    scopes: scopes,
+                                    account: account,
+                                });
+                            } else if (InteractionType.Redirect === type) {
+                                token = await instance.acquireTokenRedirect({
+                                    scopes: scopes,
+                                    account: account,
+                                });
+                            }
 
                             setResponse(token);
                         } catch (error) {
@@ -46,8 +52,7 @@ const useTokenAcquisition = (scopes) => {
                     }
                 }
             }
-        }
-
+        };
         getToken();
     }, [account, inProgress, instance]);
 

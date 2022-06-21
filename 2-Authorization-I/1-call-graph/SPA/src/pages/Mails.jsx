@@ -10,7 +10,7 @@ import { getGraphClient } from '../graph';
 import useTokenAcquisition from '../hooks/useTokenAcquisition';
 
 const MailsContent = () => {
-    const [response] = useTokenAcquisition(protectedResources.graphMessages.scopes);
+    const [response] = useTokenAcquisition(protectedResources.graphMessages.scopes, InteractionType.Redirect);
     const [mailsData, setMailsData] = useState(null);
     useEffect(() => {
         const fetchData = async () => {

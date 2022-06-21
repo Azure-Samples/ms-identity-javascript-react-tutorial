@@ -10,7 +10,7 @@ import { getGraphClient } from '../graph';
 import useTokenAcquisition from '../hooks/useTokenAcquisition';
 
 const ProfileContent = () => {
-    const [response] = useTokenAcquisition(protectedResources.graphMe.scopes);
+    const [response] = useTokenAcquisition(protectedResources.graphMe.scopes, InteractionType.Popup);
     const [graphData, setGraphData] = useState(null);
     useEffect(() => {
         const fetchData = async () => {
