@@ -77,21 +77,21 @@ The `Configure.ps1` will stop if it tries to create an Azure AD application whic
 
 ### (Optionally) install AzureAD PowerShell modules
 
-The scripts install the required PowerShell module (AzureAD) for the current user if needed. However, if you want to install if for all users on the machine, you can follow the following steps:
+The scripts install the required PowerShell module (Microsoft.Graph.Applications) for the current user if needed. However, if you want to install if for all users on the machine, you can follow the following steps:
 
-1. If you have never done it already, in the PowerShell window, install the AzureAD PowerShell modules. For this:
+1. If you have never done it already, in the PowerShell window, install the Graph PowerShell modules. For this:
 
    1. Open PowerShell as admin (On Windows, Search Powershell in the search bar, right click on it and select Run as administrator).
    2. Type:
- 
+
       ```PowerShell
-      Install-Module AzureAD
+      Install-Module Microsoft.Graph.Applications
       ```
 
       or if you cannot be administrator on your machine, run:
- 
+
       ```PowerShell
-      Install-Module AzureAD -Scope CurrentUser
+      Install-Module Microsoft.Graph.Applications -Scope CurrentUser
       ```
 
 ### Run the script and start running
@@ -131,7 +131,7 @@ Note that the script will choose the tenant in which to create the applications,
 When you know the identity and credentials of the user in the name of whom you want to create the applications, you can use the non-interactive approach. It's more adapted to DevOps. Here is an example of script you'd want to run in a PowerShell Window
 
 ```PowerShell
-$secpasswd = ConvertTo-SecureString "[Password here]" -AsPlainText -Force
+$secpasswd = ConvertTo-SecureString "[Password here]" -AsPlainText -Force
 $mycreds = New-Object System.Management.Automation.PSCredential ("[login@tenantName here]", $secpasswd)
 . .\Cleanup.ps1 -Credential $mycreds
 . .\Configure.ps1 -Credential $mycreds
@@ -160,7 +160,7 @@ $tenantId = "yourTenantIdGuid"
 This option combines option 2 and option 3: it creates the application in a specific tenant. See option 3 for the way to get the tenant Id. Then run:
 
 ```PowerShell
-$secpasswd = ConvertTo-SecureString "[Password here]" -AsPlainText -Force
+$secpasswd = ConvertTo-SecureString "[Password here]" -AsPlainText -Force
 $mycreds = New-Object System.Management.Automation.PSCredential ("[login@tenantName here]", $secpasswd)
 $tenantId = "yourTenantIdGuid"
 . .\Cleanup.ps1 -Credential $mycreds -TenantId $tenantId
@@ -180,7 +180,7 @@ The acceptable values for this parameter are:
 
 Example:
 
- ```PowerShell
- . .\Cleanup.ps1 -AzureEnvironmentName "AzureGermanyCloud"
- . .\Configure.ps1 -AzureEnvironmentName "AzureGermanyCloud"
- ```
+```PowerShell
+. .\Cleanup.ps1 -AzureEnvironmentName "AzureGermanyCloud"
+. .\Configure.ps1 -AzureEnvironmentName "AzureGermanyCloud"
+```

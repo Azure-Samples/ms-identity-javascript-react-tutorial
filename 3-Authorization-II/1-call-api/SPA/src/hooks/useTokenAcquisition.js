@@ -41,14 +41,13 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                         account: account,
                                     });
                                     break;
+                                default:
                                 case InteractionType.Redirect:
                                     token = await instance.acquireTokenRedirect({
                                         scopes: scopes,
                                         account: account,
                                     });
                                     break;
-                                default:
-                                    interactionType = InteractionType.Popup;
                             }
                             setResponse(token);
                         } catch (error) {

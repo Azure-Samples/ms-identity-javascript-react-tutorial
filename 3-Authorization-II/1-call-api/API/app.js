@@ -41,20 +41,39 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
      * Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
      * For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
      */
-    if (requiredScopeOrAppPermission(token, [
+
+
+    /**
+     * Below we verify if the caller's tenant ID is in the list of allowed tenants.
+     * Since this app is not configured to be multi-tenant, this is only for illustration
+     */
+    const myAllowedTenantsList = [
+        authConfig.credentials.tenantID,
+        // ...
+    ]
+
+    if (!myAllowedTenantsList.includes(authConfig.credentials.tenantID)) {
+        return done(new Error('Unauthorized'), {}, "Tenant not allowed");
+    }
+
+    /**
+     * Below we verify if there's at least one allowed permission in the access token
+     * to be considered valid.
+     */
+    if (!requiredScopeOrAppPermission(token, [
         ...authConfig.protectedRoutes.todolist.delegatedPermissions.read,
         ...authConfig.protectedRoutes.todolist.delegatedPermissions.write,
         ...authConfig.protectedRoutes.todolist.applicationPermissions.read,
         ...authConfig.protectedRoutes.todolist.applicationPermissions.write,
     ])) {
-        /**
-         * If needed, pass down additional user info to route using the second argument below.
-         * This information will be available in the req.user object.
-         */
-        return done(null, {}, token);
-    } else {
-        return done(new Error('Unauthorized'), {}, "Unauthorized");
+        return done(new Error('Unauthorized'), {}, "No delegated or app permission found");
     }
+
+    /**
+     * If needed, pass down additional user info to route using the second argument below.
+     * This information will be available in the req.user object.
+     */
+    done(null, {}, token);
 });
 
 app.use(passport.initialize());

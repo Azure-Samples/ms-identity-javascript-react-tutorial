@@ -12,7 +12,7 @@ const passportConfig = {
         validateIssuer: true,
         passReqToCallback: true,
         loggingLevel: "info",
-        loggingNoPII: false,
+        loggingNoPII: true,
     },
     protectedRoutes: {
         todolist: {
