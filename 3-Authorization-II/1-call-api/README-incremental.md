@@ -68,7 +68,7 @@ There are two projects in this sample. Each needs to be separately registered in
 <details>
   <summary>Expand this section if you want to use this automation:</summary>
 
-> :warning: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+> :warning: If you have never used **Microsoft Graph Powershell SDK** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
 
 1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
 1. If you have never used Azure AD Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
@@ -234,7 +234,8 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
     audience: authConfig.credentials.clientID, // audience is this application
     validateIssuer: authConfig.settings.validateIssuer,
     passReqToCallback: authConfig.settings.passReqToCallback,
-    loggingLevel: authConfig.settings.loggingLevel
+    loggingLevel: authConfig.settings.loggingLevel,
+    loggingNoPII: authConfig.settings.loggingNoPII,
 }, (req, token, done) => {
     /**
      * Below you can do extended token validation and check for additional claims, such as:
@@ -245,16 +246,39 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
      * Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
      * For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
      */
-    if (requiredScopeOrAppPermission(token, [
+
+
+    /**
+     * Below we verify if the caller's tenant ID is in the list of allowed tenants.
+     * Since this app is not configured to be multi-tenant, this is only for illustration
+     */
+    const myAllowedTenantsList = [
+        authConfig.credentials.tenantID,
+        // ...
+    ]
+
+    if (!myAllowedTenantsList.includes(authConfig.credentials.tenantID)) {
+        return done(new Error('Unauthorized'), {}, "Tenant not allowed");
+    }
+
+    /**
+     * Below we verify if there's at least one allowed permission in the access token
+     * to be considered valid.
+     */
+    if (!requiredScopeOrAppPermission(token, [
         ...authConfig.protectedRoutes.todolist.delegatedPermissions.read,
         ...authConfig.protectedRoutes.todolist.delegatedPermissions.write,
         ...authConfig.protectedRoutes.todolist.applicationPermissions.read,
         ...authConfig.protectedRoutes.todolist.applicationPermissions.write,
     ])) {
-        return done(null, {}, token);
-    } else {
-        return done(new Error('Unauthorized'), {}, "Unauthorized");
+        return done(new Error('Unauthorized'), {}, "No delegated or app permission found");
     }
+
+    /**
+     * If needed, pass down additional user info to route using the second argument below.
+     * This information will be available in the req.user object.
+     */
+    done(null, {}, token);
 });
 
 app.use(passport.initialize());
@@ -279,16 +303,25 @@ Access tokens that have neither the **scp** (for delegated permissions) nor **ro
 ```JavaScript
 exports.requiredScopeOrAppPermission = (accessTokenPayload, allowedPermissions) => {
     /**
+     * Access tokens that have neither the 'scp' (for delegated permissions) nor
+     * 'roles' (for application permissions) claim are not to be honored.
+     *
+     * An access token issued by Azure AD will have at least one of the two claims. Access tokens
+     * issued to a user will have the 'scp' claim. Access tokens issued to an application will have
+     * the roles claim. Access tokens that contain both claims are issued only to users, where the scp
+     * claim designates the delegated permissions, while the roles claim designates the user's role.
+     *
      * To determine whether an access token was issued to a user (i.e delegated) or an application
      * more easily, we recommend enabling the optional claim 'idtyp'. For more information, see:
      * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
      */
+
     if (!accessTokenPayload.hasOwnProperty('scp') && !accessTokenPayload.hasOwnProperty('roles')) {
         return false;
+    } else if (accessTokenPayload.hasOwnProperty('roles') && !accessTokenPayload.hasOwnProperty('scp')) {
+        return this.hasApplicationPermissions(accessTokenPayload, allowedPermissions);
     } else if (accessTokenPayload.hasOwnProperty('scp')) {
-        return accessTokenPayload.scp.split(' ').some(scope => allowedPermissions.includes(scope));
-    } else if (accessTokenPayload.hasOwnProperty('roles')) {
-        return accessTokenPayload.roles.some(role => allowedPermissions.includes(role));
+        return this.hasDelegatedPermissions(accessTokenPayload, allowedPermissions);
     }
 }
 ```

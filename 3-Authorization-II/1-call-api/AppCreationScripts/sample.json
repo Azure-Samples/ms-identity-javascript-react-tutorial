@@ -8,57 +8,14 @@
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0",
         "Languages": [
-            "JavaScript"
+            "JavaScript",
+            "Node"
         ],
-        "Description": "This sample demonstrates how to protect a web API",
+        "Description": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory",
         "Products": [
             "React",
             "Express"
         ]
-    },
-    "ReadmeScenario": {
-        "IncludeFilePath": "",
-        "Image": "",
-        "AdditionalNotes": ""
-    },
-    "ReadmePrerequirements": {
-        "FreeText": "",
-        "IncludeFilePath": ""
-    },
-    "ReadmeSetup": {
-        "FreeText": "",
-        "IncludeFilePath": "",
-        "UseNewSetup": "1",
-        "CertificateOption": "0",
-        "CreateProjectIncludeFilePath": "",
-        "AppRegistrationIncludeFilePath": "",
-        "RunSampleIncludeFilePath": ""
-    },
-    "ReadmeTroubleshooting": {
-        "IncludeFilePath": ""
-    },
-    "ReadmeNextSteps": {
-        "FreeText": "",
-        "IncludeFilePath": ""
-    },
-    "ReadmeContributing": {
-        "FreeText": "",
-        "IncludeFilePath": ""
-    },
-    "ReadmeHowTheCodeWasCreated": {
-        "IncludeFilePath": ""
-    },
-    "ReadmeAboutTheCode": {
-        "IncludeFilePath": ""
-    },
-    "ReadmeAzureDeploy": {
-        "IncludeFilePath": ""
-    },
-    "ReadmeUsingTheSample": {
-        "IncludeFilePath": ""
-    },
-    "ReadmeLearnMore": {
-        "IncludeFilePath": ""
     },
     "AADApps": [
         {
@@ -80,14 +37,14 @@
                         "Application"
                     ],
                     "Name": "Todolist.Read.All",
-                    "Description": "Application can only read Todo list"
+                    "Description": "Allow this application to read every users Todo list items"
                 },
                 {
                     "Types": [
                         "Application"
                     ],
                     "Name": "Todolist.ReadWrite.All",
-                    "Description": "Application can read and write into Todo list"
+                    "Description": "Allow this application to read and write every users Todo list items"
                 }
             ]
         },
