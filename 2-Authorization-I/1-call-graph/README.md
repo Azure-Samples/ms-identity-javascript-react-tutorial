@@ -282,8 +282,8 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                         account: account,
                                     });
                                     break;
-                                default:
                                 case InteractionType.Redirect:
+                                default:
                                     token = await instance.acquireTokenRedirect({
                                         scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
                                         account: account,
