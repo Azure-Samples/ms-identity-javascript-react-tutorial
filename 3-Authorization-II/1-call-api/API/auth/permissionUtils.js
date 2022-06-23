@@ -1,10 +1,11 @@
 /**
- * Ensures that the access token has at least one allowed permission.
+ * Verifies that the web API is called with the right permissions i.e. the presented
+ * access token contains at least one permission that this web API requires.
  * @param {Object} accessTokenPayload: Parsed access token payload
  * @param {Array} allowedPermissions: list of allowed permissions i.e. delegated + application
  * @returns {boolean}
  */
-exports.requiredScopeOrAppPermission = (accessTokenPayload, allowedPermissions) => {
+const requiredScopeOrAppPermission = (accessTokenPayload, listOfPermissions) => {
     /**
      * Access tokens that have neither the 'scp' (for delegated permissions) nor
      * 'roles' (for application permissions) claim are not to be honored.
@@ -22,9 +23,9 @@ exports.requiredScopeOrAppPermission = (accessTokenPayload, allowedPermissions) 
     if (!accessTokenPayload.hasOwnProperty('scp') && !accessTokenPayload.hasOwnProperty('roles')) {
         return false;
     } else if (accessTokenPayload.hasOwnProperty('roles') && !accessTokenPayload.hasOwnProperty('scp')) {
-        return this.hasApplicationPermissions(accessTokenPayload, allowedPermissions);
+        return hasApplicationPermissions(accessTokenPayload, listOfPermissions);
     } else if (accessTokenPayload.hasOwnProperty('scp')) {
-        return this.hasDelegatedPermissions(accessTokenPayload, allowedPermissions);
+        return hasDelegatedPermissions(accessTokenPayload, listOfPermissions);
     }
 }
 
@@ -34,7 +35,7 @@ exports.requiredScopeOrAppPermission = (accessTokenPayload, allowedPermissions) 
  * @param {Array} requiredPermission: list of required permissions
  * @returns {boolean}
  */
-exports.hasDelegatedPermissions = (accessTokenPayload, requiredPermission) => {
+const hasDelegatedPermissions = (accessTokenPayload, requiredPermission) => {
     const normalizedRequiredPermissions = requiredPermission.map(permission => permission.toUpperCase());
 
     if (accessTokenPayload.scp?.split(' ').some(claim => normalizedRequiredPermissions.includes(claim.toUpperCase()))) {
@@ -50,7 +51,7 @@ exports.hasDelegatedPermissions = (accessTokenPayload, requiredPermission) => {
  * @param {Array} requiredPermission: list of required permissions
  * @returns {boolean}
  */
-exports.hasApplicationPermissions = (accessTokenPayload, requiredPermission) => {
+const hasApplicationPermissions = (accessTokenPayload, requiredPermission) => {
     const normalizedRequiredPermissions = requiredPermission.map(permission => permission.toUpperCase());
 
     if (accessTokenPayload.roles?.some(claim => normalizedRequiredPermissions.includes(claim.toUpperCase()))) {
@@ -58,4 +59,10 @@ exports.hasApplicationPermissions = (accessTokenPayload, requiredPermission) => 
     }
 
     return false;
+}
+
+module.exports = {
+    requiredScopeOrAppPermission,
+    hasDelegatedPermissions,
+    hasApplicationPermissions,
 }

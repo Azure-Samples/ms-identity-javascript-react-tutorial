@@ -294,7 +294,7 @@ Function ConfigureApplications
 
     # Update config file for 'client'
     $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_App_Id_Uri_Here" = $serviceAadApplication.AppId };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $serviceAadApplication.AppId };
 
     Write-Host "Updating the sample code ($configFile)"
 
