@@ -24,22 +24,23 @@
 
 The following paragraphs:
 
-- [Registering the sample apps with the Microsoft identity platform and updating the configuration files using PowerShell](#Registering-the-sample-apps-with-the-Microsoft-identity-platform-and-updating-the-configuration-files-using-PowerShell)
-  - [Overview](#Overview)
-    - [Quick summary](#Quick-summary)
-    - [More details](#More-details)
-  - [Goal of the provided scripts](#Goal-of-the-provided-scripts)
-    - [Presentation of the scripts](#Presentation-of-the-scripts)
-    - [Usage pattern for tests and DevOps scenarios](#Usage-pattern-for-tests-and-DevOps-scenarios)
-  - [How to use the app creation scripts?](#How-to-use-the-app-creation-scripts)
-    - [Pre-requisites](#Pre-requisites)
-    - [Run the script and start running](#Run-the-script-and-start-running)
-    - [Four ways to run the script](#Four-ways-to-run-the-script)
-      - [Option 1 (interactive)](#Option-1-interactive)
-      - [Option 2 (non-interactive)](#Option-2-non-interactive)
-      - [Option 3 (Interactive, but create apps in a specified tenant)](#Option-3-Interactive-but-create-apps-in-a-specified-tenant)
-      - [Option 4 (non-interactive, and create apps in a specified tenant)](#Option-4-non-interactive-and-create-apps-in-a-specified-tenant)
-    - [Running the script on Azure Sovereign clouds](#Running-the-script-on-Azure-Sovereign-clouds)
+- [Registering the sample apps with the Microsoft identity platform and updating the configuration files using PowerShell](#registering-the-sample-apps-with-the-microsoft-identity-platform-and-updating-the-configuration-files-using-powershell)
+  - [Overview](#overview)
+    - [Quick summary](#quick-summary)
+    - [More details](#more-details)
+  - [Goal of the provided scripts](#goal-of-the-provided-scripts)
+    - [Presentation of the scripts](#presentation-of-the-scripts)
+    - [Usage pattern for tests and DevOps scenarios](#usage-pattern-for-tests-and-devops-scenarios)
+  - [How to use the app creation scripts?](#how-to-use-the-app-creation-scripts)
+    - [Pre-requisites](#pre-requisites)
+    - [(Optionally) install AzureAD PowerShell modules](#optionally-install-azuread-powershell-modules)
+    - [Run the script and start running](#run-the-script-and-start-running)
+    - [Four ways to run the script](#four-ways-to-run-the-script)
+      - [Option 1 (interactive)](#option-1-interactive)
+      - [Option 2 (non-interactive)](#option-2-non-interactive)
+      - [Option 3 (Interactive, but create apps in a specified tenant)](#option-3-interactive-but-create-apps-in-a-specified-tenant)
+      - [Option 4 (non-interactive, and create apps in a specified tenant)](#option-4-non-interactive-and-create-apps-in-a-specified-tenant)
+    - [Running the script on Azure Sovereign clouds](#running-the-script-on-azure-sovereign-clouds)
 
 ## Goal of the provided scripts
 
@@ -77,21 +78,21 @@ The `Configure.ps1` will stop if it tries to create an Azure AD application whic
 
 ### (Optionally) install AzureAD PowerShell modules
 
-The scripts install the required PowerShell module (AzureAD) for the current user if needed. However, if you want to install if for all users on the machine, you can follow the following steps:
+The scripts install the required PowerShell module (Microsoft.Graph.Applications) for the current user if needed. However, if you want to install if for all users on the machine, you can follow the following steps:
 
-1. If you have never done it already, in the PowerShell window, install the AzureAD PowerShell modules. For this:
+1. If you have never done it already, in the PowerShell window, install the Graph PowerShell PowerShell modules. For this:
 
    1. Open PowerShell as admin (On Windows, Search Powershell in the search bar, right click on it and select Run as administrator).
    2. Type:
  
       ```PowerShell
-      Install-Module AzureAD
+      Install-Module Microsoft.Graph.Applications
       ```
 
       or if you cannot be administrator on your machine, run:
  
       ```PowerShell
-      Install-Module AzureAD -Scope CurrentUser
+      Install-Module Microsoft.Graph.Applications -Scope CurrentUser
       ```
 
 ### Run the script and start running
