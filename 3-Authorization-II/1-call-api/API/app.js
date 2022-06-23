@@ -66,35 +66,50 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
         ...authConfig.protectedRoutes.todolist.applicationPermissions.read,
         ...authConfig.protectedRoutes.todolist.applicationPermissions.write,
     ])) {
-        return done(new Error('Unauthorized'), {}, "No delegated or app permission found");
+        return done(new Error('Unauthorized'), {}, "No required delegated or app permission found");
     }
 
     /**
      * If needed, pass down additional user info to route using the second argument below.
      * This information will be available in the req.user object.
      */
-    done(null, {}, token);
+    return done(null, {}, token);
 });
 
 app.use(passport.initialize());
 
 passport.use(bearerStrategy);
 
-// exposed API endpoint
-app.use('/api',
-    passport.authenticate('oauth-bearer', {
-        session: false,
+app.use('/api', function (req, res, next) {
+  passport.authenticate('oauth-bearer', {
+      session: false,
 
-        /**
-         * If you are building a multi-tenant application and you need supply the tenant ID or name dynamically, uncomment
-         * the line below and pass in the tenant information. For more information, see:
-         * https://github.com/AzureAD/passport-azure-ad#423-options-available-for-passportauthenticate
-         */
+      /**
+       * If you are building a multi-tenant application and you need supply the tenant ID or name dynamically,
+       * uncomment the line below and pass in the tenant information. For more information, see:
+       * https://github.com/AzureAD/passport-azure-ad#423-options-available-for-passportauthenticate
+       */
 
-        // tenantIdOrName: <some-tenant-id-or-name>
-    }),
-    router
-);
+      // tenantIdOrName: <some-tenant-id-or-name>
+
+  }, (err, user, info) => {
+      if (err) {
+          /**
+           * An error occurred during authorization. Either pass the error to the next function
+           * for Express error handler to handle, or send a response with the appropriate status code.
+           */
+          return next(err)
+      }
+
+      if (info) {
+        // access token payload will be available in req.authInfo downstream
+        req.authInfo = info;
+        return next();
+      }
+  })(req, res, next);
+}, router);
+
+
 
 const port = process.env.PORT || 4000;
 

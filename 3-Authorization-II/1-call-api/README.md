@@ -200,7 +200,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `SPA\src\authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_App_Id_Uri` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://<msal-node-api-client-id>`
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://<msal-node-api-client-id>/Todolist.Read`
 
 ## Running the sample
 
@@ -332,7 +332,7 @@ For validation and debugging purposes, developers can decode **JWT**s (*JSON Web
 Access tokens that have neither the **scp** (for delegated permissions) nor **roles** (for application permissions) claim should not be accepted. In the sample, this is illustrated via the `requiredScopeOrAppPermission` method in [permissionUtils.js](./API/auth/permissionUtils.js)
 
 ```JavaScript
-exports.requiredScopeOrAppPermission = (accessTokenPayload, allowedPermissions) => {
+exports.requiredScopeOrAppPermission = (accessTokenPayload, listOfPermissions) => {
     /**
      * Access tokens that have neither the 'scp' (for delegated permissions) nor
      * 'roles' (for application permissions) claim are not to be honored.
@@ -350,9 +350,9 @@ exports.requiredScopeOrAppPermission = (accessTokenPayload, allowedPermissions) 
     if (!accessTokenPayload.hasOwnProperty('scp') && !accessTokenPayload.hasOwnProperty('roles')) {
         return false;
     } else if (accessTokenPayload.hasOwnProperty('roles') && !accessTokenPayload.hasOwnProperty('scp')) {
-        return this.hasApplicationPermissions(accessTokenPayload, allowedPermissions);
+        return this.hasApplicationPermissions(accessTokenPayload, listOfPermissions);
     } else if (accessTokenPayload.hasOwnProperty('scp')) {
-        return this.hasDelegatedPermissions(accessTokenPayload, allowedPermissions);
+        return this.hasDelegatedPermissions(accessTokenPayload, listOfPermissions);
     }
 }
 ```

@@ -13,7 +13,7 @@ import "./styles/index.css";
  * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
  * For more, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
-export const msalInstance = new PublicClientApplication(msalConfig);
+const msalInstance = new PublicClientApplication(msalConfig);
 
 // Default to using the first account if no account is active on page load
 if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
