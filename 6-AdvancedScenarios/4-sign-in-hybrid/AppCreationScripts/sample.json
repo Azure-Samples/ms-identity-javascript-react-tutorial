@@ -9,7 +9,7 @@
         "Endpoint": "AAD v2.0",
         "Languages": ["JavaScript"],
         "Description": "This sample demonstrates an Express web app calling a React SPA using the Hybrid SPA flow",
-        "Products": ["React", "Express"]
+        "Products": ["React", "Express", "msal", "azure active directory"]
     },
     "ReadmeScenario": {
         "IncludeFilePath": "../ReadmeFiles/ReadmeScenario.md"
