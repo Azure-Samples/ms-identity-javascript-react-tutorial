@@ -43,6 +43,8 @@ The order of operations is as follows:
 
 4. The **Microsoft Graph API** responds with the resource if user is authorized.
 
+![Overview](./ReadmeFiles/Images/topology.png)
+
 ## Prerequisites
 
 * [Node.js](https://nodejs.org/en/download/) must be installed to run this sample.
@@ -123,12 +125,12 @@ There is one project in this sample. To register it, you can:
    * In the **Redirect URI (optional)** section, select **Web** in the combo-box and enter the following redirect URI: `http://localhost:5000/redirect`.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. In the app's registration screen, select **Authentication** in the menu.
+1. In the app's registration screen, select **Authentication** blade.
    * If you don't have a platform added, select **Add a platform** and select the **Web** option.
    * In the **Redirect URIs** section, enter the following redirect URIs.
      * `http://localhost:5000/redirect`
    * Click on the **Add a platform** button in the **Platform configurations** section of the page.
-     * Select the **Single-page application** button and enter `https://localhost:5000/blank` as the **Redirect URI** and click the **Configure** button.
+     * Select the **Single-page application** button and enter `http://localhost:5000/blank` as the **Redirect URI** and click the **Configure** button.
 1. Select **Save** to save your changes.
 1. In the app's registration screen, select the **Certificates & secrets** blade in the left to open the page where you can generate secrets and upload certificates.
 1. In the **Client secrets** section, select **New client secret**:
