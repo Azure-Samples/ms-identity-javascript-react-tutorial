@@ -8,6 +8,7 @@
  1. [Registration](#registration)
  1. [Running the sample](#running-the-sample)
  1. [Explore the sample](#explore-the-sample)
+ 1. [Deploy the sample](#deploy-the-sample)
  1. [About the code](#about-the-code)
  1. [More information](#more-information)
  1. [Community Help and Support](#community-help-and-support)
@@ -35,13 +36,11 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 |-------------------------------------|----------------------------------------------------------------------------|
 | `App.jsx`                           | Main application logic resides here.                                       |
 | `fetch.jsx`                         | Provides a helper method for making fetch calls using bearer token scheme. |
-| `graph.jsx`                         | Instantiates Graph SDK client                                   ~~~~           |
 | `authConfig.js`                     | Contains authentication configuration parameters.                          |
 | `pages/Home.jsx`                    | Contains a table with ID token claims and description                      |
 | `pages/Redirect.jsx`                | Blank page for redirect purposes. When using popup and silent APIs         |
 | `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` endpoint vith Graph SDK.                       |
 | `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` endpoint vith Graph SDK.              |
-| `pages/Tenants.jsx`                 | Calls Microsoft Graph `/tenants` endpoint via fetch API.                   |
 | `hooks/useTokenAcquisition.js`      | Custom hook to handle token acquisition with MSAL.js                       |
 | `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js         |
 
@@ -169,6 +168,13 @@ Locate the folder where `package.json` resides in your terminal. Then:
 ## We'd love your feedback!
 
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu).
+
+## Deploy the sample
+
+To deploy this sample to Azure please check both implementations in chapter four:
+
+1. [Deploy to Azure Storage and App Service](../../4-Deployment/1-deploy-storage/)  
+1. [Deploy to Azure Static Web Apps](../../4-Deployment/2-deploy-static/)
 
 ## About the code
 
