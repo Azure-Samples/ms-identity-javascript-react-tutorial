@@ -16,7 +16,7 @@ export const msalConfig = {
         authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: '/redirect', // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
         postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
-        ClientCapabilities: ['CP1'], // this lets the resource owner know that this client is capable of handling claims challenge.
+        clientCapabilities: ['CP1'], // this lets the resource owner know that this client is capable of handling claims challenge.
     },
     cache: {
         cacheLocation: 'localStorage', // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
@@ -58,7 +58,7 @@ export const msalConfig = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: ["User.Read", "Mail.Read"]
+    scopes: ['User.Read', 'Contacts.Read']
 };
 
 /**
@@ -67,14 +67,10 @@ export const loginRequest = {
  */
 export const protectedResources = {
     graphMe: {
-        endpoint: "https://graph.microsoft.com/v1.0/me",
-        scopes: ["User.Read"],
-    }, graphMessages: {
-        endpoint: "https://graph.microsoft.com/v1.0/me/messages",
-        scopes: ["Mail.Read"],
+        endpoint: 'https://graph.microsoft.com/v1.0/me',
+        scopes: ['User.Read'],
+    }, graphContacts: {
+        endpoint: 'https://graph.microsoft.com/v1.0/me/contacts',
+        scopes: ['Contacts.Read'],
     },
-    armTenants: {
-        endpoint: "https://management.azure.com/tenants?api-version=2020-01-01",
-        scopes: ["https://management.azure.com/user_impersonation"],
-    }
-}
+};

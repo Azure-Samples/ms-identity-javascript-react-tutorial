@@ -33,7 +33,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     changeDateFormat(claims[key]),
-                    'Issued At indicates when the authentication for this token occurred.',
+                    '"Issued At" indicates the timestamp (UNIX timestamp) when the authentication for this user occurred.',
                     index,
                     claimsObj
                 );
@@ -43,7 +43,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     changeDateFormat(claims[key]),
-                    'The nbf (not before) claim identifies the time (as UNIX timestamp) before which the JWT must not be accepted for processing.',
+                    'The nbf (not before) claim dictates the time (as UNIX timestamp) before which the JWT must not be accepted for processing.',
                     index,
                     claimsObj
                 );
@@ -53,7 +53,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     changeDateFormat(claims[key]),
-                    "The exp (expiration time) claim identifies the expiration time (as UNIX timestamp) on or after which the JWT must not be accepted for processing. It's important to note that in certain circumstances, a resource may reject the token before this time. For example, if a change in authentication is required or a token revocation has been detected.",
+                    "The exp (expiration time) claim dictates the expiration time (as UNIX timestamp) on or after which the JWT must not be accepted for processing. It's important to note that in certain circumstances, a resource may reject the token before this time. For example, if a change in authentication is required or a token revocation has been detected.",
                     index,
                     claimsObj
                 );
@@ -63,7 +63,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     claims[key],
-                    "The name claim provides a human-readable value that identifies the subject of the token. The value isn't guaranteed to be unique, it can be changed, and it's designed to be used only for display purposes. The profile scope is required to receive this claim.",
+                    "The name claim provides a human-readable value that identifies the subject of the token. The value isn't guaranteed to be unique, it can be changed, and it's designed to be used only for display purposes. The 'profile' scope is required to receive this claim.",
                     index,
                     claimsObj
                 );
@@ -93,7 +93,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     claims[key],
-                    'The oid (user’s object id) is the only claim that should be used to uniquely identify a user in an Azure AD tenant. The token might have one or more of the following claim, that might seem like a unique identifier, but is not and should not be used as such.',
+                    'The oid (user’s object id) is the only claim that should be used to uniquely identify a user in an Azure AD tenant.',
                     index,
                     claimsObj
                 );
@@ -103,7 +103,7 @@ export const createClaimsTable = (claims) => {
                 populateClaim(
                     key,
                     claims[key],
-                    'The tenant ID. You will use this claim to ensure that only users from the current Azure AD tenant can access this app.',
+                    'The id of the tenant where this app resides. You can use this claim to ensure that only users from the current Azure AD tenant can access this app.',
                     index,
                     claimsObj
                 );
@@ -211,3 +211,5 @@ const changeDateFormat = (date) => {
     let dateObj = new Date(date * 1000);
     return `${date} - [${dateObj.toString()}]`;
 };
+
+

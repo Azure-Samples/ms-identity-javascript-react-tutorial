@@ -4,6 +4,7 @@ import { Nav, Navbar, Button, Dropdown, DropdownButton } from 'react-bootstrap';
 import { loginRequest } from '../authConfig';
 import { AccountPicker } from './AccountPicker';
 import { msalConfig } from '../authConfig';
+import { clearStorage } from '../utils/storageUtils';
 
 export const NavigationBar = () => {
     const [showProfilePicker, setShowProfilePicker] = useState(false);
@@ -27,6 +28,27 @@ export const NavigationBar = () => {
         setShowProfilePicker(!showProfilePicker);
     };
 
+    const handleLogoutRedirect = () => {
+        let account = instance.getActiveAccount()
+        clearStorage(account);
+        instance.logoutRedirect({
+            postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
+            account: instance.getActiveAccount(),
+        })
+    }
+
+     const handleLogoutPopup = () => {
+         let account = instance.getActiveAccount();
+         clearStorage(account);
+         instance.logoutPopup({
+             postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
+             account: instance.getActiveAccount(),
+         });
+     };
+
+
+
+
     /**
      * Most applications will need to conditionally render certain components based on whether a user is signed in or not.
      * msal-react provides 2 easy ways to do this. AuthenticatedTemplate and UnauthenticatedTemplate components will
@@ -42,11 +64,8 @@ export const NavigationBar = () => {
                     <Nav.Link className="navbarButton" href="/profile">
                         Profile
                     </Nav.Link>
-                    <Nav.Link as={Button} className="navbarButton" href="/mails">
-                        Mails
-                    </Nav.Link>
-                    <Nav.Link as={Button} className="navbarButton" href="/tenant">
-                        Tenant
+                    <Nav.Link as={Button} className="navbarButton" href="/contacts">
+                        Contacts
                     </Nav.Link>
                     <div className="collapse navbar-collapse justify-content-end">
                         <DropdownButton
@@ -57,24 +76,10 @@ export const NavigationBar = () => {
                             <Dropdown.Item as="button" onClick={handleSwitchAccount}>
                                 Switch account
                             </Dropdown.Item>
-                            <Dropdown.Item
-                                as="button"
-                                onClick={() =>
-                                    instance.logoutPopup({
-                                        postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
-                                    })
-                                }
-                            >
+                            <Dropdown.Item as="button" onClick={handleLogoutPopup}>
                                 Sign out using Popup
                             </Dropdown.Item>
-                            <Dropdown.Item
-                                as="button"
-                                onClick={() =>
-                                    instance.logoutRedirect({
-                                        postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
-                                    })
-                                }
-                            >
+                            <Dropdown.Item as="button" onClick={handleLogoutRedirect}>
                                 Sign out using Redirect
                             </Dropdown.Item>
                         </DropdownButton>

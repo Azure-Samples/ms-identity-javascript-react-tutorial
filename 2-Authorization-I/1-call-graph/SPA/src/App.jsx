@@ -2,10 +2,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { MsalProvider } from '@azure/msal-react';
 
 import { PageLayout } from './components/PageLayout';
-import { Mails } from './pages/Mails';
-import { Tenant } from './pages/Tenant';
 import { Profile } from './pages/Profile';
 import { Redirect } from './pages/Redirect';
+import { Contacts } from './pages/Contacts';
 import { Home } from './pages/Home';
 
 import './styles/App.css';
@@ -14,8 +13,7 @@ const Pages = () => {
     return (
         <Routes>
             <Route path="/profile" element={<Profile />} />
-            <Route path="/mails" element={<Mails />} />
-            <Route path="/tenant" element={<Tenant />} />
+            <Route path="/contacts" element={<Contacts />} />
             <Route path="/redirect" element={<Redirect />} />
             <Route path="/" element={<Home />} />
         </Routes>

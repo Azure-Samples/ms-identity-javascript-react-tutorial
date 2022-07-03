@@ -1,5 +1,7 @@
 import Table from 'react-bootstrap/Table';
 import { createClaimsTable } from '../utils/claimUtils';
+import { Card, Row } from 'react-bootstrap';
+
 
 import '../styles/App.css';
 
@@ -8,16 +10,22 @@ export const ProfileData = (props) => {
         return (
             <tr key={index}>
                 <td>
-                    <b>{entry[0]}: </b>
+                    <b>{entry[0]} </b>
                 </td>
                 <td>{entry[1]}</td>
             </tr>
         );
     });
-
     return (
         <>
             <div className="data-area-div">
+                <p>
+                    Acquired an <strong>Access Token </strong>for MS Graph with scopes:
+                    {props.response.scopes.map((scope, index) => (
+                        <mark key={scope}>{scope}</mark>
+                    ))}
+                </p>
+
                 <p>
                     Calling <strong>Microsoft Graph API</strong>...
                 </p>
@@ -29,7 +37,7 @@ export const ProfileData = (props) => {
                         <strong>endpoint:</strong> <mark>https://graph.microsoft.com/v1.0/me</mark>
                     </li>
                     <li>
-                        <strong>scope:</strong> <mark>user.read</mark>
+                        <strong>scope:</strong>
                     </li>
                 </ul>
                 <p>
@@ -37,106 +45,19 @@ export const ProfileData = (props) => {
                 </p>
             </div>
             <div className="data-area-div">
-                <table>
+                <Table responsive striped bordered hover>
                     <thead></thead>
                     <tbody>{tableRows}</tbody>
-                </table>
+                </Table>
             </div>
         </>
     );
 };
 
-export const MailsData = (props) => {
-    const mails = props.mailsData.value.map((mail, index) => {
-        return (
-            <div key={index}>
-                <p>
-                    <b>subject:</b> {mail.subject}
-                </p>
-                <p>
-                    <b>from:</b> {mail.from.emailAddress.address}
-                </p>
-                <p>
-                    <b>message:</b> {mail.bodyPreview}...
-                </p>
-                <hr />
-            </div>
-        );
-    });
-
-    return (
-        <>
-            <div className="data-area-div">
-                <p>
-                    Calling <strong>Microsoft Graph API</strong>...
-                </p>
-                <ul>
-                    <li>
-                        <strong>resource:</strong> <mark>User</mark> object
-                    </li>
-                    <li>
-                        <strong>endpoint:</strong> <mark>https://graph.microsoft.com/v1.0/me/messages</mark>
-                    </li>
-                    <li>
-                        <strong>scope:</strong> <mark>mail.read</mark>
-                    </li>
-                </ul>
-                <p>
-                    Contents of the <strong>response</strong> is below:
-                </p>
-            </div>
-            <div className="data-area-div">{mails}</div>
-        </>
-    );
-};
-
-export const TenantData = (props) => {
-    const tableRows = Object.entries(props.tenantData.value[0]).map((entry, index) => {
-        return (
-            <tr key={index}>
-                <td>
-                    <b>{entry[0]}: </b>
-                </td>
-                <td>{entry[1]}</td>
-            </tr>
-        );
-    });
-
-    return (
-        <>
-            <div className="data-area-div">
-                <p>
-                    Calling <strong>Azure Resource Manager API</strong>...
-                </p>
-                <ul>
-                    <li>
-                        <strong>resource:</strong> <mark>Tenant</mark> object
-                    </li>
-                    <li>
-                        <strong>endpoint:</strong>{' '}
-                        <mark>https://management.azure.com/tenants?api-version=2020-01-01</mark>
-                    </li>
-                    <li>
-                        <strong>scope:</strong> <mark>https://management.azure.com/user_impersonation</mark>
-                    </li>
-                </ul>
-                <p>
-                    Contents of the <strong>response</strong> is below:
-                </p>
-            </div>
-            <div className="data-area-div">
-                <table>
-                    <thead></thead>
-                    <tbody>{tableRows}</tbody>
-                </table>
-            </div>
-        </>
-    );
-};
 
 export const IdTokenData = (props) => {
     const tokenClaims = createClaimsTable(props.idTokenClaims);
-    const tableRow = Object.keys(tokenClaims).map((key, index) => {
+    const tableRow = Object.keys(tokenClaims).map((key) => {
         return (
             <tr key={key}>
                 {tokenClaims[key].map((claimItem) => (
@@ -159,7 +80,7 @@ export const IdTokenData = (props) => {
                         </a>
                     </span>
                 </p>
-                <div className="data-area-div">
+                <div className="data-area-div table">
                     <Table responsive striped bordered hover>
                         <thead>
                             <tr>
@@ -175,3 +96,55 @@ export const IdTokenData = (props) => {
         </>
     );
 };
+
+export const GraphContacts = (props) => {
+    return (
+        <>
+            <Row>
+                <div className="data-area-div">
+                    <p>
+                        Acquired an <strong>Access Token </strong>for MS Graph with scopes:
+                        {props.response.scopes.map((scope, index) => (
+                            <mark key={scope}>{scope}</mark>
+                        ))}
+                    </p>
+
+                    <p>
+                        Calling <strong>Microsoft Graph API</strong>...
+                    </p>
+                    <ul>
+                        <li>
+                            <strong>resource:</strong>
+                            <mark>Users</mark> object
+                        </li>
+                        <li>
+                            <strong>endpoint:</strong> <mark>https://graph.microsoft.com/v1.0/me/contacts</mark>
+                        </li>
+                        <li>
+                            <strong>scope:</strong>
+                            <mark>Contacts.Read</mark>
+                        </li>
+                    </ul>
+                    <p>
+                        Contents of the <strong>response</strong> is below:
+                    </p>
+                </div>
+            </Row>
+            <Row className="d-flex flex-row">
+                {props.graphContacts.map((contact) => (
+                    <Card className="card" key={contact.id}>
+                        <Card.Img
+                            className="cardImage"
+                            variant="top"
+                            src={contact.image ? contact.image : require('../images/blank-profile.png')}
+                        />
+                        <Card.Body>
+                            <Card.Title>{contact.displayName}</Card.Title>
+                            <Card.Text>{contact.personalNotes}</Card.Text>
+                        </Card.Body>
+                    </Card>
+                ))}
+            </Row>
+        </>
+    );
+}

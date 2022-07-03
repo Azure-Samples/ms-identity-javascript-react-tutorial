@@ -6,27 +6,32 @@
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0"
     },
+    "ReadmeScenario": {
+        "FreeText": "",
+        "IncludeFilePath": "",
+        "UseNewSetup": "1" /* when set to 0, only legacy setup will be used */,
+        "CertificateOption": "0" /* 1 when a certificate can be used instead of secret*/,
+        "CreateProjectIncludeFilePath": "",
+        "AppRegistrationIncludeFilePath": "",
+        "RunSampleIncludeFilePath": ""
+    },
     "AADApps": [
         {
-          "Id": "spa",
-          "Name": "ms-identity-react-c2s1",
-          "Kind": "SinglePageApplication",
-          "HomePage": "http://localhost:3000/",
-          "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
-          "Audience": "AzureADMyOrg",
-          "RequiredResourcesAccess": [
-            {
-              "Resource": "Microsoft Graph",
-              "DelegatedPermissions": ["User.Read", "Mail.Read"]
-            },
-            {
-              "Resource": "Windows Azure Service Management API",
-              "DelegatedPermissions": ["user_impersonation"]
+            "Id": "spa",
+            "Name": "ms-identity-react-c2s1",
+            "Kind": "SinglePageApplication",
+            "HomePage": "http://localhost:3000/",
+            "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
+            "Audience": "AzureADMyOrg",
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": ["User.Read", "Contacts.Read"]
+                }
+            ],
+            "OptionalClaims": {
+                "IdTokenClaims": ["sid", "login_hint", "email", "upn", "acct"]
             }
-          ],
-          "OptionalClaims": {
-            "IdTokenClaims": ["sid", "login_hint", "email", "upn", "acct"]
-          }
         }
     ],
     "CodeConfiguration": [

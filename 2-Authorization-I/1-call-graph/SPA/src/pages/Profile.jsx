@@ -5,22 +5,24 @@ import { InteractionType } from '@azure/msal-browser';
 import { loginRequest } from '../authConfig';
 import { ProfileData } from '../components/DataDisplay';
 import { protectedResources } from '../authConfig';
-import { getGraphClient } from '../graph';
 
 import useTokenAcquisition from '../hooks/useTokenAcquisition';
 
+import { callApiWithToken } from '../fetch';
+
 const ProfileContent = () => {
-    const [response] = useTokenAcquisition(protectedResources.graphMe.scopes, InteractionType.Popup);
+    const [response, error] = useTokenAcquisition(protectedResources.graphMe.scopes, InteractionType.Redirect);
     const [graphData, setGraphData] = useState(null);
     useEffect(() => {
         const fetchData = async () => {
             if (response && !graphData) {
                 try {
-                    const graphClient = getGraphClient(response.accessToken);
-                    let data = await graphClient.api(protectedResources.graphMe.endpoint).get();
+                    let data = await callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint,  protectedResources.graphMe.scopes)
+                    
+                    if (data && data.error) throw data.error;
                     setGraphData(data);
                 } catch (error) {
-                    console.log(error);
+                    console.log(error);                    
                 }
             }
         };
@@ -28,7 +30,7 @@ const ProfileContent = () => {
         fetchData();
     }, [response]);
 
-    return <>{graphData ? <ProfileData graphData={graphData} /> : null}</>;
+    return <>{graphData ? <ProfileData response={response} graphData={graphData} /> : null}</>;
 };
 
 /**

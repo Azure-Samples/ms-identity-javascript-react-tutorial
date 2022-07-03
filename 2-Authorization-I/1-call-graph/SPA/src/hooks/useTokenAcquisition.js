@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { InteractionRequiredAuthError, InteractionStatus, InteractionType } from '@azure/msal-browser';
 import { useMsal } from '@azure/msal-react';
+import { msalConfig } from '../authConfig';
 
 /**
  * A custom hook for acquiring tokens using MSAL
@@ -19,46 +20,76 @@ const useTokenAcquisition = (scopes, interactionType) => {
     const { instance, inProgress } = useMsal();
     const account = instance.getActiveAccount();
     const [response, setResponse] = useState(null);
+    const [error, setError] = useState(null)
 
     useEffect(() => {
         const getToken = async () => {
-            let token;
-            if (account && inProgress === InteractionStatus.None && !response) {
+            let tokenResponse;
+            if (account && inProgress === InteractionStatus.None && (!response && !error)    ) {
                 try {
-                    token = await instance.acquireTokenSilent({
+                    tokenResponse = await instance.acquireTokenSilent({
                         scopes: scopes,
                         account: account,
+                        claims: localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                            ? window.atob(
+                                  localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                              )
+                            : null,
                     });
-
-                    setResponse(token);
-                } catch (error) {
+                    setResponse(tokenResponse);
+                } 
+                
+                catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
                             switch (interactionType) {
                                 case InteractionType.Popup:
-                                    token = await instance.acquireTokenPopup({
+                                    tokenResponse = await instance.acquireTokenPopup({
                                         scopes: scopes,
                                         account: account,
+                                        claims: localStorage.getItem('claimsChallenge')
+                                            ? window.atob(localStorage.getItem('claimsChallenge'))
+                                            : null,
                                     });
                                     break;
                                
                                 case InteractionType.Redirect:
                                 default:
-                                    token = await instance.acquireTokenRedirect({
+                                    tokenResponse = await instance.acquireTokenRedirect({
                                         scopes: scopes,
                                         account: account,
-                                    });
+                                        claims: localStorage.getItem(
+                                            `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                        )
+                                            ? window.atob(
+                                                  localStorage.getItem(
+                                                      `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                                  )
+                                              )
+                                            : null,
+                                    }); 
                                     break;
                             }
-                            setResponse(token);
+                            setResponse(tokenResponse);
                         } catch (error) {
+                           
                             if (error.errorCode === 'popup_window_error') {
-                                token = await instance.acquireTokenRedirect({
+                                tokenResponse = await instance.acquireTokenRedirect({
                                     scopes: scopes,
                                     account: account,
+                                    claims: localStorage.getItem(
+                                        `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                    )
+                                        ? window.atob(
+                                              localStorage.getItem(
+                                                  `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                              )
+                                          )
+                                        : null,
                                 });
+                                setResponse(tokenResponse);
                             }else {
-                                console.log(error);
+                                setError(error);
                             }
                         }
                     }
@@ -68,7 +99,7 @@ const useTokenAcquisition = (scopes, interactionType) => {
         getToken();
     }, [account, inProgress, instance]);
 
-    return [response];
+    return [response, error];
 };
 
 export default useTokenAcquisition;

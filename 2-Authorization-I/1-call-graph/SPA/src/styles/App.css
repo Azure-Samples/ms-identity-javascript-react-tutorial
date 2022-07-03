@@ -25,3 +25,20 @@
 .tableColumn {
   word-break: break-all
 }
+
+.table { 
+  max-height: 37rem;
+}
+
+.card {
+  max-width: 20rem !important;
+  margin: 2px;
+  padding: 2px;
+}
+
+.cardImage { 
+  width: 180px  !important;
+  height: 180px;
+  
+}
+

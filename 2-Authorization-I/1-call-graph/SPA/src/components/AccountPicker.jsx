@@ -54,7 +54,7 @@ export const AccountPicker = (props) => {
                                 as="li"
                                 role="button"
                                 active={
-                                    instance.getActiveAccount().localAccountId === account.localAccountId ? true : false
+                                    instance.getActiveAccount()?.localAccountId === account.localAccountId ? true : false
                                 }
                                 key={account.homeAccountId}
                                 onClick={() => handleListItemClick(account)}
