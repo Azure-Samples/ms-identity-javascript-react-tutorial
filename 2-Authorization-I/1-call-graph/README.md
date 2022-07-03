@@ -341,49 +341,6 @@ export default useTokenAcquisition;
 
 Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
-### Calling the Microsoft Graph API
-
-[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. The SDK has a default authentication provider that can be used in basic scenarios. To do so, we will initialize the Graph SDK client with [clientOptions](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md) method, which contains an `authProvider` object. We will pass the obtained access token to the `authProvider` object as shown in the code below:
-
-```javascript
-export const getGraphClient = (accessToken) => {
-    // Initialize Graph client
-    const client = Client.init({
-        // Use the provided access token to authenticate requests
-        authProvider: (done) => {
-            done(null, accessToken);
-        },
-    });
-
-    return client;
-};
-```
-
-See [graph.js](./SPA/src/graph.js). The Graph client then can be used in your components as shown below:
-
-```javascript
-const ProfileContent = () => {
-    const [response] = useTokenAcquisition(protectedResources.graphMe.scopes);
-    const [graphData, setGraphData] = useState(null);
-    useEffect(() => {
-        const fetchData = async () => {
-            if (response && !graphData) {
-                try {
-                    const graphClient = getGraphClient(response.accessToken);
-                    let data = await graphClient.api(protectedResources.graphMe.endpoint).get();
-                    setGraphData(data);
-                } catch (error) {
-                    console.log(error);
-                }
-            }
-        };
-
-        fetchData();
-    }, [response]);
-
-    return <>{graphData ? <ProfileData graphData={graphData} /> : null}</>;
-};
-```
 
 ### Calling the Microsoft Graph API
 
