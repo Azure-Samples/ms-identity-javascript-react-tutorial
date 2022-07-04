@@ -26,7 +26,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD**.
 2. The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**.
-3. The **Microsoft Graph API** responds with the resource if user is authorized.
+3. The **Microsoft Graph API** responds with the payload if user is authorized.
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -347,39 +347,6 @@ export default useTokenAcquisition;
 
 Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
-
-### Calling the Microsoft Graph API
-
-Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), simply add the `Authorization` header to your request, followed by the **access token** you have obtained previously for this resource/endpoint (as a [bearer token](https://tools.ietf.org/html/rfc6750)):
-
-```javascript
-/**
- * Makes a GET request using authorization header. For more, visit:
- * https://tools.ietf.org/html/rfc6750
- * @param {string} accessToken
- * @param {string} apiEndpoint
- * @param {Array} scopes
- * @param {boolean} isImage
- */
-export const callApiWithToken = async (accessToken, apiEndpoint, scopes, isImage = false) => {
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-
-    headers.append('Authorization', bearer);
-
-    const options = {
-        method: 'GET',
-        headers: headers,
-    };
-
-    return fetch(apiEndpoint, options)
-        .then((response) => handleClaimsChallenge(response, scopes, isImage))
-        .catch((error) => console.log(error));
-};
-```
-
-See [fetch.js](./SPA/src/fetch.js).
-
 ### Checking for client capabilities
 
 The client capabilities claim (xms_cc) indicate whether a client application can satisfy the claims challenge generated The following events:
@@ -409,7 +376,7 @@ const msalInstance = new PublicClientApplication(msalConfig);
 
 ### Handling claims challenge
 
-Once the client app receives the claims challenge, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `acquireTokenPopup()` API and provide the claims challenge as a parameter in the token request. This is shown in [fetch.js](./SPA/src/fetch.js), where we handle the response from a HTTP DELETE request the to web API with the `handleClaimsChallenge` method:
+Once the client app receives the claims challenge, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `acquireTokenPopup()` API and provide the claims challenge as a parameter in the token request. This is shown in [fetch.js](./SPA/src/fetch.js), where we handle the response from the Microsoft Graph API with the `handleClaimsChallenge` method:
 
 ```javascript
 const handleClaimsChallenge = async (response, scopes, isImage) => { 
@@ -468,6 +435,38 @@ const handleClaimsChallenge = async (response, scopes, isImage) => {
     throw response.json();
 };
 ```
+
+### Calling the Microsoft Graph API
+
+Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), simply add the `Authorization` header to your request, followed by the **access token** you have obtained previously for this resource/endpoint (as a [bearer token](https://tools.ietf.org/html/rfc6750)):
+
+```javascript
+/**
+ * Makes a GET request using authorization header. For more, visit:
+ * https://tools.ietf.org/html/rfc6750
+ * @param {string} accessToken
+ * @param {string} apiEndpoint
+ * @param {Array} scopes
+ * @param {boolean} isImage
+ */
+export const callApiWithToken = async (accessToken, apiEndpoint, scopes, isImage = false) => {
+    const headers = new Headers();
+    const bearer = `Bearer ${accessToken}`;
+
+    headers.append('Authorization', bearer);
+
+    const options = {
+        method: 'GET',
+        headers: headers,
+    };
+
+    return fetch(apiEndpoint, options)
+        .then((response) => handleClaimsChallenge(response, scopes, isImage))
+        .catch((error) => console.log(error));
+};
+```
+
+See [fetch.js](./SPA/src/fetch.js).
 
 ### Working with React routes
 

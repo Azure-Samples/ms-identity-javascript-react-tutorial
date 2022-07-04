@@ -173,6 +173,15 @@ export const createClaimsTable = (claims) => {
                  );
                 index++;
                 break;
+            case "idtyp":
+                  populateClaim(
+                      key,
+                      claims[key],
+                      'Value is app when the token is an app-only token. This is the most accurate way for an API to determine if a token is an app token or an app+user token',
+                      index,
+                      claimsObj
+                  );
+                break;
             case 'uti':
             case 'rh':
                 index++;
