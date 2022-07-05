@@ -20,12 +20,12 @@ const useTokenAcquisition = (scopes, interactionType) => {
     const { instance, inProgress } = useMsal();
     const account = instance.getActiveAccount();
     const [response, setResponse] = useState(null);
-    const [error, setError] = useState(null)
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const getToken = async () => {
             let tokenResponse;
-            if (account && inProgress === InteractionStatus.None && (!response && !error)    ) {
+            if (account && inProgress === InteractionStatus.None && !response && !error) {
                 try {
                     tokenResponse = await instance.acquireTokenSilent({
                         scopes: scopes,
@@ -34,12 +34,10 @@ const useTokenAcquisition = (scopes, interactionType) => {
                             ? window.atob(
                                   localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
                               )
-                            : null,
+                            : null
                     });
                     setResponse(tokenResponse);
-                } 
-                
-                catch (error) {
+                } catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
                             switch (interactionType) {
@@ -47,12 +45,18 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                     tokenResponse = await instance.acquireTokenPopup({
                                         scopes: scopes,
                                         account: account,
-                                        claims: localStorage.getItem('claimsChallenge')
-                                            ? window.atob(localStorage.getItem('claimsChallenge'))
-                                            : null,
+                                        claims: localStorage.getItem(
+                                            `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                        )
+                                            ? window.atob(
+                                                  localStorage.getItem(
+                                                      `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                                  )
+                                              )
+                                            : null
                                     });
                                     break;
-                               
+
                                 case InteractionType.Redirect:
                                 default:
                                     tokenResponse = await instance.acquireTokenRedirect({
@@ -66,13 +70,12 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                                       `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                                   )
                                               )
-                                            : null,
-                                    }); 
+                                            : null
+                                    });
                                     break;
                             }
                             setResponse(tokenResponse);
                         } catch (error) {
-                           
                             if (error.errorCode === 'popup_window_error') {
                                 tokenResponse = await instance.acquireTokenRedirect({
                                     scopes: scopes,
@@ -85,10 +88,10 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                                   `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                               )
                                           )
-                                        : null,
+                                        : null
                                 });
                                 setResponse(tokenResponse);
-                            }else {
+                            } else {
                                 setError(error);
                             }
                         }

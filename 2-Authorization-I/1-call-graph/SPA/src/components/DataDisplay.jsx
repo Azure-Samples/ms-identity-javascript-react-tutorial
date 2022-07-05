@@ -2,7 +2,6 @@ import Table from 'react-bootstrap/Table';
 import { createClaimsTable } from '../utils/claimUtils';
 import { Card, Row } from 'react-bootstrap';
 
-
 import '../styles/App.css';
 
 export const ProfileData = (props) => {
@@ -53,7 +52,6 @@ export const ProfileData = (props) => {
         </>
     );
 };
-
 
 export const IdTokenData = (props) => {
     const tokenClaims = createClaimsTable(props.idTokenClaims);
@@ -147,4 +145,4 @@ export const GraphContacts = (props) => {
             </Row>
         </>
     );
-}
+};

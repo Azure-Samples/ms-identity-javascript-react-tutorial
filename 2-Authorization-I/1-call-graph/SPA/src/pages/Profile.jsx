@@ -17,12 +17,16 @@ const ProfileContent = () => {
         const fetchData = async () => {
             if (response && !graphData) {
                 try {
-                    let data = await callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint,  protectedResources.graphMe.scopes)
-                    
+                    let data = await callApiWithToken(
+                        response.accessToken,
+                        protectedResources.graphMe.endpoint,
+                        protectedResources.graphMe.scopes
+                    );
+
                     if (data && data.error) throw data.error;
                     setGraphData(data);
                 } catch (error) {
-                    console.log(error);                    
+                    console.log(error);
                 }
             }
         };
@@ -46,10 +50,7 @@ export const Profile = () => {
     };
 
     return (
-        <MsalAuthenticationTemplate
-            interactionType={InteractionType.Popup}
-            authenticationRequest={authRequest}
-        >
+        <MsalAuthenticationTemplate interactionType={InteractionType.Popup} authenticationRequest={authRequest}>
             <ProfileContent />
         </MsalAuthenticationTemplate>
     );

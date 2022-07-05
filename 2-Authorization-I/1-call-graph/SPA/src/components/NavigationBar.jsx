@@ -34,18 +34,18 @@ export const NavigationBar = () => {
         instance.logoutRedirect({
             postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
             account: instance.getActiveAccount(),
-        })
+        });
     }
 
      const handleLogoutPopup = () => {
          let account = instance.getActiveAccount();
          clearStorage(account);
          instance.logoutPopup({
-             postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
+             postLogoutRedirectUri: msalConfig.postLogoutRedirectUri, // redirects the Popup window
+             mainWindowRedirectUri: '/', // redirects the top level app after logout
              account: instance.getActiveAccount(),
          });
      };
-
 
 
 

@@ -35,13 +35,12 @@ export const callApiWithToken = async (accessToken, apiEndpoint, scopes, isImage
  * If present, it grabs the claims challenge from the header, then uses msal to ask Azure AD for a new access token containing the needed claims
  * If not present, then it simply returns the response as json
  * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
- * @param {object} response 
- * @param {Array} scopes 
- * @param {boolean} isImage 
+ * @param {object} response
+ * @param {Array} scopes
+ * @param {boolean} isImage
  * @returns response
  */
-const handleClaimsChallenge = async (response, scopes, isImage) => { 
-    console.log(response.status, "res status")
+const handleClaimsChallenge = async (response, scopes, isImage) => {
     if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
             let tokenResponse;
@@ -56,11 +55,7 @@ const handleClaimsChallenge = async (response, scopes, isImage) => {
             try {
                 addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
                 tokenResponse = await msalInstance.acquireTokenPopup({
-                    claims: localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-                        ? window.atob(
-                              localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-                          )
-                        : null, // decode the base64 string
+                    claims: window.atob(claimsChallenge), // decode the base64 string
                     scopes: scopes,
                     account: account,
                 });
@@ -91,35 +86,34 @@ const handleClaimsChallenge = async (response, scopes, isImage) => {
         }
     }
 
-    if( response.status ===  200 & isImage) return response.blob()
-    if( response.status ===  200) return response.json();
+    if ((response.status === 200) & isImage) return response.blob();
+    if (response.status === 200) return response.json();
     throw response.json();
 };
 
-
 /**
- * This method fetches contacts profile images from Graph API and adds them to the contact object. 
- * For more information about how to fetch a contact profile image, 
+ * This method fetches contacts profile images from Graph API and adds them to the contact object.
+ * For more information about how to fetch a contact profile image,
  * please visit: https://docs.microsoft.com/en-us/graph/api/profilephoto-get?view=graph-rest-1.0
- * @param {Object} contacts 
- * @param {String} accessToken 
+ * @param {Object} contacts
+ * @param {String} accessToken
  */
 export const getImageForContact = async (contacts, accessToken) => {
-     await Promise.all(
-         contacts.value.map(async (contact) => {
-             let res = await callApiWithToken(
-                 accessToken,
-                 `${protectedResources.graphContacts.endpoint}/${contact.id}/photo/$value `,
-                 protectedResources.graphContacts.scopes,
-                 true
-             );
+    await Promise.all(
+        contacts.value.map(async (contact) => {
+            let res = await callApiWithToken(
+                accessToken,
+                `${protectedResources.graphContacts.endpoint}/${contact.id}/photo/$value `,
+                protectedResources.graphContacts.scopes,
+                true
+            );
 
-             if (res) {
-                 const urlEncodedImage = URL.createObjectURL(res);
-                 contact.image = urlEncodedImage;
-             }
+            if (res) {
+                const urlEncodedImage = URL.createObjectURL(res);
+                contact.image = urlEncodedImage;
+            }
 
-             return contact;
-         })
-     );
-}
+            return contact;
+        })
+    );
+};

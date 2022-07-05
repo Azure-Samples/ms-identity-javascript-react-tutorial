@@ -35,13 +35,11 @@ const ContactsContent = () => {
 
         fetchData();
     }, [response]);
-    return <> {graphContacts ? 
-    <GraphContacts response={response} graphContacts={graphContacts.value} /> : null} </>;
+    return <> {graphContacts ? <GraphContacts response={response} graphContacts={graphContacts.value} /> : null} </>;
 };
 
-
 export const Contacts = () => {
-     const authRequest = {
+    const authRequest = {
         ...loginRequest,
     };
 
@@ -52,4 +50,4 @@ export const Contacts = () => {
             </Container>
         </MsalAuthenticationTemplate>
     );
-}
+};

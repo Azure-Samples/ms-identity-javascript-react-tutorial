@@ -24,18 +24,18 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
 msalInstance.enableAccountStorageEvents();
 
 /**
-* To set an active account after the user signs in, register an event and listen to LOGIN_SUCCESS & LOGOUT_SUCCES. For more,
-* visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
-*/
+ * To set an active account after the user signs in, register an event and listen to LOGIN_SUCCESS & LOGOUT_SUCCES. For more,
+ * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
+ */
 msalInstance.addEventCallback((event) => {
     if (event.eventType === EventType.LOGIN_SUCCESS && event.payload.account) {
         const account = event.payload.account;
         msalInstance.setActiveAccount(account);
     }
 
-    if(event.eventType === EventType.LOGOUT_SUCCESS){
+    if (event.eventType === EventType.LOGOUT_SUCCESS) {
         msalInstance.setActiveAccount(msalInstance.getAllAccounts());
-    }  
+    }
 });
 
 root.render(
