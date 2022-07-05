@@ -481,24 +481,23 @@ root.render(
     </React.StrictMode>
 );
 
-const App = ({pca}) => {
-  return (
-    <Router>
-      <MsalProvider instance={pca}>
-          <PageLayout>
-            <Pages />
-          </PageLayout>
-      </MsalProvider>
-    </Router>
-  );
-}
+export const App = ({ instance }) => {
+    return (
+        <Router>
+            <MsalProvider instance={msalInstance}>
+                <PageLayout>
+                    <Pages />
+                </PageLayout>
+            </MsalProvider>
+        </Router>
+    );
+};
 
 const Pages = () => {
     return (
         <Routes>
             <Route path="/profile" element={<Profile />} />
-            <Route path="/mails" element={<Mails />} />
-            <Route path="/tenant" element={<Tenant />} />
+            <Route path="/contacts" element={<Contacts />} />
             <Route path="/redirect" element={<Redirect />} />
             <Route path="/" element={<Home />} />
         </Routes>

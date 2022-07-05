@@ -8,6 +8,7 @@
  1. [Registration](#registration)
  1. [Running the sample](#running-the-sample)
  1. [Explore the sample](#explore-the-sample)
+ 1. [Deploy the sample](#deploy-the-sample)
  1. [About the code](#about-the-code)
  1. [More information](#more-information)
  1. [Community Help and Support](#community-help-and-support)
@@ -30,15 +31,17 @@ In this chapter we'd extend our React single-page application (SPA) by making it
 
 ## Contents
 
-| File/folder         | Description                                                                |
-|---------------------|----------------------------------------------------------------------------|
-| `App.jsx`           | Main application logic resides here.                                       |
-| `fetch.jsx`         | Provides a helper method for making fetch calls using bearer token scheme. |
-| `graph.jsx`         | Instantiates Graph SDK client using a custom authentication provider.      |
-| `authConfig.js`     | Contains authentication configuration parameters.                          |
-| `pages/Profile.jsx` | Calls Microsoft Graph `/me` endpoint vith Graph SDK.                       |
-| `pages/Mails.jsx`   | Calls Microsoft Graph `/me/messages` endpoint vith Graph SDK.              |
-| `pages/Tenants.jsx` | Calls Microsoft Graph `/tenants` endpoint via fetch API.                   |
+| File/folder                         | Description                                                                |
+|-------------------------------------|----------------------------------------------------------------------------|
+| `App.jsx`                           | Main application logic resides here.                                       |
+| `fetch.jsx`                         | Provides a helper method for making fetch calls using bearer token scheme. |
+| `authConfig.js`                     | Contains authentication configuration parameters.                          |
+| `pages/Home.jsx`                    | Contains a table with ID token claims and description                      |
+| `pages/Redirect.jsx`                | Blank page for redirect purposes. When using popup and silent APIs         |
+| `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` endpoint vith Graph SDK.                       |
+| `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` endpoint vith Graph SDK.              |
+| `hooks/useTokenAcquisition.js`      | Custom hook to handle token acquisition with MSAL.js                       |
+| `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js         |
 
 ## Prerequisites
 
@@ -66,13 +69,7 @@ We'd make the following changes to our app registration
    - Select the **Add a permission** button and then,
    - Ensure that the **Microsoft APIs** tab is selected.
    - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   - In the **Delegated permissions** section, select the **User.Read** and **Mail.Read** in the list. Use the search box if necessary.
-   - Select the **Add permissions** button at the bottom.
-1. If you wish to call the Azure Service Management API, then still in the **API permissions** blade,
-   - Select the **Add a permission** button and then,
-   - Ensure that the **Microsoft APIs** tab is selected.
-   - In the *Commonly used Microsoft APIs* section, select **Azure Service Management**
-   - In the **Delegated permissions** section, select the **user_impersonation** in the list. Use the search box if necessary.
+   - In the **Delegated permissions** section, select the **User.Read** and **Contacts.Read** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
 
 #### Configure the app (msal-react-spa) to use your app registration
@@ -92,8 +89,7 @@ Locate the folder where `package.json` resides in your terminal. Then:
 1. Open your browser and navigate to `http://localhost:3000`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
 1. Select the **Profile** button on the navigation bar. This will make a call to the Graph API.
-1. Select the **Mails** button on the navigation bar. This will make a call to the Graph API (:warning: you need to have an Office subscription for this call to work).
-1. Select the **Tenant** button on the navigation bar. This will make a call to Azure Resource Management (ARM) API.
+1. Select the **Contacts** button on the navigation bar. This will make a call to the Graph API (:warning: you need to have an Office subscription for this call to work).
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
@@ -102,6 +98,13 @@ Locate the folder where `package.json` resides in your terminal. Then:
 ## We'd love your feedback!
 
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu).
+
+## Deploy the sample
+
+To deploy this sample to Azure please check both implementations in chapter four:
+
+1. [Deploy to Azure Storage and App Service](../../4-Deployment/1-deploy-storage/)  
+1. [Deploy to Azure Static Web Apps](../../4-Deployment/2-deploy-static/)
 
 ## About the code
 
@@ -155,7 +158,7 @@ In **Azure AD**, the scopes (permissions) set directly on the application regist
      };
 
      const tokenRequest = {
-          scopes: [ "Mail.Read" ]
+          scopes: [ "Contacts.Read" ]
      };
 
      // will return an ID Token and an Access Token with scopes: "openid", "profile" and "User.Read"
@@ -166,7 +169,7 @@ In **Azure AD**, the scopes (permissions) set directly on the application regist
      msalInstance.acquireTokenPopup(tokenRequest);
 ```
 
-In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `Mail.Read` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*.
+In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `Contacts.Read` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*.
 
 ### Acquire a Token
 
@@ -175,45 +178,100 @@ In the code snippet above, the user will be prompted for consent once they authe
 > :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called.
 
 ```javascript
-const useTokenAcquisition = (scopes) => {
+const useTokenAcquisition = (scopes, interactionType) => {
     /**
-     * useMsal is hook that returns the PublicClientApplication instance,
+     * useMsal is a hook that returns the PublicClientApplication instance,
      * an array of all accounts currently signed in and an inProgress value
      * that tells you what msal is currently doing. For more, visit:
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
+
     const { instance, inProgress } = useMsal();
     const account = instance.getActiveAccount();
     const [response, setResponse] = useState(null);
+    const [error, setError] = useState(null);
+
     useEffect(() => {
         const getToken = async () => {
-            let token;
-            if (account && inProgress === 'none' && !response) {
-                 try {
-                    token = await instance.acquireTokenSilent({
-                        scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
+            let tokenResponse;
+            if (account && inProgress === InteractionStatus.None && !response && !error) {
+                try {
+                    tokenResponse = await instance.acquireTokenSilent({
+                        scopes: scopes,
                         account: account,
+                        claims: localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                            ? window.atob(
+                                  localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                              )
+                            : null
                     });
-                    setResponse(token);
-                 } catch (error) {
+                    setResponse(tokenResponse);
+                } catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
-                            token = await instance.acquireTokenPopup({
-                                 scopes: scopes, // e.g. ["User.Read", "Mail.Read"]
-                                 account: account,
-                            });
-                            setResponse(token);
+                            switch (interactionType) {
+                                case InteractionType.Popup:
+                                    tokenResponse = await instance.acquireTokenPopup({
+                                        scopes: scopes,
+                                        account: account,
+                                        claims: localStorage.getItem(
+                                            `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                        )
+                                            ? window.atob(
+                                                  localStorage.getItem(
+                                                      `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                                  )
+                                              )
+                                            : null
+                                    });
+                                    break;
+
+                                case InteractionType.Redirect:
+                                default:
+                                    tokenResponse = await instance.acquireTokenRedirect({
+                                        scopes: scopes,
+                                        account: account,
+                                        claims: localStorage.getItem(
+                                            `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                        )
+                                            ? window.atob(
+                                                  localStorage.getItem(
+                                                      `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                                  )
+                                              )
+                                            : null
+                                    });
+                                    break;
+                            }
+                            setResponse(tokenResponse);
                         } catch (error) {
-                            console.log(error);
+                            if (error.errorCode === 'popup_window_error') {
+                                tokenResponse = await instance.acquireTokenRedirect({
+                                    scopes: scopes,
+                                    account: account,
+                                    claims: localStorage.getItem(
+                                        `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                    )
+                                        ? window.atob(
+                                              localStorage.getItem(
+                                                  `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                              )
+                                          )
+                                        : null
+                                });
+                                setResponse(tokenResponse);
+                            } else {
+                                setError(error);
+                            }
                         }
                     }
-                 }
+                }
             }
-        }
+        };
         getToken();
     }, [account, inProgress, instance]);
 
-    return [response];
+    return [response, error];
 };
 
 export default useTokenAcquisition;
@@ -223,70 +281,119 @@ export default useTokenAcquisition;
 
 Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
-### Calling the Microsoft Graph API
+### Checking for client capabilities
 
-[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. The SDK has a default authentication provider that can be used in basic scenarios. To do so, we will initialize the Graph SDK client with [clientOptions](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md) method, which contains an `authProvider` object. We will pass the obtained access token to the `authProvider` object as shown in the code below:
+The client capabilities claim (xms_cc) indicate whether a client application can satisfy the claims challenge generated The following events:
+
+- User Account is deleted or disabled
+- Password for a user is changed or reset
+- Multi-factor authentication is enabled for the user
+- Administrator explicitly revokes all refresh tokens for a user
+- High user risk detected by Azure AD Identity Protection
+
+To obtain this claim in an access token, we enable the clientCapabilities configuration option in authConfig.js:
 
 ```javascript
-export const getGraphClient = (accessToken) => {
-    // Initialize Graph client
-    const client = Client.init({
-        // Use the provided access token to authenticate requests
-        authProvider: (done) => {
-            done(null, accessToken);
-        },
-    });
+const msalConfig = {
+    auth: {
+        clientId: 'Enter_the_Application_Id_Here', 
+        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
+        redirectUri: "/redirect", 
+        postLogoutRedirectUri: "/",
+        navigateToLoginRequestUrl: true, 
+        clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
+    }
+}
 
-    return client;
-};
+const msalInstance = new PublicClientApplication(msalConfig);
 ```
 
-See [graph.js](./SPA/src/graph.js). The Graph client then can be used in your components as shown below:
+### Handling claims challenge
+
+Once the client app receives the claims challenge, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `acquireTokenPopup()` API and provide the claims challenge as a parameter in the token request. This is shown in [fetch.js](./SPA/src/fetch.js), where we handle the response from the Microsoft Graph API with the `handleClaimsChallenge` method:
 
 ```javascript
-const ProfileContent = () => {
-    const [response] = useTokenAcquisition(protectedResources.graphMe.scopes);
-    const [graphData, setGraphData] = useState(null);
-    useEffect(() => {
-        const fetchData = async () => {
-            if (response && !graphData) {
-                try {
-                    const graphClient = getGraphClient(response.accessToken);
-                    let data = await graphClient.api(protectedResources.graphMe.endpoint).get();
-                    setGraphData(data);
-                } catch (error) {
-                    console.log(error);
+const handleClaimsChallenge = async (response, scopes, isImage) => { 
+    console.log(response.status, "res status")
+    if (response.status === 401) {
+        if (response.headers.get('www-authenticate')) {
+            let tokenResponse;
+            const account = msalInstance.getActiveAccount();
+            const authenticateHeader = response.headers.get('www-authenticate');
+            const claimsChallenge = authenticateHeader
+                .split(' ')
+                .find((entry) => entry.includes('claims='))
+                .split('claims="')[1]
+                .split('",')[0];
+
+            try {
+                addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
+                tokenResponse = await msalInstance.acquireTokenPopup({
+                    claims: window.atob(claimsChallenge), // decode the base64 string
+                    scopes: scopes,
+                    account: account,
+                });
+
+                if (tokenResponse) {
+                    const data = await callApiWithToken(
+                        tokenResponse.accessToken,
+                        protectedResources.graphMe.endpoint,
+                        scopes
+                    );
+                    return data;
+                }
+            } catch (error) {
+                if (
+                    error instanceof BrowserAuthError &&
+                    (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error')
+                ) {
+                    addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
+                    tokenResponse = await msalInstance.acquireTokenRedirect({
+                        claims: window.atob(claimsChallenge),
+                        scopes: protectedResources.apiTodoList.scopes,
+                        account: account,
+                    });
+                } else {
+                    throw error;
                 }
             }
-        };
+        }
+    }
 
-        fetchData();
-    }, [response]);
-
-    return <>{graphData ? <ProfileData graphData={graphData} /> : null}</>;
+    if( response.status ===  200 & isImage) return response.blob()
+    if( response.status ===  200) return response.json();
+    throw response.json();
 };
 ```
 
-### Calling a protected web API
+### Calling the Microsoft Graph API
 
 Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), simply add the `Authorization` header to your request, followed by the **access token** you have obtained previously for this resource/endpoint (as a [bearer token](https://tools.ietf.org/html/rfc6750)):
 
 ```javascript
-export const callApiWithToken = async(accessToken, apiEndpoint) => {
+/**
+ * Makes a GET request using authorization header. For more, visit:
+ * https://tools.ietf.org/html/rfc6750
+ * @param {string} accessToken
+ * @param {string} apiEndpoint
+ * @param {Array} scopes
+ * @param {boolean} isImage
+ */
+export const callApiWithToken = async (accessToken, apiEndpoint, scopes, isImage = false) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
-    headers.append("Authorization", bearer);
+    headers.append('Authorization', bearer);
 
     const options = {
-        method: "GET",
-        headers: headers
+        method: 'GET',
+        headers: headers,
     };
 
     return fetch(apiEndpoint, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
-}
+        .then((response) => handleClaimsChallenge(response, scopes, isImage))
+        .catch((error) => console.log(error));
+};
 ```
 
 See [fetch.js](./SPA/src/fetch.js).
@@ -304,24 +411,23 @@ root.render(
     </React.StrictMode>
 );
 
-const App = ({pca}) => {
-  return (
-    <Router>
-      <MsalProvider instance={pca}>
-          <PageLayout>
-            <Pages />
-          </PageLayout>
-      </MsalProvider>
-    </Router>
-  );
-}
+export const App = ({ instance }) => {
+    return (
+        <Router>
+            <MsalProvider instance={msalInstance}>
+                <PageLayout>
+                    <Pages />
+                </PageLayout>
+            </MsalProvider>
+        </Router>
+    );
+};
 
 const Pages = () => {
     return (
         <Routes>
             <Route path="/profile" element={<Profile />} />
-            <Route path="/mails" element={<Mails />} />
-            <Route path="/tenant" element={<Tenant />} />
+            <Route path="/contacts" element={<Contacts />} />
             <Route path="/redirect" element={<Redirect />} />
             <Route path="/" element={<Home />} />
         </Routes>
