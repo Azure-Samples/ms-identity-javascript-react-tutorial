@@ -16,38 +16,32 @@ export const NavigationBar = () => {
         activeAccount = instance.getActiveAccount();
     }
 
-    const handleLoginPopup = () => {
-        instance.loginPopup(loginRequest).catch((error) => console.log(error));
-    };
-
     const handleLoginRedirect = () => {
         instance.loginRedirect(loginRequest);
-    } 
+    };
 
     const handleSwitchAccount = () => {
         setShowProfilePicker(!showProfilePicker);
     };
 
     const handleLogoutRedirect = () => {
-        let account = instance.getActiveAccount()
+        let account = instance.getActiveAccount();
         clearStorage(account);
         instance.logoutRedirect({
             postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
             account: instance.getActiveAccount(),
         });
-    }
+    };
 
-     const handleLogoutPopup = () => {
-         let account = instance.getActiveAccount();
-         clearStorage(account);
-         instance.logoutPopup({
-             postLogoutRedirectUri: msalConfig.postLogoutRedirectUri, // redirects the Popup window
-             mainWindowRedirectUri: '/', // redirects the top level app after logout
-             account: instance.getActiveAccount(),
-         });
-     };
-
-
+    const handleLogoutPopup = () => {
+        let account = instance.getActiveAccount();
+        clearStorage(account);
+        instance.logoutPopup({
+            postLogoutRedirectUri: msalConfig.postLogoutRedirectUri, // redirects the Popup window
+            mainWindowRedirectUri: '/', // redirects the top level app after logout
+            account: instance.getActiveAccount(),
+        });
+    };
 
     /**
      * Most applications will need to conditionally render certain components based on whether a user is signed in or not.
@@ -87,19 +81,9 @@ export const NavigationBar = () => {
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
                     <div className="collapse navbar-collapse justify-content-end">
-                        <DropdownButton
-                            variant="secondary"
-                            className="justify-content-end ml-auto"
-                            title="Sign In"
-                            drop="start"
-                        >
-                            <Dropdown.Item as="button" onClick={handleLoginPopup}>
-                                Sign in using Popup
-                            </Dropdown.Item>
-                            <Dropdown.Item as="button" onClick={handleLoginRedirect}>
-                                Sign in using Redirect
-                            </Dropdown.Item>
-                        </DropdownButton>
+                        <Button onClick={handleLoginRedirect} variant="secondary">
+                            Sign in
+                        </Button>
                     </div>
                 </UnauthenticatedTemplate>
             </Navbar>
