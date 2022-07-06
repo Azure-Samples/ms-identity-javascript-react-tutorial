@@ -3,7 +3,6 @@
  1. [Overview](#overview)
  1. [Scenario](#scenario)
  1. [Contents](#contents)
- 1. [Prerequisites](#prerequisites)
  1. [Setup](#setup)
  1. [Registration](#registration)
  1. [Running the sample](#running-the-sample)
@@ -42,10 +41,6 @@ In this chapter we'd extend our React single-page application (SPA) by making it
 | `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` endpoint vith Graph SDK.              |
 | `hooks/useTokenAcquisition.js`      | Custom hook to handle token acquisition with MSAL.js                       |
 | `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js         |
-
-## Prerequisites
-
-- An Azure subscription (if you would like to call the [Azure Resource Management API](https://docs.microsoft.com/azure/azure-resource-manager/management/overview)) as well.
 
 ## Setup
 
