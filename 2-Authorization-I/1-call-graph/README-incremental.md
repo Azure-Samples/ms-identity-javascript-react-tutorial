@@ -48,7 +48,7 @@ In this chapter we'd extend our React single-page application (SPA) by making it
     npm install
 ```
 
-Developers who wish to increase their familiarity with programming for Microsoft Graph are advised to go through the [An introduction to Microsoft Graph for developers]("https://www.youtube.com/watch?v=EBbnpFdB92A") recorded session.
+Developers who wish to increase their familiarity with programming for Microsoft Graph are advised to go through the [An introduction to Microsoft Graph for developers](https://www.youtube.com/watch?v=EBbnpFdB92A) recorded session.
 
 ## Registration
 
