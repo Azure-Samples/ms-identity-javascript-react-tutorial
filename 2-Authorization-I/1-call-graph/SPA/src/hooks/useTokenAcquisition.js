@@ -28,13 +28,13 @@ const useTokenAcquisition = (scopes, interactionType) => {
             if (account && inProgress === InteractionStatus.None && !response && !error) {
                 try {
                     tokenResponse = await instance.acquireTokenSilent({
-                        scopes: scopes,
-                        account: account,
+                        scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
+                        account: account, // current active account
                         claims: localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
                             ? window.atob(
                                   localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
                               )
-                            : null
+                            : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
                     });
                     setResponse(tokenResponse);
                 } catch (error) {
@@ -43,8 +43,8 @@ const useTokenAcquisition = (scopes, interactionType) => {
                             switch (interactionType) {
                                 case InteractionType.Popup:
                                     tokenResponse = await instance.acquireTokenPopup({
-                                        scopes: scopes,
-                                        account: account,
+                                        scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
+                                        account: account, // current active account
                                         claims: localStorage.getItem(
                                             `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                         )
@@ -53,15 +53,15 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                                       `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                                   )
                                               )
-                                            : null
+                                            : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
                                     });
                                     break;
 
                                 case InteractionType.Redirect:
                                 default:
                                     tokenResponse = await instance.acquireTokenRedirect({
-                                        scopes: scopes,
-                                        account: account,
+                                        scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
+                                        account: account, // current active account
                                         claims: localStorage.getItem(
                                             `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                         )
@@ -70,7 +70,7 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                                       `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                                   )
                                               )
-                                            : null
+                                            : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}
                                     });
                                     break;
                             }
@@ -78,8 +78,8 @@ const useTokenAcquisition = (scopes, interactionType) => {
                         } catch (error) {
                             if (error.errorCode === 'popup_window_error') {
                                 tokenResponse = await instance.acquireTokenRedirect({
-                                    scopes: scopes,
-                                    account: account,
+                                    scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
+                                    account: account, // current active account
                                     claims: localStorage.getItem(
                                         `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                     )
@@ -88,7 +88,7 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                                   `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                               )
                                           )
-                                        : null
+                                        : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}
                                 });
                                 setResponse(tokenResponse);
                             } else {

@@ -10,8 +10,11 @@ import { callApiWithToken, getImageForContact } from '../fetch';
 import { Container } from 'react-bootstrap';
 
 const ContactsContent = () => {
-    const [response, error] = useTokenAcquisition(protectedResources.graphContacts.scopes, InteractionType.Redirect);
+    const [response] = useTokenAcquisition(protectedResources.graphContacts.scopes, InteractionType.Redirect);
+
     const [graphContacts, setGraphContacts] = useState(null);
+    const [error, setError] = useState(null);
+
     useEffect(() => {
         const fetchData = async () => {
             if (response && !graphContacts) {
@@ -28,14 +31,20 @@ const ContactsContent = () => {
                         setGraphContacts(contacts);
                     }
                 } catch (error) {
-                    console.log(error);
+                    setError(error);
                 }
             }
         };
-
         fetchData();
     }, [response]);
-    return <> {graphContacts ? <GraphContacts response={response} graphContacts={graphContacts.value} /> : null} </>;
+    return (
+        <>
+            {' '}
+            {graphContacts || error ? (
+                <GraphContacts response={response} error={error} graphContacts={graphContacts} />
+            ) : null}{' '}
+        </>
+    );
 };
 
 export const Contacts = () => {

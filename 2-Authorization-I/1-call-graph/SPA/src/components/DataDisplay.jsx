@@ -37,6 +37,7 @@ export const ProfileData = (props) => {
                     </li>
                     <li>
                         <strong>scope:</strong>
+                        <mark>User.Read</mark>
                     </li>
                 </ul>
                 <p>
@@ -128,21 +129,28 @@ export const GraphContacts = (props) => {
                     </p>
                 </div>
             </Row>
-            <Row className="d-flex flex-row">
-                {props.graphContacts.map((contact) => (
-                    <Card className="card" key={contact.id}>
-                        <Card.Img
-                            className="cardImage"
-                            variant="top"
-                            src={contact.image ? contact.image : require('../images/blank-profile.png')}
-                        />
-                        <Card.Body>
-                            <Card.Title>{contact.displayName}</Card.Title>
-                            <Card.Text>{contact.personalNotes}</Card.Text>
-                        </Card.Body>
-                    </Card>
-                ))}
-            </Row>
+            {props.error? (
+                <div className="data-area-div">
+                    <strong className="warningMessage">No Contacts Found</strong>
+                </div>
+            ) : (
+                
+                <Row className="d-flex flex-row">
+                    {props.graphContacts.value.map((contact) => (
+                        <Card className="card" key={contact.id}>
+                            <Card.Img
+                                className="cardImage"
+                                variant="top"
+                                src={contact.image ? contact.image : require('../images/blank-profile.png')}
+                            />
+                            <Card.Body>
+                                <Card.Title>{contact.displayName}</Card.Title>
+                                <Card.Text>{contact.personalNotes}</Card.Text>
+                            </Card.Body>
+                        </Card>
+                    ))}
+                </Row>
+            )}
         </>
     );
 };

@@ -1,12 +1,12 @@
-import { BrowserAuthError } from '@azure/msal-browser';
-import { msalInstance } from './index';
-import { protectedResources, msalConfig } from '../src/authConfig';
-import { addClaimsToStorage } from './utils/storageUtils';
-
 /*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+
+import { BrowserAuthError } from '@azure/msal-browser';
+import { msalInstance } from './index';
+import { protectedResources, msalConfig } from '../src/authConfig';
+import { addClaimsToStorage } from './utils/storageUtils';
 
 /**
  * Makes a GET request using authorization header. For more, visit:
@@ -27,7 +27,7 @@ export const callApiWithToken = async (accessToken, apiEndpoint, scopes, isImage
 
     return fetch(apiEndpoint, options)
         .then((response) => handleClaimsChallenge(response, scopes, isImage))
-        .catch((error) => console.log(error));
+        .catch((error) => error);
 };
 
 /**
@@ -53,6 +53,11 @@ const handleClaimsChallenge = async (response, scopes, isImage) => {
                 .split('",')[0];
 
             try {
+                /**
+                 * This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token. 
+                 * To ensure that we are fetching the correct claim from the localStorage, 
+                 * we are using the clientId of the application and oid (user’s object id) as the key identifier of the claim in the localStorage.
+                 */
                 addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
                 tokenResponse = await msalInstance.acquireTokenPopup({
                     claims: window.atob(claimsChallenge), // decode the base64 string
@@ -73,6 +78,11 @@ const handleClaimsChallenge = async (response, scopes, isImage) => {
                     error instanceof BrowserAuthError &&
                     (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error')
                 ) {
+                    /**
+                     * This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token.
+                     * To ensure that we are fetching the correct claim from the localStorage,
+                     * we are using the clientId of the application and oid (user’s object id) as the key identifier of the claim in the localStorage.
+                     */
                     addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
                     tokenResponse = await msalInstance.acquireTokenRedirect({
                         claims: window.atob(claimsChallenge),
@@ -85,7 +95,6 @@ const handleClaimsChallenge = async (response, scopes, isImage) => {
             }
         }
     }
-
     if ((response.status === 200) & isImage) return response.blob();
     if (response.status === 200) return response.json();
     throw response.json();
@@ -108,9 +117,11 @@ export const getImageForContact = async (contacts, accessToken) => {
                 true
             );
 
-            if (res) {
+            if (res && res.error === undefined) {
                 const urlEncodedImage = URL.createObjectURL(res);
                 contact.image = urlEncodedImage;
+            } else {
+                contact.image = null;
             }
 
             return contact;
