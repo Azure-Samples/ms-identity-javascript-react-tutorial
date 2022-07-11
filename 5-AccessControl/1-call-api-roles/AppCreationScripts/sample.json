@@ -1,11 +1,14 @@
 {
   "Sample": {
-    "Title": "React single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
-    "Level": 300,
-    "Client": "React SPA",
-    "Service": "Node.js web API",
-    "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-    "Endpoint": "AAD v2.0"
+      "Title": "React single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
+      "Level": 300,
+      "Client": "React SPA",
+      "Service": "Node.js web API",
+      "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+      "Endpoint": "AAD v2.0",
+      "Languages": ["JavaScript", "Node"],
+      "Description": "React single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
+      "products": ["React", "Express"]
   },
   "AADApps": [
     {
@@ -27,7 +30,6 @@
         }
       ],
       "ManualSteps": [
-        { "Comment": "Navigate to the app manifest and set 'accessTokenAcceptedVersion' to 2" },
         { "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this service instance. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." },
         { "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." }
       ]
@@ -38,7 +40,7 @@
       "Kind": "SinglePageApplication",
       "Audience": "AzureADMyOrg",
       "HomePage": "http://localhost:3000/",
-      "ReplyUrls": "http://localhost:3000/",
+      "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
       "RequiredResourcesAccess": [
         {
           "Resource": "service",
@@ -58,7 +60,6 @@
         }
       ],
       "ManualSteps": [
-        { "Comment":  "Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" },
         { "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." },
         { "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." }
       ]

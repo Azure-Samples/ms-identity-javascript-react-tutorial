@@ -1,5 +1,6 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from 'react-dom/client';
+
 
 import { PublicClientApplication, EventType } from "@azure/msal-browser";
 import { msalConfig } from "./authConfig";
@@ -8,6 +9,10 @@ import App from "./App.jsx";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./styles/index.css";
+
+const container = document.getElementById('root');
+const root = createRoot(container);
+
 
 /**
  * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders. 
@@ -33,9 +38,8 @@ msalInstance.addEventCallback((event) => {
   }
 });
 
-ReactDOM.render(
+root.render(
   <React.StrictMode>
     <App instance={msalInstance} />
   </React.StrictMode>,
-  document.getElementById('root')
 );
