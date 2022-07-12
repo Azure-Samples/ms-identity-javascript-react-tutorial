@@ -5,6 +5,8 @@ import { RouteGuard } from './components/RouteGuard';
 import { PageLayout } from './components/PageLayout';
 import { Dashboard } from './pages/Dashboard';
 import { TodoList } from './pages/TodoList';
+import { Home } from './pages/Home';
+import { Redirect } from './pages/Redirect';
 
 import { appRoles } from './authConfig';
 
@@ -21,7 +23,7 @@ const Pages = () => {
                         <TodoList />
                     </RouteGuard>
                 }
-            ></Route>
+            />
             <Route
                 exact
                 path="/dashboard"
@@ -30,7 +32,9 @@ const Pages = () => {
                         <Dashboard />
                     </RouteGuard>
                 }
-            ></Route>
+            />
+            <Route path="/redirect" element={<Redirect />} />
+            <Route path="/" element={<Home />} />
         </Routes>
     );
 };

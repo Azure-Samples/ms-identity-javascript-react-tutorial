@@ -21,16 +21,26 @@ const root = createRoot(container);
 export const msalInstance = new PublicClientApplication(msalConfig);
 
 // Account selection logic is app dependent. Adjust as needed for different use cases.
-const accounts = msalInstance.getAllAccounts();
-
-if (accounts.length > 0) {
-  msalInstance.setActiveAccount(accounts[0]);
+if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
+    msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
 }
 
+// Optional - This will update account state if a user signs in from another tab or window
+// msalInstance.enableAccountStorageEvents();
+
+
+/**
+ * To set an active account after the user signs in, register an event and listen to LOGIN_SUCCESS & LOGOUT_SUCCES. For more,
+ * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
+ */
 msalInstance.addEventCallback((event) => {
   if (event.eventType === EventType.LOGIN_SUCCESS && event.payload.account) {
     const account = event.payload.account;
     msalInstance.setActiveAccount(account);
+  }
+
+  if (event.eventType === EventType.LOGOUT_SUCCESS) {
+      msalInstance.setActiveAccount(msalInstance.getAllAccounts());
   }
 
   if (event.eventType === EventType.LOGIN_FAILURE) {

@@ -48,3 +48,23 @@ footer {
 .todo-view-btn {
   float: right;
 }
+
+.navbarStyle {
+  padding: .5rem 1rem
+}
+
+.navbarButton {
+  color: #fff !important
+}
+
+.iconText {
+  margin: 0 .5rem
+}
+
+.tableColumn {
+  word-break: break-all
+}
+
+.table {
+  max-height: 37rem;
+}
