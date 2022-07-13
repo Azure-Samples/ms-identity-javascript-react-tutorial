@@ -4,6 +4,7 @@
  */
 
 import { BrowserAuthError } from '@azure/msal-browser';
+
 import { msalInstance } from './index';
 import { protectedResources, msalConfig } from '../src/authConfig';
 import { addClaimsToStorage } from './utils/storageUtils';
@@ -14,7 +15,7 @@ import { addClaimsToStorage } from './utils/storageUtils';
  * @param {string} accessToken
  * @param {string} apiEndpoint
  */
-export const callApiWithToken = async (accessToken, apiEndpoint, scopes, isImage = false) => {
+export const callApiWithToken = async (accessToken, apiEndpoint, scopes) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -26,7 +27,7 @@ export const callApiWithToken = async (accessToken, apiEndpoint, scopes, isImage
     };
 
     return fetch(apiEndpoint, options)
-        .then((response) => handleClaimsChallenge(response, scopes, isImage))
+        .then((response) => handleClaimsChallenge(response, scopes))
         .catch((error) => error);
 };
 
@@ -37,15 +38,15 @@ export const callApiWithToken = async (accessToken, apiEndpoint, scopes, isImage
  * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
  * @param {object} response
  * @param {Array} scopes
- * @param {boolean} isImage
  * @returns response
  */
-const handleClaimsChallenge = async (response, scopes, isImage) => {
+const handleClaimsChallenge = async (response, scopes) => {
     if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
             let tokenResponse;
             const account = msalInstance.getActiveAccount();
             const authenticateHeader = response.headers.get('www-authenticate');
+
             const claimsChallenge = authenticateHeader
                 .split(' ')
                 .find((entry) => entry.includes('claims='))
@@ -54,11 +55,12 @@ const handleClaimsChallenge = async (response, scopes, isImage) => {
 
             try {
                 /**
-                 * This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token. 
-                 * To ensure that we are fetching the correct claim from the localStorage, 
-                 * we are using the clientId of the application and oid (user’s object id) as the key identifier of the claim in the localStorage.
+                 * This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token.
+                 * To ensure that we are fetching the correct claim from the localStorage, we are using the clientId of the
+                 * application and oid (user’s object id) as the key identifier of the claim in the localStorage.
                  */
                 addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
+
                 tokenResponse = await msalInstance.acquireTokenPopup({
                     claims: window.atob(claimsChallenge), // decode the base64 string
                     scopes: scopes,
@@ -80,10 +82,11 @@ const handleClaimsChallenge = async (response, scopes, isImage) => {
                 ) {
                     /**
                      * This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token.
-                     * To ensure that we are fetching the correct claim from the localStorage,
-                     * we are using the clientId of the application and oid (user’s object id) as the key identifier of the claim in the localStorage.
+                     * To ensure that we are fetching the correct claim from the localStorage, we are using the clientId
+                     * of the application and oid (user’s object id) as the key identifier of the claim in the localStorage.
                      */
                     addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
+
                     tokenResponse = await msalInstance.acquireTokenRedirect({
                         claims: window.atob(claimsChallenge),
                         scopes: protectedResources.apiTodoList.scopes,
@@ -95,36 +98,8 @@ const handleClaimsChallenge = async (response, scopes, isImage) => {
             }
         }
     }
-    if ((response.status === 200) & isImage) return response.blob();
+
     if (response.status === 200) return response.json();
-    throw response.json();
-};
-
-/**
- * This method fetches contacts profile images from Graph API and adds them to the contact object.
- * For more information about how to fetch a contact profile image,
- * please visit: https://docs.microsoft.com/en-us/graph/api/profilephoto-get?view=graph-rest-1.0
- * @param {Object} contacts
- * @param {String} accessToken
- */
-export const getImageForContact = async (contacts, accessToken) => {
-    await Promise.all(
-        contacts.value.map(async (contact) => {
-            let res = await callApiWithToken(
-                accessToken,
-                `${protectedResources.graphContacts.endpoint}/${contact.id}/photo/$value `,
-                protectedResources.graphContacts.scopes,
-                true
-            );
-
-            if (res && res.error === undefined) {
-                const urlEncodedImage = URL.createObjectURL(res);
-                contact.image = urlEncodedImage;
-            } else {
-                contact.image = null;
-            }
-
-            return contact;
-        })
-    );
+    else if (response.status === 401) return { error: 'Unauthorized' };
+    else return { error: 'Something went wrong' };
 };

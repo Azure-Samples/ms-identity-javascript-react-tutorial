@@ -35,7 +35,7 @@ We recommend following the chapters in successive order. However, the code sampl
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/download/)
+- [Node.js v14 LTS or later](https://nodejs.org/en/download/)
 - [Visual Studio Code](https://code.visualstudio.com/download)
 - A modern web browser (to use [popup experience](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/initialization.md#choosing-an-interaction-type) during sign-in and token acquisition, your browser should allow popups.)
 

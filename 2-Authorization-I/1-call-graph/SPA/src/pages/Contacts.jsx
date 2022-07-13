@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
+import { MsalAuthenticationTemplate } from '@azure/msal-react';
+import { Container } from 'react-bootstrap';
 
 import useTokenAcquisition from '../hooks/useTokenAcquisition';
 import { protectedResources } from '../authConfig';
 import { InteractionType } from '@azure/msal-browser';
-import { MsalAuthenticationTemplate } from '@azure/msal-react';
 import { loginRequest } from '../authConfig';
 import { GraphContacts } from '../components/DataDisplay';
-import { callApiWithToken, getImageForContact } from '../fetch';
-import { Container } from 'react-bootstrap';
+import { callApiWithToken } from '../fetch';
 
 const ContactsContent = () => {
     const [response] = useTokenAcquisition(protectedResources.graphContacts.scopes, InteractionType.Redirect);
@@ -25,11 +25,9 @@ const ContactsContent = () => {
                         protectedResources.graphContacts.scopes
                     );
 
-                    if (contacts && contacts.error) throw contacts.error;
-                    if (contacts) {
-                        await getImageForContact(contacts, response.accessToken);
-                        setGraphContacts(contacts);
-                    }
+                    if (contacts && contacts.error) throw new Error(contacts.error);
+
+                    setGraphContacts(contacts);
                 } catch (error) {
                     setError(error);
                 }
@@ -53,7 +51,10 @@ export const Contacts = () => {
     };
 
     return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
+        <MsalAuthenticationTemplate
+            interactionType={InteractionType.Redirect}
+            authenticationRequest={authRequest}
+        >
             <Container>
                 <ContactsContent />
             </Container>

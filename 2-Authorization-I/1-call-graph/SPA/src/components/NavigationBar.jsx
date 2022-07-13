@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
 import { Nav, Navbar, Button, Dropdown, DropdownButton } from 'react-bootstrap';
-import { loginRequest } from '../authConfig';
+
+import { msalConfig, loginRequest } from '../authConfig';
 import { AccountPicker } from './AccountPicker';
-import { msalConfig } from '../authConfig';
 import { clearStorage } from '../utils/storageUtils';
 
 export const NavigationBar = () => {

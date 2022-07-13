@@ -1,9 +1,10 @@
 import { Modal, ListGroup } from 'react-bootstrap';
-import { useMsal } from '@azure/msal-react';
-import { loginRequest } from '../authConfig';
-import { BsPersonPlus, BsPersonCircle } from 'react-icons/bs';
 import { InteractionRequiredAuthError } from '@azure/msal-browser';
+import { useMsal } from '@azure/msal-react';
 import { IconContext } from 'react-icons';
+import { BsPersonPlus, BsPersonCircle } from 'react-icons/bs';
+
+import { loginRequest } from '../authConfig';
 
 export const AccountPicker = (props) => {
     const { instance, accounts } = useMsal();

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { InteractionRequiredAuthError, InteractionStatus, InteractionType } from '@azure/msal-browser';
 import { useMsal } from '@azure/msal-react';
+
 import { msalConfig } from '../authConfig';
 
 /**
@@ -32,8 +33,8 @@ const useTokenAcquisition = (scopes, interactionType) => {
                         account: account, // current active account
                         claims: localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
                             ? window.atob(
-                                  localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-                              )
+                                localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                            )
                             : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
                     });
                     setResponse(tokenResponse);
@@ -49,10 +50,10 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                             `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                         )
                                             ? window.atob(
-                                                  localStorage.getItem(
-                                                      `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
-                                                  )
-                                              )
+                                                localStorage.getItem(
+                                                    `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                                )
+                                            )
                                             : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
                                     });
                                     break;
@@ -66,10 +67,10 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                             `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                         )
                                             ? window.atob(
-                                                  localStorage.getItem(
-                                                      `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
-                                                  )
-                                              )
+                                                localStorage.getItem(
+                                                    `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                                )
+                                            )
                                             : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}
                                     });
                                     break;
@@ -84,10 +85,10 @@ const useTokenAcquisition = (scopes, interactionType) => {
                                         `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
                                     )
                                         ? window.atob(
-                                              localStorage.getItem(
-                                                  `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
-                                              )
-                                          )
+                                            localStorage.getItem(
+                                                `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`
+                                            )
+                                        )
                                         : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}
                                 });
                                 setResponse(tokenResponse);

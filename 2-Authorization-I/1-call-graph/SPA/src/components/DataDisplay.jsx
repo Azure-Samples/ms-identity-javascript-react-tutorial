@@ -1,6 +1,7 @@
 import Table from 'react-bootstrap/Table';
-import { createClaimsTable } from '../utils/claimUtils';
 import { Card, Row } from 'react-bootstrap';
+
+import { createClaimsTable } from '../utils/claimUtils';
 
 import '../styles/App.css';
 
@@ -129,20 +130,17 @@ export const GraphContacts = (props) => {
                     </p>
                 </div>
             </Row>
-            {props.error? (
+            {props.error ? (
                 <div className="data-area-div">
-                    <strong className="warningMessage">No Contacts Found</strong>
+                    <strong className="warningMessage">Cannot retrieve contacts</strong>
                 </div>
             ) : (
-                
                 <Row className="d-flex flex-row">
-                    {props.graphContacts.value.map((contact) => (
+                    {props.graphContacts.value.length === 0 ?
+                    <p className="text-center">You have 0 contacts</p>
+                    :
+                    props.graphContacts.value.map((contact) => (
                         <Card className="card" key={contact.id}>
-                            <Card.Img
-                                className="cardImage"
-                                variant="top"
-                                src={contact.image ? contact.image : require('../images/blank-profile.png')}
-                            />
                             <Card.Body>
                                 <Card.Title>{contact.displayName}</Card.Title>
                                 <Card.Text>{contact.personalNotes}</Card.Text>

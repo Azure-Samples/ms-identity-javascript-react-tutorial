@@ -69,7 +69,8 @@ export const protectedResources = {
     graphMe: {
         endpoint: 'https://graph.microsoft.com/v1.0/me',
         scopes: ['User.Read'],
-    }, graphContacts: {
+    },
+    graphContacts: {
         endpoint: 'https://graph.microsoft.com/v1.0/me/contacts',
         scopes: ['Contacts.Read'],
     },

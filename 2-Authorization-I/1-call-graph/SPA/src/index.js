@@ -1,8 +1,10 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { PublicClientApplication, EventType } from '@azure/msal-browser';
+
 import { App } from './App.jsx';
 import { msalConfig } from './authConfig';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles/index.css';
 
@@ -24,7 +26,7 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
 msalInstance.enableAccountStorageEvents();
 
 /**
- * To set an active account after the user signs in, register an event and listen to LOGIN_SUCCESS & LOGOUT_SUCCES. For more,
+ * To set an active account after the user signs in, register an event and listen for LOGIN_SUCCESS and LOGOUT_SUCCESS. For more,
  * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
  */
 msalInstance.addEventCallback((event) => {
