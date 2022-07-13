@@ -1,105 +1,144 @@
 {
-  "Sample": {
-      "Title": "React single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
-      "Level": 300,
-      "Client": "React SPA",
-      "Service": "Node.js web API",
-      "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-      "Endpoint": "AAD v2.0",
-      "Languages": ["JavaScript", "Node"],
-      "Description": "React single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
-      "products": ["React", "Express"]
-  },
-  "AADApps": [
-    {
-      "Id": "service",
-      "Name": "msal-node-api",
-      "Kind": "WebApi",
-      "Audience": "AzureADMyOrg",
-      "HomePage": "https://localhost:5000/api",
-      "AppRoles": [
-        {
-          "Types": [ "User" ],
-          "Name": "TaskAdmin",
-          "Description": "Admins can read any user's todo list"
-        },
-        {
-          "Types": [ "User" ],
-          "Name": "TaskUser",
-          "Description": "Users can read and modify their todo lists"
-        }
-      ],
-      "ManualSteps": [
-        { "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this service instance. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." },
-        { "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." }
-      ]
+    "Sample": {
+        "Title": "React single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
+        "Level": 300,
+        "Client": "React SPA",
+        "Service": "Node.js web API",
+        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+        "Endpoint": "AAD v2.0",
+        "Languages": ["JavaScript", "Node"],
+        "Description": "React single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
+        "products": ["React", "Express"]
     },
-    {
-      "Id": "client",
-      "Name": "msal-react-spa",
-      "Kind": "SinglePageApplication",
-      "Audience": "AzureADMyOrg",
-      "HomePage": "http://localhost:3000/",
-      "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
-      "RequiredResourcesAccess": [
-        {
-          "Resource": "service",
-          "DelegatedPermissions": [ "access_as_user" ]
-        }
-      ],
-      "AppRoles": [
-        {
-          "Types": [ "User" ],
-          "Name": "TaskAdmin",
-          "Description": "Admins can read any user's todo list"
-        },
-        {
-          "Types": [ "User" ],
-          "Name": "TaskUser",
-          "Description": "Users can read and modify their todo lists"
-        }
-      ],
-      "ManualSteps": [
-        { "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." },
-        { "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." }
-      ]
-    }
-  ],
-  "CodeConfiguration": [
-    {
-      "App": "service",
-      "SettingKind": "JSON",
-      "SettingFile": "\\..\\API\\authConfig.json",
-      "Mappings": [
-        {
-          "key": "tenantID",
-          "value": "$tenantId"
-        },
-        {
-          "key": "clientID",
-          "value": "service.AppId"
-        }
-      ]
+    "ReadmeScenario": {
+        "FreeText": "",
+        "IncludeFilePath": "",
+        "UseNewSetup": "1" /* when set to 0, only legacy setup will be used */,
+        "CertificateOption": "0" /* 1 when a certificate can be used instead of secret*/,
+        "CreateProjectIncludeFilePath": "",
+        "AppRegistrationIncludeFilePath": "",
+        "RunSampleIncludeFilePath": ""
     },
+    "AADApps": [
+        {
+            "Id": "service",
+            "Name": "msal-node-api",
+            "Kind": "WebApi",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "https://localhost:5000/api",
+            "Scopes": ["Todolist.Read", "Todolist.ReadWrite"],
+            "AppRoles": [
+                {
+                    "Types": ["User"],
+                    "Name": "TaskAdmin",
+                    "Description": "Admins can read any user's todo list"
+                },
+                {
+                    "Types": ["User"],
+                    "Name": "TaskUser",
+                    "Description": "Users can read and modify their todo lists"
+                },
+                {
+                    "Types": ["Application"],
+                    "Name": "Todolist.Read.All",
+                    "Description": "Application can only read Todo list"
+                },
+                {
+                    "Types": ["Application"],
+                    "Name": "Todolist.ReadWrite.All",
+                    "Description": "Application can read and write into Todo list"
+                }
+            ],
+            "ManualSteps": [
+                {
+                    "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this service instance. The guide, https://aka.ms/userassignmentrequired provides step by step instructions."
+                },
+                {
+                    "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app."
+                }
+            ]
+        },
+        {
+            "Id": "client",
+            "Name": "msal-react-spa",
+            "Kind": "SinglePageApplication",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "http://localhost:3000/",
+            "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
+            "Sample": {
+                "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
+                "ProjectDirectory": "\\1-call-api\\SPA"
+            },
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "service",
+                    "DelegatedPermissions": ["Todolist.Read", "Todolist.ReadWrite"]
+                }
+            ],
+            "AppRoles": [
+                {
+                    "Types": ["User"],
+                    "Name": "TaskAdmin",
+                    "Description": "Admins can read any user's todo list"
+                },
+                {
+                    "Types": ["User"],
+                    "Name": "TaskUser",
+                    "Description": "Users can read and modify their todo lists"
+                }
+            ],
+            "OptionalClaims": {
+                "IdTokenClaims": ["sid", "login_hint", "email", "upn", "acct"]
+            },
+            "ManualSteps": [
+                {
+                    "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions."
+                },
+                {
+                    "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app."
+                }
+            ]
+        }
+    ],
+    "CodeConfiguration": [
+        {
+            "App": "service",
+            "SettingKind": "JSON",
+            "SettingFile": "\\..\\API\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "tenantID",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "clientID",
+                    "value": "service.AppId"
+                }
+            ]
+        },
 
-    {
-      "App": "client",
-      "SettingKind": "Replace",
-      "SettingFile": "\\..\\SPA\\src\\authConfig.js",
-      "Mappings": [
         {
-          "key": "Enter_the_Application_Id_Here",
-          "value": "client.AppId"
-        },
-        {
-          "key": "Enter_the_Tenant_Info_Here",
-          "value": "$tenantId"
-        },
-        {
-          "key": "Enter_the_Web_Api_Scope_here",
-          "value": "service.Scope"
+            "App": "client",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\SPA\\src\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": "client.AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "Enter_the_Web_Api_Scope_here",
+                    "value": "service.Scope"
+                },
+                 {
+                     "key": "Enter_the_Web_Api_App_Id_Uri_Here",
+                     "value": "service.AppId"
+                 }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }

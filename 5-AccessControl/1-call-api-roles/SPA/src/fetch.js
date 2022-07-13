@@ -21,9 +21,7 @@ const getToken = async () => {
     return response.accessToken;
 }
 
-export const getTasks = async () => {
-    const accessToken = await getToken();
-
+export const getTasks = async (accessToken) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -39,96 +37,75 @@ export const getTasks = async () => {
         .catch(error => console.log(error));
 }
 
-export const getTask = async (id) => {
-    const accessToken = await getToken();
+
+
+export const postTask = async (accessToken, task) => {
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
-    headers.append("Authorization", bearer);
-
-    const options = {
-        method: "GET",
-        headers: headers
-    };
-
-    return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
-}
-
-export const postTask = async (task) => {
-    const accessToken = await getToken();
-
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-
-    headers.append("Authorization", bearer);
+    headers.append('Authorization', bearer);
     headers.append('Content-Type', 'application/json');
 
     const options = {
-        method: "POST",
+        method: 'POST',
         headers: headers,
-        body: JSON.stringify(task)
+        body: JSON.stringify(task),
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
-}
+        .then((response) => response.json())
+        .catch((error) => console.log(error));
+};
 
-export const deleteTask = async(id) => {
-    const accessToken = await getToken();
-
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-
-    headers.append("Authorization", bearer);
-
-    const options = {
-        method: "DELETE",
-        headers: headers
-    };
-
-    return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
-}
-
-export const editTask = async(id, task) => {
-    const accessToken = await getToken();
+export const deleteTask = async (accessToken, id) => {
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
-    headers.append("Authorization", bearer);
-    headers.append('Content-Type', 'application/json');
-    
+    headers.append('Authorization', bearer);
+
     const options = {
-        method: "PUT",
+        method: 'DELETE',
         headers: headers,
-        body: JSON.stringify(task)
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
-}
+        .then((response) => response.json())
+        .catch((error) => console.log(error));
+};
 
-export const getAllTasks = async () => {
-    const accessToken = await getToken();
+export const editTask = async (accessToken, id, task) => {
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
-    headers.append("Authorization", bearer);
+    headers.append('Authorization', bearer);
+    headers.append('Content-Type', 'application/json');
 
     const options = {
-        method: "GET",
+        method: 'PUT',
+        headers: headers,
+        body: JSON.stringify(task),
+    };
+
+    return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
+        .then((response) => response.json())
+        .catch((error) => console.log(error));
+};
+
+export const getAllTasks = async (accessToken) => {
+    const headers = new Headers();
+    const bearer = `Bearer ${accessToken}`;
+
+    headers.append('Authorization', bearer);
+
+    const options = {
+        method: 'GET',
         headers: headers,
     };
 
     return fetch(protectedResources.apiTodoList.dashboardEndpoint, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
-}
+        .then((response) => response.json())
+        .catch((error) => console.log(error));
+};
