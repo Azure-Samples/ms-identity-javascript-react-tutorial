@@ -19,7 +19,7 @@ const DashboardContent = () => {
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
     const [dashboardData, setDashboardData] = useState(null);
-    const [tokenResponse] = useTokenAcquisition(protectedResources.apiTodoList.scopes.read);
+    const [tokenResponse, error] = useTokenAcquisition(protectedResources.apiTodoList.scopes.read, InteractionType.Popup);
 
     useEffect(() => {
         if (tokenResponse && !dashboardData) {

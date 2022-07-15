@@ -26,7 +26,7 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
 }
 
 // Optional - This will update account state if a user signs in from another tab or window
-// msalInstance.enableAccountStorageEvents();
+msalInstance.enableAccountStorageEvents();
 
 
 /**

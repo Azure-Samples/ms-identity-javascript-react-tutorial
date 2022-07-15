@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useMsal } from '@azure/msal-react';
+import { InteractionType } from '@azure/msal-browser';
 import { nanoid } from 'nanoid';
 import ListGroup from 'react-bootstrap/ListGroup';
 
@@ -24,7 +25,7 @@ function usePrevious(value) {
 export const ListView = (props) => {
     const { instance } = useMsal();
     const [tasks, setTasks] = useState(props.todoListData);
-    const [tokenResponse] = useTokenAcquisition(protectedResources.apiTodoList.scopes.write);
+    const [tokenResponse, error] = useTokenAcquisition(protectedResources.apiTodoList.scopes.write, InteractionType.Popup);
     const account = instance.getActiveAccount();
 
     const handleCompleteTask = (id) => {

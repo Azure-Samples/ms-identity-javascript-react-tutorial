@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { InteractionRequiredAuthError, InteractionStatus } from '@azure/msal-browser';
+import { InteractionRequiredAuthError, InteractionStatus, InteractionType } from '@azure/msal-browser';
 import { useMsal } from '@azure/msal-react';
 
 /**
  * A custom hook for acquiring tokens using MSAL
  * @param {Array} scopes
+ * @param {String} interactionType
  * @returns response object which contains an access token
  */
-const useTokenAcquisition = (scopes) => {
+const useTokenAcquisition = (scopes, interactionType) => {
     /**
      * useMsal is a hook that returns the PublicClientApplication instance,
      * an array of all accounts currently signed in and an inProgress value
@@ -18,29 +19,52 @@ const useTokenAcquisition = (scopes) => {
     const { instance, inProgress } = useMsal();
     const [response, setResponse] = useState(null);
     const account = instance.getActiveAccount();
+    const [error, setError] = useState(null);
 
     useEffect(() => {
+    
         const getToken = async () => {
-            let token;
-            if (account && inProgress === InteractionStatus.None && !response) {
+            let tokenResponse;
+            if (account && inProgress === InteractionStatus.None && !response && !error) {
                 try {
-                    token = await instance.acquireTokenSilent({
+                    tokenResponse = await instance.acquireTokenSilent({
                         scopes: scopes,
                         account: account,
                     });
 
-                    setResponse(token);
-                } catch (error) {
+                    console.log(tokenResponse);
+
+                    setResponse(tokenResponse);
+                } 
+                catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
-                            token = await instance.acquireTokenPopup({
-                                scopes: scopes,
-                                account: account,
-                            });
-
-                            setResponse(token);
+                            switch (interactionType) {
+                                case InteractionType.Popup:
+                                    tokenResponse = await instance.acquireTokenPopup({
+                                        scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
+                                        account: account, // current active account
+                                    });
+                                    break;
+                                case InteractionType.Redirect:
+                                default:
+                                    tokenResponse = await instance.acquireTokenRedirect({
+                                        scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
+                                        account: account, // current active account
+                                    });
+                                    break;
+                            }
+                            setResponse(tokenResponse);
                         } catch (error) {
-                            console.log(error);
+                            if (error.errorCode === 'popup_window_error') {
+                                 tokenResponse = await instance.acquireTokenRedirect({
+                                     scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
+                                     account: account, // current active account
+                                 });
+                                setResponse(tokenResponse);
+                            }else {
+                                 setError(error);
+                            }
                         }
                     }
                 }
@@ -50,7 +74,7 @@ const useTokenAcquisition = (scopes) => {
         getToken();
     }, [account, inProgress, instance]);
 
-    return [response];
+    return [response, error];
 };
 
 export default useTokenAcquisition;
