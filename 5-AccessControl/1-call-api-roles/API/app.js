@@ -81,7 +81,7 @@ app.use(
 
         // tenantIdOrName: <some-tenant-id-or-name>
     }),
-    routeGuard(authConfig.accessMatrix),
+    routeGuard(authConfig.accessMatrix, authConfig.protectedRoutes.todolist.applicationPermissions.read),
     router
 );
 
