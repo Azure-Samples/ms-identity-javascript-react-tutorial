@@ -8,6 +8,7 @@
  1. [Registration](#registration)
  1. [Running the sample](#running-the-sample)
  1. [Explore the sample](#explore-the-sample)
+ 1. [Deploy the sample](#Deploy-the-sample)
  1. [About the code](#about-the-code)
  1. [More information](#more-information)
  1. [Community Help and Support](#community-help-and-support)
@@ -42,7 +43,7 @@ In the sample, a **dashboard** component allows signed-in users to see the tasks
 
 ## Prerequisites
 
-- An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
+- An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/en-us/azure/active-directory/develop/test-setup-environment#get-a-test-tenant)
 - At least **two** user accounts in your Azure AD tenant.
 
 ## Setup
@@ -70,8 +71,8 @@ or download and extract the repository .zip file.
 ### Step 3. Install React SPA dependencies
 
 ```console
-    cd ../
-    cd SPA
+    cd ms-identity-javascript-react-tutorial
+    cd 5-AccessControl/1-call-api-roles/SPA
     npm install
 ```
 
@@ -89,10 +90,10 @@ There are two projects in this sample. Each needs to be separately registered in
 <details>
   <summary>Expand this section if you want to use this automation:</summary>
 
-> :warning: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+> :warning: If you have never used **Microsoft Graph Powershell SDK** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
 
 1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-1. If you have never used Azure AD Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+1. If you have never used Microsoft Graph Powershell SDK Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
 1. In PowerShell run:
 
    ```PowerShell
@@ -133,16 +134,17 @@ As a first step you'll need to:
 The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
    - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
    - For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**.
-1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code) for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
+1. All APIs have to publish a minimum of two [scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [delegated permissions](https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-        - For **Scope name**, use `access_as_user`.
+        - For **Scope name**, use `Todolist.Read`.
         - Select **Admins and users** options for **Who can consent?**.
         - For **Admin consent display name** type `Access msal-node-api`.
-        - For **Admin consent description** type `Allows the app to access msal-node-api as the signed-in user.`
+        - For **Admin consent description** type `Allows the app to access msal-node-api to read todo list.`
         - For **User consent display name** type `Access msal-node-api`.
-        - For **User consent description** type `Allow the application to access msal-node-api on your behalf.`
+        - For **User consent description** type `Allow the application to access msal-node-api to read todo list.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
+   - Repeat the steps above for publishing another scope named `Todolist.ReadWrite`.
 1. On the right side menu, select the `Manifest` blade.
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
@@ -189,13 +191,16 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
    - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
 1. Select **Register** to create the application.
+1. In the app's registration screen, select the **Authentication** blade.
+   - If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
+   - In the **Redirect URI** section enter the following redirect URIs
+       - `http://localhost:3000/redirect`
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
-1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then,
    - Ensure that the **My APIs** tab is selected.
    - In the list of APIs, select the API `msal-node-api`.
-   - In the **Delegated permissions** section, select the **Access 'msal-node-api'** in the list. Use the search box if necessary.
+   - In the **Delegated permissions** section, select the **Todolist.Read** and **Todolist.ReadWrite** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
 
 #### Define Application Roles
@@ -222,9 +227,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\authConfig.js` file.
-1. Find the key `clientId` and replace the existing value with the application ID (clientId) of **msal-react-spa** app copied from the Azure portal.
-1. Find the key `tenantId` and replace the existing value with your Azure AD tenant ID copied from the Azure portal.
-1. Find the key `protectedResources.apiTodoList.scopes` and replace the existing value with scope you created during the app registration of `TodoListAPI` e.g. `api://{clientId_of_service_app}/access_as_user`.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of **msal-react-spa** app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID copied from the Azure portal.
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://<msal-node-api-client-id>/Todolist.Read`.
 
 ## Running the sample
 
@@ -266,6 +271,13 @@ In a separate console window, execute the following commands:
 
 > :information_source: Consider taking a moment to share [your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu)
 
+## Deploy the sample
+
+To deploy this sample to Azure please check both implementations in chapter 4:
+
+1. [Deploy to Azure Storage and App Service](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/blob/updating-callGraph-sample/4-Deployment/1-deploy-storage)
+2. [Deploy to Azure Static Web Apps](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/updating-callGraph-sample/4-Deployment/2-deploy-static)
+
 ## About the code
 
 ### React RouteGuard component
@@ -273,8 +285,7 @@ In a separate console window, execute the following commands:
 The client application React SPA has a [RouteGuard](./SPA/src/components/RouteGuard.jsx) component that checks whether a user has the right privileges to access a protected route. It does this by checking `roles` claim in the ID token of the signed-in user:
 
 ```javascript
-export const RouteGuard = ({ Component, ...props }) => {
-
+export const RouteGuard = ({ ...props }) => {
     const { instance } = useMsal();
     const [isAuthorized, setIsAuthorized] = useState(false);
 
@@ -282,30 +293,26 @@ export const RouteGuard = ({ Component, ...props }) => {
         const currentAccount = instance.getActiveAccount();
 
         if (currentAccount && currentAccount.idTokenClaims['roles']) {
-            let intersection = props.roles
-                .filter(role => currentAccount.idTokenClaims['roles'].includes(role));
+            let intersection = props.roles.filter((role) => currentAccount.idTokenClaims['roles'].includes(role));
 
             if (intersection.length > 0) {
                 setIsAuthorized(true);
             }
         }
-    }
+    };
 
     useEffect(() => {
         onLoad();
     }, [instance]);
-
     return (
         <>
-            {
-                isAuthorized
-                    ?
-                    <Route {...props} render={routeProps => <Component {...routeProps} />} />
-                    :
-                    <div className="data-area-div">
-                        <h3>You are unauthorized to view this content.</h3>
-                    </div>
-            }
+            {isAuthorized ? (
+                <div>{props.children}</div>
+            ) : (
+                <div className="data-area-div">
+                    <h3>You are unauthorized to view this content.</h3>
+                </div>
+            )}
         </>
     );
 };
@@ -315,23 +322,31 @@ We then enable **RouteGuard** in [App.jsx](./SPA/src/App.jsx) as follows:
 
 ```javascript
 const Pages = () => {
-  return (
-    <Switch>
-      <RouteGuard
-        exact
-        path='/todolist'
-        roles={[appRoles.TaskUser, appRoles.TaskAdmin]}
-        Component={TodoList}
-      />
-      <RouteGuard
-        exact
-        path='/dashboard'
-        roles={[appRoles.TaskAdmin]}
-        Component={Dashboard}
-      />
-    </Switch>
-  )
-}
+    return (
+        <Routes>
+            <Route
+                exact
+                path="/todolist"
+                element={
+                    <RouteGuard roles={[appRoles.TaskUser, appRoles.TaskAdmin]}>
+                        <TodoList />
+                    </RouteGuard>
+                }
+            />
+            <Route
+                exact
+                path="/dashboard"
+                element={
+                    <RouteGuard roles={[appRoles.TaskAdmin]}>
+                        <Dashboard />
+                    </RouteGuard>
+                }
+            />
+            <Route path="/redirect" element={<Redirect />} />
+            <Route path="/" element={<Home />} />
+        </Routes>
+    );
+};
 ```
 
 However, it is important to be aware of that no content on the front-end application can be **truly** secure. That is, our **RouteGuard** component is primarily responsible for rendering the correct pages and other UI elements for a user in a particular role; in the example above, we allow only users in the `TaskAdmin` role to see the `Dashboard` component. In order to **truly** protect data and expose certain REST operations to a selected set of users, we enable **RBAC** on the back-end/web API as well in this sample. This is shown next.
@@ -341,35 +356,42 @@ However, it is important to be aware of that no content on the front-end applica
 As mentioned before, in order to **truly** implement **RBAC** and secure data, we allow only authorized calls to our web API. We do this by defining an *access matrix* and protecting our routes with a `routeGuard` custom middleware:
 
 ```javascript
-const routeGuard = (accessMatrix) => {
+const routeGuard = (accessMatrix, applicationPermissions) => {
     return (req, res, next) => {
-
         if (req.authInfo.roles === undefined) {
             return res.status(403).json({error: 'No roles claim found!'});
-        } else {
+        }
+        else {
             const roles = req.authInfo['roles'];
-
-            if (req.path === accessMatrix.todolist.path) {
+            
+            if (req.path.includes(accessMatrix.todolist.path)) {
                 if (accessMatrix.todolist.methods.includes(req.method)) {
 
-                    let intersection = accessMatrix.todolist.roles
-                        .filter(role => roles.includes(role));
+                    if (hasApplicationPermissions(req.authInfo , applicationPermissions)) {
+                        next();
+                    }else {
+                         let intersection = accessMatrix.todolist.roles.filter((role) => roles.includes(role));
 
-                    if (intersection.length < 1) {
-                        return res.status(403).json({error: 'User does not have the role'});
+                         if (intersection.length < 1) {
+                             return res.status(403).json({ error: 'User does not have the role' });
+                         }
                     }
                 } else {
                     return res.status(403).json({error: 'Method not allowed'});
                 }
-            } else if (req.path === accessMatrix.dashboard.path) {
+            } else if (req.path.includes(accessMatrix.dashboard.path)) {
                 if (accessMatrix.dashboard.methods.includes(req.method)) {
 
-                    let intersection = accessMatrix.dashboard.roles
-                        .filter(role => roles.includes(role));
+                    if (hasApplicationPermissions(req.authInfo , applicationPermissions)) {
+                        next();
+                    }else {
 
-                    if (intersection.length < 1) {
-                        return res.status(403).json({error: 'User does not have the role'});
-                    }   
+                        let intersection = accessMatrix.dashboard.roles.filter((role) => roles.includes(role));
+
+                        if (intersection.length < 1) {
+                             return res.status(403).json({ error: 'User does not have the role' });
+                        }  
+                    } 
                 } else {
                     return res.status(403).json({error: 'Method not allowed'});
                 }
@@ -383,33 +405,21 @@ const routeGuard = (accessMatrix) => {
 }
 ```
 
-We defined these roles in [authConfig.json](./API/authConfig.json) as follows:
+We defined these roles in [authConfig.js](./API/authConfig.js) as follows:
 
-```JSON
-    "accessMatrix": {
-        "todolist": {
-            "path": "/todolist",
-            "methods": [
-                "GET",
-                "POST",
-                "PUT",
-                "DELETE"
-            ],
-            "roles": [
-                "TaskUser",
-                "TaskAdmin"
-            ]
+```javascript
+ accessMatrix: {
+        todolist: {
+            path: '/todolist',
+            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            roles: ['TaskUser', 'TaskAdmin'],
         },
-        "dashboard": {
-            "path": "/dashboard",
-            "methods": [
-                "GET"
-            ],
-            "roles": [
-                "TaskAdmin"
-            ]
-        }
-    }
+        dashboard: {
+            path: '/dashboard',
+            methods: ['GET'],
+            roles: ['TaskAdmin'],
+        },
+    },
 ```
 
 Finally, in [app.js](./API/app.js), we add the routeGuard middleware to `/api` route:
