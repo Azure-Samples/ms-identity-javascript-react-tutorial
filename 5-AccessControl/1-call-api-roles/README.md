@@ -149,6 +149,10 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
 
+> :information_source: Be aware of [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+
+> :information_source: See how to use **application permissions** in a client app here: [Node.js console application acquiring tokens using OAuth 2.0 Client Credentials Grant](https://github.com/Azure-Samples/ms-identity-javascript-nodejs-console).
+
 #### Define Application Roles
 
 1. Still on the same app registration, select the **App roles** blade to the left.

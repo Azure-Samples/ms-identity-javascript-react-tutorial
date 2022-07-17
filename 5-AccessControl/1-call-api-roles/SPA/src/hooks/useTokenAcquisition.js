@@ -22,7 +22,6 @@ const useTokenAcquisition = (scopes, interactionType) => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-    
         const getToken = async () => {
             let tokenResponse;
             if (account && inProgress === InteractionStatus.None && !response && !error) {
@@ -32,24 +31,21 @@ const useTokenAcquisition = (scopes, interactionType) => {
                         account: account,
                     });
 
-                    console.log(tokenResponse);
-
                     setResponse(tokenResponse);
-                } 
-                catch (error) {
+                } catch (error) {
                     if (error instanceof InteractionRequiredAuthError) {
                         try {
                             switch (interactionType) {
                                 case InteractionType.Popup:
                                     tokenResponse = await instance.acquireTokenPopup({
-                                        scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
+                                        scopes: scopes, // e.g ['Todolist.Read', 'Todolist.ReadWrite']
                                         account: account, // current active account
                                     });
                                     break;
                                 case InteractionType.Redirect:
                                 default:
                                     tokenResponse = await instance.acquireTokenRedirect({
-                                        scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
+                                        scopes: scopes, // e.g ['Todolist.Read', 'Todolist.ReadWrite']
                                         account: account, // current active account
                                     });
                                     break;
@@ -57,13 +53,13 @@ const useTokenAcquisition = (scopes, interactionType) => {
                             setResponse(tokenResponse);
                         } catch (error) {
                             if (error.errorCode === 'popup_window_error') {
-                                 tokenResponse = await instance.acquireTokenRedirect({
-                                     scopes: scopes, // e.g ['User.Read', 'Contacts.Read']
-                                     account: account, // current active account
-                                 });
+                                tokenResponse = await instance.acquireTokenRedirect({
+                                    scopes: scopes, // e.g ['Todolist.Read', 'Todolist.ReadWrite']
+                                    account: account, // current active account
+                                });
                                 setResponse(tokenResponse);
-                            }else {
-                                 setError(error);
+                            } else {
+                                setError(error);
                             }
                         }
                     }

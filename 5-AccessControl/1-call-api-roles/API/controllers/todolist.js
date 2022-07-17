@@ -1,14 +1,17 @@
 const lowdb = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('./data/db.json');
-const db = lowdb(adapter);
+const FileAsync = require('lowdb/adapters/FileAsync');
+const adapter = new FileAsync('./data/db.json');
+
 
 const { hasDelegatedPermissions, hasApplicationPermissions } = require('../auth/permissionUtils');
 
 const authConfig = require('../authConfig');
 
 
-exports.getTodo = (req, res, next) => {
+exports.getTodo = async (req, res, next) => {
+
+   const db = await lowdb(adapter);
+
     if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
         try {
             /**
@@ -53,7 +56,9 @@ exports.getTodo = (req, res, next) => {
     )
 }
 
-exports.getTodos = (req, res, next) => {
+exports.getTodos = async (req, res, next) => {
+    const db = await lowdb(adapter);
+
     if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
         try {
             const owner = req.authInfo['oid'];
@@ -80,7 +85,9 @@ exports.getTodos = (req, res, next) => {
     )
 }
 
-exports.postTodo = (req, res, next) => {
+exports.postTodo = async (req, res, next) => {
+   const db = await lowdb(adapter);
+
     if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write)
         ||
         hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
@@ -96,7 +103,9 @@ exports.postTodo = (req, res, next) => {
     )
 }
 
-exports.updateTodo = (req, res, next) => {
+exports.updateTodo = async (req, res, next) => {
+   const db = await lowdb(adapter);
+
     if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write)) {
         try {
             const id = req.params.id;
@@ -130,7 +139,9 @@ exports.updateTodo = (req, res, next) => {
     )
 }
 
-exports.deleteTodo = (req, res, next) => {
+exports.deleteTodo = async (req, res, next) => {
+    const db = await lowdb(adapter);
+
     if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write)) {
         try {
             const id = req.params.id;
