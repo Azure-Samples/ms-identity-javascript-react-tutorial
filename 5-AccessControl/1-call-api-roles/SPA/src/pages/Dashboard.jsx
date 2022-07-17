@@ -23,7 +23,11 @@ const DashboardContent = () => {
 
     useEffect(() => {
         if (tokenResponse && !dashboardData) {
-            getAllTasks(tokenResponse.accessToken).then((response) => setDashboardData(response));
+            getAllTasks(tokenResponse.accessToken).then((response) => { 
+                if(!response.error){
+                    setDashboardData(response); 
+                }
+            });
         }
     }, [tokenResponse]);
 

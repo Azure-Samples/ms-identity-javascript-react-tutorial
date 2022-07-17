@@ -22,9 +22,13 @@ const TodoListContent = () => {
 
     useEffect(() => {
         if (tokenResponse && !todoListData) {
-            getTasks(tokenResponse.accessToken).then((response) => setTodoListData(response));
+            
+            getTasks(tokenResponse.accessToken).then((response) => { 
+                if(response && !response.error){
+                    setTodoListData(response) 
+                }
+            });
         }
-        console.log(todoListData, ' todoListData');
     }, [tokenResponse]);
 
     return <>{todoListData ? <ListView todoListData={todoListData} /> : null}</>;
@@ -43,7 +47,10 @@ export const TodoList = () => {
     };
 
     return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
+        <MsalAuthenticationTemplate 
+            interactionType={InteractionType.Redirect} 
+            authenticationRequest={authRequest}
+        >
             <TodoListContent />
         </MsalAuthenticationTemplate>
     );
