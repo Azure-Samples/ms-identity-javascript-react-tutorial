@@ -145,6 +145,14 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
    - Repeat the steps above for publishing another scope named `Todolist.ReadWrite`.
+1. APIs should also publish scopes that can only be consumed by applications (not users), also known as [application permissions](https://docs.microsoft.com/azure/active-directory/develop/permissions-consent-overview#types-of-permissions). To do so, select the **App roles** blade to the left.
+   - Select **Create app role**:
+       - For **Display name**, enter a suitable name, for instance **Todolist.Read.All**.
+       - For **Allowed member types**, choose **Application**.
+       - For **Value**, enter **Todolist.Read.All**.
+       - For **Description**, enter **Application can only read ToDo list**.
+       - Select **Apply** to save your changes.
+   - Repeat the steps above for permission **Todolist.ReadWrite.All**.
 1. On the right side menu, select the `Manifest` blade.
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
