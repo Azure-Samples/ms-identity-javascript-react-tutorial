@@ -34,11 +34,11 @@ const ContactsContent = () => {
                         protectedResources.graphContacts.scopes
                     );
 
-                    if (contacts && contacts.error) throw new Error(contacts.error);
+                    if (contacts && contacts.error) throw contacts.error;
 
                     setGraphContacts(contacts);
                 } catch (error) {
-                    if (error instanceof BrowserAuthError) {
+                    if (error instanceof BrowserAuthError || error === 'Unauthorized') {
                         login(InteractionType.Redirect, request);
                     } else {
                         setFetchError(error);

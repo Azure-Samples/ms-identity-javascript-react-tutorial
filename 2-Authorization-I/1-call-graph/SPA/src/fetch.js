@@ -33,17 +33,15 @@ export const callApiWithToken = async (accessToken, apiEndpoint, scopes) => {
 
 /**
  * This method inspects the HTTPS response from a fetch call for the "www-authenticate header"
- * If present, it grabs the claims challenge from the header, then uses msal to ask Azure AD for a new access token containing the needed claims
- * If not present, then it simply returns the response as json
+ * If present, it grabs the claims challenge from the header and store it in the localStorage
  * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
  * @param {object} response
  * @param {Array} scopes
  * @returns response
  */
-const handleClaimsChallenge = async (response, scopes) => {
+const handleClaimsChallenge = async (response) => {
     if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
-            let tokenResponse;
             const account = msalInstance.getActiveAccount();
             const authenticateHeader = response.headers.get('www-authenticate');
 
@@ -53,49 +51,7 @@ const handleClaimsChallenge = async (response, scopes) => {
                 .split('claims="')[1]
                 .split('",')[0];
 
-            try {
-                /**
-                 * This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token.
-                 * To ensure that we are fetching the correct claim from the localStorage, we are using the clientId of the
-                 * application and oid (user’s object id) as the key identifier of the claim in the localStorage.
-                 */
-                addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
-
-                tokenResponse = await msalInstance.acquireTokenPopup({
-                    claims: window.atob(claimsChallenge), // decode the base64 string
-                    scopes: scopes,
-                    account: account,
-                });
-
-                if (tokenResponse) {
-                    const data = await callApiWithToken(
-                        tokenResponse.accessToken,
-                        protectedResources.graphMe.endpoint,
-                        scopes
-                    );
-                    return data;
-                }
-            } catch (error) {
-                if (
-                    error instanceof BrowserAuthError &&
-                    (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error')
-                ) {
-                    /**
-                     * This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token.
-                     * To ensure that we are fetching the correct claim from the localStorage, we are using the clientId
-                     * of the application and oid (user’s object id) as the key identifier of the claim in the localStorage.
-                     */
-                    addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
-
-                    tokenResponse = await msalInstance.acquireTokenRedirect({
-                        claims: window.atob(claimsChallenge),
-                        scopes: protectedResources.apiTodoList.scopes,
-                        account: account,
-                    });
-                } else {
-                    throw error;
-                }
-            }
+            addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
         }
     }
 

@@ -18,7 +18,6 @@ const ProfileContent = () => {
                 : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
     };
     const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
-
     useEffect(() => {
         const fetchData = async () => {
             if (result && !graphData) {
@@ -28,11 +27,10 @@ const ProfileContent = () => {
                         protectedResources.graphMe.endpoint,
                         protectedResources.graphMe.scopes
                     );
-
                     if (data && data.error) throw data.error;
                     setGraphData(data);
                 } catch (error) {
-                    if (error instanceof BrowserAuthError) {
+                    if (error instanceof BrowserAuthError || error === 'Unauthorized') {
                         login(InteractionType.Redirect, request);
                     }
                 }
