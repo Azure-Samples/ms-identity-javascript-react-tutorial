@@ -36,10 +36,9 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 | `fetch.jsx`                         | Provides a helper method for making fetch calls using bearer token scheme. |
 | `authConfig.js`                     | Contains authentication configuration parameters.                          |
 | `pages/Home.jsx`                    | Contains a table with ID token claims and description                      |
-| `pages/Redirect.jsx`                | Blank page for redirect purposes when using popup and silent APIs         |
+| `pages/Redirect.jsx`                | Blank page for redirect purposes when using popup and silent APIs          |
 | `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` endpoint with Graph SDK.                       |
 | `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` endpoint with Graph SDK.              |
-| `hooks/useTokenAcquisition.js`      | Custom hook to handle token acquisition with MSAL.js                       |
 | `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js         |
 
 ## Prerequisites
@@ -242,9 +241,51 @@ In the code snippet above, the user will be prompted for consent once they authe
 
 ### Acquire a Token
 
-**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from cache *silently*, or acquire a fresh access token using a non-expired refresh token. If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. In the sample, a custom hook named [useTokenAcquisition.js](./SPA/src/hooks/useTokenAcquisition.js) is used to implement this logic.
+**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from cache *silently*, or acquire a fresh access token using a non-expired refresh token. If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. In the sample, a custom hook named `useMsalAuthentication` is used to implement this logic.
+
+```javascript
+ const { instance } = useMsal();
+ const account = instance.getActiveAccount();
+ const [graphData, setGraphData] = useState(null);
+ const request = {
+        scopes: protectedResources.graphMe.scopes,
+        account: account,
+        claims:
+            account && localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                ? window.atob(localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+                : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+    };
+
+const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+
+useEffect(() => {
+        const fetchData = async () => {
+            if (result && !graphData) {
+                try {
+                    let data = await callApiWithToken(
+                        result.accessToken,
+                        protectedResources.graphMe.endpoint,
+                        protectedResources.graphMe.scopes
+                    );
+
+                    if (data && data.error) throw data.error;
+                    setGraphData(data);
+                } catch (error) {
+                    if (error instanceof BrowserAuthError) {
+                        login(InteractionType.Redirect, request);
+                    }
+                }
+            }
+        };
+
+        fetchData();
+    }, [result, error]);
+
+```
 
 > :information_source: Please see the documentation on [acquiring an access token](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/acquire-token.md) to learn more about various methods available in **MSAL.js** to acquire tokens.
+
+> :information_source: Please see the documentation on [useIsAuthenticated hook](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md#useisauthenticated-hook) to learn more about `useMsalAuthentication`  hook to acquire tokens.
 
 ### Handle Continuous Access Evaluation (CAE) challenge from Microsoft Graph
 

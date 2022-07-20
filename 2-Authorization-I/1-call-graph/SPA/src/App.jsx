@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { MsalProvider } from '@azure/msal-react';
 
 import { PageLayout } from './components/PageLayout';
@@ -6,6 +7,8 @@ import { Profile } from './pages/Profile';
 import { Redirect } from './pages/Redirect';
 import { Contacts } from './pages/Contacts';
 import { Home } from './pages/Home';
+
+import { CustomNavigationClient } from './utils/NavigationClient';
 
 import './styles/App.css';
 
@@ -20,6 +23,24 @@ const Pages = () => {
     );
 };
 
+const ClientSideNavigation = ({ instance, children }) => {
+    const navigate = useNavigate();
+    const navigationClient = new CustomNavigationClient(navigate);
+    instance.setNavigationClient(navigationClient);
+
+    // react-router-dom v6 doesn't allow navigation on the first render - delay rendering of MsalProvider to get around this limitation
+    const [firstRender, setFirstRender] = useState(true);
+    useEffect(() => {
+        setFirstRender(false);
+    }, []);
+
+    if (firstRender) {
+        return null;
+    }
+
+    return children;
+};
+
 /**
  * msal-react is built on the React context API and all parts of your app that require authentication must be
  * wrapped in the MsalProvider component. You will first need to initialize an instance of PublicClientApplication
@@ -29,12 +50,12 @@ const Pages = () => {
  */
 export const App = ({ instance }) => {
     return (
-        <Router>
+        <ClientSideNavigation instance={instance}>
             <MsalProvider instance={instance}>
                 <PageLayout>
                     <Pages />
                 </PageLayout>
             </MsalProvider>
-        </Router>
+        </ClientSideNavigation>
     );
 };

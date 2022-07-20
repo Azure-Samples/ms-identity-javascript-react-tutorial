@@ -1,26 +1,35 @@
 import { useEffect, useState } from 'react';
-import { MsalAuthenticationTemplate } from '@azure/msal-react';
+import { useMsalAuthentication, useMsal } from '@azure/msal-react';
 import { Container } from 'react-bootstrap';
 
-import useTokenAcquisition from '../hooks/useTokenAcquisition';
-import { protectedResources } from '../authConfig';
-import { InteractionType } from '@azure/msal-browser';
-import { loginRequest } from '../authConfig';
+import { protectedResources, msalConfig } from '../authConfig';
+import { InteractionType, BrowserAuthError } from '@azure/msal-browser';
 import { GraphContacts } from '../components/DataDisplay';
 import { callApiWithToken } from '../fetch';
 
 const ContactsContent = () => {
-    const [response] = useTokenAcquisition(protectedResources.graphContacts.scopes, InteractionType.Redirect);
+    const { instance } = useMsal();
+    const account = instance.getActiveAccount();
+    const request = {
+        scopes: protectedResources.graphContacts.scopes,
+        account: account,
+        claims:
+            account && localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                ? window.atob(localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+                : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+    };
+
+    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
 
     const [graphContacts, setGraphContacts] = useState(null);
-    const [error, setError] = useState(null);
+    const [fetchError, setFetchError] = useState(null);
 
     useEffect(() => {
         const fetchData = async () => {
-            if (response && !graphContacts) {
+            if (result && !graphContacts) {
                 try {
                     let contacts = await callApiWithToken(
-                        response.accessToken,
+                        result.accessToken,
                         protectedResources.graphContacts.endpoint,
                         protectedResources.graphContacts.scopes
                     );
@@ -29,35 +38,30 @@ const ContactsContent = () => {
 
                     setGraphContacts(contacts);
                 } catch (error) {
-                    setError(error);
+                    if (error instanceof BrowserAuthError) {
+                        login(InteractionType.Redirect, request);
+                    } else {
+                        setFetchError(error);
+                    }
                 }
             }
         };
         fetchData();
-    }, [response]);
+    }, [result, error]);
     return (
         <>
             {' '}
-            {graphContacts || error ? (
-                <GraphContacts response={response} error={error} graphContacts={graphContacts} />
+            {graphContacts || fetchError ? (
+                <GraphContacts response={result} error={fetchError} graphContacts={graphContacts} />
             ) : null}{' '}
         </>
     );
 };
 
 export const Contacts = () => {
-    const authRequest = {
-        ...loginRequest,
-    };
-
     return (
-        <MsalAuthenticationTemplate
-            interactionType={InteractionType.Redirect}
-            authenticationRequest={authRequest}
-        >
-            <Container>
-                <ContactsContent />
-            </Container>
-        </MsalAuthenticationTemplate>
+        <Container>
+            <ContactsContent />
+        </Container>
     );
 };

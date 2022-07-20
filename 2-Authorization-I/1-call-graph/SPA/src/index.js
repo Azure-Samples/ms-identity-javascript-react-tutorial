@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { PublicClientApplication, EventType } from '@azure/msal-browser';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 import { App } from './App.jsx';
 import { msalConfig } from './authConfig';
@@ -36,12 +37,16 @@ msalInstance.addEventCallback((event) => {
     }
 
     if (event.eventType === EventType.LOGOUT_SUCCESS) {
-        msalInstance.setActiveAccount(msalInstance.getAllAccounts());
+        if (msalInstance.getAllAccounts().length > 0) {
+            msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
+        }
     }
 });
 
 root.render(
     <React.StrictMode>
-        <App instance={msalInstance} />
+        <Router>
+            <App instance={msalInstance} />
+        </Router>
     </React.StrictMode>
 );

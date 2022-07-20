@@ -1,24 +1,30 @@
 import { useEffect, useState } from 'react';
-import { MsalAuthenticationTemplate } from '@azure/msal-react';
-import { InteractionType } from '@azure/msal-browser';
-
-import { loginRequest } from '../authConfig';
+import { useMsal, useMsalAuthentication } from '@azure/msal-react';
+import { InteractionType, BrowserAuthError } from '@azure/msal-browser';
 import { ProfileData } from '../components/DataDisplay';
-import { protectedResources } from '../authConfig';
-
-import useTokenAcquisition from '../hooks/useTokenAcquisition';
-
+import { protectedResources, msalConfig } from '../authConfig';
 import { callApiWithToken } from '../fetch';
 
 const ProfileContent = () => {
-    const [response, error] = useTokenAcquisition(protectedResources.graphMe.scopes, InteractionType.Redirect);
+    const { instance } = useMsal();
+    const account = instance.getActiveAccount();
     const [graphData, setGraphData] = useState(null);
+    const request = {
+        scopes: protectedResources.graphMe.scopes,
+        account: account,
+        claims:
+            account && localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                ? window.atob(localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+                : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+    };
+    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+
     useEffect(() => {
         const fetchData = async () => {
-            if (response && !graphData) {
+            if (result && !graphData) {
                 try {
                     let data = await callApiWithToken(
-                        response.accessToken,
+                        result.accessToken,
                         protectedResources.graphMe.endpoint,
                         protectedResources.graphMe.scopes
                     );
@@ -26,15 +32,17 @@ const ProfileContent = () => {
                     if (data && data.error) throw data.error;
                     setGraphData(data);
                 } catch (error) {
-                    console.log(error);
+                    if (error instanceof BrowserAuthError) {
+                        login(InteractionType.Redirect, request);
+                    }
                 }
             }
         };
 
         fetchData();
-    }, [response]);
+    }, [result, error]);
 
-    return <>{graphData ? <ProfileData response={response} graphData={graphData} /> : null}</>;
+    return <>{graphData ? <ProfileData response={result} graphData={graphData} /> : null}</>;
 };
 
 /**
@@ -45,13 +53,5 @@ const ProfileContent = () => {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
 export const Profile = () => {
-    const authRequest = {
-        ...loginRequest,
-    };
-
-    return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Popup} authenticationRequest={authRequest}>
-            <ProfileContent />
-        </MsalAuthenticationTemplate>
-    );
+    return <ProfileContent />;
 };
