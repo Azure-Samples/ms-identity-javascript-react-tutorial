@@ -20,6 +20,10 @@ export const NavigationBar = () => {
         instance.loginRedirect(loginRequest);
     };
 
+    const handleLoginPopup = () => {
+        instance.loginPopup(loginRequest).catch((error) => console.log(error));
+    };
+
     const handleSwitchAccount = () => {
         setShowProfilePicker(!showProfilePicker);
     };
@@ -81,9 +85,14 @@ export const NavigationBar = () => {
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
                     <div className="collapse navbar-collapse justify-content-end">
-                        <Button onClick={handleLoginRedirect} variant="secondary">
-                            Sign in
-                        </Button>
+                        <DropdownButton variant="secondary" className="ml-auto" drop="start" title="Sign In">
+                            <Dropdown.Item as="button" onClick={handleLoginPopup}>
+                                Sign in using Popup
+                            </Dropdown.Item>
+                            <Dropdown.Item as="button" onClick={handleLoginRedirect}>
+                                Sign in using Redirect
+                            </Dropdown.Item>
+                        </DropdownButton>
                     </div>
                 </UnauthenticatedTemplate>
             </Navbar>
