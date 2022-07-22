@@ -14,7 +14,7 @@ export const msalConfig = {
     auth: {
         clientId: "Enter_the_Application_Id_Here", // This is the ONLY mandatory field that you need to supply.
         authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here", // Defaults to "https://login.microsoftonline.com/common"
-        redirectUri: "/redirect", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
+        redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
         clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
     },
@@ -72,5 +72,5 @@ export const protectedResources = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: [...protectedResources.apiTodoList.scopes.read]
+    scopes: [...protectedResources.apiTodoList.scopes.read, ...protectedResources.apiTodoList.scopes.write]
 };

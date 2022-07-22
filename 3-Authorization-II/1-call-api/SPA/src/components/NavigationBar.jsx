@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
-import { Nav, Navbar, Dropdown, DropdownButton } from 'react-bootstrap';
-import { loginRequest } from '../authConfig';
-import { AccountPicker } from './AccountPicker';
-import { msalConfig } from '../authConfig';
+import { useState } from "react";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
+import { Nav, Navbar, Dropdown, DropdownButton } from "react-bootstrap";
+import { loginRequest } from "../authConfig";
+import { AccountPicker } from "./AccountPicker";
 
 export const NavigationBar = () => {
     const [showProfilePicker, setShowProfilePicker] = useState(false);
@@ -16,11 +15,29 @@ export const NavigationBar = () => {
     }
 
     const handleLoginPopup = () => {
-        instance.loginPopup(loginRequest).catch((error) => console.log(error));
+        /**
+         * When using popup and silent APIs, we recommend setting the redirectUri to a blank page or a page 
+         * that does not implement MSAL. Keep in mind that all redirect routes must be registered with the application
+         * For more information, please follow this link: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/login-user.md#redirecturi-considerations 
+         */
+        instance.loginPopup({
+            ...loginRequest,
+            redirectUri: "/redirect.html"
+        }).catch((error) => console.log(error));
     };
 
     const handleLoginRedirect = () => {
-        instance.loginRedirect(loginRequest).catch((error) => console.log(error));
+        instance.logoutPopup()
+            .catch((error) => console.log(error));
+    };
+
+    const handleLogoutPopup = () => {
+        instance.logoutRedirect()
+            .catch((error) => console.log(error));
+    };
+
+    const handleLogoutRedirect = () => {
+
     };
 
     const handleSwitchAccount = () => {
@@ -46,28 +63,20 @@ export const NavigationBar = () => {
                         <DropdownButton
                             variant="warning"
                             drop="start"
-                            title={activeAccount ? activeAccount.name : 'Unknown'}
+                            title={activeAccount ? activeAccount.name : "Unknown"}
                         >
                             <Dropdown.Item as="button" onClick={handleSwitchAccount}>
                                 Switch account
                             </Dropdown.Item>
                             <Dropdown.Item
                                 as="button"
-                                onClick={() =>
-                                    instance.logoutPopup({
-                                        postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
-                                    })
-                                }
+                                onClick={handleLogoutPopup}
                             >
                                 Sign out using Popup
                             </Dropdown.Item>
                             <Dropdown.Item
                                 as="button"
-                                onClick={() =>
-                                    instance.logoutRedirect({
-                                        postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
-                                    })
-                                }
+                                onClick={handleLogoutRedirect}
                             >
                                 Sign out using Redirect
                             </Dropdown.Item>

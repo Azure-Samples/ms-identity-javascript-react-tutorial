@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useMsal } from "@azure/msal-react";
+import { InteractionType } from "@azure/msal-browser";
+import { useMsal, useMsalAuthentication } from "@azure/msal-react";
 import { nanoid } from "nanoid";
+
 import ListGroup from "react-bootstrap/ListGroup";
 
 import { TodoForm } from "./TodoForm";
@@ -8,8 +10,6 @@ import { TodoItem } from "./TodoItem";
 
 import { protectedResources } from "../authConfig";
 import { deleteTask, postTask, editTask } from '../fetch';
-
-import useTokenAcquisition from '../hooks/useTokenAcquisition';
 
 function usePrevious(value) {
     const ref = useRef();
@@ -23,15 +23,14 @@ function usePrevious(value) {
 
 export const ListView = (props) => {
     const { instance } = useMsal();
+    const activeAccount = instance.getActiveAccount();
     const [tasks, setTasks] = useState(props.todoListData);
-    const [tokenResponse] = useTokenAcquisition(protectedResources.apiTodoList.scopes.write);
-    const account = instance.getActiveAccount();
 
     const handleCompleteTask = (id) => {
         const updatedTask = tasks.find(task => id === task.id);
         updatedTask.completed = !updatedTask.completed;
 
-        editTask(tokenResponse.accessToken, id, updatedTask).then((response) => {
+        editTask(id, updatedTask).then((response) => {
             const updatedTasks = tasks.map(task => {
                 if (id === task.id) {
                     return { ...task, completed: !task.completed }
@@ -44,13 +43,13 @@ export const ListView = (props) => {
 
     const handleAddTask = (name) => {
         const newTask = {
-            owner: account.idTokenClaims?.oid,
+            owner: activeAccount.idTokenClaims?.oid,
             id: nanoid(),
             name: name,
             completed: false
         };
 
-        postTask(tokenResponse.accessToken, newTask).then((res) => {
+        postTask(newTask).then((res) => {
             if (res && res.message === "success") {
                 setTasks([...tasks, newTask]);
             }
@@ -58,7 +57,7 @@ export const ListView = (props) => {
     }
 
     const handleDeleteTask = (id) => {
-        deleteTask(tokenResponse.accessToken, id).then((response) => {
+        deleteTask(id).then((response) => {
             if (response && response.message === "success") {
                 const remainingTasks = tasks.filter(task => id !== task.id);
                 setTasks(remainingTasks);
@@ -70,7 +69,7 @@ export const ListView = (props) => {
         const updatedTask = tasks.find(task => id === task.id);
         updatedTask.name = newName;
 
-        editTask(tokenResponse.accessToken, id, updatedTask).then(() => {
+        editTask(id, updatedTask).then(() => {
             const updatedTasks = tasks.map(task => {
                 if (id === task.id) {
                     return { ...task, name: newName }

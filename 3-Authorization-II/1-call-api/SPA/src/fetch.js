@@ -2,9 +2,28 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+import { msalInstance } from "./index";
 import { protectedResources } from "./authConfig";
 
-export const getTasks = async (accessToken) => {
+const getToken = async (scopes) => {
+    const account = msalInstance.getActiveAccount();
+
+    if (!account) {
+        throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
+    }
+
+    const tokenRequest = {
+        account: account,
+        scopes: scopes,
+        redirectUri: "/redirect.html"
+    }
+
+    const tokenResponse = await msalInstance.acquireTokenSilent(tokenRequest);
+    return tokenResponse.accessToken;
+}
+
+export const getTasks = async () => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.read);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -21,7 +40,9 @@ export const getTasks = async (accessToken) => {
         .catch(error => console.log(error));
 }
 
-export const getTask = async (accessToken, id) => {
+export const getTask = async (id) => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.read);
+
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -37,7 +58,9 @@ export const getTask = async (accessToken, id) => {
         .catch(error => console.log(error));
 }
 
-export const postTask = async (accessToken, task) => {
+export const postTask = async (task) => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.write);
+
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -55,7 +78,9 @@ export const postTask = async (accessToken, task) => {
         .catch(error => console.log(error));
 }
 
-export const deleteTask = async (accessToken, id) => {
+export const deleteTask = async (id) => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.write);
+
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -71,7 +96,9 @@ export const deleteTask = async (accessToken, id) => {
         .catch(error => console.log(error));
 }
 
-export const editTask = async (accessToken, id, task) => {
+export const editTask = async (id, task) => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.write);
+
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 

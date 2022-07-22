@@ -131,6 +131,10 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - For **Description**, enter **Application can only read ToDo list**.
         - Select **Apply** to save your changes.
    - Repeat the steps above for permission **Todolist.ReadWrite.All**
+1. (Optional) Still on the same app registration, select the **Token configuration** blade to the left.
+    - Select **Add optional claim**:
+        - Select optional claim type, then choose `Access Token`.
+        - Select optional claim name, then choose `idtyp`.
 1. Select the `Manifest` blade on the left.
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
@@ -205,7 +209,7 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ### CORS settings
 
-For the purpose of the sample, **cross-origin resource sharing** is enabled for **all** domains and methods. This is insecure and only used for demonstration purposes here. In production, you should modify this as to allow only the domains that you designate. If your web API is going to be hosted on **Azure App Service**, we recommend configuring CORS on the App Service itself.
+For the purpose of the sample, **cross-origin resource sharing** (CORS) is enabled for **all** domains and methods, using the Express.js cors middleware. This is insecure and only used for demonstration purposes here. In production, you should modify this as to allow only the domains that you designate. If your web API is going to be hosted on **Azure App Service**, we recommend configuring CORS on the App Service itself.
 
 ```javascript
 const express = require('express');
@@ -249,36 +253,36 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
 
 
     /**
-     * Below we verify if the caller's tenant ID is in the list of allowed tenants.
-     * Since this app is not configured to be multi-tenant, this is only for illustration
+     * Below we verify if the caller's ID is in the list of allowed client apps.
+     * To do so, we use "azp" claim in the access token. Uncomment the lines below to enable this check.
      */
-    const myAllowedTenantsList = [
-        authConfig.credentials.tenantID,
-        // ...
-    ]
 
-    if (!myAllowedTenantsList.includes(authConfig.credentials.tenantID)) {
-        return done(new Error('Unauthorized'), {}, "Tenant not allowed");
+    const allowedClientApps = [
+        // Enter the Application ID (client ID) of the client application(s) you want to allow to access this API
+    ]
+    
+    if (!allowedClientApps.includes(token.azp)) {
+        return done(new Error('Unauthorized'), {}, "Client not allowed");
     }
 
     /**
      * Below we verify if there's at least one allowed permission in the access token
      * to be considered valid.
      */
-    if (!requiredScopeOrAppPermission(token, [
+    if (!requiredScopesOrAppPermissions(token, [
         ...authConfig.protectedRoutes.todolist.delegatedPermissions.read,
         ...authConfig.protectedRoutes.todolist.delegatedPermissions.write,
         ...authConfig.protectedRoutes.todolist.applicationPermissions.read,
         ...authConfig.protectedRoutes.todolist.applicationPermissions.write,
     ])) {
-        return done(new Error('Unauthorized'), {}, "No delegated or app permission found");
+        return done(new Error('Unauthorized'), {}, "No required delegated or app permission found");
     }
 
     /**
      * If needed, pass down additional user info to route using the second argument below.
      * This information will be available in the req.user object.
      */
-    done(null, {}, token);
+    return done(null, {}, token);
 });
 
 app.use(passport.initialize());
@@ -301,7 +305,7 @@ For validation and debugging purposes, developers can decode **JWT**s (*JSON Web
 Access tokens that have neither the **scp** (for delegated permissions) nor **roles** (for application permissions) claim should not be accepted. In the sample, this is illustrated via the `requiredScopeOrAppPermission` method in [permissionUtils.js](./API/auth/permissionUtils.js)
 
 ```JavaScript
-exports.requiredScopeOrAppPermission = (accessTokenPayload, allowedPermissions) => {
+const requiredScopesOrAppPermissions = (accessTokenPayload, listOfPermissions) => {
     /**
      * Access tokens that have neither the 'scp' (for delegated permissions) nor
      * 'roles' (for application permissions) claim are not to be honored.
@@ -309,19 +313,15 @@ exports.requiredScopeOrAppPermission = (accessTokenPayload, allowedPermissions) 
      * An access token issued by Azure AD will have at least one of the two claims. Access tokens
      * issued to a user will have the 'scp' claim. Access tokens issued to an application will have
      * the roles claim. Access tokens that contain both claims are issued only to users, where the scp
-     * claim designates the delegated permissions, while the roles claim designates the user's role.
-     *
-     * To determine whether an access token was issued to a user (i.e delegated) or an application
-     * more easily, we recommend enabling the optional claim 'idtyp'. For more information, see:
-     * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
+     * claim designates the delegated permissions, while the roles claim designates the user's roles.
      */
 
     if (!accessTokenPayload.hasOwnProperty('scp') && !accessTokenPayload.hasOwnProperty('roles')) {
         return false;
-    } else if (accessTokenPayload.hasOwnProperty('roles') && !accessTokenPayload.hasOwnProperty('scp')) {
-        return this.hasApplicationPermissions(accessTokenPayload, allowedPermissions);
-    } else if (accessTokenPayload.hasOwnProperty('scp')) {
-        return this.hasDelegatedPermissions(accessTokenPayload, allowedPermissions);
+    } else if (isAppOnlyToken(accessTokenPayload)) {
+        return hasRequiredApplicationPermissions(accessTokenPayload, listOfPermissions);
+    } else {
+        return hasRequiredDelegatedPermissions(accessTokenPayload, listOfPermissions);
     }
 }
 ```
@@ -332,11 +332,20 @@ Web API endpoints should be prepared to accept calls from both users and applica
 
 ```JavaScript
 exports.getTodo = (req, res, next) => {
-    if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
         try {
             /**
              * The 'oid' (object id) is the only claim that should be used to uniquely identify
-             * a user in an Azure AD tenant.
+             * a user in an Azure AD tenant. The token might have one or more of the following claim,
+             * that might seem like a unique identifier, but is not and should not be used as such,
+             * especially for systems which act as system of record (SOR):
+             *
+             * - upn (user principal name): might be unique amongst the active set of users in a tenant but
+             * tend to get reassigned to new employees as employees leave the organization and
+             * others take their place or might change to reflect a personal change like marriage.
+             *
+             * - email: might be unique amongst the active set of users in a tenant but tend to get
+             * reassigned to new employees as employees leave the organization and others take their place.
              */
             const owner = req.authInfo['oid'];
             const id = req.params.id;
@@ -350,7 +359,7 @@ exports.getTodo = (req, res, next) => {
         } catch (error) {
             next(error);
         }
-    } else if (hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)) {
+    } else if (hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)) {
         try {
             const id = req.params.id;
 
@@ -363,7 +372,7 @@ exports.getTodo = (req, res, next) => {
             next(error);
         }
     } else (
-        next(new Error('The user or application does not have the required permission(s)'))
+        next(new Error('User or application does not have the required permissions'))
     )
 }
 ```

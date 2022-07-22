@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
+const rateLimit = require('express-rate-limit')
 
 const passport = require('passport');
 const passportAzureAd = require('passport-azure-ad');
@@ -8,9 +9,35 @@ const passportAzureAd = require('passport-azure-ad');
 const authConfig = require('./authConfig');
 const router = require('./routes/index');
 
-const { requiredScopeOrAppPermission } = require('./auth/permissionUtils')
+const { requiredScopesOrAppPermissions } = require('./auth/permissionUtils')
 
 const app = express();
+
+/**
+ * If your app is behind a proxy, reverse proxy or a load balancer, consider
+ * letting express know that you are behind that proxy. To do so, uncomment
+ * the line below.
+ */
+
+// app.set('trust proxy',  /* numberOfProxies */);
+
+/**
+ * HTTP request handlers should not perform expensive operations such as accessing the file system, 
+ * executing an operating system command or interacting with a database without limiting the rate at 
+ * which requests are accepted. Otherwise, the application becomes vulnerable to denial-of-service attacks 
+ * where an attacker can cause the application to crash or become unresponsive by issuing a large number of 
+ * requests at the same time. For more information, visit:
+ * https://cheatsheetseries.owasp.org/cheatsheets/Denial_of_Service_Cheat_Sheet.html
+ */
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Apply the rate limiting middleware to all requests
+app.use(limiter)
 
 /**
  * Enable CORS middleware. In production, modify as to allow only designated origins and methods.
@@ -44,23 +71,23 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
 
 
     /**
-     * Below we verify if the caller's tenant ID is in the list of allowed tenants.
-     * Since this app is not configured to be multi-tenant, this is only for illustration
+     * Below we verify if the caller's ID is in the list of allowed client apps.
+     * To do so, we use "azp" claim in the access token. Uncomment the lines below to enable this check.
      */
-    const myAllowedTenantsList = [
-        authConfig.credentials.tenantID,
-        // ...
-    ]
 
-    if (!myAllowedTenantsList.includes(authConfig.credentials.tenantID)) {
-        return done(new Error('Unauthorized'), {}, "Tenant not allowed");
-    }
+    // const allowedClientApps = [
+    //     // Enter the Application ID (client ID) of the client application(s) you want to allow to access this API
+    // ]
+    // 
+    // if (!allowedClientApps.includes(token.azp)) {
+    //     return done(new Error('Unauthorized'), {}, "Client not allowed");
+    // }
 
     /**
      * Below we verify if there's at least one allowed permission in the access token
      * to be considered valid.
      */
-    if (!requiredScopeOrAppPermission(token, [
+    if (!requiredScopesOrAppPermissions(token, [
         ...authConfig.protectedRoutes.todolist.delegatedPermissions.read,
         ...authConfig.protectedRoutes.todolist.delegatedPermissions.write,
         ...authConfig.protectedRoutes.todolist.applicationPermissions.read,
