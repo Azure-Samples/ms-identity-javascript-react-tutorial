@@ -401,8 +401,6 @@ Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
  * https://tools.ietf.org/html/rfc6750
  * @param {string} accessToken
  * @param {string} apiEndpoint
- * @param {Array} scopes
- * @param {boolean} isImage
  */
 export const callApiWithToken = async (accessToken, apiEndpoint) => {
     const headers = new Headers();
