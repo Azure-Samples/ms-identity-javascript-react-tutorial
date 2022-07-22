@@ -3,10 +3,8 @@
  * Licensed under the MIT License.
  */
 
-import { BrowserAuthError } from '@azure/msal-browser';
-
 import { msalInstance } from './index';
-import { protectedResources, msalConfig } from '../src/authConfig';
+import { msalConfig } from '../src/authConfig';
 import { addClaimsToStorage } from './utils/storageUtils';
 
 /**
@@ -15,7 +13,7 @@ import { addClaimsToStorage } from './utils/storageUtils';
  * @param {string} accessToken
  * @param {string} apiEndpoint
  */
-export const callApiWithToken = async (accessToken, apiEndpoint, scopes) => {
+export const callApiWithToken = async (accessToken, apiEndpoint) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -27,7 +25,7 @@ export const callApiWithToken = async (accessToken, apiEndpoint, scopes) => {
     };
 
     return fetch(apiEndpoint, options)
-        .then((response) => handleClaimsChallenge(response, scopes))
+        .then((response) => handleClaimsChallenge(response))
         .catch((error) => error);
 };
 
@@ -36,7 +34,6 @@ export const callApiWithToken = async (accessToken, apiEndpoint, scopes) => {
  * If present, it grabs the claims challenge from the header and store it in the localStorage
  * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
  * @param {object} response
- * @param {Array} scopes
  * @returns response
  */
 const handleClaimsChallenge = async (response) => {

@@ -24,8 +24,7 @@ const ProfileContent = () => {
                 try {
                     let data = await callApiWithToken(
                         result.accessToken,
-                        protectedResources.graphMe.endpoint,
-                        protectedResources.graphMe.scopes
+                        protectedResources.graphMe.endpoint
                     );
                     if (data && data.error) throw data.error;
                     setGraphData(data);

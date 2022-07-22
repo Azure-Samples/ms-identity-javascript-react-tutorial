@@ -30,8 +30,7 @@ const ContactsContent = () => {
                 try {
                     let contacts = await callApiWithToken(
                         result.accessToken,
-                        protectedResources.graphContacts.endpoint,
-                        protectedResources.graphContacts.scopes
+                        protectedResources.graphContacts.endpoint
                     );
 
                     if (contacts && contacts.error) throw contacts.error;
