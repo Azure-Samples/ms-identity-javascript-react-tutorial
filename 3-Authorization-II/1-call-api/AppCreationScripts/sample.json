@@ -46,7 +46,10 @@
                     "Name": "Todolist.ReadWrite.All",
                     "Description": "Allow this application to read and write every users Todo list items"
                 }
-            ]
+            ],
+            "OptionalClaims": {
+                "AccessTokenClaims": ["idtyp"]
+            }
         },
         {
             "Id": "client",
@@ -54,7 +57,7 @@
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMyOrg",
             "HomePage": "https://localhost:3000",
-            "ReplyUrls": "https://localhost:3000, http://localhost:3000/redirect",
+            "ReplyUrls": "https://localhost:3000, http://localhost:3000/redirect.html",
             "Sample": {
                 "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
                 "ProjectDirectory": "\\1-call-api\\SPA"
