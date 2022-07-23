@@ -2,26 +2,29 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-
-import { protectedResources } from "./authConfig";
 import { msalInstance } from "./index";
+import { protectedResources } from "./authConfig";
 
-const getToken = async () => {
+const getToken = async (scopes) => {
     const account = msalInstance.getActiveAccount();
 
     if (!account) {
         throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
     }
 
-    const response = await msalInstance.acquireTokenSilent({
+    const tokenRequest = {
         account: account,
-        ...protectedResources.apiTodoList.scopes
-    });
+        scopes: scopes,
+        redirectUri: "/redirect.html"
+    }
 
-    return response.accessToken;
+    const tokenResponse = await msalInstance.acquireTokenSilent(tokenRequest);
+    return tokenResponse.accessToken;
 }
 
-export const getTasks = async (accessToken) => {
+export const getTasks = async () => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.read);
+
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -32,69 +35,32 @@ export const getTasks = async (accessToken) => {
         headers: headers
     };
 
-    return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
+    return fetch(protectedResources.apiTodoList.endpoint, options)
         .then(response => response.json())
         .catch(error => console.log(error));
 }
 
-
-
-export const postTask = async (accessToken, task) => {
-
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-
-    headers.append('Authorization', bearer);
-    headers.append('Content-Type', 'application/json');
-
-    const options = {
-        method: 'POST',
-        headers: headers,
-        body: JSON.stringify(task),
-    };
-
-    return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
-        .then((response) => response.json())
-        .catch((error) => console.log(error));
-};
-
-export const deleteTask = async (accessToken, id) => {
+export const getTask = async (id) => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.read);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
-    headers.append('Authorization', bearer);
+    headers.append("Authorization", bearer);
 
     const options = {
-        method: 'DELETE',
-        headers: headers,
+        method: "GET",
+        headers: headers
     };
 
-    return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then((response) => response.json())
-        .catch((error) => console.log(error));
-};
+    return fetch(protectedResources.apiTodoList.endpoint + `/${id}`, options)
+        .then(response => response.json())
+        .catch(error => console.log(error));
+}
 
-export const editTask = async (accessToken, id, task) => {
-
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-
-    headers.append('Authorization', bearer);
-    headers.append('Content-Type', 'application/json');
-
-    const options = {
-        method: 'PUT',
-        headers: headers,
-        body: JSON.stringify(task),
-    };
-
-    return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then((response) => response.json())
-        .catch((error) => console.log(error));
-};
-
-export const getAllTasks = async (accessToken) => {
+export const getAllTasks = async () => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.read);
+    
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -109,3 +75,61 @@ export const getAllTasks = async (accessToken) => {
         .then((response) => response.json())
         .catch((error) => console.log(error));
 };
+
+export const postTask = async (task) => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.write);
+
+    const headers = new Headers();
+    const bearer = `Bearer ${accessToken}`;
+
+    headers.append("Authorization", bearer);
+    headers.append('Content-Type', 'application/json');
+
+    const options = {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(task)
+    };
+
+    return fetch(protectedResources.apiTodoList.endpoint, options)
+        .then(response => response.json())
+        .catch(error => console.log(error));
+}
+
+export const deleteTask = async (id) => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.write);
+
+    const headers = new Headers();
+    const bearer = `Bearer ${accessToken}`;
+
+    headers.append("Authorization", bearer);
+
+    const options = {
+        method: "DELETE",
+        headers: headers
+    };
+
+    return fetch(protectedResources.apiTodoList.endpoint + `/${id}`, options)
+        .then(response => response.json())
+        .catch(error => console.log(error));
+}
+
+export const editTask = async (id, task) => {
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes.write);
+
+    const headers = new Headers();
+    const bearer = `Bearer ${accessToken}`;
+
+    headers.append("Authorization", bearer);
+    headers.append('Content-Type', 'application/json');
+
+    const options = {
+        method: "PUT",
+        headers: headers,
+        body: JSON.stringify(task)
+    };
+
+    return fetch(protectedResources.apiTodoList.endpoint + `/${id}`, options)
+        .then(response => response.json())
+        .catch(error => console.log(error));
+}

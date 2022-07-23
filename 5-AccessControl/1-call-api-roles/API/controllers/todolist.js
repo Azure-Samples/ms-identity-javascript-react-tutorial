@@ -3,12 +3,12 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('./data/db.json');
 const db = lowdb(adapter);
 
-const { hasDelegatedPermissions, hasApplicationPermissions } = require('../auth/permissionUtils');
+const { hasRequiredDelegatedPermissions, hasRequiredApplicationPermissions } = require('../auth/permissionUtils');
 
 const authConfig = require('../authConfig');
 
 exports.getTodo = (req, res, next) => {
-    if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
         try {
             /**
              * The 'oid' (object id) is the only claim that should be used to uniquely identify
@@ -33,7 +33,7 @@ exports.getTodo = (req, res, next) => {
             next(error);
         }
     } else if (
-        hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)
+        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)
     ) {
         try {
             const id = req.params.id;
@@ -48,7 +48,7 @@ exports.getTodo = (req, res, next) => {
 };
 
 exports.getTodos = (req, res, next) => {
-    if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
         try {
             const owner = req.authInfo['oid'];
 
@@ -59,7 +59,7 @@ exports.getTodos = (req, res, next) => {
             next(error);
         }
     } else if (
-        hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)
+        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)
     ) {
         try {
             const todos = db.get('todos').value();
@@ -72,8 +72,8 @@ exports.getTodos = (req, res, next) => {
 
 exports.postTodo = (req, res, next) => {
     if (
-        hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write) ||
-        hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
+        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write) ||
+        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
     ) {
         try {
             db.get('todos').push(req.body).write();
@@ -85,7 +85,7 @@ exports.postTodo = (req, res, next) => {
 };
 
 exports.updateTodo = (req, res, next) => {
-    if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write)) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write)) {
         try {
             const id = req.params.id;
             const owner = req.authInfo['oid'];
@@ -97,7 +97,7 @@ exports.updateTodo = (req, res, next) => {
             next(error);
         }
     } else if (
-        hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
+        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
     ) {
         try {
             const id = req.params.id;
@@ -112,7 +112,7 @@ exports.updateTodo = (req, res, next) => {
 };
 
 exports.deleteTodo = (req, res, next) => {
-    if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write)) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write)) {
         try {
             const id = req.params.id;
             const owner = req.authInfo['oid'];
@@ -124,7 +124,7 @@ exports.deleteTodo = (req, res, next) => {
             next(error);
         }
     } else if (
-        hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
+        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
     ) {
         try {
             const id = req.params.id;

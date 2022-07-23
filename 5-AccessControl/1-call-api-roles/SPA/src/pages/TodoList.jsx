@@ -1,37 +1,27 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import { MsalAuthenticationTemplate } from '@azure/msal-react';
-import { InteractionType } from '@azure/msal-browser';
+import { InteractionType } from "@azure/msal-browser";
+import { MsalAuthenticationTemplate } from "@azure/msal-react";
 
-import { loginRequest, protectedResources } from '../authConfig';
-import { getTasks } from '../fetch';
+import { loginRequest } from "../authConfig";
+import { getTasks } from "../fetch";
 
 import { ListView } from '../components/ListView';
 
-import useTokenAcquisition from '../hooks/useTokenAcquisition';
-
 const TodoListContent = () => {
-    /**
-     * useMsal is hook that returns the PublicClientApplication instance,
-     * an array of all accounts currently signed in and an inProgress value
-     * that tells you what msal is currently doing. For more, visit:
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
-     */
     const [todoListData, setTodoListData] = useState(null);
-    const [tokenResponse, error] = useTokenAcquisition(protectedResources.apiTodoList.scopes.read, InteractionType.Popup);
 
     useEffect(() => {
-        if (tokenResponse && !todoListData) {
-            
-            getTasks(tokenResponse.accessToken).then((response) => { 
-                if(response && !response.error){
-                    setTodoListData(response) 
-                }
-            });
+        if (!todoListData) {
+            getTasks().then(response => setTodoListData(response));
         }
-    }, [tokenResponse]);
+    }, [todoListData]);
 
-    return <>{todoListData ? <ListView todoListData={todoListData} /> : null}</>;
+    return (
+        <>
+            {todoListData ? <ListView todoListData={todoListData} /> : null}
+        </>
+    );
 };
 
 /**
@@ -43,15 +33,15 @@ const TodoListContent = () => {
  */
 export const TodoList = () => {
     const authRequest = {
-        ...loginRequest,
+        ...loginRequest
     };
 
     return (
-        <MsalAuthenticationTemplate 
-            interactionType={InteractionType.Redirect} 
+        <MsalAuthenticationTemplate
+            interactionType={InteractionType.Redirect}
             authenticationRequest={authRequest}
         >
             <TodoListContent />
         </MsalAuthenticationTemplate>
-    );
+    )
 };

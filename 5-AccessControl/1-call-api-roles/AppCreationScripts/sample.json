@@ -13,8 +13,8 @@
     "ReadmeScenario": {
         "FreeText": "",
         "IncludeFilePath": "",
-        "UseNewSetup": "1" /* when set to 0, only legacy setup will be used */,
-        "CertificateOption": "0" /* 1 when a certificate can be used instead of secret*/,
+        "UseNewSetup": "1",
+        "CertificateOption": "0",
         "CreateProjectIncludeFilePath": "",
         "AppRegistrationIncludeFilePath": "",
         "RunSampleIncludeFilePath": ""
@@ -64,7 +64,7 @@
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:3000/",
-            "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
+            "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
             "Sample": {
                 "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
                 "ProjectDirectory": "\\1-call-api\\SPA"

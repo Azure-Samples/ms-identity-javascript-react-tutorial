@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
 
-import { MsalAuthenticationTemplate   } from "@azure/msal-react";
-import {  InteractionType } from "@azure/msal-browser";
+import { MsalAuthenticationTemplate } from "@azure/msal-react";
+import { InteractionType } from "@azure/msal-browser";
 
-import { loginRequest, protectedResources } from '../authConfig';
+import { loginRequest } from '../authConfig';
 import { getAllTasks } from "../fetch";
 
 import { DashView } from '../components/DashView';
-
-import useTokenAcquisition from '../hooks/useTokenAcquisition';
-
 
 const DashboardContent = () => {
     /**
@@ -19,13 +16,12 @@ const DashboardContent = () => {
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
     const [dashboardData, setDashboardData] = useState(null);
-    const [tokenResponse, error] = useTokenAcquisition(protectedResources.apiTodoList.scopes.read, InteractionType.Popup);
 
     useEffect(() => {
         if (tokenResponse && !dashboardData) {
-            getAllTasks(tokenResponse.accessToken).then((response) => { 
-                if(!response.error){
-                    setDashboardData(response); 
+            getAllTasks().then((response) => {
+                if (!response.error) {
+                    setDashboardData(response);
                 }
             });
         }
@@ -33,7 +29,7 @@ const DashboardContent = () => {
 
     return (
         <>
-            { dashboardData ? <DashView dashboardData={dashboardData} /> : null}
+            {dashboardData ? <DashView dashboardData={dashboardData} /> : null}
         </>
     );
 };

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { MsalProvider } from '@azure/msal-react';
 
 import { RouteGuard } from './components/RouteGuard';
@@ -6,7 +6,6 @@ import { PageLayout } from './components/PageLayout';
 import { Dashboard } from './pages/Dashboard';
 import { TodoList } from './pages/TodoList';
 import { Home } from './pages/Home';
-import { Redirect } from './pages/Redirect';
 
 import { appRoles } from './authConfig';
 
@@ -33,7 +32,6 @@ const Pages = () => {
                     </RouteGuard>
                 }
             />
-            <Route path="/redirect" element={<Redirect />} />
             <Route path="/" element={<Home />} />
         </Routes>
     );
@@ -48,13 +46,11 @@ const Pages = () => {
  */
 const App = ({ instance }) => {
     return (
-        <Router>
-            <MsalProvider instance={instance}>
-                <PageLayout>
-                    <Pages instance={instance} />
-                </PageLayout>
-            </MsalProvider>
-        </Router>
+        <MsalProvider instance={instance}>
+            <PageLayout>
+                <Pages instance={instance} />
+            </PageLayout>
+        </MsalProvider>
     );
 };
 
