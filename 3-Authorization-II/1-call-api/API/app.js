@@ -14,8 +14,8 @@ const { requiredScopesOrAppPermissions } = require('./auth/permissionUtils')
 const app = express();
 
 /**
- * If your app is behind a proxy, reverse proxy or a load balancer, consider
- * letting express know that you are behind that proxy. To do so, uncomment
+ * If your app is behind a proxy, reverse proxy or a load balancer (e.g. Azure App Service)
+ * consider letting express know that you are behind that proxy. To do so, uncomment
  * the line below.
  */
 
@@ -138,7 +138,7 @@ app.use('/api', function (req, res, next) {
 
 
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
     console.log('Listening on port ' + port);
