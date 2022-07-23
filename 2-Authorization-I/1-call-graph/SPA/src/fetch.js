@@ -13,7 +13,7 @@ import { addClaimsToStorage } from './utils/storageUtils';
  * @param {string} accessToken
  * @param {string} apiEndpoint
  */
-export const callApiWithToken = async (accessToken, apiEndpoint) => {
+export const fetchData = async (accessToken, apiEndpoint) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -37,7 +37,9 @@ export const callApiWithToken = async (accessToken, apiEndpoint) => {
  * @returns response
  */
 const handleClaimsChallenge = async (response) => {
-    if (response.status === 401) {
+    if (response.status === 200) {
+        return response.json();
+    } else if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
             const account = msalInstance.getActiveAccount();
             const authenticateHeader = response.headers.get('www-authenticate');
@@ -48,11 +50,18 @@ const handleClaimsChallenge = async (response) => {
                 .split('claims="')[1]
                 .split('",')[0];
 
+            /**
+             * This method stores the claim challenge to the session storage in the browser to be used when acquiring a token.
+             * To ensure that we are fetching the correct claim from the storage, we are using the clientId
+             * of the application and oid (user’s object id) as the key identifier of the claim with schema
+             * cc.<clientId>.<oid>
+             */
             addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
+            return { error: 'claims_challenge_occurred', payload: claimsChallenge };
         }
-    }
 
-    if (response.status === 200) return response.json();
-    else if (response.status === 401) return { error: 'Unauthorized' };
-    else return { error: 'Something went wrong' };
+        throw new Error(`Unauthorized: ${response.status}`);
+    } else {
+        throw new Error(`Something went wrong with the request: ${response.status}`);
+    }
 };

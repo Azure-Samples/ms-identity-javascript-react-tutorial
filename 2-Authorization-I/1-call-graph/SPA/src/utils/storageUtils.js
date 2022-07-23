@@ -5,9 +5,13 @@ import { msalConfig } from '../authConfig';
  * @param {String} claimsChallenge
  */
 export const addClaimsToStorage = (claimsChallenge, claimsChallengeId) => {
-    if (!localStorage.getItem(claimsChallengeId)) {
-        localStorage.setItem(claimsChallengeId, claimsChallenge);
+    if (!sessionStorage.getItem(claimsChallengeId)) {
+        sessionStorage.setItem(claimsChallengeId, claimsChallenge);
     }
+};
+
+export const getClaimsFronStrorage = (claimsChallengeId) => {
+    return sessionStorage.getItem(claimsChallengeId);
 };
 
 /**
@@ -15,7 +19,7 @@ export const addClaimsToStorage = (claimsChallenge, claimsChallengeId) => {
  * @param {Object} account
  */
 export const clearStorage = (account) => {
-    for (var key in localStorage) {
-        if (key === `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`) localStorage.removeItem(key);
+    for (var key in sessionStorage) {
+        if (key === `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`) sessionStorage.removeItem(key);
     }
 };

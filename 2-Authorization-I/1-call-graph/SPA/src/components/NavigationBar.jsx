@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
 import { Nav, Navbar, Button, Dropdown, DropdownButton } from 'react-bootstrap';
 
-import { msalConfig, loginRequest } from '../authConfig';
+import { loginRequest } from '../authConfig';
 import { AccountPicker } from './AccountPicker';
 import { clearStorage } from '../utils/storageUtils';
 
@@ -17,22 +17,28 @@ export const NavigationBar = () => {
     }
 
     const handleLoginRedirect = () => {
-        instance.loginRedirect(loginRequest);
+        /**
+         * When using popup and silent APIs, we recommend setting the redirectUri to a blank page or a page 
+         * that does not implement MSAL. Keep in mind that all redirect routes must be registered with the application
+         * For more information, please follow this link: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/login-user.md#redirecturi-considerations 
+         */
+
+        instance.loginRedirect(loginRequest)
+            .catch((error) => console.log(error));
     };
 
     const handleLoginPopup = () => {
-        instance.loginPopup(loginRequest).catch((error) => console.log(error));
-    };
-
-    const handleSwitchAccount = () => {
-        setShowProfilePicker(!showProfilePicker);
+        instance.loginPopup({
+            ...loginRequest,
+            redirectUri: '/redirect.html'
+        }).catch((error) => console.log(error));
     };
 
     const handleLogoutRedirect = () => {
         let account = instance.getActiveAccount();
         clearStorage(account);
+
         instance.logoutRedirect({
-            postLogoutRedirectUri: msalConfig.postLogoutRedirectUri,
             account: instance.getActiveAccount(),
         });
     };
@@ -40,11 +46,15 @@ export const NavigationBar = () => {
     const handleLogoutPopup = () => {
         let account = instance.getActiveAccount();
         clearStorage(account);
+
         instance.logoutPopup({
-            postLogoutRedirectUri: msalConfig.postLogoutRedirectUri, // redirects the Popup window
             mainWindowRedirectUri: '/', // redirects the top level app after logout
             account: instance.getActiveAccount(),
         });
+    };
+
+    const handleSwitchAccount = () => {
+        setShowProfilePicker(!showProfilePicker);
     };
 
     /**
@@ -62,7 +72,7 @@ export const NavigationBar = () => {
                     <Nav.Link className="navbarButton" href="/profile">
                         Profile
                     </Nav.Link>
-                    <Nav.Link as={Button} className="navbarButton" href="/contacts">
+                    <Nav.Link className="navbarButton" href="/contacts">
                         Contacts
                     </Nav.Link>
                     <div className="collapse navbar-collapse justify-content-end">

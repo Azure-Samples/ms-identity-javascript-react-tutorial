@@ -1,54 +1,64 @@
 import { useEffect, useState } from 'react';
 import { useMsal, useMsalAuthentication } from '@azure/msal-react';
-import { InteractionType, BrowserAuthError } from '@azure/msal-browser';
+import { InteractionType } from '@azure/msal-browser';
+
 import { ProfileData } from '../components/DataDisplay';
 import { protectedResources, msalConfig } from '../authConfig';
-import { callApiWithToken } from '../fetch';
+import { getClaimsFronStrorage } from '../utils/storageUtils';
+import { fetchData } from '../fetch';
 
-const ProfileContent = () => {
+export const Profile = () => {
     const { instance } = useMsal();
     const account = instance.getActiveAccount();
     const [graphData, setGraphData] = useState(null);
+
     const request = {
         scopes: protectedResources.graphMe.scopes,
         account: account,
-        claims:
-            account && localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-                ? window.atob(localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
-                : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+        claims: account && getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+            ? window.atob(getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+            : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
     };
+
     const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+
     useEffect(() => {
-        const fetchData = async () => {
-            if (result && !graphData) {
-                try {
-                    let data = await callApiWithToken(
-                        result.accessToken,
-                        protectedResources.graphMe.endpoint
-                    );
-                    if (data && data.error) throw data.error;
-                    setGraphData(data);
-                } catch (error) {
-                    if (error instanceof BrowserAuthError || error === 'Unauthorized') {
+        if (!!graphData) {
+            return;
+        }
+
+        if (!!error) {
+            // in case popup is blocked, use redirect instead
+            if (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error") {
+                login(InteractionType.Redirect, request);
+            }
+
+            console.log(error);
+            return;
+        }
+
+        if (result) {
+            fetchData(result.accessToken, protectedResources.graphMe.endpoint)
+                .then((response) => {
+                    if (response && response.error) throw response.error;
+                    setGraphData(response);
+                }).catch((error) => {
+                    if (error === 'claims_challenge_occurred') {
                         login(InteractionType.Redirect, request);
                     }
-                }
-            }
-        };
 
-        fetchData();
-    }, [result, error]);
+                    console.log(error);
+                });
+        }
+    }, [graphData, result, error, login]);
 
-    return <>{graphData ? <ProfileData response={result} graphData={graphData} /> : null}</>;
-};
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
 
-/**
- * The `MsalAuthenticationTemplate` component will render its children if a user is authenticated
- * or attempt to sign a user in. Just provide it with the interaction type you would like to use
- * (redirect or popup) and optionally a [request object](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/request-response-object.md)
- * to be passed to the login API, a component to display while authentication is in progress or a component to display if an error occurs. For more, visit:
- * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
- */
-export const Profile = () => {
-    return <ProfileContent />;
+    return (
+        <>
+            {graphData ? <ProfileData response={result} graphData={graphData} /> : null}
+        </>
+    );
 };

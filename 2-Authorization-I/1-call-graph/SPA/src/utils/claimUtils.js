@@ -196,7 +196,7 @@ export const createClaimsTable = (claims) => {
 };
 
 /**
- * Populates claim, description, and value into an claimsObject
+ * Populates claim, description, and value fields in a claimsObject
  * @param {String} claim
  * @param {String} value
  * @param {String} description

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { PublicClientApplication, EventType } from '@azure/msal-browser';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 import { App } from './App.jsx';
 import { msalConfig } from './authConfig';
@@ -23,9 +23,6 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
     msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
 }
 
-// Optional - This will update account state if a user signs in from another tab or window
-msalInstance.enableAccountStorageEvents();
-
 /**
  * To set an active account after the user signs in, register an event and listen for LOGIN_SUCCESS and LOGOUT_SUCCESS. For more,
  * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/events.md
@@ -45,8 +42,8 @@ msalInstance.addEventCallback((event) => {
 
 root.render(
     <React.StrictMode>
-        <Router>
+        <BrowserRouter>
             <App instance={msalInstance} />
-        </Router>
+        </BrowserRouter>
     </React.StrictMode>
 );

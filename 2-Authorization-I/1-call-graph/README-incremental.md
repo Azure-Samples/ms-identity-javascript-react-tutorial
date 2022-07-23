@@ -35,7 +35,6 @@ In this chapter we will extend our React single-page application (SPA) by making
 | `fetch.jsx`                         | Provides a helper method for making fetch calls using bearer token scheme. |
 | `authConfig.js`                     | Contains authentication configuration parameters.                          |
 | `pages/Home.jsx`                    | Contains a table with ID token claims and description                      |
-| `pages/Redirect.jsx`                | Blank page for redirect purposes when using popup and silent APIs          |
 | `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` endpoint with Graph SDK.                       |
 | `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` endpoint with Graph SDK.              |
 | `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js         |
@@ -160,7 +159,7 @@ In **Azure AD**, the scopes (permissions) set directly on the application regist
      msalInstance.loginPopup(loginRequest);
 
      // will fail and fallback to an interactive method prompting a consent screen
-     // after consent, the received token will be issued for "openid", "profile" ,"User.Read" and "Contacts.Read" combined
+     // after consent, the received token will be issued for "openid", "profile", "User.Read" and "Contacts.Read" combined
      msalInstance.acquireTokenPopup(tokenRequest);
 ```
 
@@ -168,51 +167,45 @@ In the code snippet above, the user will be prompted for consent once they authe
 
 ### Acquire a Token
 
-**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from cache *silently*, or acquire a fresh access token using a non-expired refresh token. If `acquireTokenSilent()` fails, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. In the sample, a custom hook named `useMsalAuthentication` is used to implement this logic.
+**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. MSAL React uses these APIs underneath, while offering developers higher level hooks and templates to simplify the token acquisition process:
 
 ```javascript
- const { instance } = useMsal();
- const account = instance.getActiveAccount();
- const [graphData, setGraphData] = useState(null);
- const request = {
-        scopes: protectedResources.graphMe.scopes,
+    const { result, error, login } = useMsalAuthentication(InteractionType.Silent, {
         account: account,
-        claims:
-            account && localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-                ? window.atob(localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
-                : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
-    };
+        scopes: ["user.read"]
+    });
 
-const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+    const [graphData, setGraphData] = useState(null);
 
-useEffect(() => {
-        const fetchData = async () => {
-            if (result && !graphData) {
-                try {
-                    let data = await callApiWithToken(
-                        result.accessToken,
-                        protectedResources.graphMe.endpoint,
-                        protectedResources.graphMe.scopes
-                    );
+    useEffect(() => {
+        if (!!graphData) {
+            return
+        }
 
-                    if (data && data.error) throw data.error;
-                    setGraphData(data);
-                } catch (error) {
-                    if (error instanceof BrowserAuthError) {
-                        login(InteractionType.Redirect, request);
-                    }
-                }
+        if (!!error) {
+            if (error instanceof InteractionRequiredAuthError) {
+                login(InteractionType.Redirect, {
+                    scopes: ["user.read"]
+                });
             }
-        };
+            console.log(error);
+        }
 
-        fetchData();
-    }, [result, error]);
+        if (result) {
+            const { accessToken } = result;
 
+            // do something with the access token
+        }
+    }, [error, result, graphData]);
+
+    return (
+        <>
+            {graphData ? <ProfileData graphData={graphData} /> : null}
+        </>
+    )
 ```
 
-> :information_source: Please see the documentation on [acquiring an access token](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/acquire-token.md) to learn more about various methods available in **MSAL.js** to acquire tokens.
-
-> :information_source: Please see the documentation on [useIsAuthenticated hook](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md#useisauthenticated-hook) to learn more about `useMsalAuthentication`  hook to acquire tokens.
+> :information_source: Please see the documentation on [acquiring an access token](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/acquire-token.md) to learn more about various methods available in **MSAL.js** to acquire tokens. For MSAL React in particular, see the [useIsAuthenticated hook](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md#useisauthenticated-hook) to learn more about `useMsalAuthentication` hook to acquire tokens.
 
 ### Handle Continuous Access Evaluation (CAE) challenge from Microsoft Graph
 
@@ -225,21 +218,21 @@ Microsoft Graph is now CAE-enabled in Preview. This means that it can ask its cl
 
 #### Declare the CAE capability in the configuration
 
-This sample declares that it's CAE-capable by adding the `clientCapabilities` property in the configuration in `authConfig.js`:
+This sample app declares that it's CAE-capable by adding the `clientCapabilities` property in the configuration in `authConfig.js`:
 
 ```javascript
-const msalConfig = {
-    auth: {
-        clientId: 'Enter_the_Application_Id_Here', 
-        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
-        redirectUri: "/redirect", 
-        postLogoutRedirectUri: "/",
-        navigateToLoginRequestUrl: true, 
-        clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
+    const msalConfig = {
+        auth: {
+            clientId: 'Enter_the_Application_Id_Here', 
+            authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
+            redirectUri: "/", 
+            postLogoutRedirectUri: "/",
+            navigateToLoginRequestUrl: true, 
+            clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
+        }
     }
-}
 
-const msalInstance = new PublicClientApplication(msalConfig);
+    const msalInstance = new PublicClientApplication(msalConfig);
 ```
 
 #### Processing the CAE challenge from Microsoft Graph
@@ -247,72 +240,94 @@ const msalInstance = new PublicClientApplication(msalConfig);
 Once the client app receives the CAE claims challenge from Microsoft Graph, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `useMsalAuthentication` hook and provide the claims challenge as a parameter in the token request. This is shown in [fetch.js](./SPA/src/fetch.js), where we handle the response from the Microsoft Graph API with the `handleClaimsChallenge` method:
 
 ```javascript
-/**
- *This method inspects the HTTPS response from a fetch call for the *"www-authenticate header" If present, it grabs the claims challenge from *the header, then stores the encoded claims challenge in the local storage. *visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/*claims-challenge#claims-challenge-header-format
- * @param {object} response
- * @returns response
- */
-const handleClaimsChallenge = async (response) => {
-    if (response.status === 401) {
-        if (response.headers.get('www-authenticate')) {
-            const account = msalInstance.getActiveAccount();
-            const authenticateHeader = response.headers.get('www-authenticate');
+    const handleClaimsChallenge = async (response) => {
+        if (response.status === 200) {
+            return response.json();
+        } else if (response.status === 401) {
+            if (response.headers.get('www-authenticate')) {
+                const account = msalInstance.getActiveAccount();
+                const authenticateHeader = response.headers.get('www-authenticate');
 
-            const claimsChallenge = authenticateHeader
-                .split(' ')
-                .find((entry) => entry.includes('claims='))
-                .split('claims="')[1]
-                .split('",')[0];
+                const claimsChallenge = authenticateHeader
+                    .split(' ')
+                    .find((entry) => entry.includes('claims='))
+                    .split('claims="')[1]
+                    .split('",')[0];
 
-            addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
+                /**
+                 * This method stores the claim challenge to the session storage in the browser to be used when acquiring a token.
+                 * To ensure that we are fetching the correct claim from the storage, we are using the clientId
+                 * of the application and oid (user’s object id) as the key identifier of the claim with schema
+                 * cc.<clientId>.<oid>
+                 */
+                addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
+                return { error: 'claims_challenge_occurred', payload: claimsChallenge };
+            }
+
+            throw new Error(`Unauthorized: ${response.status}`);
+        } else {
+            throw new Error(`Something went wrong with the request: ${response.status}`);
         }
-    }
-
-    if (response.status === 200) return response.json();
-    else if (response.status === 401) return { error: 'Unauthorized' };
-    else return { error: 'Something went wrong' };
-};
+    };
 ```
 
 After that, we require a new access token via the `useMsalAuthentication` hook, fetch the claims challenge from the browser's localStorage, and pass it to the `useMsalAuthentication` hook in the request parameter.
 
 ```javascript
-const { instance } = useMsal();
-const account = instance.getActiveAccount();
-const [graphData, setGraphData] = useState(null);
-const request = {
-    scopes: protectedResources.graphMe.scopes,
-    account: account,
-    claims:
-        account && localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-        ? window.atob(localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
-        : null, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
-    };
-const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
-useEffect(() => {
-        const fetchData = async () => {
-            if (result && !graphData) {
-                try {
-                    let data = await callApiWithToken(
-                        result.accessToken,
-                        protectedResources.graphMe.endpoint
-                    );
-                    if (data && data.error) throw data.error;
-                    setGraphData(data);
-                } catch (error) {
-                    if (error instanceof BrowserAuthError || error === 'Unauthorized') {
-                        login(InteractionType.Redirect, request);
-                    }
-                }
-            }
+    export const Profile = () => {
+        const { instance } = useMsal();
+        const account = instance.getActiveAccount();
+        const [graphData, setGraphData] = useState(null);
+
+        const request = {
+            scopes: protectedResources.graphMe.scopes,
+            account: account,
+            claims: account && getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                ? window.atob(getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+                : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
         };
-    fetchData();
-}, [result, error]);
+
+        const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+
+        useEffect(() => {
+            if (!!graphData) {
+                return;
+            }
+
+            if (!!error) {
+                // in case popup is blocked, use redirect instead
+                if (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error") {
+                    login(InteractionType.Redirect, request);
+                }
+
+                console.log(error);
+                return;
+            }
+
+            if (result) {
+                fetchData(result.accessToken, protectedResources.graphMe.endpoint)
+                    .then((response) => {
+                        if (response && response.error) throw response.error;
+                        setGraphData(response);
+                    }).catch((error) => {
+                        if (error === 'claims_challenge_occurred') {
+                            login(InteractionType.Redirect, request);
+                        }
+
+                        console.log(error);
+                    });
+            }
+        }, [graphData, result, error, login]);
+
+        return (
+            <>
+                {graphData ? <ProfileData response={result} graphData={graphData} /> : null}
+            </>
+        );
+    };
 ```
 
-**Note** Storing the claims challenge in the localStorage is optional. You can handle storing the claims challenge wherever fits your scenario the best.
-
-### Access Token validation
+### Access token validation
 
 Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
@@ -323,66 +338,57 @@ For more details on what's inside the access token, clients should use the token
 Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), simply add the `Authorization` header to your request, followed by the **access token** you have obtained previously for this resource/endpoint (as a [bearer token](https://tools.ietf.org/html/rfc6750)):
 
 ```javascript
-/**
- * Makes a GET request using authorization header. For more, visit:
- * https://tools.ietf.org/html/rfc6750
- * @param {string} accessToken
- * @param {string} apiEndpoint
- */
-export const callApiWithToken = async (accessToken, apiEndpoint) => {
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
+    export const callApiWithToken = async (accessToken, apiEndpoint) => {
+        const headers = new Headers();
+        const bearer = `Bearer ${accessToken}`;
 
-    headers.append('Authorization', bearer);
+        headers.append('Authorization', bearer);
 
-    const options = {
-        method: 'GET',
-        headers: headers,
+        const options = {
+            method: 'GET',
+            headers: headers,
+        };
+
+        return fetch(apiEndpoint, options)
+            .then((response) => handleClaimsChallenge(response))
+            .catch((error) => error);
     };
-
-    return fetch(apiEndpoint, options)
-        .then((response) => handleClaimsChallenge(response))
-        .catch((error) => error);
-};
 ```
-
-See [fetch.js](./SPA/src/fetch.js).
 
 ### Working with React routes
 
 You can use [React Router](https://reactrouter.com/) component in conjunction with **MSAL React**. Simply wrap the `MsalProvider` component between the `Router` component, passing the `PublicClientApplication` instance you have created earlier as props:
 
 ```javascript
-const msalInstance = new PublicClientApplication(msalConfig);
+    const msalInstance = new PublicClientApplication(msalConfig);
 
-root.render(
-    <React.StrictMode>
-        <App instance={msalInstance} />
-    </React.StrictMode>
-);
+    root.render(
+        <React.StrictMode>
+            <BrowserRouter>
+                <App instance={msalInstance} />
+            </BrowserRouter>
+        </React.StrictMode>
+    );
 
-export const App = ({ instance }) => {
-    return (
-        <Router>
+    export const App = ({ instance }) => {
+        return (
             <MsalProvider instance={msalInstance}>
                 <PageLayout>
                     <Pages />
                 </PageLayout>
             </MsalProvider>
-        </Router>
-    );
-};
+        );
+    };
 
-const Pages = () => {
-    return (
-        <Routes>
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/redirect" element={<Redirect />} />
-            <Route path="/" element={<Home />} />
-        </Routes>
-    );
-};
+    const Pages = () => {
+        return (
+            <Routes>
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/contacts" element={<Contacts />} />
+                <Route path="/" element={<Home />} />
+            </Routes>
+        );
+    };
 ```
 
 ### MSAL logging

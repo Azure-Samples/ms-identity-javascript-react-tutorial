@@ -1,9 +1,50 @@
 import Table from 'react-bootstrap/Table';
-import { Card, Row } from 'react-bootstrap';
+import { Container, Card, Row } from 'react-bootstrap';
 
 import { createClaimsTable } from '../utils/claimUtils';
 
 import '../styles/App.css';
+
+export const IdTokenData = (props) => {
+    const tokenClaims = createClaimsTable(props.idTokenClaims);
+    const tableRow = Object.keys(tokenClaims).map((key) => {
+        return (
+            <tr key={key}>
+                {tokenClaims[key].map((claimItem) => (
+                    <td key={claimItem} className="tableColumn">
+                        {claimItem}
+                    </td>
+                ))}
+            </tr>
+        );
+    });
+    return (
+        <>
+            <div className="data-area-div">
+                <p>
+                    See below the claims in your <strong> ID token </strong>. For more information, visit:{' '}
+                    <span>
+                        <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/id-tokens#claims-in-an-id-token">
+                            docs.microsoft.com
+                        </a>
+                    </span>
+                </p>
+                <div className="data-area-div table">
+                    <Table responsive striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Claim</th>
+                                <th>Value</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>{tableRow}</tbody>
+                    </Table>
+                </div>
+            </div>
+        </>
+    );
+};
 
 export const ProfileData = (props) => {
     const tableRows = Object.entries(props.graphData).map((entry, index) => {
@@ -55,51 +96,9 @@ export const ProfileData = (props) => {
     );
 };
 
-export const IdTokenData = (props) => {
-    const tokenClaims = createClaimsTable(props.idTokenClaims);
-    const tableRow = Object.keys(tokenClaims).map((key) => {
-        return (
-            <tr key={key}>
-                {tokenClaims[key].map((claimItem) => (
-                    <td key={claimItem} className="tableColumn">
-                        {claimItem}
-                    </td>
-                ))}
-            </tr>
-        );
-    });
+export const ContactsData = (props) => {
     return (
-        <>
-            <div className="data-area-div">
-                <p>
-                    <strong> ID token Claims </strong>
-                    For more information about ID token Claims please visit the following page:{' '}
-                    <span>
-                        <a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/id-tokens#claims-in-an-id-token">
-                            Claims in an ID token
-                        </a>
-                    </span>
-                </p>
-                <div className="data-area-div table">
-                    <Table responsive striped bordered hover>
-                        <thead>
-                            <tr>
-                                <th>Claim</th>
-                                <th>Value</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>{tableRow}</tbody>
-                    </Table>
-                </div>
-            </div>
-        </>
-    );
-};
-
-export const GraphContacts = (props) => {
-    return (
-        <>
+        <Container>
             <Row>
                 <div className="data-area-div">
                     <p>
@@ -115,7 +114,7 @@ export const GraphContacts = (props) => {
                     <ul>
                         <li>
                             <strong>resource:</strong>
-                            <mark>Users</mark> object
+                            <mark>User</mark> object
                         </li>
                         <li>
                             <strong>endpoint:</strong> <mark>https://graph.microsoft.com/v1.0/me/contacts</mark>
@@ -130,13 +129,8 @@ export const GraphContacts = (props) => {
                     </p>
                 </div>
             </Row>
-            {props.error ? (
-                <div className="data-area-div">
-                    <strong className="warningMessage">Cannot retrieve contacts</strong>
-                </div>
-            ) : (
-                <Row className="d-flex flex-row">
-                    {props.graphContacts.value.length === 0 ?
+            <Row className="d-flex flex-row">
+                {props.graphContacts.value.length === 0 ?
                     <p className="text-center">You have 0 contacts</p>
                     :
                     props.graphContacts.value.map((contact) => (
@@ -147,8 +141,7 @@ export const GraphContacts = (props) => {
                             </Card.Body>
                         </Card>
                     ))}
-                </Row>
-            )}
-        </>
+            </Row>
+        </Container>
     );
 };
