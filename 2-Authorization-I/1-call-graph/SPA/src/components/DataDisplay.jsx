@@ -130,9 +130,9 @@ export const ContactsData = (props) => {
                 </div>
             </Row>
             <Row className="d-flex flex-row">
-                {props.graphContacts.value.length === 0 ?
+                {!props.graphContacts.value  || props.graphContacts.value.length === 0 ? (
                     <p className="text-center">You have 0 contacts</p>
-                    :
+                ) : (
                     props.graphContacts.value.map((contact) => (
                         <Card className="card" key={contact.id}>
                             <Card.Body>
@@ -140,7 +140,8 @@ export const ContactsData = (props) => {
                                 <Card.Text>{contact.personalNotes}</Card.Text>
                             </Card.Body>
                         </Card>
-                    ))}
+                    ))
+                )}
             </Row>
         </Container>
     );

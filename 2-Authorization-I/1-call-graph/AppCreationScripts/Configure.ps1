@@ -147,7 +147,7 @@ Function ConfigureApplications
    $spaAadApplication = New-MgApplication -DisplayName "ms-identity-react-c2s1" `
                                                    -Spa `
                                                    @{ `
-                                                       RedirectUris = "http://localhost:3000/", "http://localhost:3000/redirect"; `
+                                                       RedirectUris = "http://localhost:3000/", "http://localhost:3000/redirect.html"; `
                                                      } `
                                                     -SignInAudience AzureADMyOrg `
                                                    #end of command

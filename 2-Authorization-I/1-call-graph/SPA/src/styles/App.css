@@ -19,7 +19,8 @@
 }
 
 .navbarButton {
-    color: #fff !important
+    color: #fff !important;
+    padding: .5rem 1rem !important;
 }
 
 .tableColumn {
