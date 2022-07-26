@@ -35,9 +35,9 @@ export const getTasks = async () => {
         headers: headers
     };
 
-    return fetch(protectedResources.apiTodoList.endpoint, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
+    return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
+        .then((response) => response.json())
+        .catch((error) => console.log(error));
 }
 
 export const getTask = async (id) => {
@@ -60,7 +60,6 @@ export const getTask = async (id) => {
 
 export const getAllTasks = async () => {
     const accessToken = await getToken(protectedResources.apiTodoList.scopes.read);
-    
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -91,9 +90,9 @@ export const postTask = async (task) => {
         body: JSON.stringify(task)
     };
 
-    return fetch(protectedResources.apiTodoList.endpoint, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
+    return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
+        .then((response) => response.json())
+        .catch((error) => console.log(error));
 }
 
 export const deleteTask = async (id) => {
@@ -109,9 +108,9 @@ export const deleteTask = async (id) => {
         headers: headers
     };
 
-    return fetch(protectedResources.apiTodoList.endpoint + `/${id}`, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
+    return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
+        .then((response) => response.json())
+        .catch((error) => console.log(error));
 }
 
 export const editTask = async (id, task) => {
@@ -129,7 +128,7 @@ export const editTask = async (id, task) => {
         body: JSON.stringify(task)
     };
 
-    return fetch(protectedResources.apiTodoList.endpoint + `/${id}`, options)
-        .then(response => response.json())
-        .catch(error => console.log(error));
+    return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
+        .then((response) => response.json())
+        .catch((error) => console.log(error));
 }

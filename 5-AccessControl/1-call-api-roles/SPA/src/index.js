@@ -35,7 +35,9 @@ msalInstance.addEventCallback((event) => {
     }
 
     if (event.eventType === EventType.LOGOUT_SUCCESS) {
-        msalInstance.setActiveAccount(msalInstance.getAllAccounts());
+         if (msalInstance.getAllAccounts().length > 0) {
+             msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
+         }
     }
 
     if (event.eventType === EventType.LOGIN_FAILURE) {

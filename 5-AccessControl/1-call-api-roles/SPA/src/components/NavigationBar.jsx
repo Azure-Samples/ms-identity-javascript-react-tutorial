@@ -27,17 +27,20 @@ export const NavigationBar = () => {
     };
 
     const handleLoginRedirect = () => {
-        instance.logoutPopup()
-            .catch((error) => console.log(error));
+      instance.loginRedirect(loginRequest).catch((error) => console.log(error));
     };
 
     const handleLogoutPopup = () => {
-        instance.logoutRedirect()
-            .catch((error) => console.log(error));
+         instance
+            .logoutPopup({
+                 mainWindowRedirectUri: '/', // redirects the top level app after logout
+                 account: instance.getActiveAccount(),
+             })
+             .catch((error) => console.log(error));
     };
 
     const handleLogoutRedirect = () => {
-
+         instance.logoutRedirect().catch((error) => console.log(error));
     };
 
     const handleSwitchAccount = () => {
@@ -59,25 +62,22 @@ export const NavigationBar = () => {
                     <Nav.Link className="navbarButton" href="/todolist">
                         Todolist
                     </Nav.Link>
+                    <Nav.Link className="navbarButton" href="/Dashboard">
+                        Dashboard
+                    </Nav.Link>
                     <div className="collapse navbar-collapse justify-content-end">
                         <DropdownButton
                             variant="warning"
                             drop="start"
-                            title={activeAccount ? activeAccount.name : "Unknown"}
+                            title={activeAccount ? activeAccount.name : 'Unknown'}
                         >
                             <Dropdown.Item as="button" onClick={handleSwitchAccount}>
                                 Switch account
                             </Dropdown.Item>
-                            <Dropdown.Item
-                                as="button"
-                                onClick={handleLogoutPopup}
-                            >
+                            <Dropdown.Item as="button" onClick={handleLogoutPopup}>
                                 Sign out using Popup
                             </Dropdown.Item>
-                            <Dropdown.Item
-                                as="button"
-                                onClick={handleLogoutRedirect}
-                            >
+                            <Dropdown.Item as="button" onClick={handleLogoutRedirect}>
                                 Sign out using Redirect
                             </Dropdown.Item>
                         </DropdownButton>

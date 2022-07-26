@@ -18,14 +18,10 @@ const DashboardContent = () => {
     const [dashboardData, setDashboardData] = useState(null);
 
     useEffect(() => {
-        if (tokenResponse && !dashboardData) {
-            getAllTasks().then((response) => {
-                if (!response.error) {
-                    setDashboardData(response);
-                }
-            });
+        if (!dashboardData) {
+           getAllTasks().then((response) => setDashboardData(response));
         }
-    }, [tokenResponse]);
+    }, [dashboardData]);
 
     return (
         <>
