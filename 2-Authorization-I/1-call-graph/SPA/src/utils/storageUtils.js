@@ -23,14 +23,3 @@ export const clearStorage = (account) => {
         if (key === `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`) sessionStorage.removeItem(key);
     }
 };
-
-export const addSessionTimeoutToStorage = (SessionExpiry, SessionId)  => {
-    localStorage.setItem(SessionId, SessionExpiry);
-}
-
-export const removeSessionTimeoutFromStorage = (account) => {
-    for (var key in localStorage) {
-        if (key === `ss.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`) localStorage.removeItem(key);
-    }
-}
-
