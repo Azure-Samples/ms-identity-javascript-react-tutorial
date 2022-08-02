@@ -1,4 +1,4 @@
-# React single-page application using MSAL React to sign-in users against Azure Active Directory
+# React single-page application using MSAL React to sign-in users and call Microsoft Graph API
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -22,7 +22,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 ## Scenario
 
-1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD**.
+1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for Microsoft Graph API from **Azure AD**.
 2. The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**.
 3. The **Microsoft Graph API** responds with the payload if user is authorized.
 
