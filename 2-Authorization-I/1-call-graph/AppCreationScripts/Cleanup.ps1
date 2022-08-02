@@ -1,3 +1,4 @@
+
 [CmdletBinding()]
 param(    
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
@@ -41,7 +42,7 @@ Function Cleanup
     }
     catch
     {
-	    Write-Host "Unable to remove the application 'ms-identity-react-c2s1' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove the application 'ms-identity-react-c2s1' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (ms-identity-react-c2s1) applications found, will remove if needed..."
@@ -65,7 +66,7 @@ Function Cleanup
     }
     catch
     {
-	    Write-Host "Unable to remove ServicePrincipal 'ms-identity-react-c2s1' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove ServicePrincipal 'ms-identity-react-c2s1' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
 

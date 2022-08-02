@@ -115,7 +115,6 @@ Function CreateOptionalClaim([string] $name)
     return $appClaim
 }
 
-
 Function ConfigureApplications
 {
     <#.Description
@@ -187,10 +186,6 @@ Function ConfigureApplications
     $newClaim =  CreateOptionalClaim  -name "acct" 
     $optionalClaims.IdToken += ($newClaim)
     Update-MgApplication -ApplicationId $spaAadApplication.Id -OptionalClaims $optionalClaims
-    
-    # Add application permissions/user roles
-    $appRoles = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole]
-    Update-MgApplication -ApplicationId $spaAadApplication.Id -AppRoles $appRoles
     Write-Host "Done creating the spa application (ms-identity-react-c2s1)"
 
     # URL of the AAD application in the Azure portal
