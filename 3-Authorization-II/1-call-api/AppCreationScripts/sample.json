@@ -13,6 +13,7 @@
         ],
         "Description": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory",
         "Products": [
+          "azure-active-directory",
             "React",
             "Express"
         ]
