@@ -9,7 +9,7 @@ export const SessionManager = ({ children }) => {
     const account = instance.getActiveAccount();
     useEffect(() => {
         if (account && inProgress === InteractionStatus.None) {
-            let endDate = moment(new Date(account.idTokenClaims.exp * 1000));
+            let expiresAt = moment(new Date(account.idTokenClaims.exp * 1000));
             let currentTime = moment(new Date());
             let diffInMilliseconds = endDate.diff(startData);
 
