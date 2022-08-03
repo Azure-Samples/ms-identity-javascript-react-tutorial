@@ -11,7 +11,7 @@ export const SessionManager = ({ children }) => {
         if (account && inProgress === InteractionStatus.None) {
             let expiresAt = moment(new Date(account.idTokenClaims.exp * 1000));
             let currentTime = moment(new Date());
-            let diffInMilliseconds = endDate.diff(startData);
+            let diffInMilliseconds = expiresAt.diff(currentTime);
 
             if (diffInMilliseconds <= 0) {
                 instance
@@ -22,8 +22,7 @@ export const SessionManager = ({ children }) => {
                     .catch((error) => {
                         if (error instanceof InteractionRequiredAuthError) {
                             instance.loginRedirect({
-                                ...loginRequest,
-                                prompt: 'login',
+                                ...loginRequest
                             });
                         }
                     });
