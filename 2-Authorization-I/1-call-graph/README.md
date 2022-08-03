@@ -1,4 +1,20 @@
-# React single-page application using MSAL React to sign-in users against Azure Active Directory
+---
+page_type: sample
+name: React single-page application using MSAL React to call the Microsoft Graph API
+services: ms-identity
+platforms: DotNet
+urlFragment: ms-identity-javascript-react-tutorial
+description: This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Microsoft Graph API](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+languages:
+ - javascript
+ - react
+products:
+ - azure-active-directory
+ - ms-graph
+ - msal-react
+---
+
+# React single-page application using MSAL React to sign-in users and call Microsoft Graph API
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -22,7 +38,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 ## Scenario
 
-1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD**.
+1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for Microsoft Graph API from **Azure AD**.
 2. The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**.
 3. The **Microsoft Graph API** responds with the payload if user is authorized.
 
@@ -42,10 +58,14 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 ## Prerequisites
 
-- An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/test-setup-environment#get-a-test-tenant)
-- A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
+* [Node.js](https://nodejs.org/en/download/) must be installed to run this sample.
+* [Visual Studio Code](https://code.visualstudio.com/download) is recommended for running and editing this sample.
+* [VS Code Azure Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with Azure through VS Code Interface.
+* A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
+* An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/test-setup-environment#get-a-test-tenant)
+* A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**.  If you're signed in to the [Azure portal](https://portal.azure.com) with a personal Microsoft account and have not created a user account in your directory before, you will need to create one before proceeding.
 
-## Setup
+## Setup the sample
 
 ### Step 1: Clone or download this repository
 
@@ -57,7 +77,7 @@ From your shell or command line:
 
 or download and extract the repository .zip file.
 
-> :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
+>:warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
 
 ### Step 2: Install project dependencies
 
@@ -69,81 +89,110 @@ or download and extract the repository .zip file.
 
 Developers who wish to increase their familiarity with programming for Microsoft Graph are advised to go through the [An introduction to Microsoft Graph for developers](https://www.youtube.com/watch?v=EBbnpFdB92A) recorded session.
 
-## Registration
+### Step 3: Register the sample application(s) with your Azure Active Directory tenant
 
 There is one project in this sample. To register it, you can:
 
-- follow the steps below for manually register your apps
-- or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  - modify the projects' configuration files.
+Follow the [manual steps](#Manual-steps)
+
+**OR**
+
+#### Run automation scripts
+
+* use PowerShell scripts that:
+  * **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  * modify the projects' configuration files.
+
+  <details>
+   <summary>Expand this section if you want to use this automation:</summary>
+
+    > **WARNING**: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+  
+    1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
+    1. In PowerShell run:
+
+       ```PowerShell
+       Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+       ```
+
+    1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
+    1. For interactive process - in PowerShell run:
+
+       ```PowerShell
+       cd .\AppCreationScripts\
+       .\Configure.ps1 -TenantId "[Optional] - your tenant id" -AzureEnvironmentName "[Optional] - Azure environment, defaults to 'Global'"
+       ```
+
+       > Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md)
+       > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
+
+  </details>
+
+#### Manual steps
+
+    > Note: skip this part if you've used automation steps listed above
+
+Follow the steps below to manually register and configure your apps in your Azure AD tenant 
 
 <details>
-  <summary>Expand this section if you want to use this automation:</summary>
+   <summary>Expand this section if you want to register apps manually:</summary>
 
-> :warning: If you have never used **Microsoft Graph Powershell SDK** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-
-1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-1. If you have never used Microsoft Graph Powershell SDK before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-1. In PowerShell run:
-
-   ```PowerShell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-   ```
-
-1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-1. In PowerShell run:
-
-   ```PowerShell
-   cd .\AppCreationScripts\
-   .\Configure.ps1
-   ```
-
-   > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
-   > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
-
-</details>
-
-### Choose the Azure AD tenant where you want to create your applications
+#### Choose the Azure AD tenant where you want to create your applications
 
 As a first step you'll need to:
 
-1. Sign in to the [Azure portal](https://portal.azure.com).
-1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
+  1. Sign in to the [Azure portal](https://portal.azure.com).
+  1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
-### Register the app (msal-react-spa)
+#### Register the spa app (ms-identity-react-c2s1)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
-1. Select the **App Registrations** blade on the left, then select **New registration**.
-1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
-1. Select **Register** to create the application.
-1. In the app's registration screen, select the **Authentication** blade.
-   - If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
-   - In the **Redirect URI** section enter the following redirect URIs:
-     - `http://localhost:3000/`
-     - `http://localhost:3000/redirect.html`
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. Select **Save** to save your changes.
-1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Select the **Add a permission** button and then,
-   - Ensure that the **Microsoft APIs** tab is selected.
-   - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   - In the **Delegated permissions** section, select the **User.Read** and **Contacts.Read** in the list. Use the search box if necessary.
-   - Select the **Add permissions** button at the bottom.
+  1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
+  1. Select the **App Registrations** blade on the left, then select **New registration**.
+  1. In the **Register an application page** that appears, enter your application's registration information:
+     1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ms-identity-react-c2s1`.
+  1. Under **Supported account types**, select **Accounts in this organizational directory only**
+  1. Click **Register** to create the application.
+  1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+  1. In the app's registration screen, select **Authentication** in the menu.
+      1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
+  1. In the **Redirect URI** section enter the following redirect URIs:
+       * `http://localhost:3000/`
+       * `http://localhost:3000/redirect.html`
+  1. Click **Save** to save your changes.
+  1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
   
-#### Configure the app (msal-react-spa) to use your app registration
+  1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
+      1. Select the **Add a permission** button and then,
+      1. Ensure that the **Microsoft APIs** tab is selected.
+      1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+      1. In the **Delegated permissions** section, select the **User.Read**, **Contacts.Read** in the list. Use the search box if necessary.
+      1. Select the **Add permissions** button at the bottom.
 
-Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
+##### Configure Optional Claims
 
-> In the steps below, "ClientID" is the same as "Application ID" or "AppId".
+  1. Still on the same app registration, select the **Token configuration** blade to the left.
+  1. Select **Add optional claim**:
+      * Select optional claim type,choose **ID**.
+      * Select optional claim **sid**.
+      * Select optional claim **login_hint**.
+      * Select optional claim **email**.
+      * Select optional claim **upn**.
+      * Select optional claim **acct**.
+  1. Select **Add** to save your changes.
 
-1. Open the `App\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
+##### Configure the spa app (ms-identity-react-c2s1) to use your app registration
 
-## Running the sample
+  Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
+
+   > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
+
+  1. Open the `SPA\src\authConfig.js` file.
+  1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ms-identity-react-c2s1` app copied from the Azure portal.
+  1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
+
+</details>
+
+### Step 4: Running the sample
 
 Locate the folder where `package.json` resides in your terminal. Then:
 
