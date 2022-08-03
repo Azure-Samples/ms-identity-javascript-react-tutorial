@@ -10,7 +10,7 @@ export const SessionManager = ({ children }) => {
     useEffect(() => {
         if (account && inProgress === InteractionStatus.None) {
             let endDate = moment(new Date(account.idTokenClaims.exp * 1000));
-            let startData = moment(new Date());
+            let currentTime = moment(new Date());
             let diffInMilliseconds = endDate.diff(startData);
 
             if (diffInMilliseconds <= 0) {
