@@ -5,7 +5,6 @@ import { PageLayout } from './components/PageLayout';
 import { Profile } from './pages/Profile';
 import { Contacts } from './pages/Contacts';
 import { Home } from './pages/Home';
-import { SessionManager } from "./components/SessionManager"
 
 import './styles/App.css';
 
@@ -29,11 +28,9 @@ const Pages = () => {
 export const App = ({ instance }) => {
     return (
         <MsalProvider instance={instance}>
-            <SessionManager>
-                <PageLayout>
-                    <Pages />
-                </PageLayout>
-            </SessionManager>
+            <PageLayout>
+                <Pages />
+            </PageLayout>
         </MsalProvider>
     );
 };
