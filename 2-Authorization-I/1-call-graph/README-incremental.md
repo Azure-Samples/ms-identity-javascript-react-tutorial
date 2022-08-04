@@ -1,17 +1,15 @@
 # React single-page application using MSAL React to sign-in users against Azure Active Directory
 
- 1. [Overview](#overview)
- 1. [Scenario](#scenario)
- 1. [Contents](#contents)
- 1. [Setup](#setup)
- 1. [Registration](#registration)
- 1. [Running the sample](#running-the-sample)
- 1. [Explore the sample](#explore-the-sample)
- 1. [Deploy the sample](#deploy-the-sample)
- 1. [About the code](#about-the-code)
- 1. [More information](#more-information)
- 1. [Community Help and Support](#community-help-and-support)
- 1. [Contributing](#contributing)
+* [Overview](#overview)
+* [Scenario](#scenario)
+* [Contents](#contents)
+* [Setup the sample](#setup-the-sample)
+* [Explore the sample](#explore-the-sample)
+* [Troubleshooting](#troubleshooting)
+* [About the code](#about-the-code)
+* [Next Steps](#next-steps)
+* [Contributing](#contributing)
+* [Learn More](#learn-more)
 
 ## Overview
 
@@ -39,7 +37,7 @@ In this chapter we will extend our React single-page application (SPA) by making
 | `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` endpoint with Graph SDK.              |
 | `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js         |
 
-## Setup
+## Setup the sample
 
 ```console
     cd ms-identity-javascript-react-tutorial
@@ -53,18 +51,16 @@ Developers who wish to increase their familiarity with programming for Microsoft
 
 We'd make the following changes to our app registration
 
-</details>
-
 ### Update the app registration (msal-react-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then find and select the application that you have registered in the previous tutorial (`msal-react-spa`).
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Select the **Add a permission** button and then,
-   - Ensure that the **Microsoft APIs** tab is selected.
-   - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   - In the **Delegated permissions** section, select the **User.Read** and **Contacts.Read** in the list. Use the search box if necessary.
-   - Select the **Add permissions** button at the bottom.
+   * Select the **Add a permission** button and then,
+   * Ensure that the **Microsoft APIs** tab is selected.
+   * In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+   * In the **Delegated permissions** section, select the **User.Read** and **Contacts.Read** in the list. Use the search box if necessary.
+   * Select the **Add permissions** button at the bottom.
 
 #### Configure the app (msal-react-spa) to use your app registration
 
@@ -72,9 +68,10 @@ No changes are required in the configuration files.
 
 ## Running the sample
 
-Locate the folder where `package.json` resides in your terminal. Then:
+From your shell or command line, execute the following commands:
 
 ```console
+    cd  2-Authorization-I/1-call-graph/SPA
     npm start
 ```
 
@@ -93,12 +90,17 @@ Locate the folder where `package.json` resides in your terminal. Then:
 
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu).
 
-## Deploy the sample
+## Troubleshooting
 
-To deploy this sample to Azure please check both implementations in chapter four:
+<details>
+ <summary>Expand for troubleshooting info</summary>
 
-1. [Deploy to Azure Storage and App Service](../../4-Deployment/1-deploy-storage/README.md)  
-1. [Deploy to Azure Static Web Apps](../../4-Deployment/2-deploy-static/README.md)
+> Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
+Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
+Make sure that your questions or comments are tagged with [`azure-active-directory` `react` `ms-identity` `adal` `msal`].
+
+If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
+</details>
 
 ## About the code
 
@@ -395,39 +397,35 @@ You can use [React Router](https://reactrouter.com/) component in conjunction wi
 
 The Microsoft Authentication Library (MSAL) apps generate log messages to help diagnose issues. An app can configure logging with a few lines of code and have custom control over the level of detail and whether or not personal and organizational data is logged. Please check the [authConfig.js](./SPA/src//authConfig.js) file to see an example of configuring the logger with MSAL.js. For more information about using the logger with MSAL.js, see the following [Logging in MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-logging-js).
 
-## Next Tutorial
+## Next Steps
 
 Continue with the next tutorial: [Protect and call a web API](../../3-Authorization-II/1-call-api/README-incremental.md).
-
-## More information
-
-- [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
-- [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
-- [Quickstart: Register an application with the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
-- [Quickstart: Configure a client application to access web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
-- [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
-- [Single sign-on with MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso)
-- [Handle MSAL.js exceptions and errors](https://docs.microsoft.com/azure/active-directory/develop/msal-handling-exceptions?tabs=javascript)
-- [Logging in MSAL.js applications](https://docs.microsoft.com/azure/active-directory/develop/msal-logging?tabs=javascript)
-- [Pass custom state in authentication requests using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-pass-custom-state-authentication-request)
-- [Prompt behavior in MSAL.js interactive requests](https://docs.microsoft.com/azure/active-directory/develop/msal-js-prompt-behavior)
-- [Continuous access evaluation in Azure AD](https://docs.microsoft.com/en-us/azure/active-directory/conditional-access/concept-continuous-access-evaluation)
-- [How to use Continuous Access Evaluation enabled APIs in your applications](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-resilience-continuous-access-evaluation)
-
-For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Azure AD](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
-
-## Community Help and Support
-
-Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
-Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
-
-If you find a bug in the sample, raise the issue on [GitHub Issues](../../../issues).
-
-To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
 ## Contributing
 
 If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+## Learn More
+
+* [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
+* [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
+* [Register an application with the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
+* [Configure a client application to access web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
+* [Understanding Azure AD application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
+* [Understand user and admin consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
+* [Application and service principal objects in Azure Active Directory](https://docs.microsoft.com/azure/active-directory/develop/app-objects-and-service-principals)
+* [Authentication Scenarios for Azure AD](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios)
+* [Building Zero Trust ready apps](https://aka.ms/ztdevsession)
+* [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints)
+* [Azure AD code samples](https://docs.microsoft.com/azure/active-directory/develop/sample-v2-code)
+* [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
+* [Single sign-on with MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso)
+* [Handle MSAL.js exceptions and errors](https://docs.microsoft.com/azure/active-directory/develop/msal-handling-exceptions?tabs=javascript)
+* [Logging in MSAL.js applications](https://docs.microsoft.com/azure/active-directory/develop/msal-logging?tabs=javascript)
+* [Pass custom state in authentication requests using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-pass-custom-state-authentication-request)
+* [Prompt behavior in MSAL.js interactive requests](https://docs.microsoft.com/azure/active-directory/develop/msal-js-prompt-behavior)
+* [Use MSAL.js to work with Azure AD B2C](https://docs.microsoft.com/azure/active-directory/develop/msal-b2c-overview)
+* [Continuous access evaluation in Azure AD](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation)
+* [How to use Continuous Access Evaluation enabled APIs in your applications](https://docs.microsoft.com/azure/active-directory/develop/app-resilience-continuous-access-evaluation)

@@ -5,19 +5,13 @@
         "Client": "React SPA",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0",
-        "Languages": [ "javascript", "react" ],
-        "Products": [ "azure-active-directory","ms-graph","msal-react" ],
+        "Languages": ["javascript", "react"],
+        "Products": ["azure-active-directory", "ms-graph", "msal-react"],
         "description": "This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Microsoft Graph API](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React)."
-
     },
     "ReadmeScenario": {
-        "FreeText": "",
-        "IncludeFilePath": "",
         "UseNewSetup": "1",
-        "CertificateOption": "0",
-        "CreateProjectIncludeFilePath": "",
-        "AppRegistrationIncludeFilePath": "",
-        "RunSampleIncludeFilePath": ""
+        "CertificateOption": "0"
     },
     "AADApps": [
         {
@@ -27,6 +21,10 @@
             "HomePage": "http://localhost:3000/",
             "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
             "Audience": "AzureADMyOrg",
+            "Sample": {
+                "SampleSubPath": "2-Authorization-I\\1-call-graph",
+                "ProjectDirectory": "\\SPA"
+            },
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
