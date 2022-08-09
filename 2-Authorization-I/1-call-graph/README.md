@@ -10,9 +10,8 @@ products:
  - ms-graph
  - msal-react
 urlFragment: ms-identity-javascript-react-tutorial
-description: This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Microsoft Graph API](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+description: This sample demonstrates a React single-page application that signs-in users with Azure AD and calls the using the Microsoft Authentication Library for React.
 ---
-
 # React single-page application using MSAL React to sign-in users and call Microsoft Graph API
 
 * [Overview](#overview)
@@ -44,8 +43,6 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 ![Overview](./ReadmeFiles/topology.png)
 
 ## Contents
-
-> Give a high-level folder structure of the sample. Emphasize the files that you want people to look at.
 
 | File/folder                         | Description                                                                |
 |-------------------------------------|----------------------------------------------------------------------------|
@@ -152,18 +149,6 @@ As a first step you'll need to:
     1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
     1. In the **Delegated permissions** section, select the **User.Read**, **Contacts.Read** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
-
-##### Configure Optional Claims
-
-1. Still on the same app registration, select the **Token configuration** blade to the left.
-1. Select **Add optional claim**:
-    1. Select **optional claim type**, then choose **ID**.
-    1. Select the optional claim **sid**.
-    1. Select the optional claim **login_hint**.
-    1. Select the optional claim **email**.
-    1. Select the optional claim **upn**.
-    1. Select the optional claim **acct**.
-    1. Select **Add** to save your changes.
 
 ##### Configure the spa app (ms-identity-react-c2s1) to use your app registration
 
