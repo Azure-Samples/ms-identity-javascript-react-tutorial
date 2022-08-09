@@ -1,10 +1,17 @@
 {
     "Sample": {
-        "Title": "React single-page application using MSAL React to call the Microsoft Graph API",
+        "Title": "React single-page application using MSAL React to sign-in users and call Microsoft Graph API",
         "Level": 100,
         "Client": "React SPA",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-        "Endpoint": "AAD v2.0"
+        "Endpoint": "AAD v2.0",
+        "Languages": ["javascript", "react"],
+        "Products": ["azure-active-directory", "ms-graph", "msal-react"],
+        "description": "This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Microsoft Graph API](https://docs.microsoft.com/graph/overview) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React)."
+    },
+    "ReadmeScenario": {
+        "UseNewSetup": "1",
+        "CertificateOption": "0"
     },
     "AADApps": [
         {
@@ -12,23 +19,21 @@
             "Name": "ms-identity-react-c2s1",
             "Kind": "SinglePageApplication",
             "HomePage": "http://localhost:3000/",
-            "ReplyUrls": "http://localhost:3000/",
+            "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
             "Audience": "AzureADMyOrg",
-            "ManualSteps": [
-                {
-                    "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
-                }
-            ],
+            "Sample": {
+                "SampleSubPath": "2-Authorization-I\\1-call-graph",
+                "ProjectDirectory": "\\SPA"
+            },
             "RequiredResourcesAccess": [
                 {
-                  "Resource": "Microsoft Graph",
-                  "DelegatedPermissions": [ "User.Read", "Mail.Read" ]
-                },
-                {
-                    "Resource": "Windows Azure Service Management API",
-                    "DelegatedPermissions": [ "user_impersonation" ]
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": ["User.Read", "Contacts.Read"]
                 }
-            ]
+            ],
+            "OptionalClaims": {
+                "IdTokenClaims": ["sid", "login_hint", "email", "upn", "acct"]
+            }
         }
     ],
     "CodeConfiguration": [
