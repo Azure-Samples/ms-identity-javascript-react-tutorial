@@ -39,6 +39,5 @@ describe('Ensure that the app starts', () => {
     it('should instantiate msal', () => {
         expect(msalInstance).toBeDefined();
         expect(msalInstance).toBeInstanceOf(PublicClientApplication);
-        
     });
 });
