@@ -1,3 +1,4 @@
+
 [CmdletBinding()]
 param(    
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
@@ -41,7 +42,7 @@ Function Cleanup
     }
     catch
     {
-	    Write-Host "Unable to remove the application 'msal-node-api' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove the application 'msal-node-api' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (msal-node-api) applications found, will remove if needed..."
@@ -65,7 +66,7 @@ Function Cleanup
     }
     catch
     {
-	    Write-Host "Unable to remove ServicePrincipal 'msal-node-api' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove ServicePrincipal 'msal-node-api' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
     Write-Host "Removing 'client' (msal-react-spa) if needed"
     try
@@ -74,7 +75,7 @@ Function Cleanup
     }
     catch
     {
-	    Write-Host "Unable to remove the application 'msal-react-spa' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove the application 'msal-react-spa' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (msal-react-spa) applications found, will remove if needed..."
@@ -98,7 +99,7 @@ Function Cleanup
     }
     catch
     {
-	    Write-Host "Unable to remove ServicePrincipal 'msal-react-spa' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove ServicePrincipal 'msal-react-spa' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
 

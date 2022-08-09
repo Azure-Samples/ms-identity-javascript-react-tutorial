@@ -8,14 +8,19 @@
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0",
         "Languages": [
-            "JavaScript",
-            "Node"
+            "javascript",
+            "nodejs"
         ],
         "Description": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory",
         "Products": [
-            "React",
-            "Express"
+            "azure-active-directory",
+            "msal-react",
+            "passport-azure-ad"
         ]
+    },
+    "ReadmeScenario": {
+        "UseNewSetup": "1",
+        "CertificateOption": "0"
     },
     "AADApps": [
         {
@@ -46,7 +51,12 @@
                     "Name": "Todolist.ReadWrite.All",
                     "Description": "Allow this application to read and write every users Todo list items"
                 }
-            ]
+            ],
+            "OptionalClaims": {
+                "AccessTokenClaims": [
+                    "idtyp"
+                ]
+            }
         },
         {
             "Id": "client",
