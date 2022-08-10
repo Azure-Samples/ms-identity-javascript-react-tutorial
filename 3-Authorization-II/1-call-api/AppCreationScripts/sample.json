@@ -38,14 +38,14 @@
             ],
             "AppRoles": [
                 {
-                    "Types": [
+                    "AllowedMemberTypes": [
                         "Application"
                     ],
                     "Name": "Todolist.Read.All",
                     "Description": "Allow this application to read every users Todo list items"
                 },
                 {
-                    "Types": [
+                    "AllowedMemberTypes": [
                         "Application"
                     ],
                     "Name": "Todolist.ReadWrite.All",

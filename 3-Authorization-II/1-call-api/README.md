@@ -13,7 +13,9 @@ urlFragment: ms-identity-javascript-react-tutorial
 description: A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory
 ---
 
-# React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory
+# A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory
+
+[![Build status](https://identitydivision.visualstudio.com/IDDP/_apis/build/status/AAD%20Samples/.NET%20client%20samples/ASP.NET%20Core%20Web%20App%20tutorial)](https://identitydivision.visualstudio.com/IDDP/_build/latest?definitionId=XXX)
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -155,10 +157,10 @@ To register the apps manually, as a first step you'll need to:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
     1. For **Scope name**, use `Todolist.Read`.
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in the details, `e.g. Allows to read Todolist items`.
-    1. For **Admin consent description** type in the details `e.g. Allow the app to read Todolist items on your behalf.`
-    1. For **User consent display name** type in the details `e.g. Allows to read Todolist items`.
-    1. For **User consent description** type in the details `e.g. Allow the app to read Todolist items on your behalf.`
+    1. For **Admin consent display name** type in the details, `e.g. Allow the users of the app msal-node-api to read ToDo list items`.
+    1. For **Admin consent description** type in the details `e.g. Allows the app msal-node-api to read the signed-in users ToDo list items.`
+    1. For **User consent display name** type in the details `e.g. Read ToDo list items as yourself`.
+    1. For **User consent description** type in the details `e.g. Allow the app msal-node-api to read ToDo list items on your behalf.`
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
     > Repeat the steps above for another scope named **Todolist.ReadWrite**
@@ -166,7 +168,7 @@ To register the apps manually, as a first step you'll need to:
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
 
-> :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+    > :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
 
 ##### Publish Application Permissions
 
