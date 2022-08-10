@@ -185,7 +185,6 @@ Function CreateOptionalClaim([string] $name)
     return $appClaim
 }
 
-
 Function ConfigureApplications
 {
     <#.Description
@@ -210,91 +209,6 @@ Function ConfigureApplications
     }
     
 
-   # Create the service AAD application
-   Write-Host "Creating the AAD application (msal-node-api)"
-   
-   # create the application 
-   $serviceAadApplication = New-MgApplication -DisplayName "msal-node-api" `
-                                                       -Web `
-                                                       @{ `
-                                                           HomePageUrl = "https://localhost:5000/api"; `
-                                                         } `
-                                                         -Api `
-                                                         @{ `
-                                                            RequestedAccessTokenVersion = 2 `
-                                                         } `
-                                                        -SignInAudience AzureADMyOrg `
-                                                       #end of command
-    $serviceIdentifierUri = 'api://'+$serviceAadApplication.AppId
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -IdentifierUris @($serviceIdentifierUri)
-    
-    # create the service principal of the newly created application 
-    $currentAppId = $serviceAadApplication.AppId
-    $serviceServicePrincipal = New-MgServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
-
-    # add the user running the script as an app owner if needed
-    $owner = Get-MgApplicationOwner -ApplicationId $serviceAadApplication.Id
-    if ($owner -eq $null)
-    { 
-        New-MgApplicationOwnerByRef -ApplicationId $serviceAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
-        Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($serviceServicePrincipal.DisplayName)'"
-    }
-    
-    # Add application permissions/user roles
-    $appRoles = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole]
-    $newRole = CreateAppRole -types "Application" -name "Todolist.Read.All" -description "Application can only read Todo list"
-    $appRoles.Add($newRole)
-    $newRole = CreateAppRole -types "Application" -name "Todolist.ReadWrite.All" -description "Application can read and write into Todo list"
-    $appRoles.Add($newRole)
-    $newRole = CreateAppRole -types "User" -name "TaskAdmin" -description "Admins can read any user's todo list"
-    $appRoles.Add($newRole)
-    $newRole = CreateAppRole -types "User" -name "TaskUser" -description "Users can read and modify their todo lists"
-    $appRoles.Add($newRole)
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -AppRoles $appRoles
-    
-    # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
-       
-    # delete default scope i.e. User_impersonation
-    # Alex: the scope deletion doesn't work - see open issue - https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/1054
-    $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = $serviceAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "User_impersonation" }
-    
-    if($scope -ne $null)
-    {    
-        # disable the scope
-        $scope.IsEnabled = $false
-        $scopes.Add($scope)
-        Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
-
-        # clear the scope
-        Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{Oauth2PermissionScopes = @()}
-    }
-
-    $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value Todolist.Read  `
-    -userConsentDisplayName "Access msal-node-api"  `
-    -userConsentDescription "Allow the application to access msal-node-api on your behalf."  `
-    -adminConsentDisplayName "Access msal-node-api"  `
-    -adminConsentDescription "Allow the app msal-node-api to [ex, read ToDo list items]"
-            
-    $scopes.Add($scope)
-    $scope = CreateScope -value Todolist.ReadWrite  `
-    -userConsentDisplayName "Access msal-node-api"  `
-    -userConsentDescription "Allow the application to access msal-node-api on your behalf."  `
-    -adminConsentDisplayName "Access msal-node-api"  `
-    -adminConsentDescription "Allow the app msal-node-api to [ex, read ToDo list items]"
-            
-    $scopes.Add($scope)
-    
-    # add/update scopes
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
-    Write-Host "Done creating the service application (msal-node-api)"
-
-    # URL of the AAD application in the Azure portal
-    # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.Id+"/isMSAApp/"
-    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.Id+"/isMSAApp/"
-    Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-node-api</a></td></tr>" -Path createdApps.html
-
    # Create the client AAD application
    Write-Host "Creating the AAD application (msal-react-spa)"
    
@@ -304,10 +218,14 @@ Function ConfigureApplications
                                                       @{ `
                                                           RedirectUris = "http://localhost:3000/", "http://localhost:3000/redirect.html"; `
                                                         } `
+                                                        -Api `
+                                                        @{ `
+                                                           RequestedAccessTokenVersion = 2 `
+                                                        } `
                                                        -SignInAudience AzureADMyOrg `
                                                       #end of command
-    $tenantName = (Get-MgApplication -ApplicationId $clientAadApplication.Id).PublisherDomain
-    Update-MgApplication -ApplicationId $clientAadApplication.Id -IdentifierUris @("https://$tenantName/msal-react-spa")
+    $clientIdentifierUri = 'api://'+$clientAadApplication.AppId
+    Update-MgApplication -ApplicationId $clientAadApplication.Id -IdentifierUris @($clientIdentifierUri)
     
     # create the service principal of the newly created application 
     $currentAppId = $clientAadApplication.AppId
@@ -343,13 +261,50 @@ Function ConfigureApplications
     $optionalClaims.IdToken += ($newClaim)
     Update-MgApplication -ApplicationId $clientAadApplication.Id -OptionalClaims $optionalClaims
     
-    # Add application permissions/user roles
+    # Add application Roles
     $appRoles = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole]
     $newRole = CreateAppRole -types "User" -name "TaskAdmin" -description "Admins can read any user's todo list"
     $appRoles.Add($newRole)
     $newRole = CreateAppRole -types "User" -name "TaskUser" -description "Users can read and modify their todo lists"
     $appRoles.Add($newRole)
     Update-MgApplication -ApplicationId $clientAadApplication.Id -AppRoles $appRoles
+    
+    # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
+       
+    # delete default scope i.e. User_impersonation
+    # Alex: the scope deletion doesn't work - see open issue - https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/1054
+    $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
+    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "User_impersonation" }
+    
+    if($scope -ne $null)
+    {    
+        # disable the scope
+        $scope.IsEnabled = $false
+        $scopes.Add($scope)
+        Update-MgApplication -ApplicationId $clientAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
+
+        # clear the scope
+        Update-MgApplication -ApplicationId $clientAadApplication.Id -Api @{Oauth2PermissionScopes = @()}
+    }
+
+    $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
+    $scope = CreateScope -value Todolist.Read  `
+    -userConsentDisplayName "Access msal-react-spa"  `
+    -userConsentDescription "Allow the application to access msal-react-spa on your behalf."  `
+    -adminConsentDisplayName "Access msal-react-spa"  `
+    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of an admin."
+            
+    $scopes.Add($scope)
+    $scope = CreateScope -value Todolist.ReadWrite  `
+    -userConsentDisplayName "Access msal-react-spa"  `
+    -userConsentDescription "Allow the application to access msal-react-spa on your behalf."  `
+    -adminConsentDisplayName "Access msal-react-spa"  `
+    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of an admin."
+            
+    $scopes.Add($scope)
+    
+    # add/update scopes
+    Update-MgApplication -ApplicationId $clientAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
     Write-Host "Done creating the client application (msal-react-spa)"
 
     # URL of the AAD application in the Azure portal
@@ -359,19 +314,26 @@ Function ConfigureApplications
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
 
     
-    # Add Required Resources Access (from 'client' to 'service')
-    Write-Host "Getting access from 'client' to 'service'"
-    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-node-api" `
+    # Add Required Resources Access (from 'client' to 'client')
+    Write-Host "Getting access from 'client' to 'client'"
+    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-react-spa" `
         -requiredDelegatedPermissions "Todolist.Read|Todolist.ReadWrite" `
     
 
     $requiredResourcesAccess.Add($requiredPermissions)
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
+
+    # Configure known client applications for client 
+    Write-Host "Configure known client applications for the 'client'"
+    $knowApplications = New-Object System.Collections.Generic.List[System.String]
+    $knowApplications.Add($clientAadApplication.AppId)
+    Update-MgApplication -ApplicationId $clientAadApplication.Id -Api @{KnownClientApplications = $knowApplications}
+    Write-Host "Configured."
     
-    # Update config file for 'service'
+    # Update config file for 'client'
     $configFile = $pwd.Path + "\..\API\authConfig.js"
-    $dictionary = @{ "tenantID" = $tenantId;"clientID" = $serviceAadApplication.AppId };
+    $dictionary = @{ "tenantID" = $tenantId;"clientID" = $clientAadApplication.AppId };
 
     Write-Host "Updating the sample code ($configFile)"
 
@@ -379,21 +341,18 @@ Function ConfigureApplications
     
     # Update config file for 'client'
     $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_App_Id_Uri_Here" = $serviceAadApplication.AppId };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_here" = ("api://"+$clientAadApplication.AppId+"/access_as_user");"Enter_the_Web_Api_App_Id_Uri_Here" = $clientAadApplication.AppId };
 
     Write-Host "Updating the sample code ($configFile)"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
-    Write-Host "- For service"
-    Write-Host "  - Navigate to $servicePortalUrl"
-    Write-Host "  - To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this service instance. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." -ForegroundColor Red 
-    Write-Host "  - Or you can run the ..\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." -ForegroundColor Red 
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
     Write-Host "  - To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." -ForegroundColor Red 
     Write-Host "  - Or you can run the ..\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." -ForegroundColor Red 
+    Write-Host "  - Application 'client' publishes app roles . Do remember to navigate to the app registration in the app portal and assign users to these app roles" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
     {

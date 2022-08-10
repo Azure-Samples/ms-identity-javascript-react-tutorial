@@ -11,53 +11,10 @@
         "products": ["React", "Express"]
     },
     "ReadmeScenario": {
-        "FreeText": "",
-        "IncludeFilePath": "",
         "UseNewSetup": "1",
-        "CertificateOption": "0",
-        "CreateProjectIncludeFilePath": "",
-        "AppRegistrationIncludeFilePath": "",
-        "RunSampleIncludeFilePath": ""
+        "CertificateOption": "0"
     },
     "AADApps": [
-        {
-            "Id": "service",
-            "Name": "msal-node-api",
-            "Kind": "WebApi",
-            "Audience": "AzureADMyOrg",
-            "HomePage": "https://localhost:5000/api",
-            "Scopes": ["Todolist.Read", "Todolist.ReadWrite"],
-            "AppRoles": [
-                {
-                    "Types": ["User"],
-                    "Name": "TaskAdmin",
-                    "Description": "Admins can read any user's todo list"
-                },
-                {
-                    "Types": ["User"],
-                    "Name": "TaskUser",
-                    "Description": "Users can read and modify their todo lists"
-                },
-                {
-                    "Types": ["Application"],
-                    "Name": "Todolist.Read.All",
-                    "Description": "Application can only read Todo list"
-                },
-                {
-                    "Types": ["Application"],
-                    "Name": "Todolist.ReadWrite.All",
-                    "Description": "Application can read and write into Todo list"
-                }
-            ],
-            "ManualSteps": [
-                {
-                    "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this service instance. The guide, https://aka.ms/userassignmentrequired provides step by step instructions."
-                },
-                {
-                    "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app."
-                }
-            ]
-        },
         {
             "Id": "client",
             "Name": "msal-react-spa",
@@ -65,24 +22,25 @@
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:3000/",
             "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
+            "Scopes": ["Todolist.Read", "Todolist.ReadWrite"],
             "Sample": {
-                "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
-                "ProjectDirectory": "\\1-call-api\\SPA"
+                "SampleSubPath": "5-AccessControl\\1-call-api-roles\\SPA",
+                "ProjectDirectory": "\\1-call-api-roles\\SPA"
             },
             "RequiredResourcesAccess": [
                 {
-                    "Resource": "service",
+                    "Resource": "client",
                     "DelegatedPermissions": ["Todolist.Read", "Todolist.ReadWrite"]
                 }
             ],
             "AppRoles": [
                 {
-                    "Types": ["User"],
+                    "AllowedMemberTypes": ["User"],
                     "Name": "TaskAdmin",
                     "Description": "Admins can read any user's todo list"
                 },
                 {
-                    "Types": ["User"],
+                    "AllowedMemberTypes": ["User"],
                     "Name": "TaskUser",
                     "Description": "Users can read and modify their todo lists"
                 }
@@ -102,7 +60,7 @@
     ],
     "CodeConfiguration": [
         {
-            "App": "service",
+            "App": "client",
             "SettingKind": "JSON",
             "SettingFile": "\\..\\API\\authConfig.js",
             "Mappings": [
@@ -112,7 +70,7 @@
                 },
                 {
                     "key": "clientID",
-                    "value": "service.AppId"
+                    "value": "client.AppId"
                 }
             ]
         },
@@ -132,11 +90,11 @@
                 },
                 {
                     "key": "Enter_the_Web_Api_Scope_here",
-                    "value": "service.Scope"
+                    "value": "client.Scope"
                 },
                  {
                      "key": "Enter_the_Web_Api_App_Id_Uri_Here",
-                     "value": "service.AppId"
+                     "value": "client.AppId"
                  }
             ]
         }
