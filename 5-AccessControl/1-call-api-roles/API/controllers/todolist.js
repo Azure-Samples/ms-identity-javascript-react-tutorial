@@ -3,7 +3,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('./data/db.json');
 const db = lowdb(adapter);
 
-const { hasRequiredDelegatedPermissions, hasRequiredApplicationPermissions } = require('../auth/permissionUtils');
+const { hasRequiredDelegatedPermissions } = require('../auth/permissionUtils');
 
 const authConfig = require('../authConfig');
 
@@ -32,18 +32,6 @@ exports.getTodo = (req, res, next) => {
         } catch (error) {
             next(error);
         }
-    } else if (
-        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)
-    ) {
-        try {
-            const id = req.params.id;
-
-            const todo = db.get('todos').find({ id: id }).value();
-
-            res.status(200).send(todo);
-        } catch (error) {
-            next(error);
-        }
     } else next(new Error('User does not have the required permissions'));
 };
 
@@ -58,23 +46,11 @@ exports.getTodos = (req, res, next) => {
         } catch (error) {
             next(error);
         }
-    } else if (
-        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)
-    ) {
-        try {
-            const todos = db.get('todos').value();
-            res.status(200).send(todos);
-        } catch (error) {
-            next(error);
-        }
     } else next(new Error('User or application does not have the required permissions'));
 };
 
 exports.postTodo = (req, res, next) => {
-    if (
-        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write) ||
-        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
-    ) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write)) {
         try {
             db.get('todos').push(req.body).write();
             res.status(200).json({ message: 'success' });
@@ -96,18 +72,6 @@ exports.updateTodo = (req, res, next) => {
         } catch (error) {
             next(error);
         }
-    } else if (
-        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
-    ) {
-        try {
-            const id = req.params.id;
-
-            db.get('todos').find({ id: id }).assign(req.body).write();
-
-            res.status(200).json({ message: 'success' });
-        } catch (error) {
-            next(error);
-        }
     } else next(new Error('User or application does not have the required permissions'));
 };
 
@@ -118,18 +82,6 @@ exports.deleteTodo = (req, res, next) => {
             const owner = req.authInfo['oid'];
 
             db.get('todos').remove({ owner: owner, id: id }).write();
-
-            res.status(200).json({ message: 'success' });
-        } catch (error) {
-            next(error);
-        }
-    } else if (
-        hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.write)
-    ) {
-        try {
-            const id = req.params.id;
-
-            db.get('todos').remove({ id: id }).write();
 
             res.status(200).json({ message: 'success' });
         } catch (error) {

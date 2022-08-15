@@ -10,7 +10,7 @@ const router = require('./routes/router');
 
 const routeGuard = require('./utils/guard');
 
-const { requiredScopesOrAppPermissions } = require('./auth/permissionUtils');
+const { hasRequiredScopes } = require('./auth/permissionUtils');
 
 const app = express();
 
@@ -46,11 +46,9 @@ const bearerStrategy = new passportAzureAd.BearerStrategy(
          * For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
          */
         if (
-            requiredScopesOrAppPermissions(token, [
+            hasRequiredScopes(token, [
                 ...authConfig.protectedRoutes.todolist.delegatedPermissions.read,
                 ...authConfig.protectedRoutes.todolist.delegatedPermissions.write,
-                ...authConfig.protectedRoutes.todolist.applicationPermissions.read,
-                ...authConfig.protectedRoutes.todolist.applicationPermissions.write,
             ])
         ) {
             /**
@@ -81,7 +79,7 @@ app.use(
 
         // tenantIdOrName: <some-tenant-id-or-name>
     }),
-    routeGuard(authConfig.accessMatrix, authConfig.protectedRoutes.todolist.applicationPermissions.read),
+    routeGuard(authConfig.accessMatrix),
     router
 );
 

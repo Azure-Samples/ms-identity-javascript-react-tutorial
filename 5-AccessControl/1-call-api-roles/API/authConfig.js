@@ -20,11 +20,7 @@ const passportConfig = {
             delegatedPermissions: {
                 read: ['Todolist.Read', 'Todolist.ReadWrite'],
                 write: ['Todolist.ReadWrite'],
-            },
-            applicationPermissions: {
-                read: ['Todolist.Read.All', 'Todolist.ReadWrite.All'],
-                write: ['Todolist.ReadWrite.All'],
-            },
+            }
         },
     },
     accessMatrix: {
