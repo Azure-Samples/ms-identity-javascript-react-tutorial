@@ -10,8 +10,6 @@ products:
  - Express
 urlFragment: ms-identity-javascript-react-tutorial
 description: React single-page application calling a protected web API using App Roles to implement Role-Based Access Control
-extendedZipContent: <FILES_OR_FOLDERS_WITH_TWO_ABSOLUTE_PATHS_TO_INCLUDE_WITH_ZIP:PATH(NAME_IN_THE_REPO), TARGET(NAME_IN_THE_ZIP)>
-extensions: <ENTER_CONTENT_THAT_OTHER_TEAMS_CAN_USE_TO_IDENTIFY_SAMPLES>
 ---
 
 # React single-page application calling a protected web API using App Roles to implement Role-Based Access Control
