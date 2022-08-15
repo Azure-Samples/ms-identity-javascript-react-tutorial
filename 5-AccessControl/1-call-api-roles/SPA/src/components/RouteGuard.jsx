@@ -4,22 +4,24 @@ import { useMsal } from '@azure/msal-react';
 export const RouteGuard = ({ ...props }) => {
     const { instance } = useMsal();
     const [isAuthorized, setIsAuthorized] = useState(false);
+    const currentAccount = instance.getActiveAccount();
 
     const onLoad = async () => {
-        const currentAccount = instance.getActiveAccount();
 
         if (currentAccount && currentAccount.idTokenClaims['roles']) {
             let intersection = props.roles.filter((role) => currentAccount.idTokenClaims['roles'].includes(role));
-
             if (intersection.length > 0) {
                 setIsAuthorized(true);
+            }else{
+                setIsAuthorized(false);
             }
         }
     };
 
     useEffect(() => {
         onLoad();
-    }, [instance]);
+    }, [instance, currentAccount]);
+
     return (
         <>
             {isAuthorized ? (
