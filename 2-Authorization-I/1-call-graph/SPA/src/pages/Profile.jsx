@@ -4,7 +4,7 @@ import { InteractionType } from '@azure/msal-browser';
 
 import { ProfileData } from '../components/DataDisplay';
 import { protectedResources, msalConfig } from '../authConfig';
-import { getClaimsFronStrorage } from '../utils/storageUtils';
+import { getClaimsFromStorage } from '../utils/storageUtils';
 import { fetchData } from '../fetch';
 
 export const Profile = () => {
@@ -15,9 +15,10 @@ export const Profile = () => {
     const request = {
         scopes: protectedResources.graphMe.scopes,
         account: account,
-        claims: account && getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-            ? window.atob(getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
-            : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+        claims:
+            account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                ? window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+                : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
     };
 
     const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);

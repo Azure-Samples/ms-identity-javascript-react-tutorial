@@ -284,8 +284,8 @@ After that, we require a new access token via the `useMsalAuthentication` hook, 
         const request = {
             scopes: protectedResources.graphMe.scopes,
             account: account,
-            claims: account && getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-                ? window.atob(getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+            claims: account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+                ? window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
                 : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
         };
 
