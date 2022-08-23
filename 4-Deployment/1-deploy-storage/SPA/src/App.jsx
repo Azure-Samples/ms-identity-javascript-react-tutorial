@@ -32,19 +32,19 @@ const ProfileContent = () => {
      */
     const RequestProfileData = () => {
         instance.acquireTokenSilent({
-            scopes: protectedResources.graphMe.scopes,
+            scopes: protectedResources.apiHello.scopes,
             account: account
         }).then((response) => {
-            callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
+            callApiWithToken(response.accessToken, protectedResources.apiHello.endpoint)
                 .then(response => setGraphData(response));
         }).catch((error) => {
             // in case if silent token acquisition fails, fallback to an interactive method
             if (error instanceof InteractionRequiredAuthError) {
                 if (account && inProgress === "none") {
                     instance.acquireTokenPopup({
-                        scopes: protectedResources.graphMe.scopes,
+                        scopes: protectedResources.apiHello.scopes,
                     }).then((response) => {
-                        callApiWithToken(response.accessToken, protectedResources.graphMe.endpoint)
+                        callApiWithToken(response.accessToken, protectedResources.apiHello.endpoint)
                             .then(response => setGraphData(response));
                     }).catch(error => console.log(error));
                 }
