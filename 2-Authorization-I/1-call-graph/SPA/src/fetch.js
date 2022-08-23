@@ -6,6 +6,7 @@
 import { msalInstance } from './index';
 import { msalConfig } from '../src/authConfig';
 import { addClaimsToStorage } from './utils/storageUtils';
+import { parseChallenges } from './utils/claimUtils';
 
 /**
  * Makes a GET request using authorization header. For more, visit:
@@ -16,7 +17,6 @@ import { addClaimsToStorage } from './utils/storageUtils';
 export const fetchData = async (accessToken, apiEndpoint) => {
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
-
     headers.append('Authorization', bearer);
 
     const options = {
@@ -25,7 +25,7 @@ export const fetchData = async (accessToken, apiEndpoint) => {
     };
 
     return fetch(apiEndpoint, options)
-        .then((response) => handleClaimsChallenge(response))
+        .then((response) => handleClaimsChallenge(response, apiEndpoint))
         .catch((error) => error);
 };
 
@@ -36,28 +36,26 @@ export const fetchData = async (accessToken, apiEndpoint) => {
  * @param {object} response
  * @returns response
  */
-const handleClaimsChallenge = async (response) => {
+const handleClaimsChallenge = async (response, apiEndpoint) => {
     if (response.status === 200) {
         return response.json();
     } else if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
             const account = msalInstance.getActiveAccount();
             const authenticateHeader = response.headers.get('www-authenticate');
-
-            const claimsChallenge = authenticateHeader
-                .split(' ')
-                .find((entry) => entry.includes('claims='))
-                .split('claims="')[1]
-                .split('",')[0];
+            const claimsChallenge = parseChallenges(authenticateHeader);
 
             /**
              * This method stores the claim challenge to the session storage in the browser to be used when acquiring a token.
              * To ensure that we are fetching the correct claim from the storage, we are using the clientId
              * of the application and oid (user’s object id) as the key identifier of the claim with schema
-             * cc.<clientId>.<oid>
+             * cc.<clientId>.<oid>.<resource.hostname>
              */
-            addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
-            return { error: 'claims_challenge_occurred', payload: claimsChallenge };
+            addClaimsToStorage(
+                claimsChallenge.claims,
+                `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${new URL(apiEndpoint).hostname}`
+            );
+            return { error: 'claims_challenge_occurred', payload: claimsChallenge.claims };
         }
 
         throw new Error(`Unauthorized: ${response.status}`);
@@ -65,3 +63,6 @@ const handleClaimsChallenge = async (response) => {
         throw new Error(`Something went wrong with the request: ${response.status}`);
     }
 };
+
+
+

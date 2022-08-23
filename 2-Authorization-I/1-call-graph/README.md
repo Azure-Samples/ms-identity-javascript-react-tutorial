@@ -22,6 +22,7 @@ description: This sample demonstrates a React single-page application that signs
 * [Explore the sample](#explore-the-sample)
 * [Troubleshooting](#troubleshooting)
 * [About the code](#about-the-code)
+* [How to deploy this sample to Azure](#how-to-deploy-this-sample-to-azure)
 * [Next Steps](#next-steps)
 * [Contributing](#contributing)
 * [Learn More](#learn-more)
@@ -343,18 +344,13 @@ Once the client app receives the CAE claims challenge from Microsoft Graph, it n
             if (response.headers.get('www-authenticate')) {
                 const account = msalInstance.getActiveAccount();
                 const authenticateHeader = response.headers.get('www-authenticate');
-
-                const claimsChallenge = authenticateHeader
-                    .split(' ')
-                    .find((entry) => entry.includes('claims='))
-                    .split('claims="')[1]
-                    .split('",')[0];
+                const claimsChallenge = parseChallenges(authenticateHeader);    
 
                 /**
                  * This method stores the claim challenge to the session storage in the browser to be used when acquiring a token.
                  * To ensure that we are fetching the correct claim from the storage, we are using the clientId
                  * of the application and oid (user’s object id) as the key identifier of the claim with schema
-                 * cc.<clientId>.<oid>
+                 * cc.<clientId>.<oid><resource.hostname>
                  */
                 addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
                 return { error: 'claims_challenge_occurred', payload: claimsChallenge };
@@ -374,12 +370,12 @@ After that, we require a new access token via the `useMsalAuthentication` hook, 
         const { instance } = useMsal();
         const account = instance.getActiveAccount();
         const [graphData, setGraphData] = useState(null);
-
+        const resource = new URL(protectedResources.graphMe.endpoint).hostname;
         const request = {
             scopes: protectedResources.graphMe.scopes,
             account: account,
-            claims: account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-                ? window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+            claims: account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
+                ? window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`))
                 : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
         };
 
@@ -486,6 +482,55 @@ You can use [React Router](https://reactrouter.com/) component in conjunction wi
         );
     };
 ```
+
+## How to deploy this sample to Azure
+
+<details>
+ <summary>Expand the section</summary>
+
+### Deploying SPA to Azure Storage
+
+There is one single-page application in this sample. To deploy it to **Azure Storage**, you'll need to:
+
+* create an Azure Storage blob and obtain website coordinates
+* build your project and upload it to Azure Storage blob
+* update config files with website coordinates
+
+> :information_source: If you would like to use **VS Code Azure Tools** extension for deployment, [watch the tutorial](https://docs.microsoft.com/azure/developer/javascript/tutorial-vscode-static-website-node-01) offered by Microsoft Docs.
+
+#### Build and upload (ms-identity-react-c2s1) to an Azure Storage blob
+
+Build your project to get a distributable files folder, where your built `html`, `css` and `javascript` files will be generated. Then follow the steps below:
+
+> :warning: When uploading, make sure you upload the contents of your distributable files folder and **not** the entire folder itself.
+
+> :information_source: If you don't have an account already, see: [How to create a storage account](https://docs.microsoft.com/azure/storage/common/storage-account-create).
+
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. Locate your storage account and display the account overview.
+1. Select **Static website** to display the configuration page for static websites.
+1. Select **Enabled** to enable static website hosting for the storage account.
+1. In the **Index document name** field, specify a default index page (For example: `index.html`).
+1. The default **index page** is displayed when a user navigates to the root of your static website.
+1. Select **Save**. The Azure portal now displays your static website endpoint. Make a note of the **Primary endpoint field**.
+1. In the `ms-identity-react-c2s1` project source code, update your configuration file with the **Primary endpoint field** as your new **Redirect URI** (you will register this URI later).
+1. Next, select **Storage Explorer**.
+1. Expand the **BLOB CONTAINERS** node, and then select the `$web` container.
+1. Choose the **Upload** button to upload files.
+1. If you intend for the browser to display the contents of file, make sure that the content type of that file is set to `text/html`.
+1. In the pane that appears beside the **account overview page** of your storage account, select **Static Website**. The URL of your site appears in the **Primary endpoint field**. In the next section, you will register this URI.
+
+#### Update the Azure AD app registration for ms-identity-react-c2s1
+
+1. Navigate back to to the [Azure portal](https://portal.azure.com).
+1. In the left-hand navigation pane, select the **Azure Active Directory** service, and then select **App registrations**.
+1. In the resulting screen, select `ms-identity-react-c2s1`.
+1. In the app's registration screen, select **Authentication** in the menu.
+   * In the **Redirect URIs** section, update the reply URLs to match the site URL of your Azure deployment. For example:
+      * `https://ms-identity-react-c2s1.azurewebsites.net/`
+      * `https://ms-identity-react-c2s1.azurewebsites.net/redirect.html`
+
+</details>
 
 ### MSAL logging
 

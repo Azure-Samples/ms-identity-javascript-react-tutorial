@@ -11,13 +11,15 @@ export const Contacts = () => {
     const { instance } = useMsal();
     const account = instance.getActiveAccount();
     const [graphData, setGraphData] = useState(null);
-
+    const resource = new URL(protectedResources.graphContacts.endpoint).hostname;
     const request = {
         scopes: protectedResources.graphContacts.scopes,
         account: account,
         claims:
-            account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-                ? window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+            account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
+                ? window.atob(
+                      getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
+                  )
                 : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
     };
 
