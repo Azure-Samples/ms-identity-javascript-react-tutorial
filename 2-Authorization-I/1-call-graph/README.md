@@ -343,18 +343,13 @@ Once the client app receives the CAE claims challenge from Microsoft Graph, it n
             if (response.headers.get('www-authenticate')) {
                 const account = msalInstance.getActiveAccount();
                 const authenticateHeader = response.headers.get('www-authenticate');
-
-                const claimsChallenge = authenticateHeader
-                    .split(' ')
-                    .find((entry) => entry.includes('claims='))
-                    .split('claims="')[1]
-                    .split('",')[0];
+                const claimsChallenge = parseChallenges(authenticateHeader);    
 
                 /**
                  * This method stores the claim challenge to the session storage in the browser to be used when acquiring a token.
                  * To ensure that we are fetching the correct claim from the storage, we are using the clientId
                  * of the application and oid (user’s object id) as the key identifier of the claim with schema
-                 * cc.<clientId>.<oid>
+                 * cc.<clientId>.<oid><resource.hostname>
                  */
                 addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
                 return { error: 'claims_challenge_occurred', payload: claimsChallenge };
@@ -374,12 +369,12 @@ After that, we require a new access token via the `useMsalAuthentication` hook, 
         const { instance } = useMsal();
         const account = instance.getActiveAccount();
         const [graphData, setGraphData] = useState(null);
-
+        const resource = new URL(protectedResources.graphMe.endpoint).hostname;
         const request = {
             scopes: protectedResources.graphMe.scopes,
             account: account,
-            claims: account && getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
-                ? window.atob(getClaimsFronStrorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
+            claims: account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
+                ? window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`))
                 : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
         };
 

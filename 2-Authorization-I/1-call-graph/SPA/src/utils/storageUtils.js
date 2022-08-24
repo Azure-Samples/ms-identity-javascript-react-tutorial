@@ -5,12 +5,10 @@ import { msalConfig } from '../authConfig';
  * @param {String} claimsChallenge
  */
 export const addClaimsToStorage = (claimsChallenge, claimsChallengeId) => {
-    if (!sessionStorage.getItem(claimsChallengeId)) {
-        sessionStorage.setItem(claimsChallengeId, claimsChallenge);
-    }
+    sessionStorage.setItem(claimsChallengeId, claimsChallenge);
 };
 
-export const getClaimsFronStrorage = (claimsChallengeId) => {
+export const getClaimsFromStorage = (claimsChallengeId) => {
     return sessionStorage.getItem(claimsChallengeId);
 };
 
