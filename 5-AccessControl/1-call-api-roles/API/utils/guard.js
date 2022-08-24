@@ -5,33 +5,51 @@ const routeGuard = (accessMatrix) => {
         } else {
             const roles = req.authInfo['roles'];
 
-            if (req.path.includes(accessMatrix.todolist.path)) {
-                if (accessMatrix.todolist.methods.includes(req.method)) {
-                    let intersection = accessMatrix.todolist.roles.filter((role) => roles.includes(role));
+            if (requestHasRequiredAttributes(accessMatrix, req.path, req.method, roles)) {
+                return res.status(403).json({ error: 'User does not have the role, method or path' });
+            }
+        }
+        next();
+    };
+};
 
-                    if (intersection.length < 1) {
-                        return res.status(403).json({ error: 'User does not have the role' });
-                    }
-                } else {
-                    return res.status(403).json({ error: 'Method not allowed' });
-                }
-            } else if (req.path.includes(accessMatrix.dashboard.path)) {
-                if (accessMatrix.dashboard.methods.includes(req.method)) {
-                    let intersection = accessMatrix.dashboard.roles.filter((role) => roles.includes(role));
+/**
+ * This method checks if the request has the correct roles, paths and methods
+ * @param {Object} accessMatrix
+ * @param {String} path
+ * @param {String} method
+ * @param {Array} roles
+ * @returns boolean
+ */
+const requestHasRequiredAttributes = (accessMatrix, path, method, roles) => {
+    const routes = Object.keys(accessMatrix);
+    let hasMethod = false;
+    let hasPath = false;
+    let hasRoles = false;
+    routes.forEach((route) => {
+        if (path.includes(accessMatrix[route].path)) {
+            hasPath = true;
+        } else {
+            hasPath = false;
+        }
 
-                    if (intersection.length < 1) {
-                        return res.status(403).json({ error: 'User does not have the role' });
-                    }
-                } else {
-                    return res.status(403).json({ error: 'Method not allowed' });
-                }
+        if (hasPath) {
+            if (accessMatrix[route].methods.includes(method)) {
+                hasMethod = true;
             } else {
-                return res.status(403).json({ error: 'Unrecognized path' });
+                hasMethod = false;
             }
         }
 
-        next();
-    };
+        if (hasPath && hasMethod) {
+            let intersection = accessMatrix[route].roles.filter((role) => roles.includes(role));
+            if (intersection.length < 1) {
+                hasRoles = true;
+            }
+        }
+    });
+
+    return hasRoles;
 };
 
 module.exports = routeGuard;

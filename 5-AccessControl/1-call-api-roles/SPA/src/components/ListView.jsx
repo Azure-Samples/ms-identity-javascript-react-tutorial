@@ -1,13 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useMsal } from '@azure/msal-react';
-import { InteractionType } from '@azure/msal-browser';
 import { nanoid } from 'nanoid';
 import ListGroup from 'react-bootstrap/ListGroup';
-
 import { TodoForm } from './TodoForm';
 import { TodoItem } from './TodoItem';
-
-import { protectedResources } from '../authConfig';
 import { deleteTask, postTask, editTask } from '../fetch';
 
 function usePrevious(value) {
@@ -29,15 +25,20 @@ export const ListView = (props) => {
         const updatedTask = tasks.find((task) => id === task.id);
         updatedTask.completed = !updatedTask.completed;
 
-        editTask(id, updatedTask).then((response) => {
-            const updatedTasks = tasks.map((task) => {
-                if (id === task.id) {
-                    return { ...task, completed: !task.completed };
-                }
-                return task;
+        editTask(id, updatedTask)
+            .then((response) => {
+                if (response && response.error) throw response.error;
+                const updatedTasks = tasks.map((task) => {
+                    if (id === task.id) {
+                        return { ...task, completed: !task.completed };
+                    }
+                    return task;
+                });
+                setTasks(updatedTasks);
+            })
+            .catch((error) => {
+                console.log(error);
             });
-            setTasks(updatedTasks);
-        });
     };
 
     const handleAddTask = (name) => {
@@ -48,35 +49,51 @@ export const ListView = (props) => {
             completed: false,
         };
 
-        postTask(newTask).then((res) => {
-            if (res && res.message === 'success') {
-                setTasks([...tasks, newTask]);
-            }
-        });
+        postTask(newTask)
+            .then((response) => {
+                if (response && response.error) throw response.error;
+                if (response && response.message === 'success') {
+                    setTasks([...tasks, newTask]);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
 
     const handleDeleteTask = (id) => {
-        deleteTask(id).then((response) => {
-            if (response && response.message === 'success') {
-                const remainingTasks = tasks.filter((task) => id !== task.id);
-                setTasks(remainingTasks);
-            }
-        });
+        deleteTask(id)
+            .then((response) => {
+                if (response && response.error) throw response.error;
+                if (response && response.message === 'success') {
+                    const remainingTasks = tasks.filter((task) => id !== task.id);
+                    setTasks(remainingTasks);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
 
     const handleEditTask = (id, newName) => {
         const updatedTask = tasks.find((task) => id === task.id);
+
         updatedTask.name = newName;
 
-        editTask(id, updatedTask).then(() => {
-            const updatedTasks = tasks.map((task) => {
-                if (id === task.id) {
-                    return { ...task, name: newName };
-                }
-                return task;
+        editTask(id, updatedTask)
+            .then((response) => {
+                if (response && response.error) throw response.error;
+                const updatedTasks = tasks.map((task) => {
+                    if (id === task.id) {
+                        return { ...task, name: newName };
+                    }
+                    return task;
+                });
+                setTasks(updatedTasks);
+            })
+            .catch((error) => {
+                console.log(error);
             });
-            setTasks(updatedTasks);
-        });
     };
 
     const taskList = tasks.map((task) => (

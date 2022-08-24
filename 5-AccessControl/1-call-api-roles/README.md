@@ -8,6 +8,9 @@ languages:
 products:
  - React
  - Express
+ - azure-active-directory
+ - msal-js
+ - passport-azure-ad
 urlFragment: ms-identity-javascript-react-tutorial
 description: React single-page application calling a protected web API using App Roles to implement Role-Based Access Control
 ---
@@ -38,11 +41,12 @@ Access control in Azure AD can be done with **Security Groups** as well, as we w
 
 ## Scenario
 
-In the sample, a **dashboard** component allows signed-in users to see the tasks assigned to users and is only accessible by users under an **app role** named **TaskAdmin**.
+In the sample, a **dashboard** component allows signed-in users to see the tasks assigned to users and is only accessible by users assigned to **app role** named **TaskAdmin**. A user needs to be assigned an app role **TaskUser** to be able to create tasks for themselves
 
 * The **TodoListSPA** uses [MSAL React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) to authenticate a user with the Microsoft identity platform.
 * The app then obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from Azure AD on behalf of the authenticated user for the **TodoListAPI**.
 * **TodoListAPI** uses [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) to protect its endpoint and accept only authorized calls.
+* **TodoListAPI** maintains the To Do list and ensures access to the right users based on [permissions](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types).
 
 ![Topology](./ReadmeFiles/topology.png)
 
@@ -83,14 +87,14 @@ or download and extract the repository *.zip* file.
 ### Step 2. Install Express web API dependencies
 
 ```console
-    cd 3-Authorization-II\1-call-api\API
+    cd 5-AccessControl\1-call-api-roles\API
     npm install
 ```
 
 ### Step 3. Install React SPA dependencies
 
 ```console
-    cd 3-Authorization-II\1-call-api\SPA
+    cd  5-AccessControl\1-call-api-roles\SPA
     npm install
 ```
 
@@ -136,6 +140,8 @@ As a first step you'll need to:
 
 #### Register the client app (msal-react-spa)
 
+> :information_source: Below, we are using a single app registration for both SPA and web API projects.
+
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
@@ -170,13 +176,13 @@ As a first step you'll need to:
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
 
-##### Add Scopes to msal-react-spa
+##### Grant Delegated Permissions to msal-react-spa
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
     1. Select the **Add a permission** button and then,
     1. Ensure that the **Microsoft APIs** tab is selected.
-    1. In the list of APIs, select the API `service`.
+    1. In the list of APIs, select the application name for example `msal-react-spa`.
     1. In the **Delegated permissions** section, select the **Todolist.Read**, **Todolist.ReadWrite** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
 
@@ -191,26 +197,12 @@ As a first step you'll need to:
     > Repeat the steps above for another role named **TaskUser**
     1. Select **Apply** to save your changes.
 
-To add users to this app role, follow the guidelines here: [Assign users and groups to roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-users-and-groups-to-roles).
-
-> :bulb: **Important security tip**
->
+> :bulb: **Important security tip**e
+> To add users to this app role, follow the guidelines here: [Assign users and groups to roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-users-and-groups-to-roles).
 > When you set **User assignment required?** to **Yes**, Azure AD will check that only users assigned to your application in the **Users and groups** blade are able to sign-in to your app. You can assign users directly or by assigning security groups they belong to.
 For more information, see: [How to: Add app roles in your application and receive them in the token](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps)
 
-##### Configure Optional Claims
-
-1. Still on the same app registration, select the **Token configuration** blade to the left.
-1. Select **Add optional claim**:
-    1. Select **optional claim type**, then choose **ID**.
-    1. Select the optional claim **sid**.
-    1. Select the optional claim **login_hint**.
-    1. Select the optional claim **email**.
-    1. Select the optional claim **upn**.
-    1. Select the optional claim **acct**.
-    1. Select **Add** to save your changes.
-
-##### Configure the service app to use your app registration
+#### Configure the msal-react-spa to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
@@ -220,31 +212,25 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `tenantID` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 
-##### Configure the client app to use your app registration
-
-Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
-
-> In the steps below, "ClientID" is the same as "Application ID" or "AppId".
-
 1. Open the `SPA\src\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of **msal-react-spa** app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID copied from the Azure portal.
-1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with client ID of the web API project that you've registered earlier, e.g. `api://<client-id>/Todolist.Read`.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
+1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with Scope.
+1. Find the key `Enter_the_Web_Api_App_Id_Uri_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 
 ### Step 5: Running the sample
 
 From your shell or command line, execute the following commands:
 
 ```console
-   cd SPA
+   cd 5-AccessControl\1-call-api-roles\SPA
    npm start
 ```
 
 In a separate console window, execute the following commands:
 
 ```console
-   cd ../
-   cd API
+   cd 5-AccessControl\1-call-api-roles\API
    npm start
 ```
 
@@ -369,35 +355,14 @@ const routeGuard = (accessMatrix) => {
             return res.status(403).json({ error: 'No roles claim found!' });
         } else {
             const roles = req.authInfo['roles'];
-
-            if (req.path.includes(accessMatrix.todolist.path)) {
-                if (accessMatrix.todolist.methods.includes(req.method)) {
-                    let intersection = accessMatrix.todolist.roles.filter((role) => roles.includes(role));
-
-                    if (intersection.length < 1) {
-                        return res.status(403).json({ error: 'User does not have the role' });
-                    }
-                } else {
-                    return res.status(403).json({ error: 'Method not allowed' });
-                }
-            } else if (req.path.includes(accessMatrix.dashboard.path)) {
-                if (accessMatrix.dashboard.methods.includes(req.method)) {
-                    let intersection = accessMatrix.dashboard.roles.filter((role) => roles.includes(role));
-
-                    if (intersection.length < 1) {
-                        return res.status(403).json({ error: 'User does not have the role' });
-                    }
-                } else {
-                    return res.status(403).json({ error: 'Method not allowed' });
-                }
-            } else {
-                return res.status(403).json({ error: 'Unrecognized path' });
+            if (requestHasRequiredAttributes(accessMatrix, req.path, req.method, roles)) {
+                return res.status(403).json({ error: 'User does not have the role, method or path' });
             }
         }
-
         next();
     };
 };
+
 ```
 
 We defined these roles in [authConfig.js](./API/authConfig.js) as follows:

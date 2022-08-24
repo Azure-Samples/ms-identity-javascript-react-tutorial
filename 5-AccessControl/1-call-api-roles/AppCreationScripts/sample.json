@@ -8,11 +8,7 @@
         "Endpoint": "AAD v2.0",
         "Languages": ["JavaScript", "Node"],
         "Description": "React single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
-        "products": ["React", "Express"]
-    },
-    "ReadmeScenario": {
-        "UseNewSetup": "1",
-        "CertificateOption": "0"
+        "products": ["React", "Express", "azure-active-directory", "msal-js", "passport-azure-ad"]
     },
     "AADApps": [
         {
@@ -45,15 +41,12 @@
                     "Description": "Users can read and modify their todo lists"
                 }
             ],
-            "OptionalClaims": {
-                "IdTokenClaims": ["sid", "login_hint", "email", "upn", "acct"]
-            },
             "ManualSteps": [
                 {
                     "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions."
                 },
                 {
-                    "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app."
+                    "Comment": "Or you can run the .\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app."
                 }
             ]
         }

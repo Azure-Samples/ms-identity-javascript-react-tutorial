@@ -1,4 +1,4 @@
-
+﻿
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
@@ -171,22 +171,11 @@ Function CreateAppRole([string] $types, [string] $name, [string] $description)
     $appRole.Value = $name;
     return $appRole
 }
-Function CreateOptionalClaim([string] $name)
-{
-    <#.Description
-    This function creates a new Azure AD optional claims  with default and provided values
-    #>  
-
-    $appClaim = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim
-    $appClaim.AdditionalProperties =  New-Object System.Collections.Generic.List[string]
-    $appClaim.Source =  $null
-    $appClaim.Essential = $false
-    $appClaim.Name = $name
-    return $appClaim
-}
 
 Function ConfigureApplications
 {
+    $isOpenSSl = 'N' #temporary disable open certificate creation 
+
     <#.Description
        This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
        configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
@@ -238,28 +227,6 @@ Function ConfigureApplications
         New-MgApplicationOwnerByRef -ApplicationId $clientAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
     }
-
-    # Add Claims
-
-    $optionalClaims = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaims
-    $optionalClaims.AccessToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
-    $optionalClaims.IdToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
-    $optionalClaims.Saml2Token = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
-
-
-    # Add Optional Claims
-
-    $newClaim =  CreateOptionalClaim  -name "sid" 
-    $optionalClaims.IdToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "login_hint" 
-    $optionalClaims.IdToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "email" 
-    $optionalClaims.IdToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "upn" 
-    $optionalClaims.IdToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "acct" 
-    $optionalClaims.IdToken += ($newClaim)
-    Update-MgApplication -ApplicationId $clientAadApplication.Id -OptionalClaims $optionalClaims
     
     # Add application Roles
     $appRoles = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole]
@@ -323,13 +290,6 @@ Function ConfigureApplications
     $requiredResourcesAccess.Add($requiredPermissions)
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
-
-    # Configure known client applications for client 
-    Write-Host "Configure known client applications for the 'client'"
-    $knowApplications = New-Object System.Collections.Generic.List[System.String]
-    $knowApplications.Add($clientAadApplication.AppId)
-    Update-MgApplication -ApplicationId $clientAadApplication.Id -Api @{KnownClientApplications = $knowApplications}
-    Write-Host "Configured."
     
     # Update config file for 'client'
     $configFile = $pwd.Path + "\..\API\authConfig.js"
@@ -351,7 +311,7 @@ Function ConfigureApplications
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
     Write-Host "  - To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." -ForegroundColor Red 
-    Write-Host "  - Or you can run the ..\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." -ForegroundColor Red 
+    Write-Host "  - Or you can run the .\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." -ForegroundColor Red 
     Write-Host "  - Application 'client' publishes app roles . Do remember to navigate to the app registration in the app portal and assign users to these app roles" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')

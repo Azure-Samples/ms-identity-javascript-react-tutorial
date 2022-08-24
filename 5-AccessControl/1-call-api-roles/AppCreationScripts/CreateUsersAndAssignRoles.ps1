@@ -7,7 +7,6 @@ param(
     [string] $azureEnvironmentName
 )
 
-
 Function Get-RandomPassword {
     param (
         [Parameter(Mandatory)]
@@ -53,7 +52,6 @@ Function Get-RandomPassword {
     return $password
 }
 
-
 Function CreateUser([string] $appName, $role, [string] $tenantName) 
 {
     $displayName =  $appName +"-" + $role.Value
@@ -65,23 +63,17 @@ Function CreateUser([string] $appName, $role, [string] $tenantName)
         Password =  $password
     }
 
-     
-
-
-
    $user =  Get-MgUser -Filter "UserPrincipalName eq '$($userEmail)'" 
 
     if(!$user)
     {
-        $user = New-MgUser -DisplayName $displayName -PasswordProfile $PasswordProfile -AccountEnabled -MailNickName $nickName  -UserPrincipalName $userEmail
-        Write-Host "Email: is "($user.UserPrincipalName)" and  password is $password"
-
+        $user = New-MgUser -DisplayName $displayName -PasswordProfile $PasswordProfile -AccountEnabled -MailNickName $nickName -UserPrincipalName $userEmail
+        Write-Host "Email: is "($user.UserPrincipalName)" and password is $password"
     }
     else
     {
         Write-Host "Email: "($user.UserPrincipalName)" already exists"
     }
-
 
     return $user
 }
@@ -94,16 +86,16 @@ Function CreateRolesUsersAndRoleAssignments
         $azureEnvironmentName = "Global"
     }
 
-     Write-Host "Connecting to Microsoft Graph"
+    Write-Host "Connecting to Microsoft Graph"
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
     $userAccount = (Get-MgContext).Account
@@ -118,25 +110,29 @@ Function CreateRolesUsersAndRoleAssignments
        $servicePrincipal = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
        $appName = $app.DisplayName
 
-
        $TaskAdmin = $servicePrincipal.AppRoles | Where-Object { $_.DisplayName -eq "TaskAdmin" }
        # Creating a user 
        $newUser = CreateUser -appName $appName -role $TaskAdmin -tenantName $tenantName
        $assignRole = New-MgUserAppRoleAssignment -Userid $newUser.Id -PrincipalId $newUser.Id -ResourceId $servicePrincipal.Id -AppRoleID $TaskAdmin.Id
-
 
        $TaskUser = $servicePrincipal.AppRoles | Where-Object { $_.DisplayName -eq "TaskUser" }
        # Creating a user 
        $newUser = CreateUser -appName $appName -role $TaskUser -tenantName $tenantName
        $assignRole = New-MgUserAppRoleAssignment -Userid $newUser.Id -PrincipalId $newUser.Id -ResourceId $servicePrincipal.Id -AppRoleID $TaskUser.Id
 
-
     }
+}
 
-
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {
+    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser 
 }
 
 Import-Module Microsoft.Graph.Applications
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
+}
+
 Import-Module Microsoft.Graph.Users
 
 # Run interactively (will ask you for the tenant ID)

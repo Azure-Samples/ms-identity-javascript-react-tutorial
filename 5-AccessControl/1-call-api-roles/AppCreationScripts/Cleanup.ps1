@@ -81,4 +81,3 @@ Cleanup -tenantId $tenantId -environment $azureEnvironmentName
 
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph
-

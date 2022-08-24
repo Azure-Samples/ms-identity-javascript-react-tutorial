@@ -7,12 +7,10 @@ param(
     [string] $azureEnvironmentName
 )
 
-
 Function RemoveUser([string]$userPrincipal)
 {
     Remove-MgUser -UserId $userPrincipal
 }
-
 
 Function CleanupRolesUsersAndRoleAssignments
 {
@@ -25,12 +23,12 @@ Function CleanupRolesUsersAndRoleAssignments
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
 
@@ -42,28 +40,25 @@ Function CleanupRolesUsersAndRoleAssignments
     if ($app)
     {
         $appName = $app.DisplayName
-
         $userEmail =  $appName +"-" + "TaskAdmin" + "@" + $tenantName
         RemoveUser -userPrincipal $userEmail
         Write-Host "user name ($userEmail)"
-
-
         $userEmail =  $appName +"-" + "TaskUser" + "@" + $tenantName
         RemoveUser -userPrincipal $userEmail
         Write-Host "user name ($userEmail)"
-
-
     }
-
-
-
-
 }
 
-
-
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {
+    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser 
+}
 
 Import-Module Microsoft.Graph.Applications
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
+}
+
 Import-Module Microsoft.Graph.Users
 
 # Run interactively (will ask you for the tenant ID)
