@@ -35,7 +35,7 @@ We recommend following the chapters in successive order. However, the code sampl
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/download/)
+- [Node.js v14 LTS or later](https://nodejs.org/en/download/)
 - [Visual Studio Code](https://code.visualstudio.com/download)
 - A modern web browser (to use [popup experience](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/initialization.md#choosing-an-interaction-type) during sign-in and token acquisition, your browser should allow popups.)
 
@@ -68,7 +68,7 @@ Alternatively, choose below the sample you want to review.
 
 |                |               |
 |----------------|---------------|
-| <img src="./2-Authorization-I/1-call-graph/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Azure AD and call Microsoft Graph**](./2-Authorization-I/1-call-graph/README.md) </br> Authenticate your users and acquire an **Access Token** for Microsoft Graph and then call the **Microsoft Graph API**. |
+| <img src="./2-Authorization-I/1-call-graph/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Azure AD and call Microsoft Graph**](./2-Authorization-I/1-call-graph/README.md) </br> Authenticate your users and acquire an **Access Token** for Microsoft Graph and then call the **Microsoft Graph API**. Handle Continous Access Evaluation (CAE) events. |
 
 ### Chapter 3: Protect an API and call the API from your client app
 
@@ -98,7 +98,7 @@ Alternatively, choose below the sample you want to review.
 | <img src="./6-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call a web API that calls Microsoft Graph on behalf of a user**](./6-AdvancedScenarios/1-call-api-obo/README.md) </br> Enhance your protected web API to acquire an **Access Token** for Microsoft Graph **on-behalf-of** a user signed-in to the client app. Enable **Conditional Access** for your downstream API and handle **MFA** requirement. |
 | <img src="./6-AdvancedScenarios/2-call-api-pop/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Proof of Possession tokens**](./6-AdvancedScenarios/2-call-api-pop/README.md) </br> Acquire proof of possession (PoP) tokens. Learn how to prevent token replay attacks with PoP authentication scheme. Learn how to validate PoP tokens.|
 | <img src="./6-AdvancedScenarios/3-call-api-acrs/ReadmeFiles/topology.png" width="200"> | [**Use Conditional Access Authentication Context**](./6-AdvancedScenarios/3-call-api-acrs/README.md) </br> Enable conditional access for your web API. Use auth context to implement granular access control to resources. Handle claims challenge in client applications. |
-| <img src="./6-AdvancedScenarios/4-sign-in-hybrid/ReadmeFiles/topology.png" width="200"> | [**Use Conditional Access Authentication Context**](./6-AdvancedScenarios/4-sign-in-hybrid/README.md) </br> Authenticate users both server side and client side. Use hybrid SPA flow to achieve SSO between backend and frontend applications. |
+| <img src="./6-AdvancedScenarios/4-sign-in-hybrid/ReadmeFiles/Images/topology.png" width="200"> | [**Use the hybrid SPA flow to authenticate users on both server-side and client-side applications**](./6-AdvancedScenarios/4-sign-in-hybrid/README.md) </br> Authenticate users both server side and client side. Use hybrid SPA flow to achieve SSO between backend and frontend applications. |
 
 ## We'd love your feedback
 

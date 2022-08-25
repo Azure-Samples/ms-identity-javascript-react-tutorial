@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useMsal, useMsalAuthentication } from '@azure/msal-react';
+import { useMsalAuthentication, useMsal } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
 
-import { ProfileData } from '../components/DataDisplay';
+import { ContactsData } from '../components/DataDisplay';
 import { protectedResources, msalConfig } from '../authConfig';
 import { getClaimsFromStorage } from '../utils/storageUtils';
 import { fetchData } from '../fetch';
 
-export const Profile = () => {
+export const Contacts = () => {
     const { instance } = useMsal();
     const account = instance.getActiveAccount();
     const [graphData, setGraphData] = useState(null);
-    const resource = new URL(protectedResources.graphMe.endpoint).hostname;
+    const resource = new URL(protectedResources.graphContacts.endpoint).hostname;
     const request = {
-        scopes: protectedResources.graphMe.scopes,
+        scopes: protectedResources.graphContacts.scopes,
         account: account,
         claims:
             account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
@@ -31,7 +31,6 @@ export const Profile = () => {
         }
 
         if (!!error) {
-            // in case popup is blocked, use redirect instead
             if (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error") {
                 login(InteractionType.Redirect, request);
             }
@@ -41,7 +40,7 @@ export const Profile = () => {
         }
 
         if (result) {
-            fetchData(result.accessToken, protectedResources.graphMe.endpoint)
+            fetchData(result.accessToken, protectedResources.graphContacts.endpoint)
                 .then((response) => {
                     if (response && response.error) throw response.error;
                     setGraphData(response);
@@ -51,7 +50,7 @@ export const Profile = () => {
                     }
 
                     console.log(error);
-                });
+                })
         }
     }, [graphData, result, error, login]);
 
@@ -61,7 +60,9 @@ export const Profile = () => {
 
     return (
         <>
-            {graphData ? <ProfileData response={result} graphData={graphData} /> : null}
+            {graphData ? (
+                <ContactsData response={result} graphContacts={graphData} />
+            ) : null}
         </>
     );
 };
