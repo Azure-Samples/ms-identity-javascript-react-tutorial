@@ -17,7 +17,7 @@ const BearerStrategy = require('passport-azure-ad').BearerStrategy;
 
 const todolistRoutes = require('./routes/todolistRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-const routeGuard = require('./utils/routeGuard');
+const routeGuard = require('./auth/routeGuard');
 
 const mongoHelper = require('./utils/mongoHelper');
 
@@ -110,7 +110,6 @@ const appSettings = {
     },
     authRoutes: {
         redirect: process.env.REDIRECT_URI, // enter the path component of your redirect URI
-        error: "/admin/error", // the wrapper will redirect to this route in case of any error
         unauthorized: "/admin/unauthorized" // the wrapper will redirect to this route in case of unauthorized access attempt
     },
     protectedResources: {

@@ -5,7 +5,6 @@ import { Route } from "react-router-dom";
 
 import { PageLayout } from "./components/PageLayout";
 import { TodoList } from "./pages/TodoList";
-import { Redirect } from "./pages/Redirect";
 
 import "./styles/App.css";
 
@@ -14,9 +13,6 @@ const Pages = () => {
         <Switch>
             <Route exact path='/todolist'>
                 <TodoList />
-            </Route>
-            <Route exact path="/redirect" >
-                <Redirect />
             </Route>
         </Switch>
     )

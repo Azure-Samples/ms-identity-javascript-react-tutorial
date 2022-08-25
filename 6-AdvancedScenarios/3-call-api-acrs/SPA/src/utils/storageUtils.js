@@ -1,32 +1,40 @@
 import { deleteTask, postTask, editTask } from '../fetch';
 
+import { msalConfig } from '../authConfig';
+
 /**
- * This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token
+ * Stores the claim challenge to the sessionStorage in the browser to be used when acquiring a token
  * @param {String} claimsChallenge
- * @param {String} method
+ * @param {String} claimsChallengeId
  */
-export const addClaimsToStorage = (key, value) => {
-    if (!localStorage.getItem(key)) {
-        localStorage.setItem(key, value)
-    }
-}
+export const addClaimsToStorage = (claimsChallengeId, claimsChallenge) => {
+    sessionStorage.setItem(claimsChallengeId, claimsChallenge);
+};
 
 /**
- * This method clears localStorage of any claims challenge entry
+ * Retrieves the claim challenge from the sessionStorage in the browser
+ * @param {String} claimsChallengeId 
  */
-export const clearStorage = () => {
+export const getClaimsFromStorage = (claimsChallengeId) => {
+    return sessionStorage.getItem(claimsChallengeId);
+};
 
-    for (var key in localStorage) {
-        if (key.startsWith('cc.')) localStorage.removeItem(key);
+/**
+ * Clears sessionStorage of any claims challenge entry
+ * @param {Object} account
+ */
+export const clearStorage = (account) => {
+    for (var key in sessionStorage) {
+        if (key.startsWith(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)) sessionStorage.removeItem(key);
     }
-}
+};
 
 /**
  * This method calls the API if the a access token is fetched
  * @param {Object} options
  * @param {String} id
  */
-export const callAPI = (options, id) => {
+export const callEndpoint = (options, id) => {
     switch (options["method"]) {
         case "POST":
             let task = JSON.parse(options.body);

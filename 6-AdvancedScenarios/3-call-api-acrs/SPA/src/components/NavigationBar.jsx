@@ -6,12 +6,11 @@ import { loginRequest } from "../authConfig";
 import { clearStorage } from "../utils/storageUtils";
 
 export const NavigationBar = () => {
-
-
     const { instance } = useMsal();
 
     const handleLogoutPopup = () => {
-        clearStorage();
+        const activeAccount = instance.getActiveAccount();
+        clearStorage(activeAccount);
 
         instance.logoutPopup({
             postLogoutRedirectUri: "/",
@@ -20,8 +19,10 @@ export const NavigationBar = () => {
     }
 
     const handleLoginPopup = () => {
-        instance.loginPopup(loginRequest)
-         .catch( error => console.log(error))
+        instance.loginPopup({
+            ...loginRequest,
+            redirectUri: '/redirect.html'
+        }).catch((error) => console.log(error));
     }
 
     /**

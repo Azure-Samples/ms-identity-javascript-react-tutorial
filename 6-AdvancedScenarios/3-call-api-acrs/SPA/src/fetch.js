@@ -1,10 +1,9 @@
-import { BrowserAuthError } from "@azure/msal-browser";
-
 import { msalInstance } from "./index";
 import { msalConfig, protectedResources } from "./authConfig";
-import { addClaimsToStorage, callAPI } from "./utils/storageUtils";
+import { addClaimsToStorage, getClaimsFromStorage, callEndpoint } from "./utils/storageUtils";
+import { parseChallenges } from "./utils/claimUtils";
 
-const getToken = async (method) => {
+const getToken = async (endpoint, scopes, method) => {
     const account = msalInstance.getActiveAccount();
 
     if (!account) {
@@ -16,14 +15,28 @@ const getToken = async (method) => {
      */
     const tokenRequest = {
         account: account,
-        scopes: protectedResources.apiTodoList.scopes,
-        claims: localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${method}`) ?
-            window.atob(localStorage.getItem(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${method}`)) : null
+        scopes: scopes,
+        redirectUri: '/redirect.html',
+        claims: getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${new URL(endpoint).hostname}.${method}`) ?
+            window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${new URL(endpoint).hostname}.${method}`)) : null
     }
 
     const response = await msalInstance.acquireTokenSilent(tokenRequest);
-    console.log(response);
     return response.accessToken;
+}
+
+const handleResponse = async (response, endpoint, options, id = '') => {
+    if (response.status === 200) {
+        return response.json();
+    } else if (response.status === 401) {
+        if (response.headers.get('www-authenticate')) {
+            return handleClaimsChallenge(response, endpoint, options, id);
+        }
+
+        throw new Error(`Unauthorized: ${response.status}`);
+    } else {
+        throw new Error(`Something went wrong with the request: ${response.status}`);
+    }
 }
 
 /**
@@ -35,71 +48,55 @@ const getToken = async (method) => {
  * @param {options} options: task options
  * @param {String} id: task id
  */
-const handleClaimsChallenge = async (response, options, id = "") => {
-    if (response.status === 401) {
-        const account = msalInstance.getActiveAccount();
+const handleClaimsChallenge = async (response, endpoint, options, id = '') => {
+    const account = msalInstance.getActiveAccount();
 
-        if (response.headers.get('www-authenticate')) {
-            let token;
-            const authenticateHeader = response.headers.get("www-authenticate");
-            const claimsChallenge = authenticateHeader.split(" ")
-                .find(entry => entry.includes("claims=")).split('claims="')[1].split('",')[0];
+    const authenticateHeader = response.headers.get('www-authenticate');
+    const claimsChallenge = parseChallenges(authenticateHeader);
 
-            try {
-                /**
-                 * Here we add the claims challenge to localStorage, using <cc.appId.userId.method> scheme as key
-                 * This allows us to use the claim challenge string as a parameter in subsequent acquireTokenSilent calls
-                 * as MSAL will cache access tokens with different claims separately
-                 */
-                addClaimsToStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${options["method"]}`, claimsChallenge)
+    /**
+     * Here we add the claims challenge to localStorage, using <cc.appId.userId.resource.method> scheme as key
+     * This allows us to use the claim challenge string as a parameter in subsequent acquireTokenSilent calls
+     * as MSAL will cache access tokens with different claims separately
+     */
+    addClaimsToStorage(
+        `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${new URL(endpoint).hostname}.${options.method}`, 
+        claimsChallenge.claims
+    );
 
-                const response = await msalInstance.acquireTokenPopup({
-                    claims: window.atob(claimsChallenge), // decode the base64 string
-                    scopes: protectedResources.apiTodoList.scopes
-                });
+    try {
+        const tokenResponse = await msalInstance.acquireTokenPopup({
+            claims: window.atob(claimsChallenge.claims), // decode the base64 string
+            scopes: protectedResources.apiTodoList.scopes,
+            redirectUri: '/redirect.html',
+        });
 
-                if (response.accessToken) {
-                    /**
-                     * Call the API automatically with the new access token
-                     * This is purely for user experience.
-                     */
-                    return callAPI(options, id);
-                }
+        if (tokenResponse.accessToken) {
+            // call the API automatically with the new access token -this is purely for user experience.
+            return callEndpoint(options, id);
+        }
 
-            } catch (error) {
-                // catch if popups are blocked
-                if (error instanceof BrowserAuthError &&
-                    (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error")) {
+    } catch (error) {
+        // catch if popups are blocked
+        if (error instanceof BrowserAuthError &&
+            (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error")) {
 
-                    // add claims challenge to localStorage
-                    addClaimsToStorage(claimsChallenge, options["method"])
+            const tokenResponse = await msalInstance.acquireTokenRedirect({
+                claims: window.atob(claimsChallenge.claims),
+                scopes: protectedResources.apiTodoList.scopes
+            });
 
-                    const response = await msalInstance.acquireTokenRedirect({
-                        claims: window.atob(claimsChallenge),
-                        scopes: protectedResources.apiTodoList.scopes
-                    });
-
-                    if (response.accessToken) {
-                        /**
-                         * Call the API automatically with the new access token
-                         * This is purely for user experience.
-                         */
-                        return callAPI(options, id);
-                    }
-
-                }
+            if (tokenResponse.accessToken) {
+                return callEndpoint(options, id);
             }
-        } else {
-            return { error: "unknown header" }
+
         }
     }
-
-    return response.json();
 }
 
 export const getTasks = async () => {
     const method = "GET";
-    const accessToken = await getToken();
+    const accessToken = await getToken(protectedResources.apiTodoList.todoListEndpoint, protectedResources.apiTodoList.scopes, method);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -118,7 +115,7 @@ export const getTasks = async () => {
 
 export const getTask = async (id) => {
     const method = "GET";
-    const accessToken = await getToken();
+    const accessToken = await getToken(protectedResources.apiTodoList.todoListEndpoint, protectedResources.apiTodoList.scopes, method);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -137,7 +134,7 @@ export const getTask = async (id) => {
 
 export const postTask = async (task) => {
     const method = "POST"
-    const accessToken = await getToken(method);
+    const accessToken = await getToken(protectedResources.apiTodoList.todoListEndpoint, protectedResources.apiTodoList.scopes, method);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -152,13 +149,13 @@ export const postTask = async (task) => {
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
-        .then((res) => handleClaimsChallenge(res, options))
+        .then((res) => handleResponse(res, protectedResources.apiTodoList.todoListEndpoint, options))
         .catch(error => console.log(error));
 }
 
 export const deleteTask = async (id) => {
     const method = "DELETE";
-    const accessToken = await getToken(method);
+    const accessToken = await getToken(protectedResources.apiTodoList.todoListEndpoint, protectedResources.apiTodoList.scopes, method);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -171,13 +168,13 @@ export const deleteTask = async (id) => {
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then((res) => handleClaimsChallenge(res, options, id))
+        .then((res) => handleResponse(res, protectedResources.apiTodoList.todoListEndpoint, options, id))
         .catch(error => console.log(error));
 }
 
 export const editTask = async (id, task) => {
     const method = "PUT"
-    const accessToken = await getToken(method);
+    const accessToken = await getToken(protectedResources.apiTodoList.todoListEndpoint, protectedResources.apiTodoList.scopes, method);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -192,6 +189,6 @@ export const editTask = async (id, task) => {
     };
 
     return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then((res) => handleClaimsChallenge(res, options, id))
+        .then((res) => handleResponse(res, protectedResources.apiTodoList.todoListEndpoint, options, id))
         .catch(error => console.log(error));
 }
