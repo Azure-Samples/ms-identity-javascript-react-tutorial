@@ -8,7 +8,7 @@ const passportAzureAd = require('passport-azure-ad');
 const authConfig = require('./authConfig');
 const router = require('./routes/router');
 
-const routeGuard = require('./utils/guard');
+const routeGuard = require('./auth/guard');
 
 const { hasRequiredScopes } = require('./auth/permissionUtils');
 

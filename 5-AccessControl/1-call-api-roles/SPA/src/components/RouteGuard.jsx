@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useMsal, MsalAuthenticationTemplate } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
-import { loginRequest, appRoles } from '../authConfig';
 import { useLocation } from 'react-router-dom';
+
+import { loginRequest, appRoles } from '../authConfig';
 
 /**
  * The `MsalAuthenticationTemplate` component will render its children if a user is authenticated
@@ -12,20 +13,24 @@ import { useLocation } from 'react-router-dom';
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
 export const RouteGuard = ({ ...props }) => {
+    const location = useLocation();
     const { instance } = useMsal();
     const [isAuthorized, setIsAuthorized] = useState(false);
+
     const currentAccount = instance.getActiveAccount();
+
     const authRequest = {
         ...loginRequest,
     };
-    const location = useLocation();
+
     const onLoad = async () => {
         if (currentAccount && currentAccount.idTokenClaims['roles']) {
-            let intersection = props.roles.filter((role) => currentAccount.idTokenClaims['roles'].includes(role));
+
+            let intersection = props.roles
+                .filter((role) => currentAccount.idTokenClaims['roles'].includes(role));
+
             if (intersection.length > 0) {
                 setIsAuthorized(true);
-            } else {
-                setIsAuthorized(false);
             }
         }
     };
@@ -35,7 +40,11 @@ export const RouteGuard = ({ ...props }) => {
     }, [instance, currentAccount]);
 
     return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
+        <MsalAuthenticationTemplate 
+            interactionType={InteractionType.Redirect} 
+            authenticationRequest={authRequest}
+        >
+
             {isAuthorized ? (
                 <div>{props.children}</div>
             ) : (
@@ -53,6 +62,7 @@ export const RouteGuard = ({ ...props }) => {
                     </h3>
                 </div>
             )}
+
         </MsalAuthenticationTemplate>
     );
 };

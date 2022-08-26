@@ -1,11 +1,8 @@
-import { useState } from "react";
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 import { Nav, Navbar, Dropdown, DropdownButton } from "react-bootstrap";
 import { loginRequest } from "../authConfig";
-import { AccountPicker } from "./AccountPicker";
 
 export const NavigationBar = () => {
-    const [showProfilePicker, setShowProfilePicker] = useState(false);
     const { instance } = useMsal();
 
     let activeAccount;
@@ -43,10 +40,6 @@ export const NavigationBar = () => {
          instance.logoutRedirect().catch((error) => console.log(error));
     };
 
-    const handleSwitchAccount = () => {
-        setShowProfilePicker(!showProfilePicker);
-    };
-
     /**
      * Most applications will need to conditionally render certain components based on whether a user is signed in or not.
      * msal-react provides 2 easy ways to do this. AuthenticatedTemplate and UnauthenticatedTemplate components will
@@ -71,9 +64,6 @@ export const NavigationBar = () => {
                             drop="start"
                             title={activeAccount ? activeAccount.name : 'Unknown'}
                         >
-                            <Dropdown.Item as="button" onClick={handleSwitchAccount}>
-                                Switch account
-                            </Dropdown.Item>
                             <Dropdown.Item as="button" onClick={handleLogoutPopup}>
                                 Sign out using Popup
                             </Dropdown.Item>
@@ -101,7 +91,6 @@ export const NavigationBar = () => {
                     </div>
                 </UnauthenticatedTemplate>
             </Navbar>
-            <AccountPicker show={showProfilePicker} handleSwitchAccount={handleSwitchAccount} />
         </>
     );
 };

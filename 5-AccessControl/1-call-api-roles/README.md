@@ -58,7 +58,7 @@ In the sample, a **dashboard** component allows signed-in users to see the tasks
 | `SPA/src/components/RouteGuard.jsx` | This component protects other components that require a user to be in a role. |
 | `SPA/src/index.js`                  | MSAL React is initialized here.                                               |
 | `API/authConfig.json`               | Authentication parameters for web API project.                                |
-| `API/utils/guard.js`                | Custom middleware protecting app routes that require a user to be in a role.  |
+| `API/auth/guard.js`                 | Custom middleware protecting app routes that require a user to be in a role.  |
 | `API/app.js`                        | passport-azure-ad is initialized here.                                        |
 
 ## Prerequisites
@@ -197,9 +197,12 @@ As a first step you'll need to:
     > Repeat the steps above for another role named **TaskUser**
     1. Select **Apply** to save your changes.
 
-> :bulb: **Important security tip**e
+> :bulb: **Important security tip**
+>
 > To add users to this app role, follow the guidelines here: [Assign users and groups to roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-users-and-groups-to-roles).
+
 > When you set **User assignment required?** to **Yes**, Azure AD will check that only users assigned to your application in the **Users and groups** blade are able to sign-in to your app. You can assign users directly or by assigning security groups they belong to.
+
 For more information, see: [How to: Add app roles in your application and receive them in the token](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps)
 
 #### Configure the msal-react-spa to use your app registration
@@ -346,23 +349,24 @@ However, it is important to be aware of that no content on the front-end applica
 
 ### Express routeGuard middleware
 
-As mentioned before, in order to **truly** implement **RBAC** and secure data, we allow only authorized calls to our web API. We do this by defining an *access matrix* and protecting our routes with a `routeGuard` custom middleware:
+As mentioned before, in order to **truly** implement **RBAC** and secure data, we allow only authorized calls to our web API. We do this by defining an *access matrix* and protecting our routes with a `routeGuard` custom middleware (see [guard](./API/auth/guard.js)):
 
 ```javascript
 const routeGuard = (accessMatrix) => {
     return (req, res, next) => {
-        if (req.authInfo.roles === undefined) {
+        if (!req.authInfo.hasOwnProperty('roles')) {
             return res.status(403).json({ error: 'No roles claim found!' });
-        } else {
-            const roles = req.authInfo['roles'];
-            if (requestHasRequiredAttributes(accessMatrix, req.path, req.method, roles)) {
-                return res.status(403).json({ error: 'User does not have the role, method or path' });
-            }
         }
+
+        const roles = req.authInfo['roles'];
+
+        if (!requestHasRequiredAttributes(accessMatrix, req.path, req.method, roles)) {
+            return res.status(403).json({ error: 'User does not have the role, method or path' });
+        }
+
         next();
     };
 };
-
 ```
 
 We defined these roles in [authConfig.js](./API/authConfig.js) as follows:
