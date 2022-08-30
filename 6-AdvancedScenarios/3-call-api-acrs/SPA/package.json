@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "description": "A React single-page application using MSAL React to call a protected web API on Azure Active Directory",
   "dependencies": {
-    "@azure/msal-browser": "^2.16.0",
-    "@azure/msal-react": "^1.0.1",
+    "@azure/msal-browser": "^2.28.1",
+    "@azure/msal-react": "^1.4.5",
     "bootstrap": "^4.5.3",
     "jquery": "^3.5.1",
     "nanoid": "^3.1.23",
@@ -15,7 +15,10 @@
     "react-router-dom": "^5.2.0"
   },
   "devDependencies": {
-    "react-scripts": "4.0.1"
+    "react-scripts": "^5.0.1"
+  },
+  "overrides": {
+    "autoprefixer": "10.4.5"
   },
   "scripts": {
     "start": "react-scripts start",

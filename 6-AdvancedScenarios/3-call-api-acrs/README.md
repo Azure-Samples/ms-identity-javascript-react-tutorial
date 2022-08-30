@@ -17,7 +17,7 @@
 
 This sample demonstrates how to use the Conditional Access [Authentication Context](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context) feature to achieve granular access control and demand a higher bar of authentication for certain sensitive operations (e.g. HTTP DELETE requests) on an Express.js [protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-overview) called by a client React single-page application (SPA).
 
-The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [msal-express-wrapper](https://github.com/Azure-Samples/msal-express-wrapper) to acquire access tokens and [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for querying Microsoft Graph. For storing data, a **mock database** is implemented using the [lowdb](https://github.com/typicode/lowdb) package. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
+The web API is protected using [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad), while the admin panel on the web API is implemented using [microsoft-identity-express](https://github.com/Azure-Samples/microsoft-identity-express) to acquire access tokens and [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) for querying Microsoft Graph. For storing data, the [Azure Cosmos DB API for MongoDB](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) is used. Finally, the client React SPA acquires access tokens using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react).
 
 > :information_source: Check out the recorded session on this topic: [Use Conditional Access Auth Context in your app for step-up authentication](https://www.youtube.com/watch?v=_iO7CfoktTY&ab_channel=Microsoft365Community)
 
@@ -37,8 +37,8 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 | `SPA/src/index.js`                  | MSAL React is initialized here.                                                       |
 | `SPA/src/fetch.js`                  | Claims challenge for the client is handled here.                                      |
 | `API/.env`                          | Authentication parameters for the web API project.                                    |
-| `API/utils/guard.js`                | Custom middleware protecting app routes                                               |
-| `API/utils/claims.js`               | Custom middleware handling checking for auth context and generating claims challenge. |
+| `API/auth/routeGuard.js`           | Custom middleware protecting app routes                                               |
+| `API/auth/claimsManager.js`        | Custom middleware handling checking for auth context and generating claims challenge. |
 | `API/app.js`                        | passport-azure-ad is initialized here.                                                |
 
 ## Prerequisites
@@ -46,6 +46,7 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 - An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
 - A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
 - [Azure AD premium P1](https://azure.microsoft.com/pricing/details/active-directory/) is required to work with **Conditional Access** policies.
+- An [Azure CosmosDB API for MongoDB](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) instance is required to. See how to create here one [here](https://docs.microsoft.com/azure/cosmos-db/sql/create-cosmosdb-resources-portal#create-an-azure-cosmos-db-account).
 
 ## Setup
 
@@ -76,6 +77,18 @@ or download and extract the repository .zip file.
     cd SPA
     npm install
 ```
+
+### Create an Azure Cosmos DB for MongoDB instance
+
+> :information_source: See the tutorial on [Quickstart: Azure Cosmos DB MongoDB API for JavaScript with MongoDB driver](https://docs.microsoft.com/azure/cosmos-db/mongodb/quickstart-javascript?tabs=azure-portal%2Cwindows). Below we summarize the required steps.
+
+1. From the Azure portal menu or the **Home** page, select **Create a resource**.
+1. On the New page, search for and select **Azure Cosmos DB**.
+1. On the **Select API option** page, select the **Azure Cosmos DB API for MongoDB** option.
+1. In the Create Azure Cosmos DB Account page, enter the basic settings for the new Azure Cosmos account (Subscription, Resource Group, Account Name etc.).
+1. Once you are done, select **Review + create** and your MongoDB instance will be created.
+1. Navigate to your newly created **Azure CosmosDB** resource, and select the **Connection String** blade to the left.
+1. Copy and note down the **primary connection string**, which you will use later in sample configuration parameters.
 
 ### Register the sample application(s) with your Azure Active Directory tenant
 
@@ -194,6 +207,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api-acrs` app copied from the Azure portal.
 1. Find the string `Enter_the_Client_Secret_Here` and replace the existing value with the client secret you recorded earlier.
+1. Find the string `Enter_Database_Connection_String_Here` and replace the existing value with the connection string of your Azure CosmosDB instance.
 1. Find the string `ENTER_YOUR_SECRET_HERE` and replace the existing value with a secret that will be used when encrypting your app's session using the [express-session](https://www.npmjs.com/package/express-session) package.
 
 ### Register the client app (msal-react-spa-acrs)
@@ -203,7 +217,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa-acrs`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000`.
+   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI(s): 
+        - `http://localhost:3000/`
+        - `http://localhost:3000/redirect.html`
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
@@ -294,7 +310,7 @@ const msalConfig = {
     auth: {
         clientId: 'Enter_the_Application_Id_Here', 
         authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
-        redirectUri: "/", 
+        redirectUri: "/redirect", 
         postLogoutRedirectUri: "/",
         navigateToLoginRequestUrl: true, 
         clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
@@ -316,7 +332,7 @@ app.use('/api',
 );
 ```
 
-The `routeGuard` middleware checks the mock database for any auth context entries, and inspects the access token in the authorization header of the incoming request to see if it contains the necessary claims. If it does, it passes the request to the next middleware in chain. If it doesn't, the `checkForRequiredAuthContext` middleware takes over. This is shown in [routeGuard.js](./API/utils/routeGuard.js):
+The `routeGuard` middleware checks the database for any auth context entries, and inspects the access token in the authorization header of the incoming request to see if it contains the necessary claims. If it does, it passes the request to the next middleware in chain. If it doesn't, the `checkForRequiredAuthContext` middleware takes over. This is shown in [routeGuard.js](./API/auth/routeGuard.js):
 
 ```javascript
 const authContextGuard = (req, res, next) => {
@@ -328,7 +344,7 @@ const authContextGuard = (req, res, next) => {
     } else {
         const authContext = acrs.find(ac => ac.operation === req.method && ac.tenantId === req.authInfo.tid); 
 
-        if (authContext) {
+        if (!!authContext) {
             // if found, check the request for the required claims
             return checkForRequiredAuthContext(req, res, next, authContext.authContextId);
         }
@@ -338,7 +354,7 @@ const authContextGuard = (req, res, next) => {
 }
 ```
 
-In [claimsManager.js](./API/utils/claimsManager.js):
+In [claimsManager.js](./API/auth/claimsManager.js):
 
 ```javascript
 const checkForRequiredAuthContext = (req, res, next, authContextId) => {
@@ -370,7 +386,7 @@ const isClientCapableOfClaimsChallenge = (accessTokenClaims) => {
 
 ### Generating claims challenge
 
-If there is an auth context entry in the mock database and the incoming request does not contain an access token with the necessary claims, the web API needs to create a **claims challenge** and send it to client application to allow the user to satisfy the challenge (for instance, perform multi-factor authentication). This is shown in [claimsManager.js](./API/utils/claimsManager.js):
+If there is an auth context entry in the database and the incoming request does not contain an access token with the necessary claims, the web API needs to create a **claims challenge** and send it to client application to allow the user to satisfy the challenge (for instance, perform multi-factor authentication). This is shown in [claimsManager.js](./API/auth/claimsManager.js):
 
 ```javascript
 const generateClaimsChallenge = (authContextId) => {
@@ -396,61 +412,88 @@ const generateClaimsChallenge = (authContextId) => {
 
 ### Handling claims challenge
 
-Once the client app receives the claims challenge, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `acquireTokenPopup()` API and provide the claims challenge as a parameter in the token request. This is shown in [fetch.js](./SPA/src/fetch.js), where we handle the response from a HTTP DELETE request the to web API with the `handleClaimsChallenge` method:
+Once the client app receives the claims challenge, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `acquireTokenPopup()` API and provide the claims challenge as a parameter in the token request. This is shown in [fetch.js](./SPA/src/fetch.js), where we handle the response from a HTTP POST request the to web API with the `handleClaimsChallenge` method:
 
 ```javascript
-import { BrowserAuthError } from "@azure/msal-browser";
-import { protectedResources } from "./authConfig";
-import { msalInstance } from "./index";
-
-export const deleteTask = async (id) => {
-    const accessToken = await getToken();
+export const postTask = async (task) => {
+    const method = "POST"
+    const accessToken = await getToken(protectedResources.apiTodoList.todoListEndpoint, protectedResources.apiTodoList.scopes, method);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
     headers.append("Authorization", bearer);
+    headers.append('Content-Type', 'application/json');
 
     const options = {
-        method: "DELETE",
-        headers: headers
+        method,
+        headers: headers,
+        body: JSON.stringify(task)
     };
 
-    return fetch(protectedResources.apiTodoList.todoListEndpoint + `/${id}`, options)
-        .then(handleClaimsChallenge)
+    return fetch(protectedResources.apiTodoList.todoListEndpoint, options)
+        .then((res) => handleResponse(res, protectedResources.apiTodoList.todoListEndpoint, options))
         .catch(error => console.log(error));
 }
 
-const handleClaimsChallenge = async (response) => {
-    if (response.status === 401) {
+const handleResponse = async (response, endpoint, options, id = '') => {
+    if (response.status === 200) {
+        return response.json();
+    } else if (response.status === 401) {
         if (response.headers.get('www-authenticate')) {
-            const authenticateHeader = response.headers.get("www-authenticate");
+            return handleClaimsChallenge(response, endpoint, options, id);
+        }
 
-            const claimsChallenge = authenticateHeader.split(" ")
-                .find(entry => entry.includes("claims=")).split('="')[1].split('",')[0];
+        throw new Error(`Unauthorized: ${response.status}`);
+    } else {
+        throw new Error(`Something went wrong with the request: ${response.status}`);
+    }
+}
 
-            try {
-                await msalInstance.acquireTokenPopup({
-                    claims: window.atob(claimsChallenge), // decode the base64 string
-                    scopes: protectedResources.apiTodoList.scopes
-                });
-            } catch (error) {
-                // catch if popups are blocked
-                if (error instanceof BrowserAuthError && 
-                    (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error")) {
+const handleClaimsChallenge = async (response, endpoint, options, id = '') => {
+    const account = msalInstance.getActiveAccount();
 
-                    await msalInstance.acquireTokenRedirect({
-                        claims: window.atob(claimsChallenge),
-                        scopes: protectedResources.apiTodoList.scopes
-                    });
-                }
+    const authenticateHeader = response.headers.get('www-authenticate');
+    const claimsChallenge = parseChallenges(authenticateHeader);
+
+    /**
+     * Here we add the claims challenge to localStorage, using <cc.appId.userId.resource.method> scheme as key
+     * This allows us to use the claim challenge string as a parameter in subsequent acquireTokenSilent calls
+     * as MSAL will cache access tokens with different claims separately
+     */
+    addClaimsToStorage(
+        `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${new URL(endpoint).hostname}.${options.method}`, 
+        claimsChallenge.claims
+    );
+
+    try {
+        const tokenResponse = await msalInstance.acquireTokenPopup({
+            claims: window.atob(claimsChallenge.claims), // decode the base64 string
+            scopes: protectedResources.apiTodoList.scopes,
+            redirectUri: '/redirect.html',
+        });
+
+        if (tokenResponse.accessToken) {
+            // call the API automatically with the new access token -this is purely for user experience.
+            return callEndpoint(options, id);
+        }
+
+    } catch (error) {
+        // catch if popups are blocked
+        if (error instanceof BrowserAuthError &&
+            (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error")) {
+
+            const tokenResponse = await msalInstance.acquireTokenRedirect({
+                claims: window.atob(claimsChallenge.claims),
+                scopes: protectedResources.apiTodoList.scopes
+            });
+
+            if (tokenResponse.accessToken) {
+                return callEndpoint(options, id);
             }
-        } else {
-            return { error: "unknown header" }
+
         }
     }
-
-    return response.json();
 }
 ```
 
