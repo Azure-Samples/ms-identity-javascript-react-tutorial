@@ -3,7 +3,6 @@ const AuthContext = require('../models/authContext');
 
 const authContextGuard = async (req, res, next) => {
     const acrs = await AuthContext.getAuthContexts();
-    console.log(acrs);
     const authContext = acrs
         .filter(ac => ac.tenantId === req.authInfo.tid)
         .find(ac => ac.operation === req.method)
