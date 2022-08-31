@@ -1,83 +1,116 @@
 {
-  "Sample": {
-    "Title": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory",
-    "Level": 200,
-    "Client": "React SPA",
-    "Service": "Node.js web API",
-    "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-    "Endpoint": "AAD v2.0"
-  },
-  "AADApps": [
-    {
-      "Id": "service",
-      "Name": "ms-identity-react-c3s1-api",
-      "Kind": "WebApi",
-      "HomePage": "http://localhost:5000/api",
-      "Audience": "AzureADMyOrg",
-      "ManualSteps": [
-        {
-          "Comment": "Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'"
-        }
-      ]
+    "Sample": {
+        "Author": "derisen",
+        "Title": "React single-page application using MSAL React to authorize users for calling a Express.js web API on Azure Active Directory",
+        "Level": 200,
+        "Client": "React SPA",
+        "Service": "Node.js web API",
+        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+        "Endpoint": "AAD v2.0",
+        "Languages": [
+            "javascript",
+            "nodejs"
+        ],
+        "Description": "A React single-page application using MSAL React to authorize users for calling a protected Express.js web API on Azure Active Directory",
+        "Products": [
+            "azure-active-directory",
+            "msal-react",
+            "passport-azure-ad"
+        ]
     },
-    {
-      "Id": "spa",
-      "Name": "ms-identity-react-c3s1-spa",
-      "Kind": "SinglePageApplication",
-      "Audience": "AzureADMyOrg",
-      "HomePage": "http://localhost:3000/",
-      "ReplyUrls": "http://localhost:3000/",
-      "RequiredResourcesAccess": [
+    "AADApps": [
         {
-          "Resource": "Microsoft Graph",
-          "DelegatedPermissions": ["User.Read"]
+            "Id": "service",
+            "Name": "msal-node-api",
+            "Kind": "WebApi",
+            "Audience": "AzureADMyOrg",
+            "Sample": {
+                "SampleSubPath": "3-Authorization-II\\1-call-api\\API",
+                "ProjectDirectory": "\\1-call-api\\API"
+            },
+            "Scopes": [
+                "Todolist.Read",
+                "Todolist.ReadWrite"
+            ],
+            "AppRoles": [
+                {
+                    "AllowedMemberTypes": [
+                        "Application"
+                    ],
+                    "Name": "Todolist.Read.All",
+                    "Description": "Allow this application to read every users Todolist items"
+                },
+                {
+                    "AllowedMemberTypes": [
+                        "Application"
+                    ],
+                    "Name": "Todolist.ReadWrite.All",
+                    "Description": "Allow this application to read and write every users Todolist items"
+                }
+            ],
+            "OptionalClaims": {
+                "AccessTokenClaims": [
+                    "idtyp",
+                    "acct"
+                ]
+            }
         },
         {
-          "Resource": "service",
-          "DelegatedPermissions": [ "access_as_user" ]
+            "Id": "client",
+            "Name": "msal-react-spa",
+            "Kind": "SinglePageApplication",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "https://localhost:3000",
+            "ReplyUrls": "https://localhost:3000, http://localhost:3000/redirect.html",
+            "Sample": {
+                "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
+                "ProjectDirectory": "\\1-call-api\\SPA"
+            },
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "service",
+                    "DelegatedPermissions": [
+                        "Todolist.Read",
+                        "Todolist.ReadWrite"
+                    ]
+                }
+            ]
         }
-      ],
-      "ManualSteps": [
+    ],
+    "CodeConfiguration": [
         {
-          "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
-        }
-      ]
-    }
-  ],
-  "CodeConfiguration": [
-    {
-      "App": "spa",
-      "SettingKind": "Replace",
-      "SettingFile": "\\..\\SPA\\src\\authConfig.js",
-      "Mappings": [
-        {
-          "key": "Enter_the_Application_Id_Here",
-          "value": ".AppId"
+            "App": "service",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\API\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": ".AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                }
+            ]
         },
         {
-          "key": "Enter_the_Tenant_Info_Here",
-          "value": "$tenantId"
-        },
-        {
-          "key": "Enter_the_Web_Api_Scope_Here",
-          "value": "service.Scope"
+            "App": "client",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\SPA\\src\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": ".AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "Enter_the_Web_Api_Application_Id_Here",
+                    "value": "service.AppId"
+                }
+            ]
         }
-      ]
-    },
-    {
-      "App": "service",
-      "SettingKind": "JSON",
-      "SettingFile": "\\..\\API\\config.json",
-      "Mappings": [
-        {
-          "key": "clientID",
-          "value": ".AppId"
-        },
-        {
-          "key": "tenantID",
-          "value": "$tenantId"
-        }
-      ]
-    }
-  ]
+    ]
 }
