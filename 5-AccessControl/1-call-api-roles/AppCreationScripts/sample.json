@@ -18,7 +18,7 @@
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:3000/",
             "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
-            "Scopes": ["Todolist.Read", "Todolist.ReadWrite"],
+            "Scopes": ["access_as_user"],
             "Sample": {
                 "SampleSubPath": "5-AccessControl\\1-call-api-roles\\SPA",
                 "ProjectDirectory": "\\1-call-api-roles\\SPA"
@@ -26,7 +26,7 @@
             "RequiredResourcesAccess": [
                 {
                     "Resource": "client",
-                    "DelegatedPermissions": ["Todolist.Read", "Todolist.ReadWrite"]
+                    "DelegatedPermissions": ["access_as_user"]
                 }
             ],
             "AppRoles": [
@@ -41,6 +41,9 @@
                     "Description": "Users can read and modify their todo lists"
                 }
             ],
+            "OptionalClaims": {
+                "IdTokenClaims": ["acct"]
+            },
             "ManualSteps": [
                 {
                     "Comment": "To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions."

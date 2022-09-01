@@ -9,7 +9,7 @@ const authConfig = require('../authConfig');
 exports.getAllTodos = async (req, res, next) => {
     const db = await lowdb(adapter);
 
-    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.scopes)) {
         try {
             const todos = db.get('todos').value();
             res.status(200).send(todos);

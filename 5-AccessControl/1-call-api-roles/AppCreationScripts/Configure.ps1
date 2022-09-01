@@ -1,4 +1,4 @@
-﻿
+ 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
@@ -171,6 +171,19 @@ Function CreateAppRole([string] $types, [string] $name, [string] $description)
     $appRole.Value = $name;
     return $appRole
 }
+Function CreateOptionalClaim([string] $name)
+{
+    <#.Description
+    This function creates a new Azure AD optional claims  with default and provided values
+    #>  
+
+    $appClaim = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim
+    $appClaim.AdditionalProperties =  New-Object System.Collections.Generic.List[string]
+    $appClaim.Source =  $null
+    $appClaim.Essential = $false
+    $appClaim.Name = $name
+    return $appClaim
+}
 
 Function ConfigureApplications
 {
@@ -227,6 +240,20 @@ Function ConfigureApplications
         New-MgApplicationOwnerByRef -ApplicationId $clientAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
     }
+
+    # Add Claims
+
+    $optionalClaims = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaims
+    $optionalClaims.AccessToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+    $optionalClaims.IdToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+    $optionalClaims.Saml2Token = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+
+
+    # Add Optional Claims
+
+    $newClaim =  CreateOptionalClaim  -name "acct" 
+    $optionalClaims.IdToken += ($newClaim)
+    Update-MgApplication -ApplicationId $clientAadApplication.Id -OptionalClaims $optionalClaims
     
     # Add application Roles
     $appRoles = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole]
@@ -255,14 +282,7 @@ Function ConfigureApplications
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value Todolist.Read  `
-    -userConsentDisplayName "Access msal-react-spa"  `
-    -userConsentDescription "Allow the application to access msal-react-spa on your behalf."  `
-    -adminConsentDisplayName "Access msal-react-spa"  `
-    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of an admin."
-            
-    $scopes.Add($scope)
-    $scope = CreateScope -value Todolist.ReadWrite  `
+    $scope = CreateScope -value access_as_user  `
     -userConsentDisplayName "Access msal-react-spa"  `
     -userConsentDescription "Allow the application to access msal-react-spa on your behalf."  `
     -adminConsentDisplayName "Access msal-react-spa"  `
@@ -279,12 +299,11 @@ Function ConfigureApplications
     $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-spa</a></td></tr>" -Path createdApps.html
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
-
     
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
     $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-react-spa" `
-        -requiredDelegatedPermissions "Todolist.Read|Todolist.ReadWrite" `
+        -requiredDelegatedPermissions "access_as_user" `
     
 
     $requiredResourcesAccess.Add($requiredPermissions)
@@ -322,7 +341,7 @@ Function ConfigureApplications
         Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
     }
     Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
-}
+} # end of ConfigureApplications function
 
 # Pre-requisites
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {

@@ -161,9 +161,9 @@ As a first step you'll need to:
 
 ##### Publish Delegated Permissions
 
-1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
+1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `Todolist.Read`.
+    1. For **Scope name**, use `access_as_user`.
     1. Select **Admins and users** options for **Who can consent?**.
     1. For **Admin consent display name** type in the details, `e.g. Allow the users of the app msal-react-spa to read ToDo list items`.
     1. For **Admin consent description** type in the details `e.g. Allows the app msal-react-spa to read the signed-in users ToDo list items.`
@@ -171,20 +171,22 @@ As a first step you'll need to:
     1. For **User consent description** type in the details `e.g. Allow the app msal-react-spa to read ToDo list items on your behalf.`
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
-    > Repeat the steps above for another scope named **Todolist.ReadWrite**
 1. Select the **Manifest** blade on the left.
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
 
+    > :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+
 ##### Grant Delegated Permissions to msal-react-spa
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
-    1. Select the **Add a permission** button and then,
-    1. Ensure that the **Microsoft APIs** tab is selected.
-    1. In the list of APIs, select the application name for example `msal-react-spa`.
-    1. In the **Delegated permissions** section, select the **Todolist.Read**, **Todolist.ReadWrite** in the list. Use the search box if necessary.
-    1. Select the **Add permissions** button at the bottom.
+   1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+   1. Select the **Add a permission** button and then,
+   1. Ensure that the **My APIs** tab is selected.
+   1. In the list of APIs, select the API `msal-react-spa`.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
+           1. In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
+   1. Select the **Add permissions** button at the bottom.
 
 ##### Publish Application Roles for users and groups
 
@@ -204,6 +206,14 @@ As a first step you'll need to:
 > When you set **User assignment required?** to **Yes**, Azure AD will check that only users assigned to your application in the **Users and groups** blade are able to sign-in to your app. You can assign users directly or by assigning security groups they belong to.
 
 For more information, see: [How to: Add app roles in your application and receive them in the token](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps)
+
+##### Configure Optional Claims
+
+1. Still on the same app registration, select the **Token configuration** blade to the left.
+1. Select **Add optional claim**:
+    1. Select **optional claim type**, then choose **ID**.
+    1. Select the optional claim **acct**. Provides user's account status in tenant.If the user is a member of the tenant, the value is 0. If they're a guest, the value is 1.
+    1. Select **Add** to save your changes.
 
 #### Configure the msal-react-spa to use your app registration
 

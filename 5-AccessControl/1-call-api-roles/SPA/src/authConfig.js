@@ -55,10 +55,7 @@ export const protectedResources = {
     apiTodoList: {
         todoListEndpoint: 'http://localhost:5000/api/todolist',
         dashboardEndpoint: 'http://localhost:5000/api/dashboard',
-        scopes: {
-            read: ['Enter_the_Web_Api_App_Id_Uri_Here/Todolist.Read'],
-            write: ['Enter_the_Web_Api_App_Id_Uri_Here/Todolist.ReadWrite']
-        },
+        scopes: ['Enter_the_Web_Api_App_Id_Uri_Here/access_as_user'],
     },
 };
 
@@ -69,7 +66,7 @@ export const protectedResources = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: [...protectedResources.apiTodoList.scopes.read, ...protectedResources.apiTodoList.scopes.write],
+    scopes: [...protectedResources.apiTodoList.scopes],
 };
 
 export const appRoles = {
