@@ -215,7 +215,6 @@ Function ConfigureApplications
 
 
     # Add Optional Claims
-
     $newClaim =  CreateOptionalClaim  -name "idtyp" 
     $optionalClaims.AccessToken += ($newClaim)
     $newClaim =  CreateOptionalClaim  -name "acct" 

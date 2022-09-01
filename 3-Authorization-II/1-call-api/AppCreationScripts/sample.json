@@ -14,6 +14,7 @@
         "Description": "A React single-page application using MSAL React to authorize users for calling a protected Express.js web API on Azure Active Directory",
         "Products": [
             "azure-active-directory",
+            "msal-js",
             "msal-react",
             "passport-azure-ad"
         ]

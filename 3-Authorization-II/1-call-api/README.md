@@ -7,6 +7,7 @@ languages:
  - nodejs
 products:
  - azure-active-directory
+ - msal-js
  - msal-react
  - passport-azure-ad
 urlFragment: ms-identity-javascript-react-tutorial
@@ -34,6 +35,8 @@ This sample demonstrates a React single-page application (SPA) calling a protect
 Here you'll learn how to [register a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-app-registration), [accept authorized calls](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-verification-scope-app-roles) and [validate access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens).
 
 > :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
+
+> :information_source: See the community call: [Deep dive on using MSAL.js to integrate React Single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=7oPSL5wWeS0)
 
 ## Scenario
 
@@ -197,8 +200,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
+1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
+1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
 
 #### Register the client app (msal-react-spa)
 
@@ -231,9 +234,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
-1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
+1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
+1. Find the string `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
 
 ### Step 4: Running the sample
 
@@ -288,7 +291,7 @@ app.use(cors());
 
 ### Access token validation
 
-On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) verifies the incoming access token's signature and validates it's payload against the `issuer` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API. In the `BearerStrategy` callback, you can add further validation steps as shown below:
+On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) verifies the incoming access token's signature and validates it's payload against the `issuer` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API. In the `BearerStrategy` callback, you can add further validation steps as shown below (see [app.js](./API/app.js)):
 
 ```javascript
 const express = require('express');
@@ -308,47 +311,18 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
     loggingNoPII: authConfig.settings.loggingNoPII,
 }, (req, token, done) => {
     /**
-     * Below you can do extended token validation and check for additional claims, such as:
-     * - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
-     * - check if the caller's account is homed or guest via the 'acct' optional claim
-     * - check if the caller belongs to right roles or groups via the 'roles' or 'groups' claim, respectively
-     *
-     * Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
-     * For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
+     * Access tokens that have neither the 'scp' (for delegated permissions) nor
+     * 'roles' (for application permissions) claim are not to be honored.
      */
-
-
-    /**
-     * Below we verify if the caller's tenant ID is in the list of allowed tenants.
-     * Since this app is not configured to be multi-tenant, this is only for illustration
-     */
-    const myAllowedTenantsList = [
-        authConfig.credentials.tenantID,
-        // ...
-    ]
-
-    if (!myAllowedTenantsList.includes(authConfig.credentials.tenantID)) {
-        return done(new Error('Unauthorized'), {}, "Tenant not allowed");
-    }
-
-    /**
-     * Below we verify if there's at least one allowed permission in the access token
-     * to be considered valid.
-     */
-    if (!requiredScopeOrAppPermission(token, [
-        ...authConfig.protectedRoutes.todolist.delegatedPermissions.read,
-        ...authConfig.protectedRoutes.todolist.delegatedPermissions.write,
-        ...authConfig.protectedRoutes.todolist.applicationPermissions.read,
-        ...authConfig.protectedRoutes.todolist.applicationPermissions.write,
-    ])) {
-        return done(new Error('Unauthorized'), {}, "No delegated or app permission found");
+    if (!token.hasOwnProperty('scp') && !token.hasOwnProperty('roles')) {
+        return done(new Error('Unauthorized'), {}, "No delegated or app permission claims found");
     }
 
     /**
      * If needed, pass down additional user info to route using the second argument below.
      * This information will be available in the req.user object.
      */
-    done(null, {}, token);
+    return done(null, {}, token);
 });
 
 app.use(passport.initialize());
@@ -366,75 +340,62 @@ app.use('/api',
 
 For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using [jwt.ms](https://jwt.ms).
 
-### Verifying permissions
+### Verifying permission type
 
-Access tokens that have neither the **scp** (for delegated permissions) nor **roles** (for application permissions) claim should not be accepted. In the sample, this is illustrated via the `requiredScopeOrAppPermission` method in [permissionUtils.js](./API/auth/permissionUtils.js)
+Web API endpoints should be prepared to accept calls from both users and applications, and should have control structures in place to respond each accordingly. This is illustrated in [permissionUtils.js](./API/auth/permissionUtils.js):
 
 ```JavaScript
-exports.requiredScopeOrAppPermission = (accessTokenPayload, listOfPermissions) => {
-    /**
-     * Access tokens that have neither the 'scp' (for delegated permissions) nor
-     * 'roles' (for application permissions) claim are not to be honored.
-     *
-     * An access token issued by Azure AD will have at least one of the two claims. Access tokens
-     * issued to a user will have the 'scp' claim. Access tokens issued to an application will have
-     * the roles claim. Access tokens that contain both claims are issued only to users, where the scp
-     * claim designates the delegated permissions, while the roles claim designates the user's role.
-     *
-     * To determine whether an access token was issued to a user (i.e delegated) or an application
-     * more easily, we recommend enabling the optional claim 'idtyp'. For more information, see:
-     * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
-     */
+const isAppOnlyToken = (accessTokenPayload) => {
 
-    if (!accessTokenPayload.hasOwnProperty('scp') && !accessTokenPayload.hasOwnProperty('roles')) {
-        return false;
-    } else if (accessTokenPayload.hasOwnProperty('roles') && !accessTokenPayload.hasOwnProperty('scp')) {
-        return this.hasApplicationPermissions(accessTokenPayload, listOfPermissions);
-    } else if (accessTokenPayload.hasOwnProperty('scp')) {
-        return this.hasDelegatedPermissions(accessTokenPayload, listOfPermissions);
+     if (!accessTokenPayload.hasOwnProperty('idtyp')) {
+        if (accessTokenPayload.hasOwnProperty('scp')) {
+            return false;
+        } else if (!accessTokenPayload.hasOwnProperty('scp') && accessTokenPayload.hasOwnProperty('roles')) {
+            return true;
+        }
     }
-}
+
+    return accessTokenPayload.idtyp === 'app';
+};
 ```
 
 ### Access to data
 
-Web API endpoints should be prepared to accept calls from both users and applications, and should have control structures in place to respond each accordingly. This is illustrated in the [todolist](./API/controllers/todolist.js) controller:
+Controllers should check if the presented access token has the necessary permissions to access the data, depending on the type of permission. This is illustrated in [todolist.js](./API/controllers/todolist.js):
+
 
 ```JavaScript
-exports.getTodo = (req, res, next) => {
-    if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
-        try {
-            /**
-             * The 'oid' (object id) is the only claim that should be used to uniquely identify
-             * a user in an Azure AD tenant.
-             */
-            const owner = req.authInfo['oid'];
-            const id = req.params.id;
-
-            const todo = db.get('todos')
-                .filter({ owner: owner })
-                .find({ id: id })
-                .value();
-
-            res.status(200).send(todo);
-        } catch (error) {
-            next(error);
+exports.getTodos = (req, res, next) => {
+    if (isAppOnlyToken(req.authInfo)) {
+        if (hasRequiredApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)) {
+            try {
+                const todos = db.get('todos')
+                    .value();
+    
+                res.status(200).send(todos);
+            } catch (error) {
+                next(error);
+            }
+        } else {
+            next(new Error('Application does not have the required permissions'))
         }
-    } else if (hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)) {
-        try {
-            const id = req.params.id;
-
-            const todo = db.get('todos')
-                .find({ id: id })
-                .value();
-
-            res.status(200).send(todo);
-        } catch (error) {
-            next(error);
+    } else {
+        if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
+            try {
+                const owner = req.authInfo['oid'];
+    
+                const todos = db.get('todos')
+                    .filter({ owner: owner })
+                    .value();
+    
+                res.status(200).send(todos);
+            } catch (error) {
+                next(error);
+            }
+        } else {
+            next(new Error('User does not have the required permissions'))
         }
-    } else (
-        next(new Error('The user or application does not have the required permission(s)'))
-    )
+    }
 }
 ```
 

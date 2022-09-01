@@ -19,7 +19,7 @@ const TodoListContent = () => {
         if (!todoListData) {
             getTasks().then(response => setTodoListData(response));
         }
-    }, [tokenResponse]);
+    }, [todoListData]);
 
     return (
         <>
