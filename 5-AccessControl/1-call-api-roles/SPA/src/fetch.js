@@ -23,7 +23,7 @@ const getToken = async (scopes) => {
 }
 
 export const getTasks = async () => {
-    const accessToken = await getToken(protectedResources.apiTodoList.scopes.read);
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -41,7 +41,7 @@ export const getTasks = async () => {
 }
 
 export const getTask = async (id) => {
-    const accessToken = await getToken(protectedResources.apiTodoList.scopes.read);
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -59,7 +59,7 @@ export const getTask = async (id) => {
 }
 
 export const getAllTasks = async () => {
-    const accessToken = await getToken(protectedResources.apiTodoList.scopes.read);
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes);
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
 
@@ -76,7 +76,7 @@ export const getAllTasks = async () => {
 };
 
 export const postTask = async (task) => {
-    const accessToken = await getToken(protectedResources.apiTodoList.scopes.write);
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -96,7 +96,7 @@ export const postTask = async (task) => {
 }
 
 export const deleteTask = async (id) => {
-    const accessToken = await getToken(protectedResources.apiTodoList.scopes.write);
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;
@@ -114,7 +114,7 @@ export const deleteTask = async (id) => {
 }
 
 export const editTask = async (id, task) => {
-    const accessToken = await getToken(protectedResources.apiTodoList.scopes.write);
+    const accessToken = await getToken(protectedResources.apiTodoList.scopes);
 
     const headers = new Headers();
     const bearer = `Bearer ${accessToken}`;

@@ -10,7 +10,7 @@ const router = require('./routes/router');
 
 const routeGuard = require('./auth/guard');
 
-const { hasRequiredScopes } = require('./auth/permissionUtils');
+const { hasRequiredPermissions } = require('./auth/permissionUtils');
 
 const app = express();
 
@@ -46,10 +46,11 @@ const bearerStrategy = new passportAzureAd.BearerStrategy(
          * For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
          */
         if (
-            hasRequiredScopes(token, [
-                ...authConfig.protectedRoutes.todolist.delegatedPermissions.read,
-                ...authConfig.protectedRoutes.todolist.delegatedPermissions.write,
-            ])
+            hasRequiredPermissions(
+                token,
+                [...authConfig.protectedRoutes.todolist.delegatedPermissions.scopes],
+                authConfig.credentials.clientID
+            )
         ) {
             /**
              * If needed, pass down additional user info to route using the second argument below.
