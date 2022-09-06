@@ -1,7 +1,9 @@
 ---
 page_type: sample
-name: React single-page application calling a protected web API using App Roles to implement Role-Based Access Control
 services: ms-identity
+client: React SPA
+service: Node.js web API
+level: 300
 languages:
  - JavaScript
  - Node
@@ -11,11 +13,14 @@ products:
  - azure-active-directory
  - msal-js
  - passport-azure-ad
+platform: JavaScript
+endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-react-tutorial
-description: React single-page application calling a protected web API using App Roles to implement Role-Based Access Control
+name: Add authorization using App roles to a React single-page app that signs-in users and calls a protected Node.js Web Api
+description: Add authorization using App roles to a React single-page app that signs-in users and calls a protected Node.js Web Api
 ---
 
-# React single-page application calling a protected web API using App Roles to implement Role-Based Access Control
+# Add authorization using App roles to a React single-page app that signs-in users and calls a protected Node.js Web Api
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -33,7 +38,7 @@ description: React single-page application calling a protected web API using App
 
 This sample demonstrates a cross-platform application suite involving an React single-page application (*TodoListSPA*) calling an Node.js & Express web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **App Roles**.
 
-Access control in Azure AD can be done with **Security Groups** as well, as we will cover in the [next tutorial](../2-call-api-groups/README.md). **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
+Role based access control in Azure AD can be done with **Delegated** and **App** permissions and **Security Groups** as well. we will cover RBAC using Security Groups in the [next tutorial](../2-call-api-groups/README.md). **Delegated** and **App** permissions, **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
 > :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
 
@@ -44,9 +49,9 @@ Access control in Azure AD can be done with **Security Groups** as well, as we w
 In the sample, a **dashboard** component allows signed-in users to see the tasks assigned to users and is only accessible by users assigned to **app role** named **TaskAdmin**. A user needs to be assigned an app role **TaskUser** to be able to create tasks for themselves
 
 * The **TodoListSPA** uses [MSAL React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) to authenticate a user with the Microsoft identity platform.
-* The app then obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from Azure AD on behalf of the authenticated user for the **TodoListAPI**.
+* The app then obtains an [access token](https://aka.ms/access-tokens) from Azure AD on behalf of the authenticated user for the **TodoListAPI**.
 * **TodoListAPI** uses [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) to protect its endpoint and accept only authorized calls.
-* **TodoListAPI** maintains the To Do list and ensures access to the right users based on [permissions](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types).
+* **TodoListAPI** maintains the To-Do list and ensures access to the right users based on [permissions](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types).
 
 ![Topology](./ReadmeFiles/topology.png)
 
@@ -77,7 +82,7 @@ In the sample, a **dashboard** component allows signed-in users to see the tasks
 From your shell or command line:
 
 ```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
+git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
 ```
 
 or download and extract the repository *.zip* file.
@@ -168,17 +173,17 @@ To manually register the apps, as a first step you'll need to:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
     1. For **Scope name**, use `access_as_user`.
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in the details, `e.g. Allow the users of the app msal-react-spa to read ToDo list items`.
-    1. For **Admin consent description** type in the details `e.g. Allows the app msal-react-spa to read the signed-in users ToDo list items.`
-    1. For **User consent display name** type in the details `e.g. Read ToDo list items as yourself`.
-    1. For **User consent description** type in the details `e.g. Allow the app msal-react-spa to read ToDo list items on your behalf.`
+    1. For **Admin consent display name** type in *Access 'msal-react-spa' as the signed-in user.*.
+    1. For **Admin consent description** type in *Allow the app to access the 'msal-react-spa' as a signed-in user.*.
+    1. For **User consent display name** type in *Access 'msal-react-spa' on your behalf.*.
+    1. For **User consent description** type in *Allow the app to access the 'msal-react-spa' on your behalf.*.
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
 1. Select the **Manifest** blade on the left.
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
 
-    > :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+> :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
 
 ##### Grant Delegated Permissions to msal-react-spa
 
@@ -198,7 +203,7 @@ To manually register the apps, as a first step you'll need to:
     1. For **Display name**, enter a suitable name, for instance **TaskAdmin**.
     1. For **Allowed member types**, choose **User**.
     1. For **Value**, enter **TaskAdmin**.
-    1. For **Description**, enter **Admins can read any user's todo list**.
+    1. For **Description**, enter **Admins can read and write any user's todo list**.
     > Repeat the steps above for another role named **TaskUser**
     1. Select **Apply** to save your changes. 
 
@@ -215,10 +220,10 @@ For more information, see: [How to: Add app roles in your application and receiv
 1. Still on the same app registration, select the **Token configuration** blade to the left.
 1. Select **Add optional claim**:
     1. Select **optional claim type**, then choose **ID**.
-    1. Select the optional claim **acct**. Provides user's account status in tenant.If the user is a member of the tenant, the value is 0. If they're a guest, the value is 1.
+    1. Select the optional claim **acct**. Provides user's account status in tenant.If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
     1. Select **Add** to save your changes.
 
-#### Configure the msal-react-spa to use your app registration
+##### Configure the client app (msal-react-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 

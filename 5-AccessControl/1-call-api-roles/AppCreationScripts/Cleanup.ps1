@@ -38,15 +38,17 @@ Function Cleanup
     Write-Host "Removing 'client' (msal-react-spa) if needed"
     try
     {
-        Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'"  | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+        Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
-        Write-Host "Unable to remove the application 'msal-react-spa' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove the application 'msal-react-spa'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (msal-react-spa) applications found, will remove if needed..."
-    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'"
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
     
     if ($apps)
     {
@@ -62,11 +64,13 @@ Function Cleanup
     # also remove service principals of this app
     try
     {
-        Get-MgServicePrincipal -filter "DisplayName eq 'msal-react-spa'" | ForEach-Object {Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-react-spa'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
     }
     catch
     {
-        Write-Host "Unable to remove ServicePrincipal 'msal-react-spa' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove ServicePrincipal 'msal-react-spa'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
 

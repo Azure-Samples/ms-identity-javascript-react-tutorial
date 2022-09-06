@@ -257,7 +257,7 @@ Function ConfigureApplications
     
     # Add application Roles
     $appRoles = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole]
-    $newRole = CreateAppRole -types "User" -name "TaskAdmin" -description "Admins can read any user's todo list"
+    $newRole = CreateAppRole -types "User" -name "TaskAdmin" -description "Admins can read and write any user's todo list"
     $appRoles.Add($newRole)
     $newRole = CreateAppRole -types "User" -name "TaskUser" -description "Users can read and modify their todo lists"
     $appRoles.Add($newRole)
@@ -302,34 +302,44 @@ Function ConfigureApplications
     
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
-    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-react-spa" `
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-react-spa" `
         -requiredDelegatedPermissions "access_as_user" `
-    
 
-    $requiredResourcesAccess.Add($requiredPermissions)
+    $requiredResourcesAccess.Add($requiredPermission)
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
+
+    Write-Host "Successfully registered and configured that app registration for 'msal-react-spa' at" -ForegroundColor Green
+
+    # print the registered app portal URL for any further navigation
+    $clientPortalUrl
     
     # Update config file for 'client'
-    $configFile = $pwd.Path + "\..\API\authConfig.js"
+    # $configFile = $pwd.Path + "\..\API\authConfig.js"
+    $configFile = $(Resolve-Path ($pwd.Path + "\..\API\authConfig.js"))
+    
     $dictionary = @{ "tenantID" = $tenantId;"clientID" = $clientAadApplication.AppId };
 
-    Write-Host "Updating the sample code ($configFile)"
+    Write-Host "Updating the sample config '$configFile' with the following config values"
+    $dictionary
 
     UpdateTextFile -configFilePath $configFile -dictionary $dictionary
     
     # Update config file for 'client'
-    $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
+    # $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
+    $configFile = $(Resolve-Path ($pwd.Path + "\..\SPA\src\authConfig.js"))
+    
     $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_here" = ("api://"+$clientAadApplication.AppId+"/access_as_user");"Enter_the_Web_Api_App_Id_Uri_Here" = $clientAadApplication.AppId };
 
-    Write-Host "Updating the sample code ($configFile)"
+    Write-Host "Updating the sample config '$configFile' with the following config values"
+    $dictionary
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
-    Write-Host "  - To receive the 'roles' claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." -ForegroundColor Red 
+    Write-Host "  - To receive the 'roles' claim with the name of the App Roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." -ForegroundColor Red 
     Write-Host "  - Or you can run the .\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." -ForegroundColor Red 
     Write-Host "  - Application 'client' publishes app roles . Do remember to navigate to the app registration in the app portal and assign users to these app roles" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
@@ -356,7 +366,16 @@ Add-Content -Value "<thead><tr><th>Application</th><th>AppId</th><th>Url in the 
 $ErrorActionPreference = "Stop"
 
 # Run interactively (will ask you for the tenant ID)
-ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
 
+try
+{
+    ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
+}
+catch
+{
+    $message = $_
+    Write-Warning $Error[0]
+    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph
