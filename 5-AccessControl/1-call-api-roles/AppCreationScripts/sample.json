@@ -19,7 +19,7 @@
       "Audience": "AzureADMyOrg",
       "HomePage": "http://localhost:3000/",
       "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
-      "Scopes": [ "access_as_user" ],
+      "Scopes": [ "access_using_approle_assignments" ],
       "Sample": {
         "SampleSubPath": "5-AccessControl\\1-call-api-roles\\SPA",
         "ProjectDirectory": "\\1-call-api-roles\\SPA"
