@@ -27,7 +27,7 @@
       "RequiredResourcesAccess": [
         {
           "Resource": "client",
-          "DelegatedPermissions": [ "access_as_user" ]
+          "DelegatedPermissions": [ "access_using_approle_assignments" ]
         }
       ],
       "AppRoles": [
