@@ -1,7 +1,6 @@
 ---
 page_type: sample
 name: React single-page application using MSAL React to authorize users for calling a Express.js web API on Azure Active Directory
-services: ms-identity
 languages:
  - javascript
  - nodejs
@@ -315,7 +314,7 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
      * 'roles' (for application permissions) claim are not to be honored.
      */
     if (!token.hasOwnProperty('scp') && !token.hasOwnProperty('roles')) {
-        return done(new Error('Unauthorized'), {}, "No delegated or app permission claims found");
+        return done(new Error('Unauthorized'), null, "No delegated or app permission claims found");
     }
 
     /**

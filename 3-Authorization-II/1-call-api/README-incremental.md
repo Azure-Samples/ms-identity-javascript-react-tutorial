@@ -268,7 +268,7 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
      * 'roles' (for application permissions) claim are not to be honored.
      */
     if (!token.hasOwnProperty('scp') && !token.hasOwnProperty('roles')) {
-        return done(new Error('Unauthorized'), {}, "No delegated or app permission claims found");
+        return done(new Error('Unauthorized'), null, "No delegated or app permission claims found");
     }
 
     /**
