@@ -5,7 +5,7 @@
   "author": "derisen",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js",    
+    "dev": "nodemon index.js",
     "test": "jest --forceExit"
   },
   "dependencies": {
@@ -25,7 +25,7 @@
   "homepage": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial#readme",
   "devDependencies": {
     "jest": "^27.0.6",
-    "nodemon": "^2.0.12",
+    "nodemon": "^2.0.19",
     "supertest": "^6.1.4"
   },
   "keywords": [

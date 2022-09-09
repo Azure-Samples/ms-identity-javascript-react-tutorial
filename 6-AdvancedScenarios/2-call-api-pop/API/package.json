@@ -15,12 +15,15 @@
     ]
   },
   "dependencies": {
+    "audit": "0.0.6",
     "cors": "^2.8.5",
     "express": "^4.14.0",
+    "fix": "0.0.6",
     "jose": "^3.11.6",
     "jsonwebtoken": "^8.5.1",
     "lowdb": "^1.0.0",
     "morgan": "^1.10.0",
+    "npm": "^8.19.1",
     "passport": "^0.6.0",
     "passport-azure-ad": "^4.3.3"
   },
@@ -41,7 +44,7 @@
   "homepage": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial#readme",
   "devDependencies": {
     "jest": "^27.0.6",
-    "nodemon": "^2.0.12",
+    "nodemon": "^2.0.19",
     "supertest": "^6.1.4"
   }
 }
