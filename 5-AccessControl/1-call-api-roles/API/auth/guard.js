@@ -24,7 +24,7 @@ const routeGuard = (accessMatrix) => {
  */
 const requestHasRequiredAttributes = (accessMatrix, path, method, roles) => {
     const accessRules = Object.values(accessMatrix);
-    
+
     const accessRule = accessRules
         .find((accessRule) => path.includes(accessRule.path));
 

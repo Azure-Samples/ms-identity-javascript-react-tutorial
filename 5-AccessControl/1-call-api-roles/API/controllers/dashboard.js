@@ -17,6 +17,6 @@ exports.getAllTodos = async (req, res, next) => {
             next(error);
         }
     } else {
-        next(new Error('User or application does not have the required permissions'));
+        next(new Error('User does not have the required permissions'));
     }
 };
