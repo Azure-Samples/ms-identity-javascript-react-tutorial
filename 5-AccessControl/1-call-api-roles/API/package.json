@@ -14,8 +14,8 @@
     "lowdb": "^1.0.0",
     "morgan": "^1.10.0",
     "nanoid": "^3.3.1",
-    "passport": "^0.3.2",
-    "passport-azure-ad": "^4.3.2"
+    "passport": "^0.6.0",
+    "passport-azure-ad": "^4.3.3"
   },
   "main": "app.js",
   "repository": {
@@ -34,7 +34,7 @@
   "homepage": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial#readme",
   "devDependencies": {
     "jest": "^27.0.6",
-    "nodemon": "^2.0.12",
+    "nodemon": "^2.0.19",
     "supertest": "^6.1.4"
   }
 }
