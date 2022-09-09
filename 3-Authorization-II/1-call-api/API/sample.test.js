@@ -30,7 +30,7 @@ describe('Ensure routes served', () => {
 
     it('should protect todolist endpoint', async () => {
         const res = await request(app)
-            .get('/api/todolist');
+            .get('/api');
 
         expect(res.statusCode).toEqual(401);
     });

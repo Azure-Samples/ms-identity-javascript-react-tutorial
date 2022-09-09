@@ -56,6 +56,7 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
     loggingLevel: authConfig.settings.loggingLevel,
     loggingNoPII: authConfig.settings.loggingNoPII,
 }, (req, token, done) => {
+
     /**
      * Below you can do extended token validation and check for additional claims, such as:
      * - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
@@ -68,7 +69,7 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
 
 
     /**
-     * Below you can verify if the caller's client ID is in the list of allowed clients.
+     * Lines below verifies if the caller's client ID is in the list of allowed clients.
      * This ensures only the applications with the right client ID can access this API.
      * To do so, we use "azp" claim in the access token. Uncomment the lines below to enable this check.
      */
@@ -76,7 +77,7 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
     // const myAllowedClientsList = [
     //     /* add here the client IDs of the applications that are allowed to call this API */
     // ]
-    //
+    
     // if (!myAllowedClientsList.includes(token.azp)) {
     //     return done(new Error('Unauthorized'), {}, "Client not allowed");
     // }
@@ -87,7 +88,7 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
      * 'roles' (for application permissions) claim are not to be honored.
      */
     if (!token.hasOwnProperty('scp') && !token.hasOwnProperty('roles')) {
-        return done(new Error('Unauthorized'), {}, "No delegated or app permission claims found");
+        return done(new Error('Unauthorized'), null, "No delegated or app permission claims found");
     }
 
     /**
@@ -101,36 +102,54 @@ app.use(passport.initialize());
 
 passport.use(bearerStrategy);
 
-app.use('/api', function (req, res, next) {
-  passport.authenticate('oauth-bearer', {
-      session: false,
+app.use('/api', (req, res, next) => {
+    passport.authenticate('oauth-bearer', {
+        session: false,
 
-      /**
-       * If you are building a multi-tenant application and you need supply the tenant ID or name dynamically,
-       * uncomment the line below and pass in the tenant information. For more information, see:
-       * https://github.com/AzureAD/passport-azure-ad#423-options-available-for-passportauthenticate
-       */
+        /**
+         * If you are building a multi-tenant application and you need supply the tenant ID or name dynamically,
+         * uncomment the line below and pass in the tenant information. For more information, see:
+         * https://github.com/AzureAD/passport-azure-ad#423-options-available-for-passportauthenticate
+         */
 
-      // tenantIdOrName: <some-tenant-id-or-name>
+        // tenantIdOrName: <some-tenant-id-or-name>
 
-  }, (err, user, info) => {
-      if (err) {
-          /**
-           * An error occurred during authorization. Either pass the error to the next function
-           * for Express error handler to handle, or send a response with the appropriate status code.
-           */
-          return next(err)
-      }
+    }, (err, user, info) => {
+        if (err) {
+            /**
+             * An error occurred during authorization. Either pass the error to the next function
+             * for Express error handler to handle, or send a response with the appropriate status code.
+             */
+            return res.status(401).json({ error: err.message });
+        }
 
-      if (info) {
-        // access token payload will be available in req.authInfo downstream
-        req.authInfo = info;
-        return next();
-      }
-  })(req, res, next);
-}, router);
+        if (!user) {
+            // If no user object found, send a 401 response.
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
 
+        if (info) {
+            // access token payload will be available in req.authInfo downstream
+            req.authInfo = info;
+            return next();
+        }
+    })(req, res, next);
+    }, 
+    router, // the router with all the routes
+    (err, req, res, next) => {
+        /**
+         * Add your custom error handling logic here. For more information, see:
+         * http://expressjs.com/en/guide/error-handling.html
+         */
 
+        // set locals, only providing error in development
+        res.locals.message = err.message;
+        res.locals.error = req.app.get('env') === 'development' ? err : {};
+    
+        // send error response
+        res.status(err.status || 500).send(err);
+    }
+);
 
 const port = process.env.PORT || 5000;
 
