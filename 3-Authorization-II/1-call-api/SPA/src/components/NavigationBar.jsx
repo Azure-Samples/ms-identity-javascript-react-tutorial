@@ -1,42 +1,102 @@
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
+import { useState } from 'react';
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
+import { Nav, Navbar, Dropdown, DropdownButton } from 'react-bootstrap';
 
-import { Nav, Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
-
-import { loginRequest } from "../authConfig";
+import { loginRequest } from '../authConfig';
+import { AccountPicker } from './AccountPicker';
 
 export const NavigationBar = () => {
-
+    const [showProfilePicker, setShowProfilePicker] = useState(false);
     const { instance } = useMsal();
 
-    const handleLogin = () => {
-        instance.loginPopup(loginRequest)
-            .catch((error) => console.log(error))
+    let activeAccount;
+
+    if (instance) {
+        activeAccount = instance.getActiveAccount();
     }
 
+    const handleLoginRedirect = () => {
+        instance.loginRedirect(loginRequest)
+            .catch((error) => console.log(error));
+    };
+
+    const handleLoginPopup = () => {
+        /**
+         * When using popup and silent APIs, we recommend setting the redirectUri to a blank page or a page 
+         * that does not implement MSAL. Keep in mind that all redirect routes must be registered with the application
+         * For more information, please follow this link: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/login-user.md#redirecturi-considerations 
+         */
+
+        instance.loginPopup({
+            ...loginRequest,
+            redirectUri: '/redirect.html'
+        }).catch((error) => console.log(error));
+    };
+
+    const handleLogoutRedirect = () => {
+        instance.logoutRedirect({
+            account: instance.getActiveAccount(),
+        });
+    };
+
+    const handleLogoutPopup = () => {
+        instance.logoutPopup({
+            mainWindowRedirectUri: '/', // redirects the top level app after logout
+            account: instance.getActiveAccount(),
+        });
+    };
+
+    const handleSwitchAccount = () => {
+        setShowProfilePicker(!showProfilePicker);
+    };
+
     /**
-     * Most applications will need to conditionally render certain components based on whether a user is signed in or not. 
-     * msal-react provides 2 easy ways to do this. AuthenticatedTemplate and UnauthenticatedTemplate components will 
+     * Most applications will need to conditionally render certain components based on whether a user is signed in or not.
+     * msal-react provides 2 easy ways to do this. AuthenticatedTemplate and UnauthenticatedTemplate components will
      * only render their children if a user is authenticated or unauthenticated, respectively.
      */
     return (
         <>
-            <Navbar bg="primary" variant="dark">
-                <a className="navbar-brand" href="/">Microsoft identity platform</a>
+            <Navbar bg="primary" variant="dark" className="navbarStyle">
+                <a className="navbar-brand" href="/">
+                    Microsoft identity platform
+                </a>
                 <AuthenticatedTemplate>
-                    <Nav.Link as={Button} href="/profile">Profile</Nav.Link>
-                    <Nav.Link as={Button} href="/hello">HelloAPI</Nav.Link>
-                    <DropdownButton variant="warning" className="ml-auto" drop="left" title="Sign Out">
-                        <Dropdown.Item as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/" })}>Sign out using Popup</Dropdown.Item>
-                        <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}>Sign out using Redirect</Dropdown.Item>
-                    </DropdownButton>
+                    <Nav.Link className="navbarButton" href="/todolist">
+                        Todolist
+                    </Nav.Link>
+                    <div className="collapse navbar-collapse justify-content-end">
+                        <DropdownButton
+                            variant="warning"
+                            drop="start"
+                            title={activeAccount ? activeAccount.name : 'Unknown'}
+                        >
+                            <Dropdown.Item as="button" onClick={handleSwitchAccount}>
+                                Switch account
+                            </Dropdown.Item>
+                            <Dropdown.Item as="button" onClick={handleLogoutPopup}>
+                                Sign out using Popup
+                            </Dropdown.Item>
+                            <Dropdown.Item as="button" onClick={handleLogoutRedirect}>
+                                Sign out using Redirect
+                            </Dropdown.Item>
+                        </DropdownButton>
+                    </div>
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
-                    <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
-                        <Dropdown.Item as="button" onClick={handleLogin}>Sign in using Popup</Dropdown.Item>
-                        <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>Sign in using Redirect</Dropdown.Item>
-                    </DropdownButton>
+                    <div className="collapse navbar-collapse justify-content-end">
+                        <DropdownButton variant="secondary" className="ml-auto" drop="start" title="Sign In">
+                            <Dropdown.Item as="button" onClick={handleLoginPopup}>
+                                Sign in using Popup
+                            </Dropdown.Item>
+                            <Dropdown.Item as="button" onClick={handleLoginRedirect}>
+                                Sign in using Redirect
+                            </Dropdown.Item>
+                        </DropdownButton>
+                    </div>
                 </UnauthenticatedTemplate>
             </Navbar>
+            <AccountPicker show={showProfilePicker} handleSwitchAccount={handleSwitchAccount} />
         </>
     );
 };

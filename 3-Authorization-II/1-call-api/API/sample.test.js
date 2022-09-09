@@ -1,14 +1,10 @@
-/**
- * @jest-environment jsdom
- */
-
 const request = require('supertest');
 
-const app = require('./index.js');
+const app = require('./app.js');
 
 describe('Sanitize configuration object', () => {
     beforeAll(() => {
-        global.config = require('./config.json');
+        global.config = require('./authConfig.js');
     });
 
     it('should define the config object', () => {
@@ -26,15 +22,15 @@ describe('Sanitize configuration object', () => {
     });
 });
 
-describe('Ensure pages served', () => {
+describe('Ensure routes served', () => {
 
     beforeAll(() => {
         process.env.NODE_ENV = 'test';
     });
 
-    it('should protect hello endpoint', async () => {
+    it('should protect todolist endpoint', async () => {
         const res = await request(app)
-            .get('/hello');
+            .get('/api');
 
         expect(res.statusCode).toEqual(401);
     });
