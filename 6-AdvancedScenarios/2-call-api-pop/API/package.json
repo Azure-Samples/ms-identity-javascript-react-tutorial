@@ -21,8 +21,8 @@
     "jsonwebtoken": "^8.5.1",
     "lowdb": "^1.0.0",
     "morgan": "^1.10.0",
-    "passport": "^0.3.2",
-    "passport-azure-ad": "^4.2.1"
+    "passport": "^0.6.0",
+    "passport-azure-ad": "^4.3.3"
   },
   "main": "app.js",
   "repository": {
