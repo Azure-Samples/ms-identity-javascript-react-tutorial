@@ -1,38 +1,33 @@
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
 
-import { Nav, Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
+import { Nav, Navbar, Button } from "react-bootstrap";
 
 import { loginRequest } from "../authConfig";
-import { clearStorage } from "../util/Util";
+import { clearStorage } from "../utils/storageUtils";
 
 export const NavigationBar = () => {
-
-
     const { instance } = useMsal();
 
     const handleLogoutPopup = () => {
-        clearStorage();
+        const activeAccount = instance.getActiveAccount();
+        clearStorage(activeAccount);
+
         instance.logoutPopup({
-            postLogoutRedirectUri: "http://localhost:3000/",
-            mainWindowRedirectUri: "http://localhost:3000/"
+            postLogoutRedirectUri: "/",
+            mainWindowRedirectUri: "/"
         })
     }
 
-    const handleLogoutRedirect = () => {
-        clearStorage();
-        instance.logoutRedirect({ 
-            postLogoutRedirectUri: "http://localhost:3000/"
-         })
-    }
-
-    const loginPopup = () => {
-        instance.loginPopup(loginRequest)
-         .catch( error => console.log(error))
+    const handleLoginPopup = () => {
+        instance.loginPopup({
+            ...loginRequest,
+            redirectUri: '/redirect.html'
+        }).catch((error) => console.log(error));
     }
 
     /**
-     * Most applications will need to conditionally render certain components based on whether a user is signed in or not. 
-     * msal-react provides 2 easy ways to do this. AuthenticatedTemplate and UnauthenticatedTemplate components will 
+     * Most applications will need to conditionally render certain components based on whether a user is signed in or not.
+     * msal-react provides 2 easy ways to do this. AuthenticatedTemplate and UnauthenticatedTemplate components will
      * only render their children if a user is authenticated or unauthenticated, respectively.
      */
     return (
@@ -40,17 +35,11 @@ export const NavigationBar = () => {
             <Navbar bg="primary" variant="dark">
                 <a className="navbar-brand" href="/">Microsoft identity platform</a>
                 <AuthenticatedTemplate>
-                    <Nav.Link as={Button} href="/todolist">TodoList</Nav.Link>
-                    <DropdownButton variant="warning" className="ml-auto" drop="left" title="Sign Out">
-                        <Dropdown.Item as="button" onClick={handleLogoutPopup}>Sign out using Popup</Dropdown.Item>
-                        <Dropdown.Item as="button" onClick={handleLogoutRedirect}>Sign out using Redirect</Dropdown.Item>
-                    </DropdownButton>
+            <Nav.Link as={Button} href="/todolist">TodoList</Nav.Link>
+                    <Button variant="warning" className="ml-auto" drop="left" onClick={handleLogoutPopup}>Sign out</Button>
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
-                    <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
-                        <Dropdown.Item as="button" onClick={loginPopup}>Sign in using Popup</Dropdown.Item>
-                        <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>Sign in using Redirect</Dropdown.Item>
-                    </DropdownButton>
+                    <Button variant="secondary" className="ml-auto" drop="left" onClick={handleLoginPopup}>Sign in</Button>
                 </UnauthenticatedTemplate>
             </Navbar>
         </>

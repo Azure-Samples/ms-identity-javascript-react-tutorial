@@ -1,4 +1,4 @@
-
+ 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
@@ -10,7 +10,6 @@ param(
 <#
  This script creates the Azure AD applications needed for this sample and updates the configuration files
  for the visual Studio projects from the data in the Azure AD applications.
-
  In case you don't have Microsoft.Graph.Applications already installed, the script will automatically install it for the current user
  
  There are four ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
@@ -153,6 +152,8 @@ Function CreateOptionalClaim([string] $name)
 
 Function ConfigureApplications
 {
+    $isOpenSSl = 'N' #temporary disable open certificate creation 
+
     <#.Description
        This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
        configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
@@ -213,16 +214,17 @@ Function ConfigureApplications
 
 
     # Add Optional Claims
-
     $newClaim =  CreateOptionalClaim  -name "idtyp" 
+    $optionalClaims.AccessToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "acct" 
     $optionalClaims.AccessToken += ($newClaim)
     Update-MgApplication -ApplicationId $serviceAadApplication.Id -OptionalClaims $optionalClaims
     
     # Add application Roles
     $appRoles = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole]
-    $newRole = CreateAppRole -types "Application" -name "Todolist.Read.All" -description "Allow this application to read every users Todo list items"
+    $newRole = CreateAppRole -types "Application" -name "Todolist.Read.All" -description "Allow this application to read every users Todolist items"
     $appRoles.Add($newRole)
-    $newRole = CreateAppRole -types "Application" -name "Todolist.ReadWrite.All" -description "Allow this application to read and write every users Todo list items"
+    $newRole = CreateAppRole -types "Application" -name "Todolist.ReadWrite.All" -description "Allow this application to read and write every users Todolist items"
     $appRoles.Add($newRole)
     Update-MgApplication -ApplicationId $serviceAadApplication.Id -AppRoles $appRoles
     
@@ -301,7 +303,6 @@ Function ConfigureApplications
     $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-spa</a></td></tr>" -Path createdApps.html
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
-
     
     # Add Required Resources Access (from 'client' to 'service')
     Write-Host "Getting access from 'client' to 'service'"
@@ -332,7 +333,7 @@ Function ConfigureApplications
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For service"
     Write-Host "  - Navigate to $servicePortalUrl"
-    Write-Host "  - Application 'service' publishes application permissions. Do remember to navigate to the app registration in the app portal and consent for those" -ForegroundColor Red 
+    Write-Host "  - Application 'service' publishes application permissions. Do remember to navigate to any client app(s) registration in the app portal and consent for those, if required" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
     {
@@ -342,7 +343,7 @@ Function ConfigureApplications
         Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
     }
     Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
-}
+} # end of ConfigureApplications function
 
 # Pre-requisites
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {

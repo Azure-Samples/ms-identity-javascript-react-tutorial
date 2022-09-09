@@ -2,6 +2,7 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+
 import { msalInstance } from "./index";
 import { protectedResources } from "./authConfig";
 
@@ -12,14 +13,12 @@ const getToken = async (scopes) => {
         throw Error("No active account! Verify a user has been signed in and setActiveAccount has been called.");
     }
 
-    const tokenRequest = {
+    const response = await msalInstance.acquireTokenSilent({
         account: account,
-        scopes: scopes,
-        redirectUri: "/redirect.html"
-    }
+        scopes: scopes
+    });
 
-    const tokenResponse = await msalInstance.acquireTokenSilent(tokenRequest);
-    return tokenResponse.accessToken;
+    return response.accessToken;
 }
 
 export const getTasks = async () => {

@@ -1,9 +1,7 @@
-import { Routes, Route } from "react-router-dom";
-
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { MsalProvider } from "@azure/msal-react";
 
 import { PageLayout } from "./components/PageLayout";
-
 import { Home } from "./pages/Home";
 import { TodoList } from "./pages/TodoList";
 
@@ -27,11 +25,13 @@ const Pages = () => {
  */
 const App = ({ instance }) => {
     return (
-        <MsalProvider instance={instance}>
-            <PageLayout>
-                <Pages />
-            </PageLayout>
-        </MsalProvider>
+        <Router>
+            <MsalProvider instance={instance}>
+                <PageLayout>
+                    <Pages />
+                </PageLayout>
+            </MsalProvider>
+        </Router>
     );
 }
 

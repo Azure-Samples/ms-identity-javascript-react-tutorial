@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useMsal } from "@azure/msal-react";
-import { nanoid } from "nanoid";
 import ListGroup from "react-bootstrap/ListGroup";
 
 import { TodoForm } from "./TodoForm";
@@ -24,12 +23,12 @@ export const ListView = (props) => {
     const [tasks, setTasks] = useState(props.todoListData);
 
     const handleCompleteTask = (id) => {
-        const updatedTask = tasks.find(task => id === task.id);
+        const updatedTask = tasks.find(task => id === task._id);
         updatedTask.completed = !updatedTask.completed;
 
         editTask(id, updatedTask).then((response) => {
             const updatedTasks = tasks.map(task => {
-                if (id === task.id) {
+                if (id === task._id) {
                     return { ...task, completed: !task.completed }
                 }
                 return task;
@@ -41,48 +40,54 @@ export const ListView = (props) => {
     const handleAddTask = (name) => {
         const newTask = {
             owner: account.username,
-            id: nanoid(),
             name: name,
             completed: false
         };
 
-        postTask(newTask).then((res) => {
-            if(res && res.message === "success"){
+        postTask(newTask).then((response) => {
+            if(response && response.message === "success"){
+                newTask["_id"] = response.id
                 setTasks([...tasks, newTask]);
-            }   
+            }
         })
     }
 
     const handleDeleteTask = (id) => {
         deleteTask(id).then((response) => {
-            if (response && response.message === "success") {
-                const remainingTasks = tasks.filter(task => id !== task.id);
+            if (response.message === "success") {
+                const remainingTasks = tasks.filter(task => id !== task._id);
                 setTasks(remainingTasks);
             }
         });
     }
 
     const handleEditTask = (id, newName) => {
-        const updatedTask = tasks.find(task => id === task.id);
+        const updatedTask = tasks.find(task => id === task._id);
         updatedTask.name = newName;
 
-        editTask(id, updatedTask).then(() => {
-            const updatedTasks = tasks.map(task => {
-                if (id === task.id) {
-                    return { ...task, name: newName }
-                }
-                return task;
-            });
-            setTasks(updatedTasks);
+        editTask(id, updatedTask).then((response) => {
+            if(response.message === "success"){
+                const updatedTasks = tasks.map(task => {
+                    if (id === task._id) {
+                        return { ...task, name: newName }
+                    }
+                    return task;
+                 });
+                setTasks(updatedTasks);
+            }else if(response.error){
+                window.location.reload();
+            }
+
         });
+
     }
 
     const taskList = tasks.map(task => (
         <TodoItem
-            id={task.id}
+            id={task._id}
             name={task.name}
             completed={task.completed}
-            key={task.id}
+            key={task._id}
             completeTask={handleCompleteTask}
             deleteTask={handleDeleteTask}
             editTask={handleEditTask}

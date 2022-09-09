@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router-dom";
+
 import { PublicClientApplication, EventType } from "@azure/msal-browser";
 
 import { msalConfig } from "./authConfig";
@@ -21,6 +21,9 @@ if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0
     msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
 }
 
+// Optional - This will update account state if a user signs in from another tab or window
+msalInstance.enableAccountStorageEvents();
+
 // Listen for sign-in event and set active account
 msalInstance.addEventCallback((event) => {
     if (event.eventType === EventType.LOGIN_SUCCESS && event.payload.account) {
@@ -33,8 +36,6 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
     <React.StrictMode>
-        <BrowserRouter>
-            <App instance={msalInstance} />
-        </BrowserRouter>
+        <App instance={msalInstance} />
     </React.StrictMode>,
 );

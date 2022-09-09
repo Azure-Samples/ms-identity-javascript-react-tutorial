@@ -1,21 +1,22 @@
 {
     "Sample": {
         "Author": "derisen",
-        "Title": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory",
+        "Title": "React single-page application using MSAL React to authorize users for calling a Express.js web API on Azure Active Directory",
         "Level": 200,
         "Client": "React SPA",
         "Service": "Node.js web API",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0",
         "Languages": [
-            "JavaScript",
-            "Node"
+            "javascript",
+            "nodejs"
         ],
-        "Description": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure Active Directory",
+        "Description": "A React single-page application using MSAL React to authorize users for calling a protected Express.js web API on Azure Active Directory",
         "Products": [
-          "azure-active-directory",
-            "React",
-            "Express"
+            "azure-active-directory",
+            "msal-js",
+            "msal-react",
+            "passport-azure-ad"
         ]
     },
     "AADApps": [
@@ -34,22 +35,25 @@
             ],
             "AppRoles": [
                 {
-                    "Types": [
+                    "AllowedMemberTypes": [
                         "Application"
                     ],
                     "Name": "Todolist.Read.All",
-                    "Description": "Allow this application to read every users Todo list items"
+                    "Description": "Allow this application to read every users Todolist items"
                 },
                 {
-                    "Types": [
+                    "AllowedMemberTypes": [
                         "Application"
                     ],
                     "Name": "Todolist.ReadWrite.All",
-                    "Description": "Allow this application to read and write every users Todo list items"
+                    "Description": "Allow this application to read and write every users Todolist items"
                 }
             ],
             "OptionalClaims": {
-                "AccessTokenClaims": ["idtyp"]
+                "AccessTokenClaims": [
+                    "idtyp",
+                    "acct"
+                ]
             }
         },
         {

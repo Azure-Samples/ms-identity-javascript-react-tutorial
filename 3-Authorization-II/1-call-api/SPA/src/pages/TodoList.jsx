@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
-
-import { InteractionType } from "@azure/msal-browser";
 import { MsalAuthenticationTemplate } from "@azure/msal-react";
+import { InteractionType } from "@azure/msal-browser";
 
+import { ListView } from '../components/ListView';
 import { loginRequest } from "../authConfig";
 import { getTasks } from "../fetch";
 
-import { ListView } from '../components/ListView';
-
 const TodoListContent = () => {
+    /**
+     * useMsal is hook that returns the PublicClientApplication instance,
+     * an array of all accounts currently signed in and an inProgress value
+     * that tells you what msal is currently doing. For more, visit:
+     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
+     */
     const [todoListData, setTodoListData] = useState(null);
 
     useEffect(() => {

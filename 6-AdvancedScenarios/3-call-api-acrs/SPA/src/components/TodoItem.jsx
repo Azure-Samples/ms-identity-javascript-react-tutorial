@@ -41,24 +41,24 @@ export const TodoItem = (props) => {
 
     const editingTemplate = (
         <div className="todo-edit">
-        <Form onSubmit={handleSubmit}>
-            <Form.Group>
-                <Form.Label htmlFor={props.id}>New name for {props.name}</Form.Label>
-                <Form.Control
-                    id={props.id}
-                    type="text"
-                    value={newName}
-                    onChange={handleChange}
-                    ref={editFieldRef}
-                />
-            </Form.Group>
-            <div className="btn-group">
-                <ButtonGroup>
-                    <Button variant="warning" type="button" onClick={() => setEditing(false)}>Cancel</Button>
-                    <Button variant="success" type="submit">Save</Button>
-                </ButtonGroup>
-            </div>
-        </Form>
+            <Form onSubmit={handleSubmit}>
+                <Form.Group>
+                    <Form.Label htmlFor={props.id}>New name for {props.name}</Form.Label>
+                    <Form.Control
+                        id={props.id}
+                        type="text"
+                        value={newName}
+                        onChange={handleChange}
+                        ref={editFieldRef}
+                    />
+                </Form.Group>
+                <div className="btn-group">
+                    <ButtonGroup>
+                        <Button variant="warning" type="button" onClick={() => setEditing(false)}>Cancel</Button>
+                        <Button variant="success" type="submit">Save</Button>
+                    </ButtonGroup>
+                </div>
+            </Form>
         </div>
     );
 
