@@ -66,7 +66,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 * A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
 * An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/test-setup-environment#get-a-test-tenant)
 * A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. If you're signed in to the [Azure portal](https://portal.azure.com) with a personal Microsoft account and have not created a user account in your directory before, you will need to create one before proceeding.
-* [An Azure Storage account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal)
+* [An Azure Storage account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) To access Azure Storage you will  need an active storage accunt.
 
 ## Setup the sample
 
@@ -162,7 +162,7 @@ To manually register the apps, as a first step you'll need to:
 
 ##### Assign Azure role-based access control (Azure RBAC)
 
-1. Ensure that [A Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) was created, and if not please create one.
+1. Ensure that [An Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) was created, and if not please create one.
 1. Assign the role `Storage Blob Data Contributor` to your user or group to have read and write access to your blob storage. Please see [Assign Azure roles using the Azure portal](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal?tabs=current).
 
 ##### Configure the spa app (ms-identity-react-c2s2) to use your app registration
@@ -214,18 +214,276 @@ If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../
 
 ## About the code
 
-### Calling the Microsoft Azure Resource Manager API
+### Protected resources and scopes
 
-[Azure SDK for JavaScript](https://github.com/Azure/azure-sdk-for-js) contains libraries for the breadth of Azure services. Management libraries are packages that you would use to provision and manage Azure resources. Client libraries are packages that you would use to consume these resources and interact with them. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the SubscriptionClient object, which contains an [BrowserCredential](https://github.com/Azure/azure-sdk-for-js/blob/@azure/identity_2.1.0/sdk/identity/identity/samples/AzureIdentityExamples.md#authenticating-with-msal-directly) object of class that handles the token acquisition process for the client.
+In order to access a protected resource on behalf of a signed-in user, the app needs to present a valid **Access Token** to that resource owner (in this case, Microsoft Graph). **Access Token** requests in **MSAL** are meant to be *per-resource-per-scope(s)*. This means that an **Access Token** requested for resource **A** with scope `scp1`:
+
+* cannot be used for accessing resource **A** with scope `scp2`, and,
+* cannot be used for accessing resource **B** of any scope.
+
+The intended recipient of an **Access Token** is represented by the `aud` claim (in this case, it should be the Microsoft Graph API's App ID); in case the value for the `aud` claim does not mach the resource **APP ID URI**, the token will be considered invalid by the API. Likewise, the permissions that an **Access Token** grants are provided in the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
+
+### Working with multiple resources
+
+When you have to access multiple resources, initiate a separate token request for each:
+
+ ```javascript
+     // "User.Read" stands as shorthand for "graph.microsoft.com/User.Read"
+     const graphToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "" ]
+     });
+     const customApiToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "api://<myCustomApiClientId>/My.Scope" ]
+     });
+ ```
+
+Bear in mind that you *can* request multiple scopes for the same resource (e.g. `User.Read`, `User.Write` and `Calendar.Read` for **MS Graph API**).
+
+ ```javascript
+     const graphToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read", "User.Write", "Calendar.Read"] // all MS Graph API scopes
+     });
+ ```
+
+In case you *erroneously* pass multiple resources in your token request, Azure AD will throw an exception, and your request will fail.
 
 ```javascript
+     // your request will fail for both resources
+     const myToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read", "api://<myCustomApiClientId>/My.Scope" ]
+     });
+ ```
+
+### Dynamic scopes and incremental consent
+
+In **Azure AD**, the scopes (permissions) set directly on the application registration are called static scopes. Other scopes that are only defined within the code are called dynamic scopes. This has implications on the **login** (i.e. loginPopup, loginRedirect) and **acquireToken** (i.e. `acquireTokenPopup`, `acquireTokenRedirect`, `acquireTokenSilent`) methods of **MSAL.js**. Consider:
+
+```javascript
+     const loginRequest = {
+          scopes: [ "openid", "profile", "User.Read" ]
+     };
+
+     const tokenRequest = {
+          scopes: [ "https://management.azure.com/user_impersonation" ]
+     };
+
+     // will return an ID Token and an Access Token with scopes: "openid", "profile" and "User.Read"
+     msalInstance.loginPopup(loginRequest);
+
+     // will fail and fallback to an interactive method prompting a consent screen
+     // after consent, the received token will be issued for "openid", "profile", "User.Read" and "Contacts.Read" combined
+     msalInstance.acquireTokenPopup(tokenRequest);
+```
+
+In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `https://management.azure.com/user_impersonation` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*. Read more on this topic at [Scopes, permissions and consent in the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent)
+
+### Acquire a Token
+
+**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. MSAL React uses these APIs underneath, while offering developers higher level hooks and templates to simplify the token acquisition process:
+
+```javascript
+export const Tenant = () => {
+    const { instance } = useMsal();
+    const [tenantInfo, setTenantInfo] = useState(null);
+    const account = instance.getActiveAccount();
+    const request = {
+        scopes: ["https://management.azure.com/user_impersonation"],
+        account: account,
+    };
+
+    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+
+    useEffect(() => {
+        if (!!tenantInfo) {
+            return;
+        }
+
+        if (!!error) {
+            // in case popup is blocked, use redirect instead
+            if (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error') {
+                login(InteractionType.Redirect, request);
+            }
+
+            console.log(error);
+            return;
+        }
+
+        const fetchData = async () => {
+            const client = await getSubscriptionClient();
+            const resArray = [];
+            for await (let item of client.tenants.list()) {
+                resArray.push(item);
+            }
+            setTenantInfo(resArray);
+        };
+        if (result) {
+            fetchData().catch((error) => {
+                console.log(error);
+            });
+        }
+    }, [tenantInfo, result, error, login]);
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
+    return <>{tenantInfo ? <TenantData response={result} tenantInfo={tenantInfo} /> : null}</>;
+};
+```
+
+> :information_source: Please see the documentation on [acquiring an access token](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/acquire-token.md) to learn more about various methods available in **MSAL.js** to acquire tokens. For MSAL React in particular, see the [useIsAuthenticated hook](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md#useisauthenticated-hook) to learn more about `useMsalAuthentication` hook to acquire tokens.
+
+### Calling the Microsoft Azure REST API and Azure Storage
+
+[Azure SDK for JavaScript](https://github.com/Azure/azure-sdk-for-js) contains libraries for the breadth of Azure services. Management libraries are packages that you would use to provision and manage Azure resources. Client libraries are packages that you would use to consume these resources and interact with them. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the `SubscriptionClient` object and the `BlobServiceClient` object, which both contains an [BrowserCredential](https://github.com/Azure/azure-sdk-for-js/blob/@azure/identity_2.1.0/sdk/identity/identity/samples/AzureIdentityExamples.md#authenticating-with-msal-directly) object of class that handles the token acquisition process for the client.
+
+```javascript
+/**
+ * Returns a subscription client object with the provided token acquisition options
+ */
 export const getSubscriptionClient = async () => {
     const browserCredential = new BrowserCredential(msalInstance, protectedResources.armTenants.scopes);
     await browserCredential.prepare();
+
     const client = new SubscriptionClient(browserCredential);
     return client;
 };
+
+/**
+ * Returns a blob service client object with the provided token acquisition options
+ */
+export const getBlobServiceClient = async () => {
+    const browserCredential = new BrowserCredential(msalInstance, protectedResources.armBlobStorage.scopes);
+    await browserCredential.prepare();
+    const client = new BlobServiceClient(
+        `https://${storageInformation.accountName}.blob.core.windows.net`,
+        browserCredential
+    );
+    return client;
+};
+
 ```
+
+**BrowserCredential** needs to implement the `TokenCredential` interface, which can be done as shown below:
+
+```javascript
+class BrowserCredential {
+    publicApp;
+    hasAuthenticated = false;
+    scopes;
+
+    constructor(msalInstance, scopes) {
+        this.publicApp = msalInstance;
+        this.scopes = scopes;
+    }
+
+    // Either confirm the account already exists in memory, or tries to parse the redirect URI values.
+    async prepare() {
+        try {
+            if (await this.publicApp.getActiveAccount()) {
+                this.hasAuthenticated = true;
+                return;
+            }
+            await this.publicApp.handleRedirectPromise();
+            this.hasAuthenticated = true;
+        } catch (e) {
+            console.error('BrowserCredential prepare() failed', e);
+        }
+    }
+
+    // Should be true if prepare() was successful.
+    isAuthenticated() {
+        return this.hasAuthenticated;
+    }
+
+    // If called, triggers authentication via redirection.
+    async loginRedirect() {
+        const loginRequest = {
+            scopes: this.scopes,
+        };
+        await this.app.loginRedirect(loginRequest);
+    }
+
+    // Tries to retrieve the token without triggering a redirection.
+    async getToken() {
+        if (!this.hasAuthenticated) {
+            throw new Error('Authentication required');
+        }
+
+        const parameters = {
+            account: await this.publicApp.getActiveAccount(),
+            scopes: this.scopes,
+        };
+
+        const result = await this.publicApp.acquireTokenSilent(parameters);
+        return {
+            token: result.accessToken,
+            expiresOnTimestamp: result.expiresOn.getTime(),
+        };
+    }
+}
+
+```
+
+See [azureManagement.js](./SPA/src/azureManagement.js). The Subscription client can be used in your components as shown below:
+
+```javascript
+ useEffect(() => {
+        if (!!tenantInfo) {
+            return;
+        }
+
+        if (!!error) {
+            // in case popup is blocked, use redirect instead
+            if (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error') {
+                login(InteractionType.Redirect, request);
+            }
+
+            console.log(error);
+            return;
+        }
+
+        const fetchData = async () => {
+            const client = await getSubscriptionClient();
+            const resArray = [];
+            for await (let item of client.tenants.list()) {
+                resArray.push(item);
+            }
+            setTenantInfo(resArray);
+        };
+        if (result) {
+            fetchData().catch((error) => {
+                console.log(error);
+            });
+        }
+    }, [tenantInfo, result, error, login]);
+```
+
+The Azure `BlobServiceClient` can be used in your component as shown:
+
+```javascript
+const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (uploadedFile) {
+            try {
+                const client = await getBlobServiceClient();
+                const containerClient = client.getContainerClient(storageInformation.containerName);
+                const hasContainer = await containerExist(client, storageInformation.containerName);
+                if (hasContainer) {
+                    const blockBlobClient = containerClient.getBlockBlobClient(uploadedFile.name);
+                    blockBlobClient.uploadData(uploadedFile);
+                } else {
+                    const createContainerResponse = await containerClient.create();
+                    const blockBlobClient = containerClient.getBlockBlobClient(uploadedFile.name);
+                    blockBlobClient.uploadData(uploadedFile);
+                    console.log('Container was created successfully', createContainerResponse.requestId);
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    };
+```
+
 
 ## Next Steps
 
