@@ -220,7 +220,13 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     Write-Host "Updating the sample config '$configFile' with the following config values"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-    if($isOpenSSL -eq 'Y')
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
+    Write-Host "- For spa"
+    Write-Host "  - Navigate to $spaPortalUrl"
+    Write-Host "  - Navigate to your storage account and assign the role 'Storage Blob Data Contributor' to your user. For more information see: https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal?tabs=current" -ForegroundColor Red 
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+       if($isOpenSSL -eq 'Y')
     {
         Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
         Write-Host "You have generated certificate using OpenSSL so follow below steps: "

@@ -31,8 +31,15 @@
                     "Resource": "Azure Storage",
                     "DelegatedPermissions": ["user_impersonation"]
                 }
+            ],
+            "ManualSteps": [
+                {
+                    "Comment": "Navigate to your storage account and assign the role 'Storage Blob Data Contributor' to your user. For more information see: https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal?tabs=current"
+                }
             ]
+
         }
+        
     ],
     "CodeConfiguration": [
         {
