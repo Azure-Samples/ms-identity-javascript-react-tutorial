@@ -42,7 +42,6 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 ## Scenario
 
 1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for Microsoft Graph API from **Azure AD**.
-![Scenario Image](./ReadmeFiles/topology.png)
 1. The access token is used to authorize the user with [Azure SDK for JavaScript](https://github.com/Azure/azure-sdk-for-js) to call **Azure Resource Manager API** and **Azure Storage API**
 
 ![Overview](./ReadmeFiles/topology.png)
