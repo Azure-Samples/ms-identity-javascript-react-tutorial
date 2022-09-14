@@ -5,11 +5,13 @@ import { useMsal, useMsalAuthentication } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { Container, Row } from 'react-bootstrap';
+import { Container, Row, Alert } from 'react-bootstrap';
 
 export const BlobStorage = () => {
     const { instance } = useMsal();
     const [uploadedFile, setUploadedFile] = useState(null);
+    const [message, setMessage] = useState('');
+    const [showMessage, setShowMessage] = useState(false);
     const account = instance.getActiveAccount();
 
     const request = {
@@ -33,6 +35,7 @@ export const BlobStorage = () => {
         if (result) {
             console.log(result);
         }
+        // eslint-disable-next-line
     }, [login, result, error, instance]);
 
     const containerExist = async (client, containerName) => {
@@ -45,6 +48,11 @@ export const BlobStorage = () => {
         return hasContainer;
     };
 
+    const handleAlert = () => {
+        setMessage("")
+        setShowMessage(false);
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (uploadedFile) {
@@ -55,20 +63,27 @@ export const BlobStorage = () => {
                 if (hasContainer) {
                     const blockBlobClient = containerClient.getBlockBlobClient(uploadedFile.name);
                     blockBlobClient.uploadData(uploadedFile);
+                    setMessage('Update file successfully');
                 } else {
                     const createContainerResponse = await containerClient.create();
                     const blockBlobClient = containerClient.getBlockBlobClient(uploadedFile.name);
                     blockBlobClient.uploadData(uploadedFile);
                     console.log('Container was created successfully', createContainerResponse.requestId);
+                    setMessage('Update file and created container successfully');
                 }
+                setShowMessage(true);
             } catch (error) {
                 console.log(error);
+                setMessage("couldn't upload file");
+                setShowMessage(true);
             }
         }
     };
 
     const handleFileUpload = (e) => {
         e.preventDefault();
+        setMessage('');
+        setShowMessage(false);
         setUploadedFile(e.target.files[0]);
     };
 
@@ -95,6 +110,15 @@ export const BlobStorage = () => {
                     <Button type="submit">Upload</Button>
                 </Form>
             </Row>
+            {showMessage ? (
+                <Row>
+                    <div className="data-area-div" onClick={handleAlert}>
+                        <Alert variant="success">
+                            <p>{message}</p>
+                        </Alert>
+                    </div>
+                </Row>
+            ) : null}
         </Container>
     );
 };

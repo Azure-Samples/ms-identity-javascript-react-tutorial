@@ -34,6 +34,10 @@
             ],
             "ManualSteps": [
                 {
+                   "Comment": "Create an Azure Storage account and add the account name to the authConfig.js file" 
+                }
+                ,
+                {
                     "Comment": "Navigate to your storage account and assign the role 'Storage Blob Data Contributor' to your user. For more information see: https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal?tabs=current"
                 }
             ]
