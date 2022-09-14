@@ -7,7 +7,7 @@ export const createClaimsTable = (claims) => {
     let claimsObj = {};
     let index = 0;
 
-    Object.keys(claims).map((key) => {
+    Object.keys(claims).forEach((key) => {
         switch (key) {
             case 'aud':
                 populateClaim(
