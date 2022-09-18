@@ -3,57 +3,99 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('./data/db.json');
 const db = lowdb(adapter);
 
-exports.getTodo = (req, res) => {
-    const id = req.params.id;
-    const owner = req.authInfo['preferred_username'];
+const { hasRequiredDelegatedPermissions } = require('../utils/permissionUtils');
 
-    const todo = db.get('todos')
-        .filter({owner: owner})
-        .find({id: id})
-        .value();
+const authConfig = require('../authConfig');
 
-    if (todo) {
-        res.status(200).send(todo);
-    } else {
-        res.status(404).send('Task not found.');
-    }
-}
+exports.getTodo = (req, res, next) => {
+    if (
+        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
+    ) {
+        try {
+            /**
+             * The 'oid' (object id) is the only claim that should be used to uniquely identify
+             * a user in an Azure AD tenant. The token might have one or more of the following claim,
+             * that might seem like a unique identifier, but is not and should not be used as such,
+             * especially for systems which act as system of record (SOR):
+             *
+             * - upn (user principal name): might be unique amongst the active set of users in a tenant but
+             * tend to get reassigned to new employees as employees leave the organization and
+             * others take their place or might change to reflect a personal change like marriage.
+             *
+             * - email: might be unique amongst the active set of users in a tenant but tend to get
+             * reassigned to new employees as employees leave the organization and others take their place.
+             */
+            const owner = req.authInfo['oid'];
+            const id = req.params.id;
 
-exports.getTodos = (req, res) => {
-    const owner = req.authInfo['preferred_username'];
+            const todo = db.get('todos').filter({ owner: owner }).find({ id: id }).value();
 
-    const todos = db.get('todos')
-        .filter({owner: owner})
-        .value();
+            res.status(200).send(todo);
+        } catch (error) {
+            next(error);
+        }
+    } else next(new Error('User does not have the required permissions'));
+};
 
-    res.status(200).send(todos);
-}
+exports.getTodos = (req, res, next) => {
+    if (
+        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
+    ) {
+        try {
+            const owner = req.authInfo['oid'];
 
-exports.postTodo = (req, res) => {
-    db.get('todos').push(req.body).write();
+            const todos = db.get('todos').filter({ owner: owner }).value();
 
-    res.status(200).json({message: "success"});
-}
+            res.status(200).send(todos);
+        } catch (error) {
+            next(error);
+        }
+    } else next(new Error('User or application does not have the required permissions'));
+};
 
-exports.updateTodo = (req, res) => {
-    const id = req.params.id;
-    const owner = req.authInfo['preferred_username'];
+exports.postTodo = (req, res, next) => {
+    if (
+        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
+    ) {
+        try {
+            db.get('todos').push(req.body).write();
+            res.status(200).json({ message: 'success' });
+        } catch (error) {
+            next(error);
+        }
+    } else next(new Error('User or application does not have the required permissions'));
+};
 
-    db.get('todos')
-        .find({owner: owner, id: id})
-        .assign(req.body)
-        .write();
+exports.updateTodo = (req, res, next) => {
+    if (
+        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
+    ) {
+        try {
+            const id = req.params.id;
+            const owner = req.authInfo['oid'];
 
-    res.status(200).json({message: "success"});
-}
+            db.get('todos').filter({ owner: owner }).find({ id: id }).assign(req.body).write();
 
-exports.deleteTodo = (req, res) => {
-    const id = req.params.id;
-    const owner = req.authInfo['preferred_username'];
+            res.status(200).json({ message: 'success' });
+        } catch (error) {
+            next(error);
+        }
+    } else next(new Error('User or application does not have the required permissions'));
+};
 
-    db.get('todos')
-        .remove({owner: owner, id: id})
-        .write();
+exports.deleteTodo = (req, res, next) => {
+    if (
+        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
+    ) {
+        try {
+            const id = req.params.id;
+            const owner = req.authInfo['oid'];
 
-    res.status(200).json({message: "success"});
-}
+            db.get('todos').remove({ owner: owner, id: id }).write();
+
+            res.status(200).json({ message: 'success' });
+        } catch (error) {
+            next(error);
+        }
+    } else next(new Error('User or application does not have the required permissions'));
+};

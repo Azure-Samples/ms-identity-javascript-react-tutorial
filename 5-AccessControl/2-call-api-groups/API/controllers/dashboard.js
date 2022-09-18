@@ -1,11 +1,24 @@
 const lowdb = require('lowdb');
-const FileSync = require('lowdb/adapters/FileSync');
-const adapter = new FileSync('./data/db.json');
-const db = lowdb(adapter);
+const FileAsync = require('lowdb/adapters/FileAsync');
+const adapter = new FileAsync('./data/db.json');
 
-exports.getAllTodos = (req, res) => {
-    const todos = db.get('todos')
-        .value();
+const { hasRequiredDelegatedPermissions } = require('../utils/permissionUtils');
 
-    res.status(200).send(todos);
-}
+const authConfig = require('../authConfig');
+
+exports.getAllTodos = async (req, res, next) => {
+    const db = await lowdb(adapter);
+
+    if (
+        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
+    ) {
+        try {
+            const todos = db.get('todos').value();
+            res.status(200).send(todos);
+        } catch (error) {
+            next(error);
+        }
+    } else {
+        next(new Error('User does not have the required permissions'));
+    }
+};

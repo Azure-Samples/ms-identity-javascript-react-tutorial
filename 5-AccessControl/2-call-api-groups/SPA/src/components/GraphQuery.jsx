@@ -1,13 +1,13 @@
-import Button from "react-bootstrap/Button";
-import ListGroup from "react-bootstrap/ListGroup";
-import ListGroupItem from "react-bootstrap/ListGroupItem";
-import { useHistory } from "react-router-dom";
+import Button from 'react-bootstrap/Button';
+import ListGroup from 'react-bootstrap/ListGroup';
+import ListGroupItem from 'react-bootstrap/ListGroupItem';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const GraphQuery = (props) => {
-    const history = useHistory();
-
+    const navigate = useNavigate();
+    const location = useLocation();
     const handleConfirm = () => {
-        history.push(history.location.state.origin, { groupsData: props.groupsData });
+        navigate(location.state, { state: { groupsData: props.groupsData } });
     };
 
     return (
@@ -17,8 +17,12 @@ export const GraphQuery = (props) => {
             <Button onClick={handleConfirm}>I understand</Button>
             <br />
             <ListGroup className="list-group-item">
-                {props.groupsData.map((gr, id) => <ListGroupItem className="list-group-item align-items-center" key={id}>{gr}</ListGroupItem>)}
+                {props.groupsData.map((gr, id) => (
+                    <ListGroupItem className="list-group-item align-items-center" key={id}>
+                        {gr}
+                    </ListGroupItem>
+                ))}
             </ListGroup>
         </div>
     );
-}
+};

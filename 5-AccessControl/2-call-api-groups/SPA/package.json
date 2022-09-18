@@ -1,27 +1,33 @@
 {
   "name": "ms-identity-react-c5s2",
   "version": "0.1.0",
-  "description": "A React single-page application using MSAL React to call a protected web API on Azure Active Directory",
+  "private": true,
   "dependencies": {
-    "@azure/msal-browser": "^2.16.0",
-    "@azure/msal-react": "^1.0.1",
-    "bootstrap": "^4.5.3",
-    "jquery": "^3.5.1",
-    "popper.js": "^1.16.1",
-    "react": "^17.0.0",
-    "react-bootstrap": "^1.5.2",
-    "react-dom": "^17.0.0",
-    "react-router-dom": "^5.2.0",
-    "uuid": "^8.3.2"
-  },
-  "devDependencies": {
-    "react-scripts": "4.0.1"
+    "@azure/msal-browser": "^2.28.3",
+    "@azure/msal-react": "^1.4.7",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "bootstrap": "^5.2.1",
+    "react": "^18.2.0",
+    "react-bootstrap": "^2.5.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.3.0",
+    "react-scripts": "5.0.1",
+    "uuid": "^9.0.0",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
   "browserslist": {
     "production": [

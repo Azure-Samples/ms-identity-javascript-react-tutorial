@@ -1,8 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
-import Button from "react-bootstrap/Button";
-import ButtonGroup from "react-bootstrap/ButtonGroup";
-import Form from "react-bootstrap/Form";
-import ListGroupItem from "react-bootstrap/ListGroupItem";
+import React, { useEffect, useRef, useState } from 'react';
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Form from 'react-bootstrap/Form';
+import ListGroupItem from 'react-bootstrap/ListGroupItem';
 
 const usePrevious = (value) => {
     const ref = useRef();
@@ -12,7 +12,7 @@ const usePrevious = (value) => {
     });
 
     return ref.current;
-}
+};
 
 export const TodoItem = (props) => {
     const [isEditing, setEditing] = useState(false);
@@ -25,7 +25,7 @@ export const TodoItem = (props) => {
 
     const handleChange = (e) => {
         setNewName(e.target.value);
-    }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -37,28 +37,32 @@ export const TodoItem = (props) => {
         props.editTask(props.id, newName);
         setNewName('');
         setEditing(false);
-    }
+    };
 
     const editingTemplate = (
         <div className="todo-edit">
-        <Form onSubmit={handleSubmit}>
-            <Form.Group>
-                <Form.Label htmlFor={props.id}>New name for {props.name}</Form.Label>
-                <Form.Control
-                    id={props.id}
-                    type="text"
-                    value={newName}
-                    onChange={handleChange}
-                    ref={editFieldRef}
-                />
-            </Form.Group>
-            <div className="btn-group">
-                <ButtonGroup>
-                    <Button variant="warning" type="button" onClick={() => setEditing(false)}>Cancel</Button>
-                    <Button variant="success" type="submit">Save</Button>
-                </ButtonGroup>
-            </div>
-        </Form>
+            <Form onSubmit={handleSubmit}>
+                <Form.Group>
+                    <Form.Label htmlFor={props.id}>New name for {props.name}</Form.Label>
+                    <Form.Control
+                        id={props.id}
+                        type="text"
+                        value={newName}
+                        onChange={handleChange}
+                        ref={editFieldRef}
+                    />
+                </Form.Group>
+                <div className="btn-group">
+                    <ButtonGroup>
+                        <Button variant="warning" type="button" onClick={() => setEditing(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="success" type="submit">
+                            Save
+                        </Button>
+                    </ButtonGroup>
+                </div>
+            </Form>
         </div>
     );
 
@@ -76,15 +80,18 @@ export const TodoItem = (props) => {
                     {props.name}
                 </label>
                 <ButtonGroup className="todo-view-btn">
-                    <Button variant="warning" onClick={() => setEditing(true)} ref={editButtonRef}>Edit</Button>
-                    <Button variant="danger" onClick={() => props.deleteTask(props.id)}>Delete</Button>
+                    <Button variant="warning" onClick={() => setEditing(true)} ref={editButtonRef}>
+                        Edit
+                    </Button>
+                    <Button variant="danger" onClick={() => props.deleteTask(props.id)}>
+                        Delete
+                    </Button>
                 </ButtonGroup>
             </Form.Group>
         </div>
     );
 
     useEffect(() => {
-
         if (!wasEditing && isEditing) {
             editFieldRef.current.focus();
         }
@@ -92,8 +99,7 @@ export const TodoItem = (props) => {
         if (wasEditing && !isEditing) {
             editButtonRef.current.focus();
         }
-
     }, [wasEditing, isEditing]);
 
     return <ListGroupItem className="todo-item">{isEditing ? editingTemplate : viewTemplate}</ListGroupItem>;
-}
+};
