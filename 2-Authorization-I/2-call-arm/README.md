@@ -2,7 +2,6 @@
 page_type: sample
 services: ms-identity
 client: React SPA
-service: 
 level: 100
 languages:
  - javascript
@@ -85,7 +84,7 @@ or download and extract the repository *.zip* file.
 ### Step 2: Install project dependencies
 
 ```console
-    cd 2-Authorization-I\2-call-arm
+    cd 2-Authorization-I\2-call-arm\SPA 
     npm install
 ```
 
@@ -181,7 +180,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 From your shell or command line, execute the following commands:
 
 ```console
-    cd ms-identity-react-c2s2
+    cd 2-Authorization-I\2-call-arm\SPA 
     npm start
 ```
 

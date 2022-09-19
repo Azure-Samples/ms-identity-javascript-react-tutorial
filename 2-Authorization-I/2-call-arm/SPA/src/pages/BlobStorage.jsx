@@ -31,10 +31,6 @@ export const BlobStorage = () => {
             console.log(error);
             return;
         }
-
-        if (result) {
-            console.log(result);
-        }
         // eslint-disable-next-line
     }, [login, result, error, instance]);
 
