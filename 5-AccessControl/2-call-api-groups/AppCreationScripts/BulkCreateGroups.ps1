@@ -81,8 +81,8 @@ Function ConfigureApplications {
     }
 
     # Add user object Id here
-    $usersobjectId = "Add_user_object_id"
-
+    $usersobjectId = Read-Host -Prompt "Enter the user object ID"
+    
     $user = Get-MgUser -UserId $usersobjectId
 
     CreateGroupsAndAssignUser -user $user
