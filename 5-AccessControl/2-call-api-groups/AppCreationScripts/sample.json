@@ -29,7 +29,7 @@
         "scopes": ["access_using_groups_assignments"],
         "ManualSteps": [
             {
-                "Comment": "Please create a security groups and add the group's ID's to your authConfig file"
+                "Comment": "Create your security groups and add the group's IDs to the authConfig files"
             },
             {
                 "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)"
@@ -60,7 +60,7 @@
         ],
         "ManualSteps": [
             {
-                "Comment": "Please create a security groups and add the group's ID's to your authConfig file"
+                "Comment": "Create your security groups and add the group's IDs to the authConfig files"
             },
             {
                "Comment": "Navigate to the SPA Permissions page and select 'Grant admin consent for (your tenant)"

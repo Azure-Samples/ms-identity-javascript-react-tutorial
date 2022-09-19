@@ -7,7 +7,7 @@ import { TodoList } from './pages/TodoList';
 import { Dashboard } from './pages/Dashboard';
 
 import './styles/App.css';
-import { PageLayout } from './components/pageLayout';
+import { PageLayout } from './components/PageLayout';
 
 import { securityGroups } from './authConfig';
 import { Overage } from './pages/Overage';

@@ -443,11 +443,11 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For service"
     Write-Host "  - Navigate to $servicePortalUrl"
-    Write-Host "  - Please create a security groups and add the group's ID's to your authConfig file" -ForegroundColor Red 
+    Write-Host "  - Create your security groups and add the group's IDs to the authConfig files" -ForegroundColor Red 
     Write-Host "  - Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)" -ForegroundColor Red 
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
-    Write-Host "  - Please create a security groups and add the group's ID's to your authConfig file" -ForegroundColor Red 
+    Write-Host "  - Create your security groups and add the group's IDs to the authConfig files" -ForegroundColor Red 
     Write-Host "  - Navigate to the SPA Permissions page and select 'Grant admin consent for (your tenant)" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
