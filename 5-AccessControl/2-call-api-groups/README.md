@@ -265,8 +265,19 @@ For instance:
 
 > :warning: You may already have security groups with the names below defined in your tenant and/or you may not have permissions to create new security groups. In that case, skip the steps below and update the configuration files in your project(s) with the desired names/IDs of the groups.
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
-1. Select **Groups** blade on the left.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.   
+1. In the **Groups** blade, select **New Group**.
+    1. For **Group Type**, select **Security**
+    1. For **Group Name**, enter **GroupAdmin**
+    1. For **Group Description**, enter **Admin Security Group**
+    1. Add **Group Owners** and **Group Members** as you see fit.
+    1. Select **Create**.
+1. In the **Groups** blade, select **New Group**.
+    1. For **Group Type**, select **Security**
+    1. For **Group Name**, enter **GroupMember**
+    1. For **Group Description**, enter **User Security Group**
+    1. Add **Group Owners** and **Group Members** as you see fit.
+    1. Select **Create**.
 
 For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
 

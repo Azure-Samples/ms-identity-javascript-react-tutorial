@@ -48,6 +48,16 @@
             "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
             "ProjectDirectory": "\\2-call-api-groups\\SPA"
         },
+        "SecurityGroups": [
+            {
+                "Name": "GroupAdmin",
+                "Description": "Admin Security Group"
+            },
+            {
+                "Name": "GroupMember",
+                "Description": "User Security Group"
+            }
+        ],
         "RequiredResourcesAccess": [
             {
                 "Resource": "service",
@@ -63,7 +73,7 @@
                 "Comment": "Create your security groups and add the group's IDs to the authConfig files"
             },
             {
-               "Comment": "Navigate to the SPA Permissions page and select 'Grant admin consent for (your tenant)"
+                "Comment": "Navigate to the SPA Permissions page and select 'Grant admin consent for (your tenant)"
             }
         ]
     }
