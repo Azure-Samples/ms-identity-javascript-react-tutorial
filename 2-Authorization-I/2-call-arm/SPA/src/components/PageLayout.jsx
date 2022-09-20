@@ -26,8 +26,7 @@ export const PageLayout = (props) => {
                             target="_blank"
                             rel="noopener noreferrer"
                         >
-                            {' '}
-                            Share your experience!
+                            {' Share your experience!'}
                         </a>
                     </center>
                 </footer>
