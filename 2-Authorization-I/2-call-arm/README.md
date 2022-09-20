@@ -155,7 +155,7 @@ To manually register the apps, as a first step you'll need to:
 
 ##### Assign Azure role-based access control (Azure RBAC)
 
-1. Ensure that [An Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) was created, and if not please create one.
+1. Ensure that an [Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) was created. If not, please create one.
 1. Assign the role `Storage Blob Data Contributor` to your user or group to have read and write access to your blob storage. Please see [Assign Azure roles using the Azure portal](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal?tabs=current).
 
 ##### Configure the spa app (ms-identity-react-c2s2) to use your app registration
