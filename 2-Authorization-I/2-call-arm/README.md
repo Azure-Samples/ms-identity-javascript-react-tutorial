@@ -158,6 +158,16 @@ To manually register the apps, as a first step you'll need to:
 1. Ensure that an [Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) was created. If not, please create one.
 1. Assign the role `Storage Blob Data Contributor` to your user or group to have read and write access to your blob storage. Please see [Assign Azure roles using the Azure portal](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal?tabs=current).
 
+##### Configure Cross-Origin Resource Sharing (CORS) support for your Azure Storage
+
+1. Navigate to your Azure Storage Account.
+1. Select the **Resource sharing (CORS)** blade on the left. Make sure that **Blob service** is selected.
+1. In **Allowed origins** add the domain name `http://localhost:3000/` and make sure there is no trailing slash.
+1. In **Allowed methods** select `GET, PUT, DELETE, OPTIONS`.
+1. In **Allowed headers** add `*`.
+1. In **Exposed headers** add `*`.
+1. Select **Save**.
+
 ##### Configure the spa app (ms-identity-react-c2s2) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
@@ -186,6 +196,8 @@ From your shell or command line, execute the following commands:
 ![Screenshot](./ReadmeFiles/screenshotOne.png)
 1. Select the **Storage** button on the navigation bar. After that use the form upload a file to Azure Storage.
 ![Screenshot](./ReadmeFiles/screenshotTwo.png)
+1. Navigate back to  **Azure Portal** and check the uploaded file under your storage account under the `ms-identity-react-c2s2` container.
+![Screenshot](./ReadmeFiles/storage.png)
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
