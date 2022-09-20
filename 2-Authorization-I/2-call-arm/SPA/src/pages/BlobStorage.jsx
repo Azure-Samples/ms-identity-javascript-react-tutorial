@@ -59,7 +59,7 @@ export const BlobStorage = () => {
                 if (hasContainer) {
                     const blockBlobClient = containerClient.getBlockBlobClient(uploadedFile.name);
                     blockBlobClient.uploadData(uploadedFile);
-                    setMessage('Update file successfully');
+                    setMessage('File uploaded successfully');
                 } else {
                     const createContainerResponse = await containerClient.create();
                     const blockBlobClient = containerClient.getBlockBlobClient(uploadedFile.name);
