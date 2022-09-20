@@ -2,13 +2,14 @@
     "Sample": {
         "Title": "React single-page application using MSAL React to sign-in users and call Azure REST API and Azure Storage",
         "Level": 100,
+        "Author": "salman90",
         "Client": "React SPA",
-        "Service": "",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0",
-        "Languages": ["javascript", "react"],
-        "Products": ["azure-active-directory", "msal-react"],
-        "description": "This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Azure Resource Manager API](https://docs.microsoft.com/en-us/rest/api/resources) and [Azure Storage API](https://docs.microsoft.com/en-us/rest/api/storageservices/) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React)."
+        "Languages": ["javascript"],
+        "Platform": ["javascript"],
+        "Products": ["azure-active-directory", "msal-js", "msal-react", "azure-storage", "azure-resource-manage"],
+        "Description": "This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Azure Resource Manager API](https://docs.microsoft.com/en-us/rest/api/resources) and [Azure Storage API](https://docs.microsoft.com/en-us/rest/api/storageservices/) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React)."
     },
     "AADApps": [
         {
