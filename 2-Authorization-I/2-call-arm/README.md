@@ -140,7 +140,6 @@ To manually register the apps, as a first step you'll need to:
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
    1. Select the **Add a permission** button and then:
-
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the list of APIs, select the API `Windows Azure Service Management API`.
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
