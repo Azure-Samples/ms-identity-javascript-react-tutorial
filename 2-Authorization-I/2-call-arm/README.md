@@ -477,7 +477,6 @@ const handleSubmit = async (e) => {
     };
 ```
 
-
 ## Next Steps
 
 Learn how to:
