@@ -180,7 +180,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 From your shell or command line, execute the following commands:
 
 ```console
-    cd 2-Authorization-I\2-call-arm\SPA 
+    cd 2-Authorization-I\2-call-arm\SPA
     npm start
 ```
 
@@ -333,7 +333,7 @@ export const Tenant = () => {
 
 ### Calling the Microsoft Azure REST API and Azure Storage
 
-[Azure SDK for JavaScript](https://github.com/Azure/azure-sdk-for-js) contains libraries for the breadth of Azure services. Management libraries are packages that you would use to provision and manage Azure resources. Client libraries are packages that you would use to consume these resources and interact with them. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the `SubscriptionClient` object and the `BlobServiceClient` object, which both contains an [BrowserCredential](https://github.com/Azure/azure-sdk-for-js/blob/@azure/identity_2.1.0/sdk/identity/identity/samples/AzureIdentityExamples.md#authenticating-with-msal-directly) object of class that handles the token acquisition process for the client.
+[Azure SDK for JavaScript](https://github.com/Azure/azure-sdk-for-js) contains libraries for the breadth of Azure services. Management libraries are packages that you would use to provision and manage Azure resources. Client libraries are packages that you would use to consume these resources and interact with them. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the `SubscriptionClient` object and the `BlobServiceClient` object, which both contain a [BrowserCredential](https://github.com/Azure/azure-sdk-for-js/blob/@azure/identity_2.1.0/sdk/identity/identity/samples/AzureIdentityExamples.md#authenticating-with-msal-directly) object of a class that handles the token acquisition process for the client.
 
 ```javascript
 /**
