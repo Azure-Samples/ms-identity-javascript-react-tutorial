@@ -149,7 +149,7 @@ To manually register the apps, as a first step you'll need to:
 
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the list of APIs, select the API `Azure Storage`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
+      1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
            1. In the **Delegated permissions** section, select the **user_impersonation** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 
