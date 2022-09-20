@@ -1,16 +1,12 @@
 ---
 page_type: sample
-services: ms-identity
-client: React SPA
-level: 100
 languages:
  - javascript
- - react
 products:
  - azure-active-directory
  - msal-react
-platform: DotNet
-endpoint: AAD v2.0
+ - azure-storage
+ - azure-resource-manager
 urlFragment: ms-identity-javascript-react-tutorial
 name: React single-page application using MSAL React to sign-in users and call Azure REST API and Azure Storage
 description: This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Azure Resource Manager API](https://docs.microsoft.com/en-us/rest/api/resources) and [Azure Storage API](https://docs.microsoft.com/en-us/rest/api/storageservices/) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
