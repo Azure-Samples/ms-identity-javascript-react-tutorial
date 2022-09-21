@@ -55,7 +55,7 @@ export const protectedResources = {
     apiTodoList: {
         todoListEndpoint: 'http://localhost:5000/api/todolist',
         dashboardEndpoint: 'http://localhost:5000/api/dashboard',
-        scopes: ['Enter_the_Web_Api_App_Id_Uri_Here/access_as_user'],
+        scopes: ['api://Enter_the_Web_Api_App_Id_Uri_Here/access_via_approle_assignments'],
     },
 };
 

@@ -282,7 +282,7 @@ Function ConfigureApplications
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value access_as_user  `
+    $scope = CreateScope -value access_via_approle_assignments  `
     -userConsentDisplayName "Access msal-react-spa"  `
     -userConsentDescription "Allow the application to access msal-react-spa on your behalf."  `
     -adminConsentDisplayName "Access msal-react-spa"  `
@@ -303,7 +303,7 @@ Function ConfigureApplications
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
     $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-react-spa" `
-        -requiredDelegatedPermissions "access_as_user" `
+        -requiredDelegatedPermissions "access_via_approle_assignments" `
 
     $requiredResourcesAccess.Add($requiredPermission)
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
@@ -313,6 +313,39 @@ Function ConfigureApplications
 
     # print the registered app portal URL for any further navigation
     $clientPortalUrl
+Function UpdateLine([string] $line, [string] $value)
+{
+    $index = $line.IndexOf(':')
+    $lineEnd = ''
+
+    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
+    
+    if ($index -ige 0)
+    {
+        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
+    }
+    return $line
+}
+
+Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
+{
+    $lines = Get-Content $configFilePath
+    $index = 0
+    while($index -lt $lines.Length)
+    {
+        $line = $lines[$index]
+        foreach($key in $dictionary.Keys)
+        {
+            if ($line.Contains($key))
+            {
+                $lines[$index] = UpdateLine $line $dictionary[$key]
+            }
+        }
+        $index++
+    }
+
+    Set-Content -Path $configFilePath -Value $lines -Force
+}
     
     # Update config file for 'client'
     # $configFile = $pwd.Path + "\..\API\authConfig.js"
@@ -320,7 +353,7 @@ Function ConfigureApplications
     
     $dictionary = @{ "tenantID" = $tenantId;"clientID" = $clientAadApplication.AppId };
 
-    Write-Host "Updating the sample config '$configFile' with the following config values"
+    Write-Host "Updating the sample config '$configFile' with the following config values:"
     $dictionary
 
     UpdateTextFile -configFilePath $configFile -dictionary $dictionary
@@ -329,9 +362,9 @@ Function ConfigureApplications
     # $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
     $configFile = $(Resolve-Path ($pwd.Path + "\..\SPA\src\authConfig.js"))
     
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_here" = ("api://"+$clientAadApplication.AppId+"/access_as_user");"Enter_the_Web_Api_App_Id_Uri_Here" = $clientAadApplication.AppId };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_App_Id_Uri_Here" = $clientAadApplication.AppId };
 
-    Write-Host "Updating the sample config '$configFile' with the following config values"
+    Write-Host "Updating the sample config '$configFile' with the following config values:"
     $dictionary
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary

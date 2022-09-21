@@ -48,14 +48,14 @@ const bearerStrategy = new passportAzureAd.BearerStrategy({
      * This ensures only the applications with the right client ID can access this API.
      * To do so, we use "azp" claim in the access token. Uncomment the lines below to enable this check.
      */
+    const myAllowedClientsList = [
+        /* add here the client IDs of the applications that are allowed to call this API */
+        authConfig.credentials.clientID,
+    ]
 
-    // const myAllowedClientsList = [
-    //     /* add here the client IDs of the applications that are allowed to call this API */
-    // ]
-    
-    // if (!myAllowedClientsList.includes(token.azp)) {
-    //     return done(new Error('Unauthorized'), {}, "Client not allowed");
-    // }
+    if (!myAllowedClientsList.includes(token.azp)) {
+        return done(new Error('Unauthorized'), {}, "Client not allowed");
+    }
 
 
     /**
@@ -78,6 +78,7 @@ app.use(passport.initialize());
 passport.use(bearerStrategy);
 
 app.use('/api', (req, res, next) => {
+    
     passport.authenticate('oauth-bearer', { session: false }, (err, user, info) => {
         if (err) {
             /**

@@ -18,7 +18,7 @@ const passportConfig = {
         todolist: {
             endpoint: '/api',
             delegatedPermissions: {
-                scopes: ['access_as_user'],
+                scopes: ['access_via_approle_assignments'],
             },
         },
     },

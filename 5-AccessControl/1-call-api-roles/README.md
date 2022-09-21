@@ -171,7 +171,7 @@ To manually register the apps, as a first step you'll need to:
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `access_as_user`.
+    1. For **Scope name**, use `access_via_approle_assignments`.
     1. Select **Admins and users** options for **Who can consent?**.
     1. For **Admin consent display name** type in *Access 'msal-react-spa' as the signed-in user.*.
     1. For **Admin consent description** type in *Allow the app to access the 'msal-react-spa' as a signed-in user.*.
@@ -193,7 +193,7 @@ To manually register the apps, as a first step you'll need to:
    1. Ensure that the **My APIs** tab is selected.
    1. In the list of APIs, select the API `msal-react-spa`.
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
+           1. In the **Delegated permissions** section, select the **access_via_approle_assignments** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 
 ##### Publish Application Roles for users and groups
@@ -205,7 +205,7 @@ To manually register the apps, as a first step you'll need to:
     1. For **Value**, enter **TaskAdmin**.
     1. For **Description**, enter **Admins can read and write any user's todo list**.
     > Repeat the steps above for another role named **TaskUser**
-    1. Select **Apply** to save your changes. 
+    1. Select **Apply** to save your changes.
 
 To add users to this app role, follow the guidelines here: [Assign users and groups to roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-users-and-groups-to-roles).
 
@@ -236,7 +236,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `SPA\src\authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
-1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with Scope.
 1. Find the key `Enter_the_Web_Api_App_Id_Uri_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 
 ### Step 5: Running the sample

@@ -19,7 +19,7 @@
       "Audience": "AzureADMyOrg",
       "HomePage": "http://localhost:3000/",
       "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
-      "Scopes": [ "access_using_approle_assignments" ],
+      "Scopes": [ "access_via_approle_assignments" ],
       "Sample": {
         "SampleSubPath": "5-AccessControl\\1-call-api-roles\\SPA",
         "ProjectDirectory": "\\1-call-api-roles\\SPA"
@@ -27,7 +27,7 @@
       "RequiredResourcesAccess": [
         {
           "Resource": "client",
-          "DelegatedPermissions": [ "access_using_approle_assignments" ]
+          "DelegatedPermissions": [ "access_via_approle_assignments" ]
         }
       ],
       "AppRoles": [
@@ -83,10 +83,6 @@
         {
           "key": "Enter_the_Tenant_Info_Here",
           "value": "$tenantId"
-        },
-        {
-          "key": "Enter_the_Web_Api_Scope_here",
-          "value": "client.Scope"
         },
         {
           "key": "Enter_the_Web_Api_App_Id_Uri_Here",
