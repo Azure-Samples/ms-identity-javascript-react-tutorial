@@ -4,10 +4,19 @@ services: ms-identity
 client: React SPA
 service: Node.js & Express web API
 level: 300
+languages:
+ - javascript
+products:
+ - azure-active-directory
+ - ms-graph
+ - msal-js
+ - msal-react
+ - msal-node
+platform: javascript
 endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-react-tutorial
 name: React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control
-description: This sample demonstrates a cross-platform application suite involving an React single-page application (TodoListSPA) calling an Node.js web API (TodoListAPI) secured with the Microsoft identity platform. In doing so, it implements Role-based Access Control (RBAC) by using Azure AD Security Groups.
+description: React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control
 ---
 
 # React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control
@@ -26,7 +35,7 @@ description: This sample demonstrates a cross-platform application suite involvi
 
 ## Overview
 
-This sample demonstrates a cross-platform application suite involving an React single-page application (*TodoListSPA*) calling an Node.js web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **Security Groups**.
+This sample demonstrates a cross-platform application suite involving an React single-page application (*TodoListSPA*) calling an Node.js web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **[Security Groups](https://learn.microsoft.com/azure/active-directory/fundamentals/how-to-manage-groups)**.
 
 Access control in Azure AD can also be done with **App Roles**, as shown in the [previous tutorial](../1-call-api-roles/README.md). **Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
@@ -204,8 +213,8 @@ To manually register the apps, as a first step you'll need to:
 
 1. Still on the same app registration, select the **Token configuration** blade to the left.
 1. Select **Add optional claim**:
-    1. Select **optional claim type**, then choose **Access**.
-    1. Select the optional claim **idtyp**. Indicates token type.This claim is the most accurate way for an API to determine if a token is an app token or an app+user token
+    1. Select **optional claim type**, then choose **ID**.
+    1. Select the optional claim **acct**. Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
     1. Select **Add** to save your changes.
 
 ##### Configure the client app (msal-react-app) to use your app registration
@@ -291,6 +300,18 @@ You have two different options available to you on how you can further configure
 > :bulb: **Important security tip**
 >
 > When you set **User assignment required?** to **Yes**, Azure AD will check that only users assigned to your application in the **Users and groups** blade are able to sign-in to your app. You can assign users directly or by assigning security groups they belong to.
+
+#### Configure the app to recognize Group IDs
+
+> :warning: During **Token Configuration**, if you have chosen any other option except **groupID** (e.g. like **DNSDomain\sAMAccountName**) you should enter the **group name** (for example `contoso.com\Test Group`) instead of the **object ID** below:
+
+1. Open the `SPA\src\authConfig.js` file.
+2. Find the key `Enter_the_Object_Id_of_GroupAdmin_Group_Here` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
+3. Find the key `Enter_the_Object_Id_of_GroupMember_Group_Here` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
+
+4. Open the `API\authConfig.json` file.
+5. Find the key `Enter_the_Object_Id_of_GroupAdmin_Group_Here` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
+6. Find the key `Enter_the_Object_Id_of_GroupMember_Group_Here` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
 
 ### Step 4: Running the sample
 

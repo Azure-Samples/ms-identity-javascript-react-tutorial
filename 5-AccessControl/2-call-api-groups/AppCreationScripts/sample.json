@@ -1,11 +1,15 @@
 {
   "Sample": {
-    "Title": "React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control",
-    "Level": 300,
-    "Client": "React SPA",
-    "Service": "Node.js & Express web API",
-    "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-    "Endpoint": "AAD v2.0"
+      "Title": "React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control",
+      "Level": 300,
+      "Client": "React SPA",
+      "Service": "Node.js & Express web API",
+      "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+      "Endpoint": "AAD v2.0",
+      "platform": "javascript",
+      "Languages": ["javascript"],
+      "Description": "React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control",
+      "products": ["azure-active-directory", "ms-graph", "msal-js", "msal-react", "msal-node"]
   },
   "AADApps": [
     {
