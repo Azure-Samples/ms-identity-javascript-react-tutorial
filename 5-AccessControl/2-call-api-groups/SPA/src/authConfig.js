@@ -57,7 +57,7 @@ export const protectedResources = {
     apiTodoList: {
         todoListEndpoint: 'http://localhost:5000/api/todolist',
         dashboardEndpoint: 'http://localhost:5000/api/dashboard',
-        scopes: ['Enter_the_Web_Api_Scope_here'],
+        scopes: ['api://Enter_the_Application_Id_Here/access_via_groups_assignments'],
     },
     apiGraph: {
         endpoint: 'https://graph.microsoft.com/v1.0/me/memberOf',

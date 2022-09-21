@@ -96,7 +96,9 @@ or download and extract the repository *.zip* file.
 
 ### Step 3: Register the sample application(s) in your tenant
 
-There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
+While there are multiple projects in this sample, we'd register just one app with Azure AD and use the registered app's *client id* in both apps. This reuse of app ids (client ids) is used when the apps themselves are just components of one larger app topology.  
+
+There is one project in this sample. To register it, you can:
 
 * follow the steps below for manually register your apps
 * or use PowerShell scripts that:
@@ -134,31 +136,29 @@ To manually register the apps, as a first step you'll need to:
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
-#### Register the service app (msal-node-api)
+#### Register the client app (msal-react-app)
+
+> :information_source: Below, we are using a single app registration for both SPA and web API projects.
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-node-api`.
+    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-app`.
     1. Under **Supported account types**, select **Accounts in this organizational directory only**
     1. Select **Register** to create the application.
 1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. In the app's registration screen, select the **Authentication** blade to the left.
+1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
+    1. In the **Redirect URI** section enter the following redirect URIs:
+        1. `http://localhost:3000/`
+        1. `http://localhost:3000/redirect.html`
+    1. Click **Save** to save your changes.
 1. In the app's registration screen, select the **Certificates & secrets** blade in the left to open the page where you can generate secrets and upload certificates.
 1. In the **Client secrets** section, select **New client secret**:
     1. Type a key description (for instance `app secret`).
     1. Select one of the available key durations (**6 months**, **12 months** or **Custom**) as per your security posture.
     1. The generated key value will be displayed when you select the **Add** button. Copy and save the generated value for use in later steps.
     1. You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Azure portal before navigating to any other screen or blade.
-
-1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-   1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
-   1. Select the **Add a permission** button and then,
-   1. Ensure that the **Microsoft APIs** tab is selected.
-   1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
-   1. Select the **Add permissions** button at the bottom.
-   1. **GroupMember.Read.All** requires admin to consent. Select the Grant/revoke admin consent for {tenant} button, and then select Yes when you are asked if you want to grant consent for the requested permissions for all account in the tenant. You need to be an Azure AD tenant admin to do this.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
     1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
     1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
@@ -167,7 +167,7 @@ To manually register the apps, as a first step you'll need to:
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `access_using_groups_assignments`.
+    1. For **Scope name**, use `access_via_groups_assignments`.
     1. Select **Admins and users** options for **Who can consent?**.
     1. For **Admin consent display name** type in *scopeName*.
     1. For **Admin consent description** type in *e.g. Allows the app to read the signed-in user's files.*.
@@ -181,49 +181,16 @@ To manually register the apps, as a first step you'll need to:
 
 > :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
 
-##### Configure Optional Claims
-
-1. Still on the same app registration, select the **Token configuration** blade to the left.
-1. Select **Add optional claim**:
-    1. Select **optional claim type**, then choose **Access**.
-    1. Select the optional claim **idtyp**. Indicates token type.This claim is the most accurate way for an API to determine if a token is an app token or an app+user token
-    1. Select **Add** to save your changes.
-
-##### Configure the service app (msal-node-api) to use your app registration
-
-Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
-
-> In the steps below, "ClientID" is the same as "Application ID" or "AppId".
-
-1. Open the `API\authConfig.json` file.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
-1. Find the key `Enter_the_Client_Secret_Here` and replace the existing value with the key you saved during the creation of `msal-node-api` copied from the Azure portal.
-
-#### Register the client app (msal-react-spa)
-
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
-1. Select the **App Registrations** blade on the left, then select **New registration**.
-1. In the **Register an application page** that appears, enter your application's registration information:
-    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
-    1. Under **Supported account types**, select **Accounts in this organizational directory only**
-    1. Select **Register** to create the application.
-1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. In the app's registration screen, select the **Authentication** blade to the left.
-1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
-    1. In the **Redirect URI** section enter the following redirect URIs:
-        1. `http://localhost:3000/`
-        1. `http://localhost:3000/redirect.html`
-    1. Click **Save** to save your changes.
+##### Grant Delegated Permissions to msal-react-app
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
    1. Select the **Add a permission** button and then:
 
    1. Ensure that the **My APIs** tab is selected.
-   1. In the list of APIs, select the API `msal-node-api`.
+   1. In the list of APIs, select the API `msal-react-app`.
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **access_using_groups_assignments** in the list. Use the search box if necessary.
+           1. In the **Delegated permissions** section, select the **access_via_groups_assignments** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
    1. Select the **Add a permission** button and then:
 
@@ -232,40 +199,37 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
            1. In the **Delegated permissions** section, select the **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
-   1. **GroupMember.Read.All** requires admin to consent. Select the Grant/revoke admin consent for {tenant} button, and then select Yes when you are asked if you want to grant consent for the requested permissions for all account in the tenant. You need to be an Azure AD tenant admin to do this.
 
+##### Configure Optional Claims
 
-##### Configure the client app (msal-react-spa) to use your app registration
+1. Still on the same app registration, select the **Token configuration** blade to the left.
+1. Select **Add optional claim**:
+    1. Select **optional claim type**, then choose **Access**.
+    1. Select the optional claim **idtyp**. Indicates token type.This claim is the most accurate way for an API to determine if a token is an app token or an app+user token
+    1. Select **Add** to save your changes.
+
+##### Configure the client app (msal-react-app) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `SPA\src\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Open the `API\authConfig.json` file.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
-1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with Scope.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-app` app copied from the Azure portal.
+1. Find the key `Enter_the_Client_Secret_Here` and replace the existing value with the key you saved during the creation of `msal-react-app` copied from the Azure portal.
 
-#### Configure Known Client Applications for service (msal-node-api)
-
-For a middle-tier web API (`msal-node-api`) to be able to call a downstream web API, the middle tier app needs to be granted the required permissions as well. However, since the middle-tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration. This binding merges the permissions required by both the client and the middle-tier web API and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions. To achieve this, you need to add the **Application Id** of the client app to the `knownClientApplications` property in the **manifest** of the web API. Here's how:
-
-1. In the [Azure portal](https://portal.azure.com), navigate to your `msal-node-api` app registration, and select the **Manifest** blade.
-1. In the manifest editor, change the `knownClientApplications: []` line so that the array contains the Client ID of the client application (`msal-react-spa`) as an element of the array.
-
-For instance:
-
-```json
-    "knownClientApplications": ["ca8dca8d-f828-4f08-82f5-325e1a1c6428"],
-```
-
-1. **Save** the changes to the manifest.
+1. Open the `SPA\src\authConfig.js` file.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-app` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-app` app copied from the Azure portal.
 
 ### Create Security Groups
 
 > :warning: You may already have security groups with the names below defined in your tenant and/or you may not have permissions to create new security groups. In that case, skip the steps below and update the configuration files in your project(s) with the desired names/IDs of the groups.
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.   
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
+1. Select **Groups** blade on the left.
 1. In the **Groups** blade, select **New Group**.
     1. For **Group Type**, select **Security**
     1. For **Group Name**, enter **GroupAdmin**
@@ -280,6 +244,7 @@ For instance:
     1. Select **Create**.
 
 For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
+
 
 ### Configure Security Groups
 

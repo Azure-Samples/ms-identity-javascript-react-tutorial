@@ -42,7 +42,7 @@ export const NavigationBar = () => {
     };
     return (
         <>
-            <Navbar bg="primary" variant="dark">
+            <Navbar bg="primary" variant="dark" className='navbarButton'>
                 <a className="navbar-brand" href="/">
                     {' '}
                     Microsoft identity platform

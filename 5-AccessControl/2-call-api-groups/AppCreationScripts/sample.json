@@ -9,41 +9,15 @@
   },
   "AADApps": [
     {
-        "Id": "service",
-        "Name": "msal-node-api",
-        "Kind": "WebApi",
-        "Audience": "AzureADMyOrg",
-        "Sample": {
-            "SampleSubPath": "5-AccessControl\\2-call-api-groups\\API",
-            "ProjectDirectory": "\\2-call-api-groups\\API"
-        },
-        "GroupMembershipClaims": "SecurityGroup",
-        "PasswordCredentials": "Auto",
-        "HomePage": "http://localhost:5000/api",
-        "RequiredResourcesAccess": [
-            {
-                "Resource": "Microsoft Graph",
-                "DelegatedPermissions": ["User.Read", "GroupMember.Read.All"]
-            }
-        ],
-        "scopes": ["access_using_groups_assignments"],
-        "ManualSteps": [
-            {
-                "Comment": "Create your security groups and add the group's IDs to the authConfig files"
-            },
-            {
-                "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)"
-            }
-        ]
-    },
-    {
         "Id": "client",
-        "Name": "msal-react-spa",
+        "Name": "msal-react-app",
         "Kind": "SinglePageApplication",
         "Audience": "AzureADMyOrg",
         "HomePage": "http://localhost:3000/",
         "ReplyUrls": "http://localhost:3000/ , http://localhost:3000/redirect.html",
         "GroupMembershipClaims": "SecurityGroup",
+        "PasswordCredentials": "Auto",
+        "scopes": ["access_via_groups_assignments"],
         "Sample": {
             "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
             "ProjectDirectory": "\\2-call-api-groups\\SPA"
@@ -60,18 +34,18 @@
         ],
         "RequiredResourcesAccess": [
             {
-                "Resource": "service",
-                "DelegatedPermissions": ["access_using_groups_assignments"]
+                "Resource": "client",
+                "DelegatedPermissions": ["access_via_groups_assignments"]
             },
             {
                 "Resource": "Microsoft Graph",
                 "DelegatedPermissions": ["User.Read", "GroupMember.Read.All"]
             }
         ],
+        "OptionalClaims": {
+            "IdTokenClaims": ["acct"]
+        },
         "ManualSteps": [
-            {
-                "Comment": "Create your security groups and add the group's IDs to the authConfig files"
-            },
             {
                 "Comment": "Navigate to the SPA Permissions page and select 'Grant admin consent for (your tenant)"
             }
@@ -80,7 +54,7 @@
   ],
   "CodeConfiguration": [
     {
-      "App": "service",
+      "App": "client",
       "SettingKind": "Replace",
       "SettingFile": "\\..\\API\\authConfig.json",
       "Mappings": [
@@ -90,11 +64,11 @@
         },
         {
           "key": "Enter_the_Application_Id_Here",
-          "value": "service.AppId"
+          "value": "client.AppId"
         },
         {
           "key": "Enter_the_Client_Secret_Here",
-          "value": "service.AppKey"
+          "value": "client.AppKey"
         }
       ]
     },
@@ -113,8 +87,8 @@
           "value": "$tenantId"
         },
         {
-          "key": "Enter_the_Web_Api_Scope_here",
-          "value": "service.Scope"
+          "key": "Enter_the_Web_Api_Application_Id_Here",
+          "value": "client.AppId"
         }
       ]
     }

@@ -73,11 +73,11 @@ Function ConfigureApplications {
 
     Write-Host "Connecting to Microsoft Graph"
     if ($tenantId -eq "") {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "User.Read Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
     else {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
     # Add user object Id here

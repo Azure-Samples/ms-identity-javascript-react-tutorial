@@ -49,13 +49,14 @@ const bearerStrategy = new passportAzureAd.BearerStrategy(
          * To do so, we use "azp" claim in the access token. Uncomment the lines below to enable this check.
          */
 
-        // const myAllowedClientsList = [
-        //     /* add here the client IDs of the applications that are allowed to call this API */
-        // ]
+        const myAllowedClientsList = [
+            /* add here the client IDs of the applications that are allowed to call this API */
+            authConfig.credentials.clientID,
+        ];
 
-        // if (!myAllowedClientsList.includes(token.azp)) {
-        //     return done(new Error('Unauthorized'), {}, "Client not allowed");
-        // }
+        if (!myAllowedClientsList.includes(token.azp)) {
+            return done(new Error('Unauthorized'), {}, "Client not allowed");
+        }
 
         /**
          * Access tokens that have neither the 'scp' (for delegated permissions) nor

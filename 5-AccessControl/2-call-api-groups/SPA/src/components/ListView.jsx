@@ -120,6 +120,7 @@ export const ListView = (props) => {
     return (
         <div className="data-area-div">
             <TodoForm addTask={handleAddTask} />
+            <h2 id="list-heading" tabIndex="-1" ref={listHeadingRef}></h2>
             <ListGroup className="todo-list">{taskList}</ListGroup>
         </div>
     );
