@@ -122,18 +122,6 @@ jobs:
         npm run test --no-watch
 
     - run: |
-        cd 6-AdvancedScenarios/2-call-api-pop/SPA
-        npm ci
-        npm audit --production
-        npm run test --no-watch
-
-    - run: |
-        cd 6-AdvancedScenarios/2-call-api-pop/API
-        npm ci
-        npm audit --production
-        npm run test
-
-    - run: |
         cd 6-AdvancedScenarios/3-call-api-acrs/SPA
         npm ci
         npm audit --production
