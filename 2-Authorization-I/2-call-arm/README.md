@@ -1,15 +1,23 @@
 ---
 page_type: sample
+services: ms-identity
+client: React SPA
+service: Azure REST Api
+level: 200
 languages:
- - javascript
+- javascript
+- react
 products:
- - azure-active-directory
- - msal-react
- - azure-storage
- - azure-resource-manager
+- azure-active-directory
+- msal-js
+- msal-react
+- azure-storage
+- azure-resource-manager
+platform: Javascript
+endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-react-tutorial
 name: React single-page application using MSAL React to sign-in users and call Azure REST API and Azure Storage
-description: This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Azure Resource Manager API](https://docs.microsoft.com/en-us/rest/api/resources) and [Azure Storage API](https://docs.microsoft.com/en-us/rest/api/storageservices/) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+description: This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Azure Resource Manager API](https://docs.microsoft.com/rest/api/resources) and [Azure Storage API](https://docs.microsoft.com/rest/api/storageservices/) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 ---
 
 # React single-page application using MSAL React to sign-in users and call Azure REST API and Azure Storage
@@ -28,7 +36,7 @@ description: This sample demonstrates a React single-page application (SPA) that
 
 ## Overview
 
-This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Azure Resource Manager API](https://docs.microsoft.com/en-us/rest/api/resources) and [Azure Storage API](https://docs.microsoft.com/en-us/rest/api/storageservices/) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Azure Resource Manager API](https://docs.microsoft.com/rest/api/resources) and [Azure Storage API](https://docs.microsoft.com/rest/api/storageservices/) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
 Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-sign-in), [acquire a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token) and [call a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as [Dynamic Scopes and Incremental Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent), **working with multiple resources** and **securing your routes** and more.
 
@@ -61,7 +69,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 * A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
 * An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/test-setup-environment#get-a-test-tenant)
 * A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. If you're signed in to the [Azure portal](https://portal.azure.com) with a personal Microsoft account and have not created a user account in your directory before, you will need to create one before proceeding.
-* [An Azure Storage account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) To access Azure Storage you will  need an active storage accunt.
+* [An Azure Storage account](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal) To access Azure Storage you will  need an active storage account.
 
 ## Setup the sample
 
@@ -70,7 +78,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 From your shell or command line:
 
 ```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
+git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
 ```
 
 or download and extract the repository *.zip* file.
@@ -86,25 +94,27 @@ or download and extract the repository *.zip* file.
 
 ### Step 3: Register the sample application(s) in your tenant
 
-* follow the steps below for manually register your apps
-* or use PowerShell scripts that:
-  * **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  * modify the projects' configuration files.
-  
+There is one project in this sample. To register it, you can:
+
+- follow the steps below for manually register your apps
+- or use PowerShell scripts that:
+  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  - modify the projects' configuration files.
+
   <details>
    <summary>Expand this section if you want to use this automation:</summary>
 
     > :warning: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts Guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
   
     1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-    2. In PowerShell run:
+    1. In PowerShell run:
 
        ```PowerShell
        Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
        ```
 
-    3. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-    4. For interactive process -in PowerShell, run:
+    1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
+    1. For interactive process -in PowerShell, run:
 
        ```PowerShell
        cd .\AppCreationScripts\
@@ -143,20 +153,19 @@ To manually register the apps, as a first step you'll need to:
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the list of APIs, select the API `Windows Azure Service Management API`.
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **user_impersonation** in the list. Use the search box if necessary.
+           1. In the **Delegated permissions** section, select **user_impersonation** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
    1. Select the **Add a permission** button and then:
-
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the list of APIs, select the API `Azure Storage`.
-      1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **user_impersonation** in the list. Use the search box if necessary.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
+           1. In the **Delegated permissions** section, select **user_impersonation** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 
 ##### Assign Azure role-based access control (Azure RBAC)
 
-1. Ensure that an [Azure Storage Account](https://docs.microsoft.com/en-us/azure/storage/common/storage-account-create?tabs=azure-portal) was created. If not, please create one.
-1. Assign the role `Storage Blob Data Contributor` to your user or group to have read and write access to your blob storage. Please see [Assign Azure roles using the Azure portal](https://docs.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal?tabs=current).
+1. Ensure that an [Azure Storage Account](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal) was created. If not, please create one.
+1. Assign the role `Storage Blob Data Contributor` to your user or group to have read and write access to your blob storage. Please see [Assign Azure roles using the Azure portal](https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal?tabs=current).
 
 ##### Configure Cross-Origin Resource Sharing (CORS) support for your Azure Storage
 
