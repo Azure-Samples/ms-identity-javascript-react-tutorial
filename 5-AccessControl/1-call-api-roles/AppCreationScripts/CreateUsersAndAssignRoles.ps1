@@ -90,12 +90,12 @@ Function CreateRolesUsersAndRoleAssignments
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
     $userAccount = (Get-MgContext).Account
@@ -121,6 +121,10 @@ Function CreateRolesUsersAndRoleAssignments
        $assignRole = New-MgUserAppRoleAssignment -Userid $newUser.Id -PrincipalId $newUser.Id -ResourceId $servicePrincipal.Id -AppRoleID $TaskUser.Id
 
     }
+    else
+    {
+         Write-Host "couldn't find application (msal-react-spa)"  -BackgroundColor Red
+    }
 }
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {
@@ -136,7 +140,13 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
 Import-Module Microsoft.Graph.Users
 
 # Run interactively (will ask you for the tenant ID)
-CreateRolesUsersAndRoleAssignments -tenantId $tenantId -environment $azureEnvironmentName
+try {
+    CreateRolesUsersAndRoleAssignments -tenantId $tenantId -environment $azureEnvironmentName
+}catch {
+    $message = $_
+    Write-Warning $Error[0]
+    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
 
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph
