@@ -18,12 +18,15 @@
             "Id": "spa",
             "Name": "ms-identity-react-c2s2",
             "Kind": "SinglePageApplication",
-            "HomePage": "http://localhost:3000/",
+            "HomePage": "http://localhost:3000",
             "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
             "Audience": "AzureADMyOrg",
             "Sample": {
                 "SampleSubPath": "2-Authorization-I\\2-call-arm",
                 "ProjectDirectory": "\\SPA"
+            },
+            "OptionalClaims": {
+                "IdTokenClaims": ["acct"]
             },
             "RequiredResourcesAccess": [
                 {
@@ -37,14 +40,12 @@
             ],
             "ManualSteps": [
                 {
-                   "Comment": "Remember to create an 'Azure Storage' account and add the account name to the authConfig.js file" 
-                }
-                ,
+                    "Comment": "Remember to create an 'Azure Storage' account and add the account name to the authConfig.js file"
+                },
                 {
                     "Comment": "Navigate to your storage account and assign the role 'Storage Blob Data Contributor' to the user. For more information see: https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal"
                 }
             ]
-
         }
         
     ],

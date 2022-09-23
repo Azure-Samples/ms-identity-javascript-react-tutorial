@@ -96,10 +96,10 @@ or download and extract the repository *.zip* file.
 
 There is one project in this sample. To register it, you can:
 
-- follow the steps below for manually register your apps
-- or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  - modify the projects' configuration files.
+* follow the steps below for manually register your apps
+* or use PowerShell scripts that:
+  * **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  * modify the projects' configuration files.
 
   <details>
    <summary>Expand this section if you want to use this automation:</summary>
@@ -171,11 +171,19 @@ To manually register the apps, as a first step you'll need to:
 
 1. Navigate to your Azure Storage Account.
 1. Select the **Resource sharing (CORS)** blade on the left. Make sure that **Blob service** is selected.
-1. In **Allowed origins** add the domain name `http://localhost:3000/` and make sure there is no trailing slash.
-1. In **Allowed methods** select `GET, PUT, DELETE, OPTIONS`.
+1. In **Allowed origins** add the domain name `http://localhost:3000` and make sure there is no trailing slash.
+1. In **Allowed methods** select all options.
 1. In **Allowed headers** add `*`.
 1. In **Exposed headers** add `*`.
 1. Select **Save**.
+
+##### Configure Optional Claims
+
+1. Still on the same app registration, select the **Token configuration** blade to the left.
+1. Select **Add optional claim**:
+    1. Select **optional claim type**, then choose **ID**.
+    1. Select the optional claim **acct**. Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
+    1. Select **Add** to save your changes.
 
 ##### Configure the spa app (ms-identity-react-c2s2) to use your app registration
 
@@ -230,7 +238,7 @@ If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../
 
 ### Protected resources and scopes
 
-In order to access a protected resource on behalf of a signed-in user, the app needs to present a valid **Access Token** to that resource owner (in this case, Microsoft Graph). **Access Token** requests in **MSAL** are meant to be *per-resource-per-scope(s)*. This means that an **Access Token** requested for resource **A** with scope `scp1`:
+In order to access a protected resource on behalf of a signed-in user, the app needs to present a valid **Access Token** to that resource owner (in this case, Azure Resource Manager API and Azure Storage API). **Access Token** requests in **MSAL** are meant to be *per-resource-per-scope(s)*. This means that an **Access Token** requested for resource **A** with scope `scp1`:
 
 * cannot be used for accessing resource **A** with scope `scp2`, and,
 * cannot be used for accessing resource **B** of any scope.
@@ -264,32 +272,9 @@ In case you *erroneously* pass multiple resources in your token request, Azure A
 ```javascript
      // your request will fail for both resources
      const myToken = await msalInstance.acquireTokenSilent({
-          scopes: [ "User.Read", "api://<myCustomApiClientId>/My.Scope" ]
+          scopes: [ "https://management.azure.com/user_impersonation", "api://<myCustomApiClientId>/My.Scope" ]
      });
  ```
-
-### Dynamic scopes and incremental consent
-
-In **Azure AD**, the scopes (permissions) set directly on the application registration are called static scopes. Other scopes that are only defined within the code are called dynamic scopes. This has implications on the **login** (i.e. loginPopup, loginRedirect) and **acquireToken** (i.e. `acquireTokenPopup`, `acquireTokenRedirect`, `acquireTokenSilent`) methods of **MSAL.js**. Consider:
-
-```javascript
-     const loginRequest = {
-          scopes: [ "openid", "profile", "User.Read" ]
-     };
-
-     const tokenRequest = {
-          scopes: [ "https://management.azure.com/user_impersonation" ]
-     };
-
-     // will return an ID Token and an Access Token with scopes: "openid", "profile" and "User.Read"
-     msalInstance.loginPopup(loginRequest);
-
-     // will fail and fallback to an interactive method prompting a consent screen
-     // after consent, the received token will be issued for "openid", "profile", "User.Read" and "Contacts.Read" combined
-     msalInstance.acquireTokenPopup(tokenRequest);
-```
-
-In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `https://management.azure.com/user_impersonation` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*. Read more on this topic at [Scopes, permissions and consent in the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent)
 
 ### Acquire a Token
 
