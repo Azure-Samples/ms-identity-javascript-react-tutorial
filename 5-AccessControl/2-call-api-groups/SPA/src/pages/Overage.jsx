@@ -19,9 +19,7 @@ const OverageContent = () => {
     const handleNextPage = (nextPage) => {
         getNextPage(nextPage).then((response) => {
             response.value.forEach((v) => {
-                if (!groupsData.includes(v.id)) {
-                    setGroupsData((gr) => [...gr, v.id]);
-                }
+                setGroupsData((gr) => [...new Set([...gr, v.id])]);
             });
 
             if (response['@odata.nextLink']) {
@@ -35,12 +33,11 @@ const OverageContent = () => {
             return;
         }
         if (groupsData.length === 0 && inProgress === InteractionStatus.None) {
+            console.log('in here');
             getGroups().then((response) => {
                 if (response) {
                     response.value.forEach((v) => {
-                        if (!groupsData.includes(v.id)) {
-                            setGroupsData((gr) => [...gr, v.id]);
-                        }
+                        setGroupsData((gr) => [...new Set([...gr, v.id])]);
                     });
 
                     /**

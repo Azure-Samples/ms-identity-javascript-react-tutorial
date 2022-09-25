@@ -1,3 +1,4 @@
+
 [CmdletBinding()]
 param(
     [PSCredential] $Credential,
@@ -7,21 +8,22 @@ param(
     [string] $azureEnvironmentName
 )
 
-
-
 <#.Description
-    This function generates groups names
+    This function generates groups names.
 #> 
-Function GetGroupName([int] $val) {
+Function GetGroupName([int] $val) 
+{
 
     if ($val -lt 10) 
     {
         $groupName = "Test Group 00" + $val;
     }
-    elseif ($val -lt 100) { 
+    elseif ($val -lt 100) 
+    { 
         $groupName = "Test Group 0" + $val;
     }
-    else {
+    else 
+    {
         $groupName = "Test Group " + $val;
     }
 
@@ -30,11 +32,13 @@ Function GetGroupName([int] $val) {
 }
 
 <#.Description
-    This function removes security groups from tenant
-#>
-Function RemoveGroup {
+   This function removes security groups from tenant
+#> 
+Function RemoveGroup 
+{
     $val = 1;
-    while ($val -ne 223) {
+    while ($val -ne 223) 
+    {
        
         $groupName = GetGroupName -val $val
        
@@ -51,26 +55,35 @@ Function RemoveGroup {
         $val += 1;
     }
 }
-<#.Description
-    This function signs in the user to the tenant using Graph SDK 
-#> 
-Function ConfigureApplications {
 
-    if (!$azureEnvironmentName) {
+
+<#.Description
+    This function signs in the user to the tenant using Graph SDK.
+#>
+Function ConfigureApplications 
+{
+    if (!$azureEnvironmentName) 
+    {
         $azureEnvironmentName = "Global"
     }
 
     Write-Host "Connecting to Microsoft Graph"
-    if ($tenantId -eq "") {
+
+    if ($tenantId -eq "") 
+    {
         Connect-MgGraph -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
-    else {
+    else 
+    {
         Connect-MgGraph -TenantId $tenantId -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
-    RemoveGroup 
+    RemoveGroup
+
+
 }
+
 
 $ErrorActionPreference = "Stop"
 

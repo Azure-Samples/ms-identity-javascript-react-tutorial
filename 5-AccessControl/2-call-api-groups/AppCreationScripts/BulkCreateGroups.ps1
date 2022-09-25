@@ -1,3 +1,4 @@
+
 [CmdletBinding()]
 param(
     [PSCredential] $Credential,
@@ -7,21 +8,22 @@ param(
     [string] $azureEnvironmentName
 )
 
-
-
-$ErrorActionPreference = "Stop"
 <#.Description
-    This function generates groups names
+    This function generates groups names.
 #> 
-Function GetGroupName([int] $val) {
+Function GetGroupName([int] $val) 
+{
 
-    if ($val -lt 10) {
+    if ($val -lt 10) 
+    {
         $groupName = "Test Group 00" + $val;
     }
-    elseif ($val -lt 100) { 
+    elseif ($val -lt 100) 
+    { 
         $groupName = "Test Group 0" + $val;
     }
-    else {
+    else 
+    {
         $groupName = "Test Group " + $val;
     }
 
@@ -30,11 +32,12 @@ Function GetGroupName([int] $val) {
 }
 
 <#.Description
-    This function creates security groups and assigns the user to the security groups
-#>
+    This function creates security groups and assigns the user to the security groups.
+#> 
 Function CreateGroupsAndAssignUser($user) {
     $val = 1;
-     while ($val -ne 223) {
+     while ($val -ne 223) 
+     {
         $groupName = GetGroupName -val $val
         $group = Get-MgGroup -Filter "DisplayName eq '$groupName'"
         $groupNameLower =  $groupName.ToLower();
@@ -61,23 +64,29 @@ Function CreateGroupsAndAssignUser($user) {
 
 }
 
+
 <#.Description
     This function signs in the user to the tenant using Graph SDK.
     Add the user object_id below to assign the user the groups
 #> 
-Function ConfigureApplications {
+Function ConfigureApplications 
+{
 
-    if (!$azureEnvironmentName) {
+    if (!$azureEnvironmentName) 
+    {
         $azureEnvironmentName = "Global"
     }
 
     Write-Host "Connecting to Microsoft Graph"
-    if ($tenantId -eq "") {
-        Connect-MgGraph -Scopes "User.Read Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
+
+    if ($tenantId -eq "") 
+    {
+        Connect-MgGraph -Scopes "User.Read.All Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
-    else {
-        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
+    else 
+    {
+        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read.All Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
     # Add user object Id here
@@ -86,6 +95,9 @@ Function ConfigureApplications {
     $user = Get-MgUser -UserId $usersobjectId
 
     CreateGroupsAndAssignUser -user $user
+
+
+
 }
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
