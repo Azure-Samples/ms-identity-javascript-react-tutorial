@@ -33,7 +33,6 @@ const OverageContent = () => {
             return;
         }
         if (groupsData.length === 0 && inProgress === InteractionStatus.None) {
-            console.log('in here');
             getGroups().then((response) => {
                 if (response) {
                     response.value.forEach((v) => {
