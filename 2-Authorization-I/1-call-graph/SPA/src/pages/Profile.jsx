@@ -43,12 +43,8 @@ export const Profile = () => {
         }
 
         if (result) {
-            getGraphClient({
-                account: instance.getActiveAccount(),
-                scopes: protectedResources.graphMe.scopes,
-                interactionType: InteractionType.Popup,
-                claims: claims,
-            })
+           let accessToken = result.accessToken;
+            getGraphClient(accessToken)
                 .api('/me')
                 .responseType(ResponseType.RAW)
                 .get()

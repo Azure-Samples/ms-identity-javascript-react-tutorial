@@ -43,12 +43,8 @@ export const Contacts = () => {
         }
 
         if (result) {
-            getGraphClient({
-                account: instance.getActiveAccount(),
-                scopes: protectedResources.graphMe.scopes,
-                interactionType: InteractionType.Popup,
-                claims: claims,
-            })
+            let accessToken = result.accessToken;
+            getGraphClient(accessToken)
                 .api('/me/contacts')
                 .responseType(ResponseType.RAW)
                 .get()
@@ -64,7 +60,7 @@ export const Contacts = () => {
                         login(InteractionType.Redirect, request);
                     }
                     console.log(error);
-                })
+                });
 
         }
     }, [graphData, result, error, login]);
