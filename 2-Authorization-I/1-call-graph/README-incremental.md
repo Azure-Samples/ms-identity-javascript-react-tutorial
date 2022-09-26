@@ -305,12 +305,7 @@ export const Profile = () => {
         }
 
         if (result) {
-            getGraphClient({
-                account: instance.getActiveAccount(),
-                scopes: protectedResources.graphMe.scopes,
-                interactionType: InteractionType.Popup,
-                claims: claims,
-            })
+            getGraphClient(result.accessToken)
                 .api('/me')
                 .responseType(ResponseType.RAW)
                 .get()
@@ -345,7 +340,7 @@ For more details on what's inside the access token, clients should use the token
 
 ### Calling the Microsoft Graph API
 
-[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with [clientOptions](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md) method, which contains an `authProvider` object of class **MyAuthenticationProvider** that handles the token acquisition process for the client.
+[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with an [authProvider function](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md#2-create-with-options). In this case, user has to provide their own implementation for getting and refreshing accessToken. A callback will be passed into this `authProvider` function, accessToken or error needs to be passed in to that callback
 
 ```javascript
     export const getGraphClient = () => {
@@ -356,93 +351,11 @@ For more details on what's inside the access token, clients should use the token
         return graphClient;
     }
 ```
-
-**MyAuthenticationProvider** needs to implement the [IAuthenticationProvider](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/src/IAuthenticationProvider.ts) interface, which can be done as shown below:
-
-```javascript
-    class MsalAuthenticationProvider {
-        account; // user account object to be used when attempting silent token acquisition
-        scopes; // array of scopes required for this resource endpoint
-        interactionType; // type of interaction to fallback to when silent token acquisition fails
-        claims; // claims object required when fetching an access token
-
-        constructor(providerOptions) {
-            this.account = providerOptions.account;
-            this.scopes = providerOptions.scopes;
-            this.interactionType = providerOptions.interactionType;
-            this.claims = providerOptions.claims
-        }
-
-        /**
-         * This method will get called before every request to the ms graph server
-         * This should return a Promise that resolves to an accessToken (in case of success) or rejects with error (in case of failure)
-         * Basically this method will contain the implementation for getting and refreshing accessTokens
-         */
-        getAccessToken() {
-            return new Promise(async (resolve, reject) => {
-                let response;
-
-                try {
-                    response = await msalInstance.acquireTokenSilent({
-                        account: this.account,
-                        scopes: this.scopes,
-                        claims: this.claims
-                    });
-
-                    if (response.accessToken) {
-                        resolve(response.accessToken);
-                    } else {
-                        reject(Error('Failed to acquire an access token'));
-                    }
-                } catch (error) {
-                    // in case if silent token acquisition fails, fallback to an interactive method
-                    if (error instanceof InteractionRequiredAuthError) {
-                        switch (this.interactionType) {
-                            case InteractionType.Popup:
-                                response = await msalInstance.acquireTokenPopup({
-                                    scopes: this.scopes,
-                                    claims: this.claims,
-                                });
-
-                                if (response.accessToken) {
-                                    resolve(response.accessToken);
-                                } else {
-                                    reject(Error('Failed to acquire an access token'));
-                                }
-                                break;
-                            case InteractionType.Redirect:
-                                /**
-                                 * This will cause the app to leave the current page and redirect to the consent screen.
-                                 * Once consent is provided, the app will return back to the current page and then the
-                                 * silent token acquisition will succeed.
-                                 */
-
-                                msalInstance.acquireTokenRedirect({
-                                    scopes: this.scopes,
-                                    claims: this.claims,
-                                });
-                                break;
-
-                            default:
-                                break;
-                        }
-                    }
-                }
-            });
-        }
-    }
-```
-
 See [graph.js](./SPA/src/graph.js). The Graph client then can be used in your components as shown below:
 
 ```javascript
 if (result) {
-    getGraphClient({
-        account: instance.getActiveAccount(),
-        scopes: protectedResources.graphMe.scopes,
-        interactionType: InteractionType.Popup,
-        claims: claims,
-    })
+    getGraphClient(result.accessToken)
         .api('/me')
         .responseType(ResponseType.RAW)
         .get()
