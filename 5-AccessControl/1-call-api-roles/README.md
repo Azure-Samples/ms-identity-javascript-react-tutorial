@@ -49,7 +49,7 @@ Role based access control in Azure AD can be done with **Delegated** and **App**
 In the sample, a **dashboard** component allows signed-in users to see the tasks assigned to users and is only accessible by users assigned to **app role** named **TaskAdmin**. A user needs to be assigned an app role **TaskUser** to be able to create tasks for themselves
 
 * The **TodoListSPA** uses [MSAL React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) to authenticate a user with the Microsoft identity platform.
-* The app then obtains an [access token](https://aka.ms/access-tokens) from Azure AD on behalf of the authenticated user for the **TodoListAPI**.
+* The app then obtains an [access token](https://aka.ms/access-tokens) from Azure AD on behalf of the authenticated user for the **TodoListAPI**. The API maintains the To-Do list and ensures access to the right users based on permissions
 * **TodoListAPI** uses [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) to protect its endpoint and accept only authorized calls.
 * **TodoListAPI** maintains the To-Do list and ensures access to the right users based on [permissions](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types).
 
