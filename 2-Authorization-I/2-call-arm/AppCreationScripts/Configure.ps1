@@ -13,7 +13,7 @@ param(
 
  In case you don't have Microsoft.Graph.Applications already installed, the script will automatically install it for the current user
  
- There are four ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
+ There are two ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
 #>
 
 # Adds the requiredAccesses (expressed as a pipe separated string) to the requiredAccess structure
@@ -71,6 +71,9 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
 }
 
 
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#>     
 Function ReplaceInLine([string] $line, [string] $key, [string] $value)
 {
     $index = $line.IndexOf($key)
@@ -82,6 +85,9 @@ Function ReplaceInLine([string] $line, [string] $key, [string] $value)
     return $line
 }
 
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#>     
 Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
 {
     $lines = Get-Content $configFilePath
@@ -101,6 +107,50 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 
     Set-Content -Path $configFilePath -Value $lines -Force
 }
+
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#> 
+Function UpdateLine([string] $line, [string] $value)
+{
+    $index = $line.IndexOf(':')
+    $lineEnd = ''
+
+    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
+    
+    if ($index -ige 0)
+    {
+        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
+    }
+    return $line
+}
+
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#> 
+Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
+{
+    $lines = Get-Content $configFilePath
+    $index = 0
+    while($index -lt $lines.Length)
+    {
+        $line = $lines[$index]
+        foreach($key in $dictionary.Keys)
+        {
+            if ($line.Contains($key))
+            {
+                $lines[$index] = UpdateLine $line $dictionary[$key]
+            }
+        }
+        $index++
+    }
+
+    Set-Content -Path $configFilePath -Value $lines -Force
+}
+
+<#.Description
+   This function takes a string as input and creates an instance of an Optional claim object
+#> 
 Function CreateOptionalClaim([string] $name)
 {
     <#.Description
@@ -115,6 +165,9 @@ Function CreateOptionalClaim([string] $name)
     return $appClaim
 }
 
+<#.Description
+   Primary entry method to create and configure app registrations
+#> 
 Function ConfigureApplications
 {
     $isOpenSSl = 'N' #temporary disable open certificate creation 
@@ -152,8 +205,10 @@ Function ConfigureApplications
                                                      } `
                                                     -SignInAudience AzureADMyOrg `
                                                    #end of command
+
     $tenantName = (Get-MgApplication -ApplicationId $spaAadApplication.Id).PublisherDomain
-    Update-MgApplication -ApplicationId $spaAadApplication.Id -IdentifierUris @("https://$tenantName/ms-identity-react-c2s2")
+    # Update-MgApplication -ApplicationId $spaAadApplication.Id -IdentifierUris @("https://$tenantName/ms-identity-react-c2s2")
+
     
     # create the service principal of the newly created application 
     $currentAppId = $spaAadApplication.AppId
@@ -174,7 +229,6 @@ Function ConfigureApplications
     $optionalClaims.IdToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
     $optionalClaims.Saml2Token = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
 
-
     # Add Optional Claims
 
     $newClaim =  CreateOptionalClaim  -name "acct" 
@@ -185,62 +239,40 @@ Function ConfigureApplications
     # URL of the AAD application in the Azure portal
     # Future? $spaPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.Id+"/isMSAApp/"
     $spaPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.Id+"/isMSAApp/"
+
     Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>ms-identity-react-c2s2</a></td></tr>" -Path createdApps.html
+    # Declare a list to hold RRA items    
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
-    
+
     # Add Required Resources Access (from 'spa' to 'Windows Azure Service Management API')
     Write-Host "Getting access from 'spa' to 'Windows Azure Service Management API'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Windows Azure Service Management API" `
-        -requiredDelegatedPermissions "user_impersonation" `
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Windows Azure Service Management API"`
+        -requiredDelegatedPermissions "user_impersonation"
 
     $requiredResourcesAccess.Add($requiredPermission)
+    Write-Host "Added 'Windows Azure Service Management API' to the RRA list."
+    # Useful for RRA additions troubleshooting
+    # $requiredResourcesAccess.Count
+    # $requiredResourcesAccess
     
+
     # Add Required Resources Access (from 'spa' to 'Azure Storage')
     Write-Host "Getting access from 'spa' to 'Azure Storage'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Azure Storage" `
-        -requiredDelegatedPermissions "user_impersonation" `
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Azure Storage"`
+        -requiredDelegatedPermissions "user_impersonation"
 
     $requiredResourcesAccess.Add($requiredPermission)
+    Write-Host "Added 'Azure Storage' to the RRA list."
+    # Useful for RRA additions troubleshooting
+    # $requiredResourcesAccess.Count
+    # $requiredResourcesAccess
+    
     Update-MgApplication -ApplicationId $spaAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
-    Write-Host "Granted permissions."
-
-    Write-Host "Successfully registered and configured that app registration for 'ms-identity-react-c2s2' at" -ForegroundColor Green
+    Write-Host "Granted permissions."    
+    
 
     # print the registered app portal URL for any further navigation
-    $spaPortalUrl
-Function UpdateLine([string] $line, [string] $value)
-{
-    $index = $line.IndexOf(':')
-    $lineEnd = ''
-
-    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
-    
-    if ($index -ige 0)
-    {
-        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
-    }
-    return $line
-}
-
-Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
-{
-    $lines = Get-Content $configFilePath
-    $index = 0
-    while($index -lt $lines.Length)
-    {
-        $line = $lines[$index]
-        foreach($key in $dictionary.Keys)
-        {
-            if ($line.Contains($key))
-            {
-                $lines[$index] = UpdateLine $line $dictionary[$key]
-            }
-        }
-        $index++
-    }
-
-    Set-Content -Path $configFilePath -Value $lines -Force
-}
+    Write-Host "Successfully registered and configured that app registration for 'ms-identity-react-c2s2' at `n $spaPortalUrl" -ForegroundColor Red 
     
     # Update config file for 'spa'
     # $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
@@ -248,8 +280,9 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     
     $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
 
-    Write-Host "Updating the sample config '$configFile' with the following config values:"
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
+    Write-Host "-----------------"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
@@ -259,14 +292,15 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     Write-Host "  - Remember to create an 'Azure Storage' account and add the account name to the authConfig.js file" -ForegroundColor Red 
     Write-Host "  - Navigate to your storage account and assign the role 'Storage Blob Data Contributor' to the user. For more information see: https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-       if($isOpenSSL -eq 'Y')
-    {
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-        Write-Host "You have generated certificate using OpenSSL so follow below steps: "
-        Write-Host "Install the certificate on your system from current folder."
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-    }
-    Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
+   
+if($isOpenSSL -eq 'Y')
+{
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+    Write-Host "You have generated certificate using OpenSSL so follow below steps: "
+    Write-Host "Install the certificate on your system from current folder."
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+}
+Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 } # end of ConfigureApplications function
 
 # Pre-requisites
@@ -289,8 +323,9 @@ try
 }
 catch
 {
+    $_.Exception.ToString() | out-host
     $message = $_
-    Write-Warning $Error[0]
+    Write-Warning $Error[0]    
     Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
 }
 Write-Host "Disconnecting from tenant"

@@ -96,10 +96,10 @@ or download and extract the repository *.zip* file.
 
 There is one project in this sample. To register it, you can:
 
-* follow the steps below for manually register your apps
-* or use PowerShell scripts that:
-  * **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  * modify the projects' configuration files.
+- follow the steps below for manually register your apps
+- or use PowerShell scripts that:
+  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  - modify the projects' configuration files.
 
   <details>
    <summary>Expand this section if you want to use this automation:</summary>
@@ -162,6 +162,16 @@ To manually register the apps, as a first step you'll need to:
            1. In the **Delegated permissions** section, select **user_impersonation** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 
+##### Configure Optional Claims
+
+1. Still on the same app registration, select the **Token configuration** blade to the left.
+1. Select **Add optional claim**:
+    1. Select **optional claim type**, then choose **ID**.
+    1. Select the optional claim **acct**. 
+    > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
+    1. Select **Add** to save your changes
+
+
 ##### Assign Azure role-based access control (Azure RBAC)
 
 1. Ensure that an [Azure Storage Account](https://docs.microsoft.com/azure/storage/common/storage-account-create?tabs=azure-portal) was created. If not, please create one.
@@ -176,14 +186,6 @@ To manually register the apps, as a first step you'll need to:
 1. In **Allowed headers** add `*`.
 1. In **Exposed headers** add `*`.
 1. Select **Save**.
-
-##### Configure Optional Claims
-
-1. Still on the same app registration, select the **Token configuration** blade to the left.
-1. Select **Add optional claim**:
-    1. Select **optional claim type**, then choose **ID**.
-    1. Select the optional claim **acct**. Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
-    1. Select **Add** to save your changes.
 
 ##### Configure the spa app (ms-identity-react-c2s2) to use your app registration
 
@@ -243,7 +245,7 @@ In order to access a protected resource on behalf of a signed-in user, the app n
 * cannot be used for accessing resource **A** with scope `scp2`, and,
 * cannot be used for accessing resource **B** of any scope.
 
-The intended recipient of an **Access Token** is represented by the `aud` claim (in this case, it should be the Microsoft Graph API's App ID); in case the value for the `aud` claim does not mach the resource **APP ID URI**, the token will be considered invalid by the API. Likewise, the permissions that an **Access Token** grants are provided in the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
+The intended recipient of an **Access Token** is represented by the `aud` claim (in this case, it should be the Microsoft  Azure Resource Manager API and Azure Storage API's App ID); in case the value for the `aud` claim does not mach the resource **APP ID URI**, the token will be considered invalid by the API. Likewise, the permissions that an **Access Token** grants are provided in the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
 
 ### Working with multiple resources
 
