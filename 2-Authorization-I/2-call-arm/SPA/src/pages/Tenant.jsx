@@ -16,14 +16,15 @@ export const Tenant = () => {
 
     const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
 
-     const fetchData = async () => {
-         const client = await getSubscriptionClient();
-         const resArray = [];
-         for await (let item of client.tenants.list()) {
-             resArray.push(item);
-         }
-         setTenantInfo(resArray);
-     };
+    const fetchData = async (accessToken) => {
+        const client = await getSubscriptionClient(accessToken);
+        const resArray = [];
+        for await (let item of client.tenants.list()) {
+            resArray.push(item);
+        }
+        setTenantInfo(resArray);
+    };
+
     useEffect(() => {
         if (!!tenantInfo) {
             return;
@@ -40,7 +41,7 @@ export const Tenant = () => {
         }
 
         if (result) {
-            fetchData().catch((error) => {
+            fetchData(result.accessToken).catch((error) => {
                 console.log(error);
             });
         }

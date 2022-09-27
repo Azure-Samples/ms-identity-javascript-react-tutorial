@@ -307,8 +307,8 @@ export const Tenant = () => {
             return;
         }
 
-        const fetchData = async () => {
-            const client = await getSubscriptionClient();
+        const fetchData = async (accessToken) => {
+            const client = await getSubscriptionClient(accessToken);
             const resArray = [];
             for await (let item of client.tenants.list()) {
                 resArray.push(item);
@@ -316,7 +316,7 @@ export const Tenant = () => {
             setTenantInfo(resArray);
         };
         if (result) {
-            fetchData().catch((error) => {
+            fetchData(result.accessToken).catch((error) => {
                 console.log(error);
             });
         }
@@ -333,94 +333,51 @@ export const Tenant = () => {
 
 ### Calling the Microsoft Azure REST API and Azure Storage
 
-[Azure SDK for JavaScript](https://github.com/Azure/azure-sdk-for-js) contains libraries for the breadth of Azure services. Management libraries are packages that you would use to provision and manage Azure resources. Client libraries are packages that you would use to consume these resources and interact with them. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the `SubscriptionClient` object and the `BlobServiceClient` object, which both contain a [BrowserCredential](https://github.com/Azure/azure-sdk-for-js/blob/@azure/identity_2.1.0/sdk/identity/identity/samples/AzureIdentityExamples.md#authenticating-with-msal-directly) object of a class that handles the token acquisition process for the client.
+[Azure SDK for JavaScript](https://github.com/Azure/azure-sdk-for-js) contains libraries for the breadth of Azure services. Management libraries are packages that you would use to provision and manage Azure resources. Client libraries are packages that you would use to consume these resources and interact with them. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a pre-fetched access token. To do so, we will initialize the `SubscriptionClient` object and the `BlobServiceClient` object, which both contain a [StaticTokenCredential](https://github.com/Azure/azure-sdk-for-js/blob/@azure/identity_2.1.0/sdk/identity/identity/samples/AzureIdentityExamples.md#authenticating-with-a-pre-fetched-access-token) object of a class that implements the `TokenCredential` abstraction. It takes a pre-fetched access token in its constructor as an AccessToken and returns that from its implementation of `getToken()`.
 
 ```javascript
 /**
  * Returns a subscription client object with the provided token acquisition options
  */
-export const getSubscriptionClient = async () => {
-    const browserCredential = new BrowserCredential(msalInstance, protectedResources.armTenants.scopes);
-    await browserCredential.prepare();
+export const getSubscriptionClient = async (accessToken) => {
+      const credential = new StaticTokenCredential({
+          token: accessToken,
+          expiresOnTimestamp: accessToken.exp
+      });
 
-    const client = new SubscriptionClient(browserCredential);
+    const client = new SubscriptionClient(credential);
     return client;
 };
 
 /**
  * Returns a blob service client object with the provided token acquisition options
  */
-export const getBlobServiceClient = async () => {
-    const browserCredential = new BrowserCredential(msalInstance, protectedResources.armBlobStorage.scopes);
-    await browserCredential.prepare();
-    const client = new BlobServiceClient(
-        `https://${storageInformation.accountName}.blob.core.windows.net`,
-        browserCredential
-    );
+export const getBlobServiceClient = async (accessToken) => {
+
+    const credential = new StaticTokenCredential({
+        token: accessToken,
+        expiresOnTimestamp: accessToken.exp,
+    });
+
+    const client = new BlobServiceClient(`https://${storageInformation.accountName}.blob.core.windows.net`, credential);
     return client;
 };
 
 ```
 
-**BrowserCredential** needs to implement the `TokenCredential` interface, which can be done as shown below:
+**StaticTokenCredential** needs to implement the `TokenCredential` interface, which can be done as shown below:
 
 ```javascript
-class BrowserCredential {
-    publicApp;
-    hasAuthenticated = false;
-    scopes;
+class StaticTokenCredential {
+  constructor(accessToken) {
+    this.accessToken = accessToken; 
+  }
 
-    constructor(msalInstance, scopes) {
-        this.publicApp = msalInstance;
-        this.scopes = scopes;
-    }
+  async getToken() {
+    return this.accessToken;
+  }
 
-    // Either confirm the account already exists in memory, or tries to parse the redirect URI values.
-    async prepare() {
-        try {
-            if (await this.publicApp.getActiveAccount()) {
-                this.hasAuthenticated = true;
-                return;
-            }
-            await this.publicApp.handleRedirectPromise();
-            this.hasAuthenticated = true;
-        } catch (e) {
-            console.error('BrowserCredential prepare() failed', e);
-        }
-    }
-
-    // Should be true if prepare() was successful.
-    isAuthenticated() {
-        return this.hasAuthenticated;
-    }
-
-    // If called, triggers authentication via redirection.
-    async loginRedirect() {
-        const loginRequest = {
-            scopes: this.scopes,
-        };
-        await this.app.loginRedirect(loginRequest);
-    }
-
-    // Tries to retrieve the token without triggering a redirection.
-    async getToken() {
-        if (!this.hasAuthenticated) {
-            throw new Error('Authentication required');
-        }
-
-        const parameters = {
-            account: await this.publicApp.getActiveAccount(),
-            scopes: this.scopes,
-        };
-
-        const result = await this.publicApp.acquireTokenSilent(parameters);
-        return {
-            token: result.accessToken,
-            expiresOnTimestamp: result.expiresOn.getTime(),
-        };
-    }
 }
-
 ```
 
 See [azureManagement.js](./SPA/src/azureManagement.js). The Subscription client can be used in your components as shown below:
@@ -441,7 +398,7 @@ See [azureManagement.js](./SPA/src/azureManagement.js). The Subscription client 
             return;
         }
 
-        const fetchData = async () => {
+        const fetchData = async (accessToken) => {
             const client = await getSubscriptionClient();
             const resArray = [];
             for await (let item of client.tenants.list()) {
@@ -450,7 +407,7 @@ See [azureManagement.js](./SPA/src/azureManagement.js). The Subscription client 
             setTenantInfo(resArray);
         };
         if (result) {
-            fetchData().catch((error) => {
+            fetchData(result.accessToken).catch((error) => {
                 console.log(error);
             });
         }
@@ -464,7 +421,7 @@ const handleSubmit = async (e) => {
         e.preventDefault();
         if (uploadedFile) {
             try {
-                const client = await getBlobServiceClient();
+                const client = await getBlobServiceClient(result.accessToken);
                 const containerClient = client.getContainerClient(storageInformation.containerName);
                 const hasContainer = await containerExist(client, storageInformation.containerName);
                 if (hasContainer) {

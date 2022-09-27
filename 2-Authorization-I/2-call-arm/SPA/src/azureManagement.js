@@ -1,90 +1,48 @@
-import { msalInstance } from './index';
 
 import { SubscriptionClient } from '@azure/arm-resources-subscriptions';
 import { BlobServiceClient } from '@azure/storage-blob';
-import { protectedResources, storageInformation } from './authConfig';
+import { storageInformation } from './authConfig';
 
 /**
  * Returns a subscription client object with the provided token acquisition options
  */
-export const getSubscriptionClient = async () => {
-    const browserCredential = new BrowserCredential(msalInstance, protectedResources.armTenants.scopes);
-    await browserCredential.prepare();
+export const getSubscriptionClient = async (accessToken) => {
+      const credential = new StaticTokenCredential({
+          token: accessToken,
+          expiresOnTimestamp: accessToken.exp
+      });
 
-    const client = new SubscriptionClient(browserCredential);
+    const client = new SubscriptionClient(credential);
     return client;
 };
 
 /**
  * Returns a blob service client object with the provided token acquisition options
  */
-export const getBlobServiceClient = async () => {
-    const browserCredential = new BrowserCredential(msalInstance, protectedResources.armBlobStorage.scopes);
-    await browserCredential.prepare();
-    const client = new BlobServiceClient(
-        `https://${storageInformation.accountName}.blob.core.windows.net`,
-        browserCredential
-    );
+export const getBlobServiceClient = async (accessToken) => {
+
+    const credential = new StaticTokenCredential({
+        token: accessToken,
+        expiresOnTimestamp: accessToken.exp,
+    });
+
+    const client = new BlobServiceClient(`https://${storageInformation.accountName}.blob.core.windows.net`, credential);
     return client;
 };
 
 
 /**
- * This class implements TokenCredential interface more information see:
- * https://docs.microsoft.com/en-us/javascript/api/@azure/core-auth/tokencredential?view=azure-node-latest
+ * StaticTokenCredential implements the TokenCredential abstraction. 
+ * It takes a pre-fetched access token in its constructor as an AccessTokhttps://docs.microsoft.com/javascript/api/@azure/core-auth/accesstoken) 
+ * and returns that from its implementation of `getToken()`.
  */
-class BrowserCredential {
-    publicApp;
-    hasAuthenticated = false;
-    scopes;
+class StaticTokenCredential {
+  constructor(accessToken) {
+    this.accessToken = accessToken; 
+  }
 
-    constructor(msalInstance, scopes) {
-        this.publicApp = msalInstance;
-        this.scopes = scopes;
-    }
+  async getToken() {
+    return this.accessToken;
+  }
 
-    // Either confirm the account already exists in memory, or tries to parse the redirect URI values.
-    async prepare() {
-        try {
-            if (await this.publicApp.getActiveAccount()) {
-                this.hasAuthenticated = true;
-                return;
-            }
-            await this.publicApp.handleRedirectPromise();
-            this.hasAuthenticated = true;
-        } catch (e) {
-            console.error('BrowserCredential prepare() failed', e);
-        }
-    }
-
-    // Should be true if prepare() was successful.
-    isAuthenticated() {
-        return this.hasAuthenticated;
-    }
-
-    // If called, triggers authentication via redirection.
-    async loginRedirect() {
-        const loginRequest = {
-            scopes: this.scopes,
-        };
-        await this.app.loginRedirect(loginRequest);
-    }
-
-    // Tries to retrieve the token without triggering a redirection.
-    async getToken() {
-        if (!this.hasAuthenticated) {
-            throw new Error('Authentication required');
-        }
-
-        const parameters = {
-            account: await this.publicApp.getActiveAccount(),
-            scopes: this.scopes,
-        };
-
-        const result = await this.publicApp.acquireTokenSilent(parameters);
-        return {
-            token: result.accessToken,
-            expiresOnTimestamp: result.expiresOn.getTime(),
-        };
-    }
 }
