@@ -45,25 +45,25 @@ export const BlobStorage = () => {
     };
 
     const handleAlert = () => {
-        setMessage("")
+        setMessage('');
         setShowMessage(false);
-    }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (uploadedFile) {
             try {
-                const client = await getBlobServiceClient();
+                const client = await getBlobServiceClient(result.accessToken);
                 const containerClient = client.getContainerClient(storageInformation.containerName);
                 const hasContainer = await containerExist(client, storageInformation.containerName);
                 if (hasContainer) {
                     const blockBlobClient = containerClient.getBlockBlobClient(uploadedFile.name);
-                    blockBlobClient.uploadData(uploadedFile);
+                    await blockBlobClient.uploadData(uploadedFile);
                     setMessage('File uploaded successfully');
                 } else {
                     const createContainerResponse = await containerClient.create();
                     const blockBlobClient = containerClient.getBlockBlobClient(uploadedFile.name);
-                    blockBlobClient.uploadData(uploadedFile);
+                    await blockBlobClient.uploadData(uploadedFile);
                     console.log('Container was created successfully', createContainerResponse.requestId);
                     setMessage('Update file and created container successfully');
                 }
