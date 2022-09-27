@@ -5,14 +5,14 @@ client: React SPA
 service: Node.js web API
 level: 300
 languages:
- - JavaScript
- - Node
+	- JavaScript
+	- Node
 products:
- - React
- - Express
- - azure-active-directory
- - msal-js
- - passport-azure-ad
+	- React
+	- Express
+	- azure-active-directory
+	- msal-js
+	- passport-azure-ad
 platform: JavaScript
 endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-react-tutorial
@@ -40,9 +40,9 @@ This sample demonstrates a cross-platform application suite involving an React s
 
 Role based access control in Azure AD can be done with **Delegated** and **App** permissions and **Security Groups** as well. we will cover RBAC using Security Groups in the [next tutorial](../2-call-api-groups/README.md). **Delegated** and **App** permissions, **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
-> :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
-
 > :information_source: See the community call: [Deep dive on using MSAL.js to integrate React Single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=7oPSL5wWeS0)
+
+> :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
 
 ## Scenario
 
@@ -105,9 +105,8 @@ or download and extract the repository *.zip* file.
 
 ### Step 3: Register the sample application(s) in your tenant
 
-While there are multiple project in this sample, we'd register just one app with Azure AD and use the registered app's *client id* in both apps. This reuse of app ids (client ids) is used when the apps themselves are just components of one larger app topology.  
+> :information_source: While there are multiple projects in this sample, we'd register just one app with Azure AD and use the registered app's *client id* in both apps. This reuse of app ids (client ids) is used when the apps themselves are just components of one larger app topology.  
 
-To register it, you can:
 There is one project in this sample. To register it, you can:
 
 - follow the steps below for manually register your apps
@@ -173,10 +172,10 @@ To manually register the apps, as a first step you'll need to:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
     1. For **Scope name**, use `access_via_approle_assignments`.
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in *Access 'msal-react-spa' as the signed-in user.*.
-    1. For **Admin consent description** type in *Allow the app to access the 'msal-react-spa' as a signed-in user.*.
-    1. For **User consent display name** type in *Access 'msal-react-spa' on your behalf.*.
-    1. For **User consent description** type in *Allow the app to access the 'msal-react-spa' on your behalf.*.
+    1. For **Admin consent display name** type in *Access 'msal-react-spa' as the signed-in user assigned to App role*.
+    1. For **Admin consent description** type in *Allow the app to access the 'msal-react-spa' as a signed-in user assigned to one or more App roles*.
+    1. For **User consent display name** type in *Access 'msal-react-spa' on your behalf after App role assignment*.
+    1. For **User consent description** type in *Allow the app to access the 'msal-react-spa' on your behalf after assignment to one or more App roles*.
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
 1. Select the **Manifest** blade on the left.
@@ -189,11 +188,11 @@ To manually register the apps, as a first step you'll need to:
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
-   1. Select the **Add a permission** button and then,
+   1. Select the **Add a permission** button and then:
    1. Ensure that the **My APIs** tab is selected.
    1. In the list of APIs, select the API `msal-react-spa`.
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **access_via_approle_assignments** in the list. Use the search box if necessary.
+           1. In the **Delegated permissions** section, select **access_via_approle_assignments** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 
 ##### Publish Application Roles for users and groups
@@ -204,6 +203,7 @@ To manually register the apps, as a first step you'll need to:
     1. For **Allowed member types**, choose **User**.
     1. For **Value**, enter **TaskAdmin**.
     1. For **Description**, enter **Admins can read and write any user's todo list**.
+
     > Repeat the steps above for another role named **TaskUser**
     1. Select **Apply** to save your changes.
 
@@ -220,8 +220,9 @@ For more information, see: [How to: Add app roles in your application and receiv
 1. Still on the same app registration, select the **Token configuration** blade to the left.
 1. Select **Add optional claim**:
     1. Select **optional claim type**, then choose **ID**.
-    1. Select the optional claim **acct**. Provides user's account status in tenant.If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
-    1. Select **Add** to save your changes.
+    1. Select the optional claim **acct**. 
+    > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
+    1. Select **Add** to save your changes
 
 ##### Configure the client app (msal-react-spa) to use your app registration
 

@@ -49,9 +49,15 @@ Function CleanupRolesUsersAndRoleAssignments
     }
     else
     {
-        Write-Host "couldn't find application (msal-react-spa)"  -BackgroundColor Red
+        Write-Host "Couldn't find application (msal-react-spa)"  -BackgroundColor Red
     }
 }
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Authentication
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {
     Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser 
@@ -65,14 +71,17 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
 
 Import-Module Microsoft.Graph.Users
 
-# Run interactively (will ask you for the tenant ID)
-
-try {
+try
+{
+    # Run interactively (will ask you for the tenant ID)
     CleanupRolesUsersAndRoleAssignments -tenantId $tenantId -environment $azureEnvironmentName
-} catch {
+}
+catch
+{
+    $_.Exception.ToString() | out-host
     $message = $_
-    Write-Warning $Error[0]
-    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
+    Write-Warning $Error[0]    
+    Write-Host "Unable to cleanup app roles and assignments. Error is $message." -ForegroundColor White -BackgroundColor Red
 }
 
 Write-Host "Disconnecting from tenant"
