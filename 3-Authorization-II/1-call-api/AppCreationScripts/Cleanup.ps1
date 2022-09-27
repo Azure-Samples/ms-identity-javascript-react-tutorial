@@ -1,4 +1,4 @@
-
+﻿
 [CmdletBinding()]
 param(    
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
@@ -6,6 +6,7 @@ param(
     [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script. Default = Global')]
     [string] $azureEnvironmentName
 )
+
 
 Function Cleanup
 {
@@ -24,11 +25,13 @@ Function Cleanup
 
     # Connect to the Microsoft Graph API
     Write-Host "Connecting to Microsoft Graph"
-    if ($tenantId -eq "") {
+    if ($tenantId -eq "") 
+    {
         Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
-    else {
+    else 
+    {
         Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
     }
     
@@ -38,15 +41,17 @@ Function Cleanup
     Write-Host "Removing 'service' (msal-node-api) if needed"
     try
     {
-        Get-MgApplication -Filter "DisplayName eq 'msal-node-api'"  | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+        Get-MgApplication -Filter "DisplayName eq 'msal-node-api'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
-        Write-Host "Unable to remove the application 'msal-node-api' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove the application 'msal-node-api'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (msal-node-api) applications found, will remove if needed..."
-    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-node-api'"
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-node-api'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
     
     if ($apps)
     {
@@ -62,24 +67,28 @@ Function Cleanup
     # also remove service principals of this app
     try
     {
-        Get-MgServicePrincipal -filter "DisplayName eq 'msal-node-api'" | ForEach-Object {Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-node-api'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
     }
     catch
     {
-        Write-Host "Unable to remove ServicePrincipal 'msal-node-api' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove ServicePrincipal 'msal-node-api'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
     Write-Host "Removing 'client' (msal-react-spa) if needed"
     try
     {
-        Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'"  | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+        Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
-        Write-Host "Unable to remove the application 'msal-react-spa' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove the application 'msal-react-spa'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (msal-react-spa) applications found, will remove if needed..."
-    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'"
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
     
     if ($apps)
     {
@@ -95,11 +104,13 @@ Function Cleanup
     # also remove service principals of this app
     try
     {
-        Get-MgServicePrincipal -filter "DisplayName eq 'msal-react-spa'" | ForEach-Object {Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-react-spa'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
     }
     catch
     {
-        Write-Host "Unable to remove ServicePrincipal 'msal-react-spa' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove ServicePrincipal 'msal-react-spa'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
 
@@ -110,7 +121,17 @@ Import-Module Microsoft.Graph.Applications
 $ErrorActionPreference = "Stop"
 
 
-Cleanup -tenantId $tenantId -environment $azureEnvironmentName
+try
+{
+    Cleanup -tenantId $tenantId -environment $azureEnvironmentName
+}
+catch
+{
+    $_.Exception.ToString() | out-host
+    $message = $_
+    Write-Warning $Error[0]    
+    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
 
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph

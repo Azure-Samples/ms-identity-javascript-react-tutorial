@@ -1,19 +1,25 @@
 ---
 page_type: sample
-name: React single-page application using MSAL React to authorize users for calling a Express.js web API on Azure Active Directory
+services: ms-identity
+client: React SPA
+service: Node.js web API
+level: 200
 languages:
- - javascript
- - nodejs
+- javascript
+- nodejs
 products:
- - azure-active-directory
- - msal-js
- - msal-react
- - passport-azure-ad
+- azure-active-directory
+- msal-js
+- msal-react
+- passport-azure-ad
+platform: DotNet
+endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-react-tutorial
-description: A React single-page application using MSAL React to authorize users for calling a protected Express.js web API on Azure Active Directory
+name: React Single-page application (SPA) using MSAL React to authorize users and calling an Express.js Web API protected using Azure Active Directory
+description: A React Single-page application (SPA) using MSAL React to authorize users and calling an Express.js Web API protected using Azure Active Directory
 ---
 
-# React single-page application using MSAL React to authorize users for calling a Express.js web API on Azure Active Directory
+# React Single-page application (SPA) using MSAL React to authorize users and calling an Express.js Web API protected using Azure Active Directory
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -32,8 +38,6 @@ description: A React single-page application using MSAL React to authorize users
 This sample demonstrates a React single-page application (SPA) calling a protected Node.js web API using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React). The Node.js web API itself is protected using the [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) plug-in for [Passport.js](http://www.passportjs.org/).
 
 Here you'll learn how to [register a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-app-registration), [accept authorized calls](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-verification-scope-app-roles) and [validate access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens).
-
-> :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
 
 > :information_source: See the community call: [Deep dive on using MSAL.js to integrate React Single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=7oPSL5wWeS0)
 
@@ -72,12 +76,12 @@ Here you'll learn how to [register a protected web API](https://docs.microsoft.c
 From your shell or command line:
 
 ```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
+git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
 ```
 
 or download and extract the repository *.zip* file.
 
->:warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
+> :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
 
 ### Step 2: Install project dependencies
 
@@ -100,6 +104,7 @@ Next, install the dependencies for the client app:
 
 ### Step 3: Register the sample application(s) in your tenant
 
+There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
 
 - follow the steps below for manually register your apps
 - or use PowerShell scripts that:
@@ -134,8 +139,8 @@ Next, install the dependencies for the client app:
 
 To manually register the apps, as a first step you'll need to:
 
-  1. Sign in to the [Azure portal](https://portal.azure.com).
-  1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
 #### Register the service app (msal-node-api)
 
@@ -154,15 +159,16 @@ To manually register the apps, as a first step you'll need to:
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `Todolist.Read`.
+    1. For **Scope name**, use `ToDoList.Read`.
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in scopeName.
-    1. For **Admin consent description** type in e.g. Allows the app to read the signed-in user's files..
-    1. For **User consent display name** type in scopeName.
-    1. For **User consent description** type in eg. Allows the app to read your files..
+    1. For **Admin consent display name** type in *Read users ToDo list using the 'msal-node-api'.*.
+    1. For **Admin consent description** type in *Allow the app to read the user's ToDo list using the 'msal-node-api'.*.
+    1. For **User consent display name** type in *Read your ToDo list items via the 'msal-node-api'.*.
+    1. For **User consent description** type in *Allow the app to read your ToDo list items via the 'msal-node-api'.*.
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
-    > Repeat the steps above for another scope named **Todolist.ReadWrite**
+
+    > Repeat the steps above for another scope named **ToDoList.ReadWrite**
 1. Select the **Manifest** blade on the left.
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
@@ -174,12 +180,13 @@ To manually register the apps, as a first step you'll need to:
 1. All APIs should publish a minimum of one [App role](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-app-roles-to-applications), also called [Application Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token as *themselves*, i.e. when they are not signing-in a user. **Application permissions** are the type of permissions that APIs should publish when they want to enable client applications to successfully authenticate as themselves and not need to sign-in users. To publish an application permission, follow these steps:
 1. Still on the same app registration, select the **App roles** blade to the left.
 1. Select **Create app role**:
-    1. For **Display name**, enter a suitable name for your application permission, for instance **Todolist.Read.All**.
+    1. For **Display name**, enter a suitable name for your application permission, for instance **ToDoList.Read.All**.
     1. For **Allowed member types**, choose **Application** to ensure other applications can be granted this permission.
-    1. For **Value**, enter **Todolist.Read.All**.
-    1. For **Description**, enter **Allow this application to read every users Todolist items**.
+    1. For **Value**, enter **ToDoList.Read.All**.
+    1. For **Description**, enter *Allow the app to read every user's ToDo list using the 'msal-node-api'.*.
     1. Select **Apply** to save your changes.
-    > Repeat the steps above for another app permission named **Todolist.ReadWrite.All**
+
+    > Repeat the steps above for another app permission named **ToDoList.ReadWrite.All**
 
 ##### Configure Optional Claims
 
@@ -187,10 +194,10 @@ To manually register the apps, as a first step you'll need to:
 1. Select **Add optional claim**:
     1. Select **optional claim type**, then choose **Access**.
     1. Select the optional claim **idtyp**. 
-        > Indicates token type. This claim is the most accurate way for an API to determine if a token is an app token or or user token
+    > Indicates token type. This claim is the most accurate way for an API to determine if a token is an app token or an app+user token. This is not issued in tokens issued to users.
     1. Select the optional claim **acct**. 
-        > Provides user's account status in tenant. If the user is a member of the tenant, the value is 0. If they're a guest, the value is 1.
-    1. Select **Add** to save your changes.
+    > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
+    1. Select **Add** to save your changes
 
 ##### Configure the service app (msal-node-api) to use your app registration
 
@@ -199,8 +206,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\authConfig.js` file.
-1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
-1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
 
 #### Register the client app (msal-react-spa)
 
@@ -214,17 +221,26 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the app's registration screen, select the **Authentication** blade to the left.
 1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
     1. In the **Redirect URI** section enter the following redirect URIs:
-        1. `https://localhost:3000`
+        1. `https://localhost:3000/`
         1. `http://localhost:3000/redirect.html`
     1. Click **Save** to save your changes.
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
-   1. Select the **Add a permission** button and then,
+   1. Select the **Add a permission** button and then:
    1. Ensure that the **My APIs** tab is selected.
    1. In the list of APIs, select the API `msal-node-api`.
-        1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-            1. In the **Delegated permissions** section, select the **Todolist.Read**, **Todolist.ReadWrite** in the list. Use the search box if necessary.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
+           1. In the **Delegated permissions** section, select **ToDoList.Read**, **ToDoList.ReadWrite** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
+
+##### Configure Optional Claims
+
+1. Still on the same app registration, select the **Token configuration** blade to the left.
+1. Select **Add optional claim**:
+    1. Select **optional claim type**, then choose **Access**.
+     1. Select the optional claim **acct**. 
+    > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
+    1. Select **Add** to save your changes
 
 ##### Configure the client app (msal-react-spa) to use your app registration
 
@@ -233,13 +249,13 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\authConfig.js` file.
-1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
-1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
-1. Find the string `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
 
 ### Step 4: Running the sample
 
-From your shell or command line, run the following commands:
+From your shell or command line, execute the following commands:
 
 ```console
     cd 3-Authorization-II/1-call-api/API

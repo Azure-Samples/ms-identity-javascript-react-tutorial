@@ -1,7 +1,7 @@
 {
     "Sample": {
         "Author": "derisen",
-        "Title": "React single-page application using MSAL React to authorize users for calling a Express.js web API on Azure Active Directory",
+        "Title": "React Single-page application (SPA) using MSAL React to authorize users and calling an Express.js Web API protected using Azure Active Directory",
         "Level": 200,
         "Client": "React SPA",
         "Service": "Node.js web API",
@@ -11,7 +11,7 @@
             "javascript",
             "nodejs"
         ],
-        "Description": "A React single-page application using MSAL React to authorize users for calling a protected Express.js web API on Azure Active Directory",
+        "Description": "A React Single-page application (SPA) using MSAL React to authorize users and calling an Express.js Web API protected using Azure Active Directory",
         "Products": [
             "azure-active-directory",
             "msal-js",
@@ -30,22 +30,22 @@
                 "ProjectDirectory": "\\1-call-api\\API"
             },
             "Scopes": [
-                "Todolist.Read",
-                "Todolist.ReadWrite"
+                "ToDoList.Read",
+                "ToDoList.ReadWrite"
             ],
             "AppRoles": [
                 {
                     "AllowedMemberTypes": [
                         "Application"
                     ],
-                    "Name": "Todolist.Read.All",
+                    "Name": "ToDoList.Read.All",
                     "Description": "Allow this application to read every users Todolist items"
                 },
                 {
                     "AllowedMemberTypes": [
                         "Application"
                     ],
-                    "Name": "Todolist.ReadWrite.All",
+                    "Name": "ToDoList.ReadWrite.All",
                     "Description": "Allow this application to read and write every users Todolist items"
                 }
             ],
@@ -62,7 +62,7 @@
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMyOrg",
             "HomePage": "https://localhost:3000",
-            "ReplyUrls": "https://localhost:3000, http://localhost:3000/redirect.html",
+            "ReplyUrls": "https://localhost:3000/, http://localhost:3000/redirect.html",
             "Sample": {
                 "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
                 "ProjectDirectory": "\\1-call-api\\SPA"
@@ -71,11 +71,16 @@
                 {
                     "Resource": "service",
                     "DelegatedPermissions": [
-                        "Todolist.Read",
-                        "Todolist.ReadWrite"
+                        "ToDoList.Read",
+                        "ToDoList.ReadWrite"
                     ]
                 }
-            ]
+            ],
+            "OptionalClaims": {
+                "AccessTokenClaims": [
+                    "acct"
+                ]
+            }
         }
     ],
     "CodeConfiguration": [
