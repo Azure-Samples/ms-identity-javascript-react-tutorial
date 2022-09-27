@@ -69,6 +69,7 @@ Alternatively, choose below the sample you want to review.
 |                |               |
 |----------------|---------------|
 | <img src="./2-Authorization-I/1-call-graph/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Azure AD and call Microsoft Graph**](./2-Authorization-I/1-call-graph/README.md) </br> Authenticate your users and acquire an **Access Token** for Microsoft Graph and then call the **Microsoft Graph API**. Handle Continous Access Evaluation (CAE) events. |
+| <img src="./2-Authorization-I/2-call-arm/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Azure AD and call Azure REST API and Azure Storage REST API**](./2-Authorization-I/2-call-arm/README.md) </br> Authenticate your users and acquire an **Access Token** for Azure Management Resource and Azure Storage then call the **Azure REST API** and **Azure Storage REST API**.|
 
 ### Chapter 3: Protect an API and call the API from your client app
 
