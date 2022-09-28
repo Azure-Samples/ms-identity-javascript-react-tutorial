@@ -9,34 +9,13 @@ import { addClaimsToStorage } from './utils/storageUtils';
 import { parseChallenges } from './utils/claimUtils';
 
 /**
- * Makes a GET request using authorization header. For more, visit:
- * https://tools.ietf.org/html/rfc6750
- * @param {string} accessToken
- * @param {string} apiEndpoint
- */
-export const fetchData = async (accessToken, apiEndpoint) => {
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-    headers.append('Authorization', bearer);
-
-    const options = {
-        method: 'GET',
-        headers: headers,
-    };
-
-    return fetch(apiEndpoint, options)
-        .then((response) => handleClaimsChallenge(response, apiEndpoint))
-        .catch((error) => error);
-};
-
-/**
  * This method inspects the HTTPS response from a fetch call for the "www-authenticate header"
  * If present, it grabs the claims challenge from the header and store it in the localStorage
  * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
  * @param {object} response
  * @returns response
  */
-const handleClaimsChallenge = async (response, apiEndpoint) => {
+export const handleClaimsChallenge = async (response, apiEndpoint) => {
     if (response.status === 200) {
         return response.json();
     } else if (response.status === 401) {
@@ -63,6 +42,3 @@ const handleClaimsChallenge = async (response, apiEndpoint) => {
         throw new Error(`Something went wrong with the request: ${response.status}`);
     }
 };
-
-
-

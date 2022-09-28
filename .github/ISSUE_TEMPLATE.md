@@ -19,8 +19,8 @@
     - [ ] 5-1) Call a web API using App Roles
     - [ ] 5-2) Call a web API using Security Groups
     - [ ] 6-1) Call Microsoft Graph using on-behalf-of flow
-    - [ ] 6-2) Call a web API using Proof of Possession tokens
     - [ ] 6-3) Call a web API using Conditional Access Auth Context
+    - [ ] 6-4) Sign-in with Hybrid SPA flow
 ```
 
 ## This issue is for a
