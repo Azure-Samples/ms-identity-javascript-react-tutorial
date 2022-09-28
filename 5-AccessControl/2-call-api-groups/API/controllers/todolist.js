@@ -3,7 +3,7 @@ const FileSync = require('lowdb/adapters/FileSync');
 const adapter = new FileSync('./data/db.json');
 const db = lowdb(adapter);
 
-const { hasRequiredDelegatedPermissions } = require('../utils/permissionUtils');
+const { hasRequiredDelegatedPermissions } = require('../auth/permissionUtils');
 
 const authConfig = require('../authConfig');
 

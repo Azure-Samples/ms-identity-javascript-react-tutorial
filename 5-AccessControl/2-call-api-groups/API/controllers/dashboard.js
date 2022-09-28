@@ -2,7 +2,7 @@ const lowdb = require('lowdb');
 const FileAsync = require('lowdb/adapters/FileAsync');
 const adapter = new FileAsync('./data/db.json');
 
-const { hasRequiredDelegatedPermissions } = require('../utils/permissionUtils');
+const { hasRequiredDelegatedPermissions } = require('../auth/permissionUtils');
 
 const authConfig = require('../authConfig');
 

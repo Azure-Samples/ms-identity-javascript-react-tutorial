@@ -8,7 +8,7 @@ const msal = require('@azure/msal-node');
 
 const config = require('../authConfig');
 
-const { requestHasRequiredAttributes } = require("../utils/permissionUtils")
+const { requestHasRequiredAttributes } = require("./permissionUtils");
 
 const msalConfig = {
     auth: {
@@ -89,7 +89,6 @@ const checkAccess = (req, res, next) => {
 };
 
 const handleOverage = async (req, res, next) => {
-    console.log('going through overage');
     const authHeader = req.headers.authorization;
     const accessToken = authHeader.split(' ')[1];
 
