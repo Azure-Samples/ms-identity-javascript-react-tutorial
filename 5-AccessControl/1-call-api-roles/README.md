@@ -5,14 +5,14 @@ client: React SPA
 service: Node.js web API
 level: 300
 languages:
-	- JavaScript
-	- Node
+ - JavaScript
+ - Node
 products:
-	- React
-	- Express
-	- azure-active-directory
-	- msal-js
-	- passport-azure-ad
+ - React
+ - Express
+ - azure-active-directory
+ - msal-js
+ - passport-azure-ad
 platform: JavaScript
 endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-react-tutorial
