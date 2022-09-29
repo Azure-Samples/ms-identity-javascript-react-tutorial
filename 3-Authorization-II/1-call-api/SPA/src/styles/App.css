@@ -13,12 +13,24 @@ footer {
 }
 
 .navbarStyle {
-    padding: .5rem 1rem;
+    padding: .5rem 1rem !important;
 }
 
 .navbarButton {
     color: #fff !important;
     padding: .5rem 1rem !important;
+}
+
+.iconText {
+  margin: 0 .5rem
+}
+
+.navbarStyle {
+  padding: .5rem 1rem
+}
+
+.navbarButton {
+  color: #fff !important
 }
 
 .data-area-div {

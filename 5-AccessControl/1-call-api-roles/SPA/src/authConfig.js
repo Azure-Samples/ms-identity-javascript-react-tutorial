@@ -14,12 +14,12 @@ export const msalConfig = {
     auth: {
         clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
         authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
-        redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
-        postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
-        navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
+        redirectUri: '/', // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
+        postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
+        clientCapabilities: ['CP1'], // this lets the resource owner know that this client is capable of handling claims challenge.
     },
     cache: {
-        cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+        cacheLocation: 'localStorage', // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
         storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
     },
     system: {
@@ -42,9 +42,9 @@ export const msalConfig = {
                         console.warn(message);
                         return;
                 }
-            }
-        }
-    }
+            },
+        },
+    },
 };
 
 /**
@@ -53,11 +53,11 @@ export const msalConfig = {
  */
 export const protectedResources = {
     apiTodoList: {
-        todoListEndpoint: "http://localhost:5000/api/todolist",
-        dashboardEndpoint: "http://localhost:5000/api/dashboard",
-        scopes: ["Enter_the_Web_Api_Scope_here"],
+        todoListEndpoint: 'http://localhost:5000/api/todolist',
+        dashboardEndpoint: 'http://localhost:5000/api/dashboard',
+        scopes: ['api://Enter_the_Web_Api_App_Id_Uri_Here/access_via_approle_assignments'],
     },
-}
+};
 
 /**
  * Scopes you add here will be prompted for user consent during sign-in.
@@ -66,7 +66,7 @@ export const protectedResources = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: [...protectedResources.apiTodoList.scopes]
+    scopes: [...protectedResources.apiTodoList.scopes],
 };
 
 export const appRoles = {

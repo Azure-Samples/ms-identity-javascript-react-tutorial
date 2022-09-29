@@ -7,17 +7,9 @@
         "Service": "Node.js web API",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0",
-        "Languages": [
-            "javascript",
-            "nodejs"
-        ],
+        "Languages": ["javascript", "nodejs"],
         "Description": "A React single-page application using MSAL React to authorize users for calling a protected Express.js web API on Azure Active Directory",
-        "Products": [
-            "azure-active-directory",
-            "msal-js",
-            "msal-react",
-            "passport-azure-ad"
-        ]
+        "Products": ["azure-active-directory", "msal-js", "msal-react", "passport-azure-ad"]
     },
     "AADApps": [
         {
@@ -29,31 +21,21 @@
                 "SampleSubPath": "3-Authorization-II\\1-call-api\\API",
                 "ProjectDirectory": "\\1-call-api\\API"
             },
-            "Scopes": [
-                "Todolist.Read",
-                "Todolist.ReadWrite"
-            ],
+            "Scopes": ["Todolist.Read", "Todolist.ReadWrite"],
             "AppRoles": [
                 {
-                    "AllowedMemberTypes": [
-                        "Application"
-                    ],
+                    "AllowedMemberTypes": ["Application"],
                     "Name": "Todolist.Read.All",
                     "Description": "Allow this application to read every users Todolist items"
                 },
                 {
-                    "AllowedMemberTypes": [
-                        "Application"
-                    ],
+                    "AllowedMemberTypes": ["Application"],
                     "Name": "Todolist.ReadWrite.All",
                     "Description": "Allow this application to read and write every users Todolist items"
                 }
             ],
             "OptionalClaims": {
-                "AccessTokenClaims": [
-                    "idtyp",
-                    "acct"
-                ]
+                "AccessTokenClaims": ["idtyp", "acct"]
             }
         },
         {
@@ -70,10 +52,7 @@
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",
-                    "DelegatedPermissions": [
-                        "Todolist.Read",
-                        "Todolist.ReadWrite"
-                    ]
+                    "DelegatedPermissions": ["Todolist.Read", "Todolist.ReadWrite"]
                 }
             ]
         }

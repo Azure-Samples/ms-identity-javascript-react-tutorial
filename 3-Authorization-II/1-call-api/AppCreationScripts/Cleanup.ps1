@@ -1,16 +1,14 @@
 ﻿
 [CmdletBinding()]
 param(    
-    [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
+    [Parameter(Mandatory = $False, HelpMessage = 'Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
     [string] $tenantId,
-    [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script. Default = Global')]
+    [Parameter(Mandatory = $False, HelpMessage = 'Azure environment to use while running the script. Default = Global')]
     [string] $azureEnvironmentName
 )
 
-Function Cleanup
-{
-    if (!$azureEnvironmentName)
-    {
+Function Cleanup {
+    if (!$azureEnvironmentName) {
         $azureEnvironmentName = "Global"
     }
 
@@ -36,69 +34,57 @@ Function Cleanup
     Write-Host "Cleaning-up applications from tenant '$tenantId'"
 
     Write-Host "Removing 'service' (msal-node-api) if needed"
-    try
-    {
-        Get-MgApplication -Filter "DisplayName eq 'msal-node-api'"  | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+    try {
+        Get-MgApplication -Filter "DisplayName eq 'msal-node-api'"  | ForEach-Object { Remove-MgApplication -ApplicationId $_.Id }
     }
-    catch
-    {
+    catch {
         Write-Host "Unable to remove the application 'msal-node-api' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (msal-node-api) applications found, will remove if needed..."
     $apps = Get-MgApplication -Filter "DisplayName eq 'msal-node-api'"
     
-    if ($apps)
-    {
+    if ($apps) {
         Remove-MgApplication -ApplicationId $apps.Id
     }
 
-    foreach ($app in $apps) 
-    {
+    foreach ($app in $apps) {
         Remove-MgApplication -ApplicationId $app.Id
         Write-Host "Removed msal-node-api.."
     }
 
     # also remove service principals of this app
-    try
-    {
-        Get-MgServicePrincipal -filter "DisplayName eq 'msal-node-api'" | ForEach-Object {Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false}
+    try {
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-node-api'" | ForEach-Object { Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false }
     }
-    catch
-    {
+    catch {
         Write-Host "Unable to remove ServicePrincipal 'msal-node-api' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
     Write-Host "Removing 'client' (msal-react-spa) if needed"
-    try
-    {
-        Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'"  | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+    try {
+        Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'"  | ForEach-Object { Remove-MgApplication -ApplicationId $_.Id }
     }
-    catch
-    {
+    catch {
         Write-Host "Unable to remove the application 'msal-react-spa' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (msal-react-spa) applications found, will remove if needed..."
     $apps = Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'"
     
-    if ($apps)
-    {
+    if ($apps) {
         Remove-MgApplication -ApplicationId $apps.Id
     }
 
-    foreach ($app in $apps) 
-    {
+    foreach ($app in $apps) {
         Remove-MgApplication -ApplicationId $app.Id
         Write-Host "Removed msal-react-spa.."
     }
 
     # also remove service principals of this app
-    try
-    {
-        Get-MgServicePrincipal -filter "DisplayName eq 'msal-react-spa'" | ForEach-Object {Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false}
+    try {
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-react-spa'" | ForEach-Object { Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false }
     }
-    catch
-    {
+    catch {
         Write-Host "Unable to remove ServicePrincipal 'msal-react-spa' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
