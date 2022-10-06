@@ -37,17 +37,33 @@ export const RouteGuard = ({ Component, ...props }) => {
                     (currentAccount.idTokenClaims['_claim_sources'] && !isOveraged))
             ) {
                 setIsOveraged(true);
-                window.alert(
-                    'You have too many group memberships. The application will now query Microsoft Graph to get the full list of groups that you are a member of.'
-                );
             }
         }
     };
 
     useEffect(() => {
         onLoad();
+
         // eslint-disable-next-line
     }, [instance]);
+
+    useEffect(() => {
+        const currentAccount = instance.getActiveAccount();
+        if (!isOveraged) {
+            return;
+        }
+
+        if (
+            currentAccount &&
+            (currentAccount.idTokenClaims['_claim_names'] ||
+                (currentAccount.idTokenClaims['_claim_sources'] && !isOveraged))
+        ) {
+            window.alert(
+                'You have too many group memberships. The application will now query Microsoft Graph to get the full list of groups that you are a member of.'
+            );
+        }
+        // eslint-disable-next-line
+    }, [isOveraged]);
 
     return (
         <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
