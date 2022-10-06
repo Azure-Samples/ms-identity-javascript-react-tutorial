@@ -1,16 +1,16 @@
 import { Routes, Route } from 'react-router-dom';
 import { MsalProvider } from '@azure/msal-react';
 
+import { PageLayout } from './components/PageLayout';
 import { RouteGuard } from './components/RouteGuard';
 import { Home } from './pages/Home';
 import { TodoList } from './pages/TodoList';
 import { Dashboard } from './pages/Dashboard';
-
-import './styles/App.css';
-import { PageLayout } from './components/PageLayout';
+import { Overage } from './pages/Overage';
 
 import { securityGroups } from './authConfig';
-import { Overage } from './pages/Overage';
+
+import './styles/App.css';
 
 const Pages = () => {
     return (

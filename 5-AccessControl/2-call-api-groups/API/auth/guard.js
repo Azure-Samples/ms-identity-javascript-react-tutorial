@@ -10,9 +10,7 @@ const routeGuard = (accessMatrix) => {
                 return res.status(403).json({ error: 'No group claim found!' });
             }
         } else {
-            const groups = req.authInfo['groups'];
-
-            if (!requestHasRequiredAttributes(accessMatrix, req.path, req.method, groups)) {
+            if (!requestHasRequiredAttributes(accessMatrix, req.path, req.method, req.authInfo['groups'])) {
                 return res.status(403).json({ error: 'User does not have the group, method or path' });
             }
         }

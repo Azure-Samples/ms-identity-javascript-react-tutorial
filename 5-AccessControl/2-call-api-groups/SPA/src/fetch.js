@@ -115,39 +115,3 @@ export const editTask = async (id, task) => {
         .then((response) => response.json())
         .catch((error) => console.log(error));
 };
-
-export const getGroups = async () => {
-    const accessToken = await getToken(protectedResources.apiGraph.scopes);
-
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-
-    headers.append('Authorization', bearer);
-
-    const options = {
-        method: 'GET',
-        headers: headers,
-    };
-
-    return fetch(protectedResources.apiGraph.endpoint, options)
-        .then((response) => response.json())
-        .catch((error) => console.log(error));
-};
-
-export const getNextPage = async (nextPage) => {
-    const accessToken = await getToken(protectedResources.apiGraph.scopes);
-
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-
-    headers.append('Authorization', bearer);
-
-    const options = {
-        method: 'GET',
-        headers: headers,
-    };
-
-    return fetch(nextPage, options)
-        .then((response) => response.json())
-        .catch((error) => console.log(error));
-};

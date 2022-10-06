@@ -3,12 +3,13 @@
  * Licensed under the MIT License.
  */
 
-const { default: axios } = require('axios');
 const msal = require('@azure/msal-node');
+const graph = require('@microsoft/microsoft-graph-client');
+
+const { getGraphClient } = require('../utils/graphClient');
+const { requestHasRequiredAttributes } = require("./permissionUtils");
 
 const config = require('../authConfig');
-
-const { requestHasRequiredAttributes } = require("./permissionUtils");
 
 const msalConfig = {
     auth: {
@@ -45,81 +46,44 @@ const getOboToken = async (oboAssertion) => {
     }
 };
 
-const callGraph = async (oboToken, endpoint) => {
-    const options = {
-        headers: {
-            Authorization: `Bearer ${oboToken}`,
-        },
-    };
-
-    console.log('request made to web API at: ' + new Date().toString());
+const handleOverage = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    const accessToken = authHeader.split(' ')[1];
+    const groups = [];
 
     try {
-        const response = await axios.default.get(endpoint, options);
-        return response.data;
-    } catch (error) {
-        console.log(error);
-        return error;
-    }
-};
+        const oboToken = await getOboToken(accessToken);
+        
+        // Get a graph client instance for the given access token
+        const graphClient = getGraphClient(oboToken);
 
-const handlePagination = async (oboToken, nextPage, userGroups) => {
-    try {
-        const graphResponse = await callGraph(oboToken, nextPage);
+        // Makes request to fetch mails list. Which is expected to have multiple pages of data.
+        let response = await graphClient.api(config.protectedResources.graphAPI.endpoint).get();
+        
+        // A callback function to be called for every item in the collection. This call back should return boolean indicating whether not to continue the iteration process.
+        let callback = (data) => {
+            groups.push(data.id);
+            return true;
+        };
+        
+        // Creating a new page iterator instance with client a graph client instance, page collection response from request and callback
+        let pageIterator = new graph.PageIterator(graphClient, response, callback);
+        
+        // This iterates the collection until the nextLink is drained out.
+        await pageIterator.iterate();
 
-        graphResponse.value.map((v) => userGroups.push(v.id));
-
-        if (graphResponse['@odata.nextLink']) {
-            return await handlePagination(oboToken, graphResponse['@odata.nextLink'], userGroups);
-        } else {
-            return userGroups;
-        }
+        res.locals.groups = groups;
+        return checkAccess(req, res, next);
     } catch (error) {
         console.log(error);
     }
 };
 
 const checkAccess = (req, res, next) => {
-    const accessMatrix = config.accessMatrix;
-    const groups = res.locals.groups;
-    if (!requestHasRequiredAttributes(accessMatrix, req.path, req.method, groups)) {
+    if (!requestHasRequiredAttributes(config.accessMatrix, req.path, req.method, res.locals.groups)) {
         return res.status(403).json({ error: 'User does not have the group, method or path' });
     }
     next();
-};
-
-const handleOverage = async (req, res, next) => {
-    const authHeader = req.headers.authorization;
-    const accessToken = authHeader.split(' ')[1];
-
-    const userGroups = [];
-
-    try {
-        const oboToken = await getOboToken(accessToken);
-        const graphResponse = await callGraph(oboToken, config.protectedResources.graphAPI.endpoint);
-
-        /**
-         * Some queries against Microsoft Graph return multiple pages of data either due to server-side paging
-         * or due to the use of the $top query parameter to specifically limit the page size in a request.
-         * When a result set spans multiple pages, Microsoft Graph returns an @odata.nextLink property in
-         * the response that contains a URL to the next page of results. Learn more at https://docs.microsoft.com/graph/paging
-         */
-        if (graphResponse['@odata.nextLink']) {
-            graphResponse.value.map((v) => userGroups.push(v.id));
-
-            try {
-                res.locals.groups = await handlePagination(oboToken, graphResponse['@odata.nextLink'], userGroups);
-                return checkAccess(req, res, next);
-            } catch (error) {
-                console.log(error);
-            }
-        } else {
-            res.locals.groups = graphResponse.value.map((v) => v.id);
-            return checkAccess(req, res, next);
-        }
-    } catch (error) {
-        console.log(error);
-    }
 };
 
 module.exports = handleOverage;

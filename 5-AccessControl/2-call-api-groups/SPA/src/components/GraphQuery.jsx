@@ -14,7 +14,7 @@ export const GraphQuery = (props) => {
         <div className="data-area-div">
             <p>The following is the list of all the groups that you are a member of.</p>
             <p>You'll be redirected back, and the app will check if you belong to an authorized group.</p>
-            <Button onClick={handleConfirm}>I understand</Button>
+            <Button onClick={handleConfirm}>I understand, take me back</Button>
             <br />
             <ListGroup className="list-group-item">
                 {props.groupsData.map((gr, id) => (

@@ -1,69 +1,80 @@
 import { useEffect, useState } from 'react';
-import { loginRequest } from '../authConfig';
-import { MsalAuthenticationTemplate, useMsal } from '@azure/msal-react';
-import { InteractionType, InteractionStatus } from '@azure/msal-browser';
-import { getGroups, getNextPage } from '../fetch';
-import { GraphQuery } from '../components/GraphQuery';
 
-const OverageContent = () => {
+import { useMsal, useMsalAuthentication } from '@azure/msal-react';
+import { InteractionType } from '@azure/msal-browser';
+import { PageIterator } from '@microsoft/microsoft-graph-client';
+
+import { GraphQuery } from '../components/GraphQuery';
+import { protectedResources } from '../authConfig';
+import { getGraphClient } from '../graphClient';
+
+export const Overage = () => {
     /**
-     * useMsal is hook that returns the PublicClientApplication instance,
+     * useMsal is a hook that returns the PublicClientApplication instance,
      * an array of all accounts currently signed in and an inProgress value
      * that tells you what msal is currently doing. For more, visit:
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
+    const { instance } = useMsal();
+    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, {
+        scopes: protectedResources.apiGraph.scopes,
+        account: instance.getActiveAccount(),
+    });
 
-    const { inProgress } = useMsal();
     const [groupsData, setGroupsData] = useState([]);
 
-    const handleNextPage = (nextPage) => {
-        getNextPage(nextPage).then((response) => {
-            response.value.forEach((v) => {
-                setGroupsData((gr) => [...new Set([...gr, v.id])]);
-            });
+    const getGroups = async (accessToken) => {
+        const groups = [];
 
-            if (response['@odata.nextLink']) {
-                handleNextPage(response['@odata.nextLink']);
-            }
-        });
-    };
+        // Get a graph client instance for the given access token
+        const graphClient = getGraphClient(accessToken);
+
+        // Makes request to fetch mails list. Which is expected to have multiple pages of data.
+        let response = await graphClient.api(protectedResources.apiGraph.endpoint).get();
+        
+        // A callback function to be called for every item in the collection. This call back should return boolean indicating whether not to continue the iteration process.
+        let callback = (data) => {
+            groups.push(data.id);
+            return true;
+        };
+        
+        // Creating a new page iterator instance with client a graph client instance, page collection response from request and callback
+        let pageIterator = new PageIterator(graphClient, response, callback);
+        
+        // This iterates the collection until the nextLink is drained out.
+        await pageIterator.iterate();
+
+        setGroupsData(groups);
+    }
 
     useEffect(() => {
         if (groupsData.length > 0) {
             return;
         }
-        if (groupsData.length === 0 && inProgress === InteractionStatus.None) {
-            getGroups().then((response) => {
-                if (response) {
-                    response.value.forEach((v) => {
-                        setGroupsData((gr) => [...new Set([...gr, v.id])]);
-                    });
 
-                    /**
-                     * Some queries against Microsoft Graph return multiple pages of data either due to server-side paging
-                     * or due to the use of the $top query parameter to specifically limit the page size in a request.
-                     * When a result set spans multiple pages, Microsoft Graph returns an @odata.nextLink property in
-                     * the response that contains a URL to the next page of results. Learn more at https://docs.microsoft.com/graph/paging
-                     */
-                    if (response['@odata.nextLink']) {
-                        handleNextPage(response['@odata.nextLink']);
-                    }
-                }
-            });
+        if (!!error) {
+            // in case popup is blocked, use redirect instead
+            if (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error') {
+                login(InteractionType.Redirect, {
+                    scopes: protectedResources.apiGraph.scopes,
+                    account: instance.getActiveAccount(),
+                });
+            }
+
+            console.log(error);
+            return;
         }
-        // eslint-disable-next-line
-    }, [inProgress, groupsData]);
+
+        if (result) {
+            getGroups(result.accessToken);
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [groupsData, result, error]);
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
 
     return <>{groupsData ? <GraphQuery groupsData={groupsData} /> : null} </>;
-};
-
-export const Overage = () => {
-    const authRequest = {
-        ...loginRequest,
-    };
-    return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
-            <OverageContent />
-        </MsalAuthenticationTemplate>
-    );
 };
