@@ -33,7 +33,7 @@ export const RouteGuard = ({ Component, ...props }) => {
                 }
             } else if (
                 currentAccount &&
-                (currentAccount.idTokenClaims['_claim_names'] ||
+                (currentAccount.idTokenClaims['_claim_names'] &&
                     (currentAccount.idTokenClaims['_claim_sources'] && !isOveraged))
             ) {
                 setIsOveraged(true);
@@ -55,8 +55,8 @@ export const RouteGuard = ({ Component, ...props }) => {
 
         if (
             currentAccount &&
-            (currentAccount.idTokenClaims['_claim_names'] ||
-                (currentAccount.idTokenClaims['_claim_sources'] && !isOveraged))
+            (currentAccount.idTokenClaims['_claim_names'] &&
+                (currentAccount.idTokenClaims['_claim_sources'] && isOveraged))
         ) {
             window.alert(
                 'You have too many group memberships. The application will now query Microsoft Graph to get the full list of groups that you are a member of.'
