@@ -95,15 +95,15 @@ There are various ways to deploy your applications to **Azure App Service**. Her
 
 ![api_step1](./ReadmeFiles/api_step1.png)
 
-2. On the **App Service** explorer section you will see an upward-facing arrow icon. Click on it publish your local files in the `API` folder to **Azure App Services**.
+1. On the **App Service** explorer section you will see an upward-facing arrow icon. Click on it publish your local files in the `API` folder to **Azure App Services**.
 
 ![api_step2](./ReadmeFiles/api_step2.png)
 
-3. Choose a creation option based on the operating system to which you want to deploy. in this sample, we choose **Linux**.
-4. Select a Node.js version when prompted. An **LTS** version is recommended.
-5. Type a globally unique name for your web app and press Enter. The name must be unique across all of **Azure**.
-6. After you respond to all the prompts, **VS Code** shows the **Azure** resources that are being created for your app in its notification popup.
-7. Select **Yes** when prompted to update your configuration to run npm install on the target Linux server.
+1. Choose a creation option based on the operating system to which you want to deploy. in this sample, we choose **Linux**.
+1. Select a Node.js version when prompted. An **LTS** version is recommended.
+1. Type a globally unique name for your web app and press Enter. The name must be unique across all of **Azure**.
+1. After you respond to all the prompts, **VS Code** shows the **Azure** resources that are being created for your app in its notification popup.
+1. Select **Yes** when prompted to update your configuration to run npm install on the target Linux server.
 
 ![api_step3](./ReadmeFiles/api_step3.png)
 
@@ -169,8 +169,7 @@ Finally, we need to enable Cross-Origin Resource Sharing by designating the doma
 
 1. Open your browser and navigate to your deployed client app's URI, for instance: `https://reactspa1.z22.web.core.windows.net/`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flow.
-1. Select the **Profile** button on the navigation bar. This will make a call to the Microsoft Graph API.
-1. Select the **HelloAPI** button on the navigation bar. This will make a call to your web API.
+1. Select the **Request Profile Data** button in the home screen. This will make a call to your web API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
