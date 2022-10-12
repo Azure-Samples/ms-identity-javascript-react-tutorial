@@ -62,10 +62,6 @@ export const loginRequest = {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 export const protectedResources = {
-    graphMe: {
-        endpoint: 'https://graph.microsoft.com/v1.0/me',
-        scopes: ['User.Read'],
-    },
     apiHello: {
         endpoint: 'http://localhost:5000/hello', // e.g. https://my-web-api.azurewebsites.net/hello
         scopes: ['api://Enter_the_Web_Api_Application_Id_Here/access_as_user'], // e.g. api://xxxxxx/access_as_user
