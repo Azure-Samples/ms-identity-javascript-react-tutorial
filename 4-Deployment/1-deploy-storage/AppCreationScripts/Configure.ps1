@@ -232,31 +232,27 @@ Function ConfigureApplications
 
    # Create the service AAD application
    Write-Host "Creating the AAD application (msal-node-api)"
+   
    # create the application 
    $serviceAadApplication = New-MgApplication -DisplayName "msal-node-api" `
-                                                       -Web `
-                                                       @{ `
-                                                         } `
                                                          -Api `
                                                          @{ `
                                                             RequestedAccessTokenVersion = 2 `
                                                          } `
                                                         -SignInAudience AzureADMyOrg `
                                                        #end of command
-    $currentAppId = $serviceAadApplication.AppId
-    $currentAppObjectId = $serviceAadApplication.Id
-
-    $serviceIdentifierUri = 'api://'+$currentAppId
-    Update-MgApplication -ApplicationId $currentAppObjectId -IdentifierUris @($serviceIdentifierUri)
+    $serviceIdentifierUri = 'api://'+$serviceAadApplication.AppId
+    Update-MgApplication -ApplicationId $serviceAadApplication.Id -IdentifierUris @($serviceIdentifierUri)
     
-    # create the service principal of the newly created application     
+    # create the service principal of the newly created application 
+    $currentAppId = $serviceAadApplication.AppId
     $serviceServicePrincipal = New-MgServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
 
     # add the user running the script as an app owner if needed
-    $owner = Get-MgApplicationOwner -ApplicationId $currentAppObjectId
+    $owner = Get-MgApplicationOwner -ApplicationId $serviceAadApplication.Id
     if ($owner -eq $null)
     { 
-        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
+        New-MgApplicationOwnerByRef -ApplicationId $serviceAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($serviceServicePrincipal.DisplayName)'"
     }
 
@@ -271,7 +267,7 @@ Function ConfigureApplications
 
     $newClaim =  CreateOptionalClaim  -name "idtyp" 
     $optionalClaims.AccessToken += ($newClaim)
-    Update-MgApplication -ApplicationId $currentAppObjectId -OptionalClaims $optionalClaims
+    Update-MgApplication -ApplicationId $serviceAadApplication.Id -OptionalClaims $optionalClaims
     
     # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
        
@@ -285,10 +281,10 @@ Function ConfigureApplications
         # disable the scope
         $scope.IsEnabled = $false
         $scopes.Add($scope)
-        Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @($scopes)}
+        Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
 
         # clear the scope
-        Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @()}
+        Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{Oauth2PermissionScopes = @()}
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
@@ -301,25 +297,26 @@ Function ConfigureApplications
     $scopes.Add($scope)
     
     # add/update scopes
-    Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @($scopes)}
+    Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
     Write-Host "Done creating the service application (msal-node-api)"
 
     # URL of the AAD application in the Azure portal
-    # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
-    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.Id+"/isMSAApp/"
+    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.Id+"/isMSAApp/"
 
     Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-node-api</a></td></tr>" -Path createdApps.html
 
     # print the registered app portal URL for any further navigation
-    Write-Host "Successfully registered and configured that app registration for 'msal-node-api' at `n $servicePortalUrl" -ForegroundColor Green 
+    Write-Host "Successfully registered and configured that app registration for 'msal-node-api' at `n $servicePortalUrl" -ForegroundColor Red 
 
    # Create the client AAD application
    Write-Host "Creating the AAD application (msal-react-spa)"
+   
    # create the application 
    $clientAadApplication = New-MgApplication -DisplayName "msal-react-spa" `
                                                       -Spa `
                                                       @{ `
-                                                          RedirectUris = "http://localhost:3000/"; `
+                                                          RedirectUris = "http://localhost:3000"; `
                                                         } `
                                                         -Api `
                                                         @{ `
@@ -327,20 +324,18 @@ Function ConfigureApplications
                                                         } `
                                                        -SignInAudience AzureADMyOrg `
                                                       #end of command
-    $currentAppId = $clientAadApplication.AppId
-    $currentAppObjectId = $clientAadApplication.Id
-
-    $clientIdentifierUri = 'api://'+$currentAppId
-    Update-MgApplication -ApplicationId $currentAppObjectId -IdentifierUris @($clientIdentifierUri)
+    $clientIdentifierUri = 'api://'+$clientAadApplication.AppId
+    Update-MgApplication -ApplicationId $clientAadApplication.Id -IdentifierUris @($clientIdentifierUri)
     
-    # create the service principal of the newly created application     
+    # create the service principal of the newly created application 
+    $currentAppId = $clientAadApplication.AppId
     $clientServicePrincipal = New-MgServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
 
     # add the user running the script as an app owner if needed
-    $owner = Get-MgApplicationOwner -ApplicationId $currentAppObjectId
+    $owner = Get-MgApplicationOwner -ApplicationId $clientAadApplication.Id
     if ($owner -eq $null)
     { 
-        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
+        New-MgApplicationOwnerByRef -ApplicationId $clientAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
     }
     
@@ -356,21 +351,21 @@ Function ConfigureApplications
         # disable the scope
         $scope.IsEnabled = $false
         $scopes.Add($scope)
-        Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @($scopes)}
+        Update-MgApplication -ApplicationId $clientAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
 
         # clear the scope
-        Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @()}
+        Update-MgApplication -ApplicationId $clientAadApplication.Id -Api @{Oauth2PermissionScopes = @()}
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
     
     # add/update scopes
-    Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @($scopes)}
+    Update-MgApplication -ApplicationId $clientAadApplication.Id -Api @{Oauth2PermissionScopes = @($scopes)}
     Write-Host "Done creating the client application (msal-react-spa)"
 
     # URL of the AAD application in the Azure portal
-    # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
-    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
+    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
 
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-spa</a></td></tr>" -Path createdApps.html
     # Declare a list to hold RRA items    
@@ -387,21 +382,21 @@ Function ConfigureApplications
     # $requiredResourcesAccess.Count
     # $requiredResourcesAccess
     
-    Update-MgApplication -ApplicationId $currentAppObjectId -RequiredResourceAccess $requiredResourcesAccess
+    Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
     
     
 
     # print the registered app portal URL for any further navigation
-    Write-Host "Successfully registered and configured that app registration for 'msal-react-spa' at `n $clientPortalUrl" -ForegroundColor Green 
+    Write-Host "Successfully registered and configured that app registration for 'msal-react-spa' at `n $clientPortalUrl" -ForegroundColor Red 
     
     # Update config file for 'service'
-    # $configFile = $pwd.Path + "\..\API\config.js"
-    $configFile = $(Resolve-Path ($pwd.Path + "\..\API\config.js"))
+    # $configFile = $pwd.Path + "\..\API\config.json"
+    $configFile = $(Resolve-Path ($pwd.Path + "\..\API\config.json"))
     
     $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
 
-    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
     Write-Host "-----------------"
 
@@ -413,7 +408,7 @@ Function ConfigureApplications
     
     $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $serviceAadApplication.AppId };
 
-    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
     Write-Host "-----------------"
 
@@ -445,7 +440,7 @@ $ErrorActionPreference = "Stop"
 
 try
 {
-    ConfigureApplications -tenantId $tenantId ls-environment $azureEnvironmentName
+    ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
 }
 catch
 {
