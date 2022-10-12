@@ -63,11 +63,11 @@ export const loginRequest = {
  */
 export const protectedResources = {
     graphMe: {
-        endpoint: "https://graph.microsoft.com/v1.0/me",
-        scopes: ["User.Read"],
+        endpoint: 'https://graph.microsoft.com/v1.0/me',
+        scopes: ['User.Read'],
     },
     apiHello: {
-        endpoint: "Enter_the_Web_Api_Uri_Here", // e.g. https://my-web-api.azurewebsites.net/api
-        scopes: ["Enter_the_Web_Api_Scope_Here"], // e.g. api://xxxxxx/access_as_user
+        endpoint: 'http://localhost:5000/hello', // e.g. https://my-web-api.azurewebsites.net/hello
+        scopes: ['api://Enter_the_Web_Api_Application_Id_Here/access_as_user'], // e.g. api://xxxxxx/access_as_user
     },
-}
+};
