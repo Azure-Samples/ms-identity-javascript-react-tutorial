@@ -30,26 +30,26 @@ const ProfileContent = () => {
      * We recommend that your app calls the acquireTokenSilent API on your PublicClientApplication 	
      * object each time you need an access token to access an API.	
      */
-    const RequestProfileData = () => {
+    const callTheApi = () => {
         instance.acquireTokenSilent({
-            scopes: protectedResources.apiHello.scopes,
-            account: account
-        }).then((response) => {
-            callApiWithToken(response.accessToken, protectedResources.apiHello.endpoint)
-                .then(response => setGraphData(response));
-        }).catch((error) => {
-            // in case if silent token acquisition fails, fallback to an interactive method
-            if (error instanceof InteractionRequiredAuthError) {
-                if (account && inProgress === "none") {
-                    instance.acquireTokenPopup({
-                        scopes: protectedResources.apiHello.scopes,
-                    }).then((response) => {
-                        callApiWithToken(response.accessToken, protectedResources.apiHello.endpoint)
-                            .then(response => setGraphData(response));
-                    }).catch(error => console.log(error));
+                scopes: protectedResources.apiHello.scopes,
+                account: account,
+            }).then((response) => {
+                callApiWithToken(response.accessToken, protectedResources.apiHello.endpoint)
+                    .then((response) => setGraphData(response));
+            }).catch((error) => {
+                // in case if silent token acquisition fails, fallback to an interactive method
+                if (error instanceof InteractionRequiredAuthError) {
+                    if (account && inProgress === 'none') {
+                        instance.acquireTokenPopup({
+                                scopes: protectedResources.apiHello.scopes,
+                            }).then((response) => {
+                                callApiWithToken(response.accessToken, protectedResources.apiHello.endpoint)
+                                    .then((response) => setGraphData(response));
+                            }).catch((error) => console.log(error));
+                    }
                 }
-            }
-        });
+            });
     };
 
     return (
@@ -58,7 +58,7 @@ const ProfileContent = () => {
             {graphData ?
                 <ProfileData graphData={graphData} />
                 :
-                <Button variant="secondary" onClick={RequestProfileData}>Request Profile Data</Button>
+                <Button variant="secondary" onClick={callTheApi}>Call the API</Button>
             }
         </>
     );
