@@ -67,13 +67,130 @@ or download and extract the repository .zip file.
 
 ## Registration
 
-### Register the service app (Node.js web API)
+There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
 
-Use the same app registration credentials that you've obtained during [**chapter 3-1**](../../3-Authorization-II/1-call-api/README.md#registration). Update your project files here as needed.
+- follow the steps below for manually register your apps
+- or use PowerShell scripts that:
+  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  - modify the projects' configuration files.
 
-### Register the client app (React SPA)
+  <details>
+   <summary>Expand this section if you want to use this automation:</summary>
 
-Use the same app registration credentials that you've obtained during [**chapter 3-1**](../../3-Authorization-II/1-call-api/README.md#registration). Update your project files here as needed.
+    > :warning: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts Guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+  
+    1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
+    1. In PowerShell run:
+
+       ```PowerShell
+       Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+       ```
+
+    1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
+    1. For interactive process -in PowerShell, run:
+
+       ```PowerShell
+       cd .\AppCreationScripts\
+       .\Configure.ps1 -TenantId "[Optional] - your tenant id" -AzureEnvironmentName "[Optional] - Azure environment, defaults to 'Global'"
+       ```
+
+    > Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md). The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
+
+  </details>
+
+### Choose the Azure AD tenant where you want to create your applications
+
+To manually register the apps, as a first step you'll need to:
+
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
+
+### Register the service app (msal-node-api)
+
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
+1. Select the **App Registrations** blade on the left, then select **New registration**.
+1. In the **Register an application page** that appears, enter your application's registration information:
+    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-node-api`.
+    1. Under **Supported account types**, select **Accounts in this organizational directory only**
+    1. Select **Register** to create the application.
+1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
+    1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
+    1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
+
+#### Publish Delegated Permissions
+
+1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
+1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
+    1. For **Scope name**, use `access_as_user`.
+    1. Select **Admins and users** options for **Who can consent?**.
+    1. For **Admin consent display name** type in *access_as_user*.
+    1. For **Admin consent description** type in *e.g. Allows the app to read the signed-in user's files.*.
+    1. For **User consent display name** type in *scopeName*.
+    1. For **User consent description** type in *eg. Allows the app to read your files.*.
+    1. Keep **State** as **Enabled**.
+    1. Select the **Add scope** button on the bottom to save this scope.
+1. Select the **Manifest** blade on the left.
+    1. Set `accessTokenAcceptedVersion` property to **2**.
+    1. Select on **Save**.
+
+> :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+
+#### Configure the service app (msal-node-api) to use your app registration
+
+Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
+
+> In the steps below, "ClientID" is the same as "Application ID" or "AppId".
+
+1. Open the `API\config.json` file.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
+
+### Register the client app (msal-react-spa)
+
+> :information_source: Below, we are using a single app registration for both SPA and web API projects.
+
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
+1. Select the **App Registrations** blade on the left, then select **New registration**.
+1. In the **Register an application page** that appears, enter your application's registration information:
+    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
+    1. Under **Supported account types**, select **Accounts in this organizational directory only**
+    1. Select **Register** to create the application.
+1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
+    1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
+    1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
+
+#### Publish Delegated Permissions
+
+1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
+1. Select the **Manifest** blade on the left.
+    1. Set `accessTokenAcceptedVersion` property to **2**.
+    1. Select on **Save**.
+
+> :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+
+#### Grant Delegated Permissions to msal-react-spa
+
+1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
+   1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+   1. Select the **Add a permission** button and then:
+   1. Ensure that the **My APIs** tab is selected.
+   1. In the list of APIs, select the API `msal-node-api`.
+      - Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
+           1. In the **Delegated permissions** section, select **access_as_user** in the list. Use the search box if necessary.
+   1. Select the **Add permissions** button at the bottom.
+
+#### Configure the client app (msal-react-spa) to use your app registration
+
+Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
+
+> In the steps below, "ClientID" is the same as "Application ID" or "AppId".
+
+1. Open the `SPA\src\authConfig.js` file.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api` app copied from the Azure portal.
 
 ## Deployment
 
@@ -95,15 +212,15 @@ There are various ways to deploy your applications to **Azure App Service**. Her
 
 ![api_step1](./ReadmeFiles/api_step1.png)
 
-2. On the **App Service** explorer section you will see an upward-facing arrow icon. Click on it publish your local files in the `API` folder to **Azure App Services**.
+1. On the **App Service** explorer section you will see an upward-facing arrow icon. Click on it publish your local files in the `API` folder to **Azure App Services**.
 
 ![api_step2](./ReadmeFiles/api_step2.png)
 
-3. Choose a creation option based on the operating system to which you want to deploy. in this sample, we choose **Linux**.
-4. Select a Node.js version when prompted. An **LTS** version is recommended.
-5. Type a globally unique name for your web app and press Enter. The name must be unique across all of **Azure**.
-6. After you respond to all the prompts, **VS Code** shows the **Azure** resources that are being created for your app in its notification popup.
-7. Select **Yes** when prompted to update your configuration to run npm install on the target Linux server.
+1. Choose a creation option based on the operating system to which you want to deploy. in this sample, we choose **Linux**.
+1. Select a Node.js version when prompted. An **LTS** version is recommended.
+1. Type a globally unique name for your web app and press Enter. The name must be unique across all of **Azure**.
+1. After you respond to all the prompts, **VS Code** shows the **Azure** resources that are being created for your app in its notification popup.
+1. Select **Yes** when prompted to update your configuration to run npm install on the target Linux server.
 
 ![api_step3](./ReadmeFiles/api_step3.png)
 
@@ -157,7 +274,7 @@ Now you need to update your authentication configuration files in the client pro
 
 Open `authConfig.js`. Then:
 
-1. Find the key `protectedResources.apiHello.endpoint` and replace the existing value with your published web API's endpoint, e.g. `https://node-webapi-1.azurewebsites.net/hello`
+1. Find the key `protectedResources.apiHello.endpoint` and replace the existing value with your published web API's endpoint, e.g. `https://my-web-api.azurewebsites.net/hello`
 
 #### Step 4: Enable cross-origin resource sharing (CORS) for service app
 
@@ -169,8 +286,7 @@ Finally, we need to enable Cross-Origin Resource Sharing by designating the doma
 
 1. Open your browser and navigate to your deployed client app's URI, for instance: `https://reactspa1.z22.web.core.windows.net/`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flow.
-1. Select the **Profile** button on the navigation bar. This will make a call to the Microsoft Graph API.
-1. Select the **HelloAPI** button on the navigation bar. This will make a call to your web API.
+1. Select the **Call the API** button in the home screen. This will make a call to your web API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
