@@ -8,9 +8,7 @@ const { hasRequiredDelegatedPermissions } = require('../auth/permissionUtils');
 const authConfig = require('../authConfig');
 
 exports.getTodo = (req, res, next) => {
-    if (
-        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
-    ) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)) {
         try {
             /**
              * The 'oid' (object id) is the only claim that should be used to uniquely identify
@@ -38,9 +36,7 @@ exports.getTodo = (req, res, next) => {
 };
 
 exports.getTodos = (req, res, next) => {
-    if (
-        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
-    ) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)) {
         try {
             const owner = req.authInfo['oid'];
 
@@ -54,9 +50,7 @@ exports.getTodos = (req, res, next) => {
 };
 
 exports.postTodo = (req, res, next) => {
-    if (
-        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
-    ) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)) {
         try {
             db.get('todos').push(req.body).write();
             res.status(200).json({ message: 'success' });
@@ -67,9 +61,7 @@ exports.postTodo = (req, res, next) => {
 };
 
 exports.updateTodo = (req, res, next) => {
-    if (
-        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
-    ) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)) {
         try {
             const id = req.params.id;
             const owner = req.authInfo['oid'];
@@ -84,9 +76,7 @@ exports.updateTodo = (req, res, next) => {
 };
 
 exports.deleteTodo = (req, res, next) => {
-    if (
-        hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)
-    ) {
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.scopes)) {
         try {
             const id = req.params.id;
             const owner = req.authInfo['oid'];

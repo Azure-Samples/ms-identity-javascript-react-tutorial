@@ -398,10 +398,10 @@ Function ConfigureApplications
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value access_via_groups_assignments  `
-        -userConsentDisplayName "access_via_groups_assignments"  `
+    $scope = CreateScope -value access_via_group_assignments  `
+        -userConsentDisplayName "access_via_group_assignments"  `
         -userConsentDescription "eg. Allows the app to read your files."  `
-        -adminConsentDisplayName "access_via_groups_assignments"  `
+        -adminConsentDisplayName "access_via_group_assignments"  `
         -adminConsentDescription "e.g. Allows the app to read the signed-in user's files."
             
     $scopes.Add($scope)
@@ -421,7 +421,7 @@ Function ConfigureApplications
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
     $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-react-app"`
-        -requiredDelegatedPermissions "access_via_groups_assignments"
+        -requiredDelegatedPermissions "access_via_group_assignments"
 
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'client' to the RRA list."

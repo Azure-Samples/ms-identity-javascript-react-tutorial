@@ -4,8 +4,8 @@ import ListGroupItem from 'react-bootstrap/ListGroupItem';
 export const DashView = (props) => {
     const taskList = props.dashboardData.map((task, i) => (
         <ListGroupItem key={i}>
-            <p>{task.owner}</p>
-            <p>{task.name}</p>
+            <p><b>Owner:</b> {task.owner}</p>
+            <p><b>Task:</b> {task.name}</p>
             <p>{task.completed}</p>
         </ListGroupItem>
     ));

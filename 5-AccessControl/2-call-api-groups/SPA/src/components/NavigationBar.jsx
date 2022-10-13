@@ -4,6 +4,7 @@ import { Nav, Navbar, Dropdown, DropdownButton } from 'react-bootstrap';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 
 import { loginRequest } from '../authConfig';
+import { clearGroupsInStorage } from '../utils/storageUtils';
 
 export const NavigationBar = () => {
     const { instance } = useMsal();
@@ -29,15 +30,19 @@ export const NavigationBar = () => {
     };
 
     const handleLogoutPopup = () => {
+        clearGroupsInStorage(activeAccount);
+        
         instance.logoutPopup({
             mainWindowRedirectUri: '/', // redirects the top level app after logout
-            account: instance.getActiveAccount(),
+            account: activeAccount,
         });
     };
 
     const handleLogoutRedirect = () => {
+        clearGroupsInStorage(activeAccount);
+
         instance.logoutRedirect({
-            account: instance.getActiveAccount(),
+            account: activeAccount,
         });
     };
     return (

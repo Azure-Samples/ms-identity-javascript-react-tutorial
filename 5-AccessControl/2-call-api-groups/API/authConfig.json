@@ -27,7 +27,7 @@
         "todolist": {
             "endpoint": "/api",
             "scopes": [
-                "access_via_groups_assignments"
+                "access_via_group_assignments"
             ]
         }
     },

@@ -24,9 +24,7 @@
  * @returns boolean
  */
 const requestHasRequiredAttributes = (accessMatrix, path, method, groups) => {
-    const accessRules = Object.values(accessMatrix);
-
-    const accessRule = accessRules.find((accessRule) => path.includes(accessRule.path));
+    const accessRule = Object.values(accessMatrix).find((accessRule) => path.includes(accessRule.path));
 
     if (accessRule.methods.includes(method)) {
         const hasGroup = accessRule.groups.some((group) => groups.includes(group));

@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 
 import { useMsal, useMsalAuthentication } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
-import { PageIterator } from '@microsoft/microsoft-graph-client';
 
 import { GraphQuery } from '../components/GraphQuery';
-import { protectedResources } from '../authConfig';
-import { getGraphClient } from '../graphClient';
+import { getFilteredGroups } from '../graphClient';
+import { setGroupsInStorage } from '../utils/storageUtils';
+
+import { protectedResources, groups } from '../authConfig';
 
 export const Overage = () => {
     /**
@@ -23,28 +24,13 @@ export const Overage = () => {
 
     const [groupsData, setGroupsData] = useState([]);
 
-    const getGroups = async (accessToken) => {
-        const groups = [];
+    const fetchGroups = async (accessToken) => {
+        const requiredGroupsByApplication = await getFilteredGroups(accessToken, Object.values(groups));
+        setGroupsData(requiredGroupsByApplication);
 
-        // Get a graph client instance for the given access token
-        const graphClient = getGraphClient(accessToken);
-
-        // Makes request to fetch mails list. Which is expected to have multiple pages of data.
-        let response = await graphClient.api(protectedResources.apiGraph.endpoint).get();
-        
-        // A callback function to be called for every item in the collection. This call back should return boolean indicating whether not to continue the iteration process.
-        let callback = (data) => {
-            groups.push(data.id);
-            return true;
-        };
-        
-        // Creating a new page iterator instance with client a graph client instance, page collection response from request and callback
-        let pageIterator = new PageIterator(graphClient, response, callback);
-        
-        // This iterates the collection until the nextLink is drained out.
-        await pageIterator.iterate();
-
-        setGroupsData(groups);
+        // store the groups in session storage for this user
+        const activeAccount = instance.getActiveAccount();    
+        setGroupsInStorage(activeAccount, requiredGroupsByApplication);
     }
 
     useEffect(() => {
@@ -66,11 +52,11 @@ export const Overage = () => {
         }
 
         if (result) {
-            getGroups(result.accessToken);
+            fetchGroups(result.accessToken);
         }
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [groupsData, result, error]);
+    }, [instance, result, error, login, groupsData]);
 
     if (error) {
         return <div>Error: {error.message}</div>;

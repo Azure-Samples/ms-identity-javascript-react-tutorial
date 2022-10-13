@@ -1,5 +1,6 @@
-import { useMsal, AuthenticatedTemplate } from '@azure/msal-react';
 import { Container } from 'react-bootstrap';
+import { useMsal, AuthenticatedTemplate } from '@azure/msal-react';
+
 import { IdTokenData } from '../components/DataDisplay';
 
 /***

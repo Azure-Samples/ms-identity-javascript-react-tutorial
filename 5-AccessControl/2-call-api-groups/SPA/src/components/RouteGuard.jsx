@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useLocation, Navigate } from 'react-router-dom';
+
 import { useMsal, MsalAuthenticationTemplate } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
+
+import {  checkGroupsInStorage, getGroupsFromStorage } from '../utils/storageUtils';
+
 import { loginRequest } from '../authConfig';
-import { useLocation, Navigate } from 'react-router-dom';
 
 export const RouteGuard = ({ Component, ...props }) => {
     const location = useLocation();
@@ -11,34 +15,25 @@ export const RouteGuard = ({ Component, ...props }) => {
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isOveraged, setIsOveraged] = useState(false);
 
-    const authRequest = {
-        ...loginRequest,
-    };
-
     const onLoad = async () => {
-        if (location.state && location.state.groupsData) {
-            let intersection = props.groups.filter((group) => location.state.groupsData.includes(group));
-            if (intersection.length > 0) {
-                setIsAuthorized(true);
-            }
-        } else {
-            const currentAccount = instance.getActiveAccount();
-            if (currentAccount && currentAccount.idTokenClaims['groups']) {
-                let intersection = props.groups.filter((group) =>
-                    currentAccount.idTokenClaims['groups'].includes(group)
-                );
+        const activeAccount = instance.getActiveAccount() || instance.getAllAccounts()[0];
 
-                if (intersection.length > 0) {
-                    setIsAuthorized(true);
-                }
-            } else if (
-                currentAccount &&
-                (currentAccount.idTokenClaims['_claim_names'] ||
-                    (currentAccount.idTokenClaims['_claim_sources'] && !isOveraged))
-            ) {
+        // check either the ID token or a non-expired storage entry for the groups membership claim
+        if (!activeAccount?.idTokenClaims?.groups && !checkGroupsInStorage(activeAccount)) {
+
+            if (activeAccount.idTokenClaims.hasOwnProperty('_claim_names') && activeAccount.idTokenClaims['_claim_names'].hasOwnProperty('groups')) {
                 setIsOveraged(true);
+                return;
             }
+
+            window.alert('Token does not have groups claim. Please ensure that your account is assigned to a security group and then sign-out and sign-in again.');
         }
+
+        const hasRequiredGroup = props.requiredGroups.some((group) =>
+            activeAccount?.idTokenClaims?.groups?.includes(group) || getGroupsFromStorage(activeAccount)?.includes(group)
+        );
+
+        setIsAuthorized(hasRequiredGroup);
     };
 
     useEffect(() => {
@@ -48,25 +43,23 @@ export const RouteGuard = ({ Component, ...props }) => {
     }, [instance]);
 
     useEffect(() => {
-        const currentAccount = instance.getActiveAccount();
         if (!isOveraged) {
             return;
-        }
-
-        if (
-            currentAccount &&
-            (currentAccount.idTokenClaims['_claim_names'] ||
-                (currentAccount.idTokenClaims['_claim_sources'] && !isOveraged))
-        ) {
-            window.alert(
-                'You have too many group memberships. The application will now query Microsoft Graph to get the full list of groups that you are a member of.'
-            );
+        } else {
+            window.alert('You have too many group memberships. The application will now query Microsoft Graph to check if you are a member of any of the groups required.');
         }
         // eslint-disable-next-line
     }, [isOveraged]);
 
+    const authRequest = {
+        ...loginRequest,
+    };
+
     return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
+        <MsalAuthenticationTemplate 
+            interactionType={InteractionType.Redirect} 
+            authenticationRequest={authRequest}
+        >
             {isAuthorized ? (
                 <div>{props.children}</div>
             ) : isOveraged ? (
@@ -74,6 +67,7 @@ export const RouteGuard = ({ Component, ...props }) => {
             ) : (
                 <div className="data-area-div">
                     <h3>You are unauthorized to view this content.</h3>
+                    <p>Please ensure that your account is assigned to the required security group and then sign-out and sign-in again.</p>
                 </div>
             )}
         </MsalAuthenticationTemplate>

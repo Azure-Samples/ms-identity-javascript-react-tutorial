@@ -8,7 +8,7 @@ import { TodoList } from './pages/TodoList';
 import { Dashboard } from './pages/Dashboard';
 import { Overage } from './pages/Overage';
 
-import { securityGroups } from './authConfig';
+import { groups } from './authConfig';
 
 import './styles/App.css';
 
@@ -19,7 +19,7 @@ const Pages = () => {
             <Route
                 path="/todolist"
                 element={
-                    <RouteGuard groups={[securityGroups.GroupMember, securityGroups.GroupAdmin]}>
+                    <RouteGuard requiredGroups={[groups.groupMember, groups.groupAdmin]}>
                         <TodoList />
                     </RouteGuard>
                 }
@@ -27,7 +27,7 @@ const Pages = () => {
             <Route
                 path="/dashboard"
                 element={
-                    <RouteGuard exact path="/dashboard" groups={[securityGroups.GroupAdmin]}>
+                    <RouteGuard exact path="/dashboard" requiredGroups={[groups.groupAdmin]}>
                         <Dashboard />
                     </RouteGuard>
                 }

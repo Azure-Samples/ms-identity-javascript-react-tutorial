@@ -58,7 +58,7 @@ export const protectedResources = {
     apiTodoList: {
         todoListEndpoint: 'http://localhost:5000/api/todolist',
         dashboardEndpoint: 'http://localhost:5000/api/dashboard',
-        scopes: ['api://Enter_the_Application_Id_Here/access_via_groups_assignments'],
+        scopes: ['api://Enter_the_Application_Id_Here/access_via_group_assignments'],
     },
     apiGraph: {
         endpoint: 'https://graph.microsoft.com/v1.0/me/memberOf',
@@ -76,7 +76,7 @@ export const loginRequest = {
     scopes: [...protectedResources.apiTodoList.scopes],
 };
 
-export const securityGroups = {
-    GroupMember: 'Enter_the_Object_Id_of_GroupMember_Group_Here',
-    GroupAdmin: 'Enter_the_Object_Id_of_GroupAdmin_Group_Here',
+export const groups = {
+    groupAdmin: 'Enter_the_Object_Id_of_GroupMember_Group_Here',
+    groupMember: 'Enter_the_Object_Id_of_GroupAdmin_Group_Here',
 };

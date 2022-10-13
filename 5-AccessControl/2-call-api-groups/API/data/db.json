@@ -1,4 +1,22 @@
 {
   "todos": [
+    {
+      "owner": "86989716-a0a1-4857-8ab3-5f4b3af86844",
+      "id": "h4Z3fGZxnmcQEzSsYYvvU",
+      "name": "my new shiny task",
+      "completed": false
+    },
+    {
+      "owner": "86989716-a0a1-4857-8ab3-5f4b3af86844",
+      "id": "Dc3V71VXKU7VZFz8RBRGW",
+      "name": "check again",
+      "completed": false
+    },
+    {
+      "owner": "a283a601-6ad4-4528-975d-6abbefa5edd7",
+      "id": "Y4WIUHi9NY51hR8J9NTpV",
+      "name": "hello",
+      "completed": false
+    }
   ]
 }

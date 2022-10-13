@@ -1,9 +1,5 @@
 ---
 page_type: sample
-services: ms-identity
-client: React SPA
-service: Node.js & Express web API
-level: 300
 languages:
  - javascript
 products:
@@ -12,14 +8,19 @@ products:
  - msal-js
  - msal-react
  - msal-node
-platform: javascript
-endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-react-tutorial
-name: React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control
-description: React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control
+name: React single-page application calling a protected Express.js web API using Security Groups to implement Role-Based Access Control
+description: React single-page application calling a protected Express.js web API using Security Groups to implement Role-Based Access Control
+extensions:
+ - services: ms-identity
+ - client: React SPA
+ - service: Node.js & Express web API
+ - level: 300
+ - platform: javascript
+ - endpoint: AAD v2.0
 ---
 
-# React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control
+# React single-page application calling a protected Express.js web API using Security Groups to implement Role-Based Access Control
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -54,8 +55,6 @@ In the sample, a dashboard component allows signed-in users to see the tasks ass
 ![Scenario Image](./ReadmeFiles/topology.png)
 
 ## Contents
-
-> Give a high-level folder structure of the sample. Emphasize the files that you want people to look at.
 
 | File/folder          | Description                                                                                  |
 |----------------------|----------------------------------------------------------------------------------------------|
@@ -194,22 +193,18 @@ To manually register the apps, as a first step you'll need to:
 ##### Grant Delegated Permissions to msal-react-app
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-   1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
-   1. Select the **Add a permission** button and then:
-   1. Ensure that the **My APIs** tab is selected.
-   1. In the list of APIs, select the API `msal-react-app`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **access_via_groups_assignments** in the list. Use the search box if necessary.
-   1. Select the **Add permissions** button at the bottom.
-   1. Select the **Add a permission** button and then:
-
-   1. Ensure that the **Microsoft APIs** tab is selected.
-   1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
-   1. Select the **Add permissions** button at the bottom.
-   1. **GroupMember.Read.All** requires admin to consent. Select the **Grant/revoke admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all account in the tenant. You need to be an Azure AD tenant admin to do this.
-
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+    1. Select the **Add a permission** button and then:
+        1. Ensure that the **My APIs** tab is selected.
+        1. In the list of APIs, select the API `msal-react-app`.
+        1. In the **Delegated permissions** section, select the **access_via_group_assignments** in the list. Use the search box if necessary.
+        1. Select the **Add permissions** button at the bottom.
+    1. Select the **Add a permission** button and then:
+        1. Ensure that the **Microsoft APIs** tab is selected.
+        1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+        1. In the **Delegated permissions** section, select the **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
+        1. Select the **Add permissions** button at the bottom.
+1. **GroupMember.Read.All** requires admin to consent. Select the **Grant/revoke admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all account in the tenant. You need to be an Azure AD tenant admin to do this.
 
 ##### Configure Optional Claims
 
@@ -251,11 +246,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. For **Group Type**, select **Security**
     1. For **Group Name**, enter **GroupMember**
     1. For **Group Description**, enter **User Security Group**
-    1. Add **Group Owners** and **Group Members** as you see fit.
     1. Select **Create**.
 
 For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
-
 
 ### Configure Security Groups
 

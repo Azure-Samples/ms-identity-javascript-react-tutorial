@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getTasks } from '../fetch';
-import { ListView } from '../components/ListView';
 
+import { ListView } from '../components/ListView';
+import { getTasks } from '../fetch';
 
 export const TodoList = () => {
     const [todoListData, setTodoListData] = useState(null);
