@@ -274,7 +274,7 @@ Now you need to update your authentication configuration files in the client pro
 
 Open `authConfig.js`. Then:
 
-1. Find the key `protectedResources.apiHello.endpoint` and replace the existing value with your published web API's endpoint, e.g. `https://node-webapi-1.azurewebsites.net/hello`
+1. Find the key `protectedResources.apiHello.endpoint` and replace the existing value with your published web API's endpoint, e.g. `https://my-web-api.azurewebsites.net/hello`
 
 #### Step 4: Enable cross-origin resource sharing (CORS) for service app
 
