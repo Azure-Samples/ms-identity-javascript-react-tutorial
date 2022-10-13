@@ -1,5 +1,4 @@
- 
-[CmdletBinding()]
+ [CmdletBinding()]
 param(
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
     [string] $tenantId,
@@ -13,7 +12,7 @@ param(
 
  In case you don't have Microsoft.Graph.Applications already installed, the script will automatically install it for the current user
  
- There are four ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
+ There are two ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
 #>
 
 # Adds the requiredAccesses (expressed as a pipe separated string) to the requiredAccess structure

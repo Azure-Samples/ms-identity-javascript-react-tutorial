@@ -1,0 +1,72 @@
+{
+    "Sample": {
+        "Title": "React single-page application using MSAL React to sign-in users and call Azure REST API and Azure Storage",
+        "Level": 200,
+        "Author": "salman90",
+        "Client": "React SPA",
+        "service": "Azure REST Api",
+        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+        "Endpoint": "AAD v2.0",
+        "Languages": ["javascript", "react"],
+        "platform": "Javascript",
+        "Products": ["azure-active-directory", "msal-js", "msal-react", "azure-storage", "azure-resource-manager"],
+        "name": "Call the Azure REST API from a React single-page application (SPA)",
+        "Description": "This sample demonstrates a React single-page application (SPA) that signs-in users with Azure AD and calls the [Azure Resource Manager API](https://docs.microsoft.com/rest/api/resources) and [Azure Storage API](https://docs.microsoft.com/rest/api/storageservices/) using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React)."
+    },
+    "AADApps": [
+        {
+            "Id": "spa",
+            "Name": "ms-identity-react-c2s2",
+            "Kind": "SinglePageApplication",
+            "HomePage": "http://localhost:3000",
+            "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
+            "Audience": "AzureADMyOrg",
+            "Sample": {
+                "SampleSubPath": "2-Authorization-I\\2-call-arm",
+                "ProjectDirectory": "\\SPA"
+            },
+            "OptionalClaims": {
+                "IdTokenClaims": ["acct"]
+            },
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "Windows Azure Service Management API",
+                    "DelegatedPermissions": ["user_impersonation"]
+                },
+                {
+                    "Resource": "Azure Storage",
+                    "DelegatedPermissions": ["user_impersonation"]
+                }
+            ],
+            "ManualSteps": [
+                {
+                    "Comment": "Remember to create an 'Azure Storage' account and add the account name to the authConfig.js file"
+                },
+                {
+                    "Comment": "Navigate to your storage account and assign the role 'Storage Blob Data Contributor' to the user. For more information see: https://docs.microsoft.com/azure/role-based-access-control/role-assignments-portal"
+                }
+            ]
+        }
+        
+    ],
+    "CodeConfiguration": [
+        {
+            "App": "spa",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\SPA\\src\\authConfig.js",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": ".AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                }
+            ]
+        }
+    ]
+}
+
+
+

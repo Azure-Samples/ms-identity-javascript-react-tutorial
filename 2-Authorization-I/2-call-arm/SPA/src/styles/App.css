@@ -1,0 +1,48 @@
+.App {
+  text-align: center;
+}
+
+.data-area-div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+}
+
+.iconText {
+  margin: 0 .5rem
+}
+
+.navbarStyle {
+  padding: .5rem 1rem !important;
+}
+
+.navbarButton {
+  color: #fff !important;
+  padding: .5rem 1rem !important;
+}
+
+.tableColumn {
+  word-break: break-all
+}
+
+.table {
+  max-height: 37rem;
+}
+
+.card {
+  max-width: 20rem !important;
+  margin: 2px;
+  padding: 2px;
+}
+
+.cardImage {
+  width: 180px !important;
+  height: 180px;
+
+}
+
+.warningMessage {
+  color: red;
+}

@@ -48,6 +48,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 |-------------------------------------|----------------------------------------------------------------------------|
 | `App.jsx`                           | Main application logic resides here.                                       |
 | `fetch.jsx`                         | Provides a helper method for making fetch calls using bearer token scheme. |
+| `graph.jsx`                         | Instantiates Graph SDK client using a custom authentication provider.      |
 | `authConfig.js`                     | Contains authentication configuration parameters.                          |
 | `pages/Home.jsx`                    | Contains a table with ID token claims and description                      |
 | `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` endpoint with Graph SDK.                       |
@@ -365,57 +366,65 @@ Once the client app receives the CAE claims challenge from Microsoft Graph, it n
 After that, we require a new access token via the `useMsalAuthentication` hook, fetch the claims challenge from the browser's localStorage, and pass it to the `useMsalAuthentication` hook in the request parameter.
 
 ```javascript
-    export const Profile = () => {
-        const { instance } = useMsal();
-        const account = instance.getActiveAccount();
-        const [graphData, setGraphData] = useState(null);
-        const resource = new URL(protectedResources.graphMe.endpoint).hostname;
-        const request = {
-            scopes: protectedResources.graphMe.scopes,
-            account: account,
-            claims: account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
-                ? window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`))
-                : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
-        };
-
-        const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
-
-        useEffect(() => {
-            if (!!graphData) {
-                return;
-            }
-
-            if (!!error) {
-                // in case popup is blocked, use redirect instead
-                if (error.errorCode === "popup_window_error" || error.errorCode === "empty_window_error") {
-                    login(InteractionType.Redirect, request);
-                }
-
-                console.log(error);
-                return;
-            }
-
-            if (result) {
-                fetchData(result.accessToken, protectedResources.graphMe.endpoint)
-                    .then((response) => {
-                        if (response && response.error) throw response.error;
-                        setGraphData(response);
-                    }).catch((error) => {
-                        if (error === 'claims_challenge_occurred') {
-                            login(InteractionType.Redirect, request);
-                        }
-
-                        console.log(error);
-                    });
-            }
-        }, [graphData, result, error, login]);
-
-        return (
-            <>
-                {graphData ? <ProfileData response={result} graphData={graphData} /> : null}
-            </>
-        );
+export const Profile = () => {
+    const { instance } = useMsal();
+    const account = instance.getActiveAccount();
+    const [graphData, setGraphData] = useState(null);
+    const resource = new URL(protectedResources.graphMe.endpoint).hostname;
+    const claims =
+        account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
+            ? window.atob(
+                  getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
+              )
+            : undefined; // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+    const request = {
+        scopes: protectedResources.graphMe.scopes,
+        account: account,
+        claims: claims,
     };
+
+    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+    useEffect(() => {
+        if (!!graphData) {
+            return;
+        }
+
+        if (!!error) {
+            // in case popup is blocked, use redirect instead
+            if (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error') {
+                login(InteractionType.Redirect, request);
+            }
+
+            console.log(error);
+            return;
+        }
+
+        if (result) {
+            getGraphClient(result.accessToken)
+                .api('/me')
+                .responseType(ResponseType.RAW)
+                .get()
+                .then((response) => {
+                    return handleClaimsChallenge(response, protectedResources.graphMe.endpoint);
+                })
+                .then((response) => {
+                    if (response && response.error === 'claims_challenge_occurred') throw response.error;
+                    setGraphData(response);
+                })
+                .catch((error) => {
+                    if (error === 'claims_challenge_occurred') {
+                        login(InteractionType.Redirect, request);
+                    }
+                    console.log(error);
+                });
+        }
+    }, [graphData, result, error, login]);
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
+    return <>{graphData ? <ProfileData response={result} graphData={graphData} /> : null}</>;
+};
 ```
 
 ### Access token validation
@@ -426,24 +435,44 @@ For more details on what's inside the access token, clients should use the token
 
 ### Calling the Microsoft Graph API
 
-Using the [Fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API), simply add the `Authorization` header to your request, followed by the **access token** you have obtained previously for this resource/endpoint (as a [bearer token](https://tools.ietf.org/html/rfc6750)):
+[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with an [authProvider function](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md#2-create-with-options). In this case, user has to provide their own implementation for getting and refreshing accessToken. A callback will be passed into this `authProvider` function, accessToken or error needs to be passed in to that callback.
 
 ```javascript
-    export const callApiWithToken = async (accessToken, apiEndpoint) => {
-        const headers = new Headers();
-        const bearer = `Bearer ${accessToken}`;
+    export const getGraphClient = (accessToken) => {
+    // Initialize Graph client
+    const graphClient = Client.init({
+        // Use the provided access token to authenticate requests
+        authProvider: (done) => {
+            done(null, accessToken);
+        },
+    });
 
-        headers.append('Authorization', bearer);
+    return graphClient;
+};
+```
 
-        const options = {
-            method: 'GET',
-            headers: headers,
-        };
+See [graph.js](./SPA/src/graph.js). The Graph client then can be used in your components as shown below:
 
-        return fetch(apiEndpoint, options)
-            .then((response) => handleClaimsChallenge(response))
-            .catch((error) => error);
-    };
+```javascript
+if (result) {
+    getGraphClient(result.accessToken)
+        .api('/me')
+        .responseType(ResponseType.RAW)
+        .get()
+        .then((response) => {
+            return handleClaimsChallenge(response, protectedResources.graphMe.endpoint);
+        })
+        .then((response) => {
+            if (response && response.error === 'claims_challenge_occurred') throw response.error;
+                setGraphData(response);
+            })
+            .catch((error) => {
+                if (error === 'claims_challenge_occurred') {
+                    login(InteractionType.Redirect, request);
+                }
+                console.log(error);
+            });
+    }
 ```
 
 ### Working with React routes

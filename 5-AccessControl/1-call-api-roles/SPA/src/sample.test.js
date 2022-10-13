@@ -29,7 +29,7 @@ describe('Sanitize configuration object', () => {
     });
 });
 
-describe('Ensure that the app starts', () => {
+describe('Ensure that the msal instantiates', () => {
     beforeAll(() => {
         global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;

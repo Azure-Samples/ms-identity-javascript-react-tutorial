@@ -34,9 +34,7 @@ export const TodoForm = (props) => {
                         onChange={handleChange}
                         placeholder="Enter a task"
                     />
-                    <InputGroup.Append>
-                        <Button variant="primary" type="submit">Add</Button>
-                    </InputGroup.Append>
+                    <Button variant="primary" type="submit">Add</Button>
                 </InputGroup>
             </Form.Group>
         </Form>
