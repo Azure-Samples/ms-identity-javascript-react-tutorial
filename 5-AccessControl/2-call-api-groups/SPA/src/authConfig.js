@@ -80,3 +80,11 @@ export const groups = {
     groupAdmin: 'Enter_the_Object_Id_of_GroupMember_Group_Here',
     groupMember: 'Enter_the_Object_Id_of_GroupAdmin_Group_Here',
 };
+
+/**
+ * IMPORTANT: In case of overage, group list is cached for 1 hr by default, and thus cached groups 
+ * will miss any changes to a users group membership for this duration. For capturing real-time 
+ * changes to a user's group membership, consider implementing Microsoft Graph change notifications. 
+ * For more information, visit: https://learn.microsoft.com/graph/api/resources/webhooks
+ */
+ export const CACHE_TTL_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds

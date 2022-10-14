@@ -5,8 +5,8 @@
 
 const msal = require('@azure/msal-node');
 
+const { hasRequiredGroups } = require("./permissionUtils");
 const { getFilteredGroups } = require('../utils/graphClient');
-const { requestHasRequiredAttributes } = require("./permissionUtils");
 
 const config = require('../authConfig.json');
 
@@ -45,13 +45,32 @@ const getOboToken = async (oboAssertion) => {
     }
 };
 
-const handleOverage = async (req, res, next) => {
+const handleOverage = async (req, res, next, cacheProvider) => {
     const authHeader = req.headers.authorization;
     const accessToken = authHeader.split(' ')[1];
+
+    const { oid } = req.authInfo;
+
+    // check if the user has an entry in the cache
+    if (cacheProvider.has(oid)) {
+        const { groups, sourceTokenId } = cacheProvider.get(oid);
+
+        if (sourceTokenId === accessToken['uti']) {
+            res.locals.groups = groups;
+            return checkAccess(req, res, next);
+        }
+    }
 
     try {
         const oboToken = await getOboToken(accessToken);
         res.locals.groups = await getFilteredGroups(oboToken, config.accessMatrix.todolist.groups);
+
+        // cache the groups and the source token id
+        cacheProvider.set(oid, {
+            groups: res.locals.groups,
+            sourceTokenId: accessToken['uti']
+        });
+
         return checkAccess(req, res, next);
     } catch (error) {
         console.log(error);
@@ -60,7 +79,7 @@ const handleOverage = async (req, res, next) => {
 };
 
 const checkAccess = (req, res, next) => {
-    if (!requestHasRequiredAttributes(config.accessMatrix, req.path, req.method, res.locals.groups)) {
+    if (!hasRequiredGroups(config.accessMatrix, req.path, req.method, res.locals.groups)) {
         return res.status(403).json({ error: 'User does not have the group, method or path' });
     }
     next();

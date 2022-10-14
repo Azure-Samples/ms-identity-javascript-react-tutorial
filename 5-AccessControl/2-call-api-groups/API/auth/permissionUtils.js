@@ -23,7 +23,7 @@
  * @param {Array} groups
  * @returns boolean
  */
-const requestHasRequiredAttributes = (accessMatrix, path, method, groups) => {
+const hasRequiredGroups = (accessMatrix, path, method, groups) => {
     const accessRule = Object.values(accessMatrix).find((accessRule) => path.includes(accessRule.path));
 
     if (accessRule.methods.includes(method)) {
@@ -37,7 +37,17 @@ const requestHasRequiredAttributes = (accessMatrix, path, method, groups) => {
     return false;
 };
 
+/**
+ * Checks if the access token has claims indicating that overage has occurred.
+ * @param {Object} accessToken 
+ * @returns {boolean}
+ */
+const hasOverageOccurred = (accessTokenPayload) => {
+    return accessTokenPayload.hasOwnProperty('_claim_names') && accessTokenPayload['_claim_names'].hasOwnProperty('groups');
+};
+
 module.exports = {
     hasRequiredDelegatedPermissions,
-    requestHasRequiredAttributes,
+    hasRequiredGroups,
+    hasOverageOccurred
 };

@@ -14,6 +14,7 @@ export const RouteGuard = ({ Component, ...props }) => {
     const { instance } = useMsal();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isOveraged, setIsOveraged] = useState(false);
+    const [message, setMessage] = useState(null);
 
     const onLoad = async () => {
         const activeAccount = instance.getActiveAccount() || instance.getAllAccounts()[0];
@@ -23,16 +24,19 @@ export const RouteGuard = ({ Component, ...props }) => {
 
             if (activeAccount.idTokenClaims.hasOwnProperty('_claim_names') && activeAccount.idTokenClaims['_claim_names'].hasOwnProperty('groups')) {
                 setIsOveraged(true);
+                setMessage('You have too many group memberships. The application will now query Microsoft Graph to check if you are a member of any of the groups required.');
                 return;
             }
 
-            window.alert('Token does not have groups claim. Please ensure that your account is assigned to a security group and then sign-out and sign-in again.');
+            setMessage('Token does not have groups claim. Please ensure that your account is assigned to a security group and then sign-out and sign-in again.');
+            return;
         }
 
         const hasRequiredGroup = props.requiredGroups.some((group) =>
             activeAccount?.idTokenClaims?.groups?.includes(group) || getGroupsFromStorage(activeAccount)?.includes(group)
         );
 
+        if (!hasRequiredGroup) setMessage('You do not have access. Please ensure that your account is assigned to the required security group and then sign-out and sign-in again.')
         setIsAuthorized(hasRequiredGroup);
     };
 
@@ -43,13 +47,8 @@ export const RouteGuard = ({ Component, ...props }) => {
     }, [instance]);
 
     useEffect(() => {
-        if (!isOveraged) {
-            return;
-        } else {
-            window.alert('You have too many group memberships. The application will now query Microsoft Graph to check if you are a member of any of the groups required.');
-        }
-        // eslint-disable-next-line
-    }, [isOveraged]);
+        if (message) window.alert(message);
+    }, [message]);
 
     const authRequest = {
         ...loginRequest,
@@ -67,7 +66,6 @@ export const RouteGuard = ({ Component, ...props }) => {
             ) : (
                 <div className="data-area-div">
                     <h3>You are unauthorized to view this content.</h3>
-                    <p>Please ensure that your account is assigned to the required security group and then sign-out and sign-in again.</p>
                 </div>
             )}
         </MsalAuthenticationTemplate>

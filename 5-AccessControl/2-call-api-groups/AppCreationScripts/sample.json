@@ -22,10 +22,6 @@
             "GroupMembershipClaims": "SecurityGroup",
             "PasswordCredentials": "Auto",
             "scopes": ["access_via_group_assignments"],
-            "Sample": {
-                "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
-                "ProjectDirectory": "\\2-call-api-groups\\SPA"
-            },
             "SecurityGroups": [
                 {
                     "Name": "GroupAdmin",

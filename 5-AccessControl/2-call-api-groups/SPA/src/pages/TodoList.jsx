@@ -17,7 +17,7 @@ export const TodoList = () => {
                      console.log(error);
                  });
          }
-         // eslint-disable-next-line
+
      }, [todoListData]);
 
     return <>{todoListData ? <ListView todoListData={todoListData} /> : null}</>;

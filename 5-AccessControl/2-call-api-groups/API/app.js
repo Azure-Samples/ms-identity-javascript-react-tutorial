@@ -4,13 +4,27 @@ const cors = require('cors');
 
 const passport = require('passport');
 const passportAzureAd = require('passport-azure-ad');
+const NodeCache = require('node-cache');
 
-const authConfig = require('./authConfig');
+const authConfig = require('./authConfig.json');
 const router = require('./routes/router');
 const routeGuard = require('./auth/guard');
 
-const app = express();
+/**
+ * IMPORTANT: In case of overage, group list is cached for 1 hr by default, and thus cached groups 
+ * will miss any changes to a users group membership for this duration. For capturing real-time 
+ * changes to a user's group membership, consider implementing Microsoft Graph change notifications. 
+ * For more information, visit: https://learn.microsoft.com/graph/api/resources/webhooks
+ */
+const nodeCache = new NodeCache({ 
+    stdTTL: authConfig.cacheTTL, // in seconds
+    checkperiod: 60 * 100,
+    deleteOnExpire: true
+});
 
+const cacheProvider = require('./utils/cacheProvider')(nodeCache);
+
+const app = express();
 /**
  * Enable CORS middleware. In production, modify as to allow only designated origins and methods.
  * If you are using Azure App Service, we recommend removing the line below and configure CORS on the App Service itself.
@@ -89,7 +103,6 @@ app.use('/api', (req, res, next) => {
             return res.status(401).json({ error: err.message });
         }
 
-        
         if (!user) {
             // If no user object found, send a 401 response.
             return res.status(401).json({ error: 'Unauthorized' });
@@ -103,21 +116,21 @@ app.use('/api', (req, res, next) => {
     })(req, res, next);
 },
 
-routeGuard(authConfig.accessMatrix), 
-router,
- (err, req, res, next) => {
-     /**
-      * Add your custom error handling logic here. For more information, see:
-      * http://expressjs.com/en/guide/error-handling.html
-      */
+    routeGuard(authConfig.accessMatrix, cacheProvider),
+    router,
+    (err, req, res, next) => {
+        /**
+         * Add your custom error handling logic here. For more information, see:
+         * http://expressjs.com/en/guide/error-handling.html
+         */
 
-     // set locals, only providing error in development
-     res.locals.message = err.message;
-     res.locals.error = req.app.get('env') === 'development' ? err : {};
+        // set locals, only providing error in development
+        res.locals.message = err.message;
+        res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-     // send error response
-     res.status(err.status || 500).send(err);
- }
+        // send error response
+        res.status(err.status || 500).send(err);
+    }
 );
 
 const port = process.env.PORT || 5000;

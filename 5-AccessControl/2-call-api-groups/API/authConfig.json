@@ -12,7 +12,8 @@
     "settings": {
         "validateIssuer": true,
         "passReqToCallback": false,
-        "loggingLevel": "info"
+        "loggingLevel": "info",
+        "cacheTTL": 3600
     },
     "protectedResources": {
         "graphAPI": {

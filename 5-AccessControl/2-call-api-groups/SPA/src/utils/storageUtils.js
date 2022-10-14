@@ -1,3 +1,5 @@
+import { CACHE_TTL_IN_MS } from '../authConfig';
+
 /**
  * Stores the groups in session storage for the given account
  * @param {AccountInfo} account 
@@ -7,7 +9,7 @@ export const setGroupsInStorage = (account, groups) => {
     const newEntry = {
         groups: groups,
         lastAccessed: Date.now(),
-        expiresOn: account.idTokenClaims.exp,
+        expiresOn: Date.now() + CACHE_TTL_IN_MS,
         sourceTokenId: account.idTokenClaims['uti'],
     };
 
@@ -17,7 +19,7 @@ export const setGroupsInStorage = (account, groups) => {
 /**
  * Checks if the groups are in session storage and if their associated ID token is not expired
  * @param {AccountInfo} account 
- * @returns 
+ * @returns {boolean}
  */
 export const checkGroupsInStorage = (account) => {
     const storageEntry = sessionStorage.getItem(`gmc.${account.idTokenClaims.aud}.${account.idTokenClaims.oid}`);
@@ -25,13 +27,13 @@ export const checkGroupsInStorage = (account) => {
     if (!storageEntry) return false;
 
     const parsedStorageEntry = JSON.parse(storageEntry);
-    return parsedStorageEntry.groups && parsedStorageEntry.expiresOn <= account.idTokenClaims.exp && parsedStorageEntry.sourceTokenId === account.idTokenClaims['uti'];
+    return parsedStorageEntry.groups && parsedStorageEntry.expiresOn >= Date.now() && parsedStorageEntry.sourceTokenId === account.idTokenClaims['uti'];
 };
 
 /**
  * Returns the groups array from session storage
  * @param {AccountInfo} account 
- * @returns 
+ * @returns {Array}
  */
 export const getGroupsFromStorage = (account) => {
     const storageEntry = sessionStorage.getItem(`gmc.${account.idTokenClaims.aud}.${account.idTokenClaims.oid}`);

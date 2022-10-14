@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { getAllTasks } from '../fetch';
+
 import { DashView } from '../components/DashView';
+import { getAllTasks } from '../fetch';
 
 export const Dashboard = () => {
     const [dashboardData, setDashboardData] = useState(null);
+    
     useEffect(() => {
         if (!dashboardData) {
             getAllTasks()
@@ -16,7 +18,6 @@ export const Dashboard = () => {
                 });
         }
 
-        // eslint-disable-next-line
     }, [dashboardData]);
 
     return <>{dashboardData ? <DashView dashboardData={dashboardData} /> : null}</>;

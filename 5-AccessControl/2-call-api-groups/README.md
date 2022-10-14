@@ -8,9 +8,9 @@ products:
  - msal-js
  - msal-react
  - msal-node
-urlFragment: ms-identity-javascript-react-tutorial
 name: React single-page application calling a protected Express.js web API using Security Groups to implement Role-Based Access Control
 description: React single-page application calling a protected Express.js web API using Security Groups to implement Role-Based Access Control
+urlFragment: ms-identity-javascript-react-tutorial
 extensions:
  - services: ms-identity
  - client: React SPA
@@ -204,15 +204,17 @@ To manually register the apps, as a first step you'll need to:
         1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
         1. In the **Delegated permissions** section, select the **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
         1. Select the **Add permissions** button at the bottom.
-1. **GroupMember.Read.All** requires admin to consent. Select the **Grant/revoke admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all account in the tenant. You need to be an Azure AD tenant admin to do this.
+
+> :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
 
 ##### Configure Optional Claims
 
 1. Still on the same app registration, select the **Token configuration** blade to the left.
 1. Select **Add optional claim**:
     1. Select **optional claim type**, then choose **ID**.
-    1. Select the optional claim **acct**. Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
-    1. Select **Add** to save your changes.
+    1. Select the optional claim **acct**.
+    > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
+1. Select **Add** to save your changes.
 
 ##### Configure the client app (msal-react-app) to use your app registration
 
@@ -396,48 +398,49 @@ export const RouteGuard = ({ Component, ...props }) => {
     const { instance } = useMsal();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [isOveraged, setIsOveraged] = useState(false);
+    const [message, setMessage] = useState(null);
+
+    const onLoad = async () => {
+        const activeAccount = instance.getActiveAccount() || instance.getAllAccounts()[0];
+
+        // check either the ID token or a non-expired storage entry for the groups membership claim
+        if (!activeAccount?.idTokenClaims?.groups && !checkGroupsInStorage(activeAccount)) {
+
+            if (activeAccount.idTokenClaims.hasOwnProperty('_claim_names') && activeAccount.idTokenClaims['_claim_names'].hasOwnProperty('groups')) {
+                setIsOveraged(true);
+                setMessage('You have too many group memberships. The application will now query Microsoft Graph to check if you are a member of any of the groups required.');
+                return;
+            }
+
+            setMessage('Token does not have groups claim. Please ensure that your account is assigned to a security group and then sign-out and sign-in again.');
+            return;
+        }
+
+        const hasRequiredGroup = props.requiredGroups.some((group) =>
+            activeAccount?.idTokenClaims?.groups?.includes(group) || getGroupsFromStorage(activeAccount)?.includes(group)
+        );
+
+        if (!hasRequiredGroup) setMessage('You do not have access. Please ensure that your account is assigned to the required security group and then sign-out and sign-in again.')
+        setIsAuthorized(hasRequiredGroup);
+    };
+
+    useEffect(() => {
+        onLoad();
+    }, [instance]);
+
+    useEffect(() => {
+        if (message) window.alert(message);
+    }, [message]);
 
     const authRequest = {
         ...loginRequest,
     };
 
-    const onLoad = async () => {
-        if (location.state && location.state.groupsData) {
-            let intersection = props.groups.filter((group) => location.state.groupsData.includes(group));
-            if (intersection.length > 0) {
-                setIsAuthorized(true);
-            }
-        } else {
-            const currentAccount = instance.getActiveAccount();
-            if (currentAccount && currentAccount.idTokenClaims['groups']) {
-                let intersection = props.groups.filter((group) =>
-                    currentAccount.idTokenClaims['groups'].includes(group)
-                );
-
-                if (intersection.length > 0) {
-                    setIsAuthorized(true);
-                }
-            } else if (
-                currentAccount &&
-                (currentAccount.idTokenClaims['_claim_names'] ||
-                    (currentAccount.idTokenClaims['_claim_sources'] && !isOveraged))
-            ) {
-                console.log(isOveraged);
-                setIsOveraged(true);
-                window.alert(
-                    'You have too many group memberships. The application will now query Microsoft Graph to get the full list of groups that you are a member of.'
-                );
-            }
-        }
-    };
-
-    useEffect(() => {
-        onLoad();
-        // eslint-disable-next-line
-    }, [instance]);
-
     return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
+        <MsalAuthenticationTemplate 
+            interactionType={InteractionType.Redirect} 
+            authenticationRequest={authRequest}
+        >
             {isAuthorized ? (
                 <div>{props.children}</div>
             ) : isOveraged ? (
@@ -452,215 +455,121 @@ export const RouteGuard = ({ Component, ...props }) => {
 };
 ```
 
-If the overage occurs, we redirect the user to the `/overage` page. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the full list of groups that the user belongs to. Finally we check for the designated `groupID` among this list.
+If the overage occurs, we redirect the user to the [Overage.jsx](./SPA/src/pages/Overage.jsx) page. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the full list of groups that the user belongs to. Finally we check for the designated `groupID`s among this list.
 
 ```javascript
-const OverageContent = () => {
-    /**
-     * useMsal is hook that returns the PublicClientApplication instance,
-     * an array of all accounts currently signed in and an inProgress value
-     * that tells you what msal is currently doing. For more, visit:
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
-     */
+export const Overage = () => {
+    const { instance } = useMsal();
+    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, {
+        scopes: protectedResources.apiGraph.scopes,
+        account: instance.getActiveAccount(),
+    });
 
-    const { inProgress } = useMsal();
     const [groupsData, setGroupsData] = useState([]);
 
-    const handleNextPage = (nextPage) => {
-        getNextPage(nextPage).then((response) => {
-            response.value.forEach((v) => {
-                if (!groupsData.includes(v.id)) {
-                    setGroupsData((gr) => [...gr, v.id]);
-                }
-            });
+    const fetchGroups = async (accessToken) => {
+        const requiredGroupsByApplication = await getFilteredGroups(accessToken, Object.values(groups));
+        setGroupsData(requiredGroupsByApplication);
 
-            if (response['@odata.nextLink']) {
-                handleNextPage(response['@odata.nextLink']);
-            }
-        });
-    };
+        // store the groups in session storage for this user
+        const activeAccount = instance.getActiveAccount();    
+        setGroupsInStorage(activeAccount, requiredGroupsByApplication);
+    }
 
     useEffect(() => {
         if (groupsData.length > 0) {
             return;
         }
-        if (groupsData.length === 0 && inProgress === InteractionStatus.None) {
-            getGroups().then((response) => {
-                if (response) {
-                    response.value.forEach((v) => {
-                        if (!groupsData.includes(v.id)) {
-                            setGroupsData((gr) => [...gr, v.id]);
-                        }
-                    });
 
-                    /**
-                     * Some queries against Microsoft Graph return multiple pages of data either due to server-side paging
-                     * or due to the use of the $top query parameter to specifically limit the page size in a request.
-                     * When a result set spans multiple pages, Microsoft Graph returns an @odata.nextLink property in
-                     * the response that contains a URL to the next page of results. Learn more at https://docs.microsoft.com/graph/paging
-                     */
-                    if (response['@odata.nextLink']) {
-                        handleNextPage(response['@odata.nextLink']);
-                    }
-                }
-            });
+        if (!!error) {
+            // in case popup is blocked, use redirect instead
+            if (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error') {
+                login(InteractionType.Redirect, {
+                    scopes: protectedResources.apiGraph.scopes,
+                    account: instance.getActiveAccount(),
+                });
+            }
+
+            console.log(error);
+            return;
         }
-        // eslint-disable-next-line
-    }, [inProgress, groupsData]);
+
+        if (result) {
+            fetchGroups(result.accessToken);
+        }
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [instance, result, error, login, groupsData]);
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
 
     return <>{groupsData ? <GraphQuery groupsData={groupsData} /> : null} </>;
 };
-
-export const Overage = () => {
-    const authRequest = {
-        ...loginRequest,
-    };
-    return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
-            <OverageContent />
-        </MsalAuthenticationTemplate>
-    );
-};
-
 ```
 
-#### Node.js handleOverage middleware
+#### Express custom handleOverage middleware
 
-Similar to the React **RouteGuard** component above, in Node.js **routeGuard** middleware we are checking whether the token for the user has the `_claim_names` claim, which indicates that the user has too many group memberships and thus overage occurs.
+Similar to the React **RouteGuard** component above, in custom Express.js middleware [routeGuard.js](./API/auth/guard.js) we are checking whether the token for the user has the `_claim_names` claim, which indicates that the user has too many group memberships and thus overage has occurred.
 
 ```javascript
-const routeGuard = (accessMatrix) => {
+const routeGuard = (accessMatrix, cache) => {
     return async (req, res, next) => {
         if (req.authInfo.groups === undefined) {
-            if (req.authInfo['_claim_names'] || req.authInfo['_claim_sources']) {
-                return handleOverage(req, res, next);
-            } else {
-                return res.status(403).json({ error: 'No group claim found!' });
+            if (hasOverageOccurred(req.authInfo)) {
+                return handleOverage(req, res, next, cache);
             }
+
+            return res.status(403).json({ error: 'No group claim found!' });
         } else {
-            // check for group IDs
+            if (!hasRequiredGroups(accessMatrix, req.path, req.method, req.authInfo['groups'])) {
+                return res.status(403).json({ error: 'User does not have the group, method or path' });
+            }
         }
 
         next();
-    }
-}
-
-module.exports = routeGuard;
+    };
+};
 ```
 
-If overage occurs, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the full list of groups that the user belongs to. Finally we check for the designated `groupID` among this list.
+If overage occurs, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the full list of groups that the user belongs to. Finally we check for the designated `groupID`s among this list.
 
-To do this, we are using [MSAL Node](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node)'s `acquireTokenOnBehalf` API, as we are querying MS Graph on-behalf-of the user that is trying to access our web API here:
+To do this, we are using [MSAL Node](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node)'s `acquireTokenOnBehalf` API, as we are querying MS Graph on-behalf-of the user that is trying to access our web API. See [overage.js](./API/auth/overage.js) for more.
 
 ```javascript
-const msalConfig = {
-    auth: {
-        clientId: config.credentials.clientID,
-        authority: `https://${config.metadata.authority}/${config.credentials.tenantID}`,
-        clientSecret: config.credentials.clientSecret
-    },
-    system: {
-        loggerOptions: {
-            loggerCallback(loglevel, message, containsPii) {
-                console.log(message);
-            },
-            piiLoggingEnabled: false,
-            logLevel: msal.LogLevel.Info,
-        }
-    }
-};
-
-// Create msal application object
-const cca = new msal.ConfidentialClientApplication(msalConfig);
-
-const getOboToken = async (oboAssertion) => {
-    const oboRequest = {
-        oboAssertion: oboAssertion,
-        scopes: config.protectedResources.graphAPI.scopes,
-    }
-
-    try {
-        const response = await cca.acquireTokenOnBehalfOf(oboRequest);
-        return response.accessToken;
-    } catch (error) {
-        console.log(error);
-        return error;
-    }
-}
-
-const callGraph = async (oboToken, endpoint) => {
-
-    const options = {
-        headers: {
-            Authorization: `Bearer ${oboToken}`
-        }
-    };
-
-    console.log('request made to web API at: ' + new Date().toString());
-
-    try {
-        const response = await axios.default.get(endpoint, options);
-        return response.data;
-    } catch (error) {
-        console.log(error)
-        return error;
-    }
-}
-
-const handlePagination = async (oboToken, nextPage, userGroups) => {
-
-    try {
-        const graphResponse = await callGraph(oboToken, nextPage);
-
-        graphResponse.value.map((v) => userGroups.push(v.id));
-
-        if (graphResponse['@odata.nextLink']) {
-            return await handlePagination(accessToken, graphResponse['@odata.nextLink'], userGroups)
-        } else {
-            return userGroups
-        }
-    } catch (error) {
-        console.log(error);
-    }
-
-}
-
-const handleOverage = async (req, res, next) => {
-    console.log('going through overage');
+const handleOverage = async (req, res, next, cacheProvider) => {
     const authHeader = req.headers.authorization;
-    const accessToken = authHeader.split(' ')[1]
+    const accessToken = authHeader.split(' ')[1];
 
-    const userGroups = [];
+    const { oid } = req.authInfo;
+
+    // check if the user has an entry in the cache
+    if (cacheProvider.has(oid)) {
+        const { groups, sourceTokenId } = cacheProvider.get(oid);
+
+        if (sourceTokenId === accessToken['uti']) {
+            res.locals.groups = groups;
+            return checkAccess(req, res, next);
+        }
+    }
 
     try {
         const oboToken = await getOboToken(accessToken);
-        const graphResponse = await callGraph(oboToken, config.protectedResources.graphAPI.endpoint);
+        res.locals.groups = await getFilteredGroups(oboToken, config.accessMatrix.todolist.groups);
 
-        /**
-         * Some queries against Microsoft Graph return multiple pages of data either due to server-side paging 
-         * or due to the use of the $top query parameter to specifically limit the page size in a request. 
-         * When a result set spans multiple pages, Microsoft Graph returns an @odata.nextLink property in 
-         * the response that contains a URL to the next page of results. Learn more at https://docs.microsoft.com/graph/paging
-         */
-        if (graphResponse['@odata.nextLink']) {
-            graphResponse.value.map((v) => userGroups.push(v.id));
+        // cache the groups and the source token id
+        cacheProvider.set(oid, {
+            groups: res.locals.groups,
+            sourceTokenId: accessToken['uti']
+        });
 
-            try {
-                res.locals.groups = await handlePagination(oboToken, graphResponse['@odata.nextLink'], userGroups);
-                return checkAccess(req, res, next);
-            } catch (error) {
-                console.log(error);
-            }
-        } else {
-            res.locals.groups = graphResponse.value.map((v) => v.id);
-            return checkAccess(req, res, next);
-        }
+        return checkAccess(req, res, next);
     } catch (error) {
         console.log(error);
+        next(error);
     }
-}
-
-module.exports = handleOverage;
+};
 ```
 
 ## Next Steps
