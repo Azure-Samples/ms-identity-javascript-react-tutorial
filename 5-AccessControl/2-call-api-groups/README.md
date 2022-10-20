@@ -1,6 +1,8 @@
 ---
 page_type: sample
-languages:
+name: React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control
+description: React single-page application calling a protected Node.js & Express.js web API using Security Groups to implement Role-Based Access Control
+- languages:
  - javascript
 products:
  - azure-active-directory
@@ -8,31 +10,37 @@ products:
  - msal-js
  - msal-react
  - msal-node
-name: React single-page application calling a protected Express.js web API using Security Groups to implement Role-Based Access Control
-description: React single-page application calling a protected Express.js web API using Security Groups to implement Role-Based Access Control
 urlFragment: ms-identity-javascript-react-tutorial
 extensions:
- - services: ms-identity
- - client: React SPA
- - service: Node.js & Express web API
- - level: 300
- - platform: javascript
- - endpoint: AAD v2.0
+- services: ms-identity
+- platform: javascript
+- endpoint: AAD v2.0
+- level: 300
+- client: React SPA
+- service: Node.js & Express web API
 ---
 
-# React single-page application calling a protected Express.js web API using Security Groups to implement Role-Based Access Control
+# React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control
 
-* [Overview](#overview)
-* [Scenario](#scenario)
-* [Contents](#contents)
-* [Prerequisites](#prerequisites)
-* [Setup the sample](#setup-the-sample)
-* [Explore the sample](#explore-the-sample)
-* [Troubleshooting](#troubleshooting)
-* [About the code](#about-the-code)
-* [Next Steps](#next-steps)
-* [Contributing](#contributing)
-* [Learn More](#learn-more)
+- [Overview](#overview)
+- [Scenario](#scenario)
+- [Contents](#contents)
+- [Prerequisites](#prerequisites)
+- [Setup the sample](#setup-the-sample)
+  - [Step 1: Clone or download this repository](#step-1-clone-or-download-this-repository)
+  - [Step 2: Install project dependencies](#step-2-install-project-dependencies)
+  - [Step 3: Register the sample application(s) in your tenant](#step-3-register-the-sample-applications-in-your-tenant)
+  - [Create Security Groups](#create-security-groups)
+  - [Configure Security Groups](#configure-security-groups)
+  - [Step 4: Running the sample](#step-4-running-the-sample)
+- [Explore the sample](#explore-the-sample)
+- [We'd love your feedback!](#wed-love-your-feedback)
+- [Troubleshooting](#troubleshooting)
+- [About the code](#about-the-code)
+  - [Groups overage claim](#groups-overage-claim)
+- [Next Steps](#next-steps)
+- [Contributing](#contributing)
+- [Learn More](#learn-more)
 
 ## Overview
 
@@ -40,9 +48,9 @@ This sample demonstrates a cross-platform application suite involving an React s
 
 Access control in Azure AD can also be done with **App Roles**, as shown in the [previous tutorial](../1-call-api-roles/README.md). **Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
-> :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
-
 > :information_source: See the community call: [Deep dive on using MSAL.js to integrate React single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=7oPSL5wWeS0)
+
+> :information_source: See the community call: [Implement authorization in your applications with App roles and Security Groups with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
 
 ## Scenario
 
@@ -108,10 +116,10 @@ or download and extract the repository *.zip* file.
 
 There is one project in this sample. To register it, you can:
 
-* follow the steps below for manually register your apps
-* or use PowerShell scripts that:
-  * **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  * modify the projects' configuration files.
+- follow the steps below for manually register your apps
+- or use PowerShell scripts that:
+  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  - modify the projects' configuration files.
 
   <details>
    <summary>Expand this section if you want to use this automation:</summary>
@@ -176,36 +184,37 @@ To manually register the apps, as a first step you'll need to:
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `access_via_groups_assignments`.
+    1. For **Scope name**, use `access_via_group_assignments`.
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in *scopeName*.
-    1. For **Admin consent description** type in *e.g. Allows the app to read the signed-in user's files.*.
-    1. For **User consent display name** type in *scopeName*.
-    1. For **User consent description** type in *eg. Allows the app to read your files.*.
+    1. For **Admin consent display name** type in *Access 'msal-react-app' as the signed-in user assigned to group memberships*.
+    1. For **Admin consent description** type in *Allow the app to access the 'msal-react-app' as a signed-in user assigned to one or more security groups*.
+    1. For **User consent display name** type in *Access 'msal-react-app' on your behalf after security group assignment*.
+    1. For **User consent description** type in *Allow the app to access the 'msal-react-app' on your behalf after assignment to one or more security groups*.
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
 1. Select the **Manifest** blade on the left.
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
 
-> :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+> :information_source:  Follow [the principle of least privilege when publishing permissions](https://learn.microsoft.com/security/zero-trust/develop/protected-api-example) for a web API.
 
 ##### Grant Delegated Permissions to msal-react-app
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
     1. Select the **Add a permission** button and then:
         1. Ensure that the **My APIs** tab is selected.
         1. In the list of APIs, select the API `msal-react-app`.
-        1. In the **Delegated permissions** section, select the **access_via_group_assignments** in the list. Use the search box if necessary.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
+      * In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
         1. Select the **Add permissions** button at the bottom.
     1. Select the **Add a permission** button and then:
         1. Ensure that the **Microsoft APIs** tab is selected.
         1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-        1. In the **Delegated permissions** section, select the **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
+      * In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
         1. Select the **Add permissions** button at the bottom.
-
-> :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
+   > :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
 
 ##### Configure Optional Claims
 
@@ -213,8 +222,8 @@ To manually register the apps, as a first step you'll need to:
 1. Select **Add optional claim**:
     1. Select **optional claim type**, then choose **ID**.
     1. Select the optional claim **acct**.
-    > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is 0. If they're a **guest**, the value is 1.
-1. Select **Add** to save your changes.
+    > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is *0*. If they're a **guest**, the value is *1*.
+    1. Select **Add** to save your changes.
 
 ##### Configure the client app (msal-react-app) to use your app registration
 
@@ -234,7 +243,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 ### Create Security Groups
 
-> :warning: You may already have security groups with the names below defined in your tenant and/or you may not have permissions to create new security groups. In that case, skip the steps below and update the configuration files in your project(s) with the desired names/IDs of the groups.
+> :warning: You may already have security groups with the names defined below in your tenant and/or you may not have permissions to create new security groups. In that case, skip the steps below and update the configuration files in your project(s) with the desired names/IDs of existing groups in your tenant.
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select **Groups** blade on the left.
@@ -248,7 +257,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. For **Group Type**, select **Security**
     1. For **Group Name**, enter **GroupMember**
     1. For **Group Description**, enter **User Security Group**
+    1. Add **Group Owners** and **Group Members** as you see fit.
     1. Select **Create**.
+1. Assign the user accounts that you plan to work with to these security groups.
 
 For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
 
@@ -283,7 +294,7 @@ You have two different options available to you on how you can further configure
 1. Select `Groups assigned to the application`.
     1. Choosing additional options like `Security Groups` or `All groups (includes distribution lists but not groups assigned to the application)` will negate the benefits your app derives from choosing to use this option.
 1. Under the **ID** section, select `Group ID`. This will result in Azure AD sending the object [id](https://docs.microsoft.com/graph/api/resources/group?view=graph-rest-1.0) of the groups the user is assigned to in the `groups` claim of the [ID Token](https://docs.microsoft.com/azure/active-directory/develop/id-tokens) that your app receives after signing-in a user.
-1. If you are exposing a Web API using the **Expose an API** option, then you can also choose the `Group ID` option under the **Access** section. This will result in Azure AD sending the [Object ID](https://docs.microsoft.com/graph/api/resources/group?view=graph-rest-1.0) of the groups the user is assigned to in the `groups` claim of the [Access Token](https://aka.ms/access-tokens) issued to the client applications of your API.
+1. If you wish to have 'groups' claims available to *Access Tokens* issued to your Web API, then you can also choose the `Group ID` option under the **Access** section. This will result in Azure AD sending the [Object ID](https://docs.microsoft.com/graph/api/resources/group?view=graph-rest-1.0) of the groups the user is assigned to in the `groups` claim of the [Access Token](https://aka.ms/access-tokens) issued to the client applications of your API.
 1. In the app's registration screen, select on the **Overview** blade in the left to open the Application overview screen. Select the hyperlink with the name of your application in **Managed application in local directory** (note this field title can be truncated for instance `Managed application in ...`). When you select this link you will navigate to the **Enterprise Application Overview** page associated with the service principal for your application in the tenant where you created it. You can navigate back to the app registration page by using the *back* button of your browser.
 1. Select the **Users and groups** blade in the left to open the page where you can assign users and groups to your application.
     1. Select the **Add user** button on the top row.
@@ -373,23 +384,30 @@ If a user is member of more groups than the overage limit (**150 for SAML tokens
 
 > We strongly advise you use the [group filtering feature](#configure-your-application-to-receive-the-groups-claim-values-from-a-filtered-set-of-groups-a-user-may-be-assigned-to) (if possible) to avoid running into group overages.
 
-#### Create the overage scenario for testing
+#### Create the Overage Scenario for testing
 
 1. You can use the `BulkCreateGroups.ps1` provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. :warning: Remember to change the user's **objectId** provided in the `BulkCreateGroups.ps1` script.
+
+> When attending to overage scenarios, which requires a call to [Microsoft Graph](https://graph.microsoft.com) to read the signed-in user's group memberships, your app will need to have the [User.Read](https://docs.microsoft.com/graph/permissions-reference#user-permissions) and [GroupMember.Read.All](https://docs.microsoft.com/graph/permissions-reference#group-permissions) for the [getMemberGroups](https://docs.microsoft.com/graph/api/user-getmembergroups) function to execute successfully.
+
+> :warning: For the overage scenario, make sure you have granted **Admin Consent** for the MS Graph API's **GroupMember.Read.All** scope for both the Client and the Service apps (see the **App Registration** steps above).
+
+##### Detecting group overage in your code by examining claims
+
 1. When you run this sample and an overage occurred, then you'd see the `_claim_names` in the home page after the user signs-in.
 1. We strongly advise you use the [group filtering feature](#configure-your-application-to-receive-the-groups-claim-values-from-a-filtered-set-of-groups-a-user-may-be-assigned-to) (if possible) to avoid running into group overages.
+
 1. In case you cannot avoid running into group overage, we suggest you use the following logic to process groups claim in your token.  
     1. Check for the claim `_claim_names` with one of the values being `groups`. This indicates overage.
     1. If found, make a call to the endpoint specified in `_claim_sources` to fetch user’s groups.
     1. If none found, look into the `groups`  claim for user’s groups.
 
-> When attending to overage scenarios, which requires a call to [Microsoft Graph](https://graph.microsoft.com) to read the signed-in user's group memberships, your app will need to have the [GroupMember.Read.All](https://docs.microsoft.com/graph/permissions-reference#group-permissions) for the [getMemberObjects](https://docs.microsoft.com/graph/api/user-getmemberobjects?view=graph-rest-1.0) function to execute successfully.
+> You can gain a good familiarity of programming for Microsoft Graph by going through the [An introduction to Microsoft Graph for developers](https://www.youtube.com/watch?v=EBbnpFdB92A) recorded session.
 
-> Developers who wish to gain good familiarity of programming for Microsoft Graph are advised to go through the [An introduction to Microsoft Graph for developers](https://www.youtube.com/watch?v=EBbnpFdB92A) recorded session.
 
 ##### React RouteGuard component
 
-The client application React SPA has a [RouteGuard](./SPA/src/components/RouteGuard.jsx) component that checks whether a user has the right privileges to access a protected route. In case of overage, we are checking whether the token for the user has the `_claim_names` claim, which indicates that the user has too many group memberships.
+The client application React SPA has a [RouteGuard](./SPA/src/components/RouteGuard.jsx) component that checks whether a user has the right privileges to access a protected route. In case of overage, we are checking whether the token for the user has the `_claim_names` claim, which indicates that the user has too many group memberships and overage has occurred.
 
 ```javascript
 export const RouteGuard = ({ Component, ...props }) => {
@@ -587,6 +605,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 ## Learn More
 
 * [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
+* [Azure AD code samples](https://docs.microsoft.com/azure/active-directory/develop/sample-v2-code)
 * [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
 * [Register an application with the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
 * [Configure a client application to access web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)

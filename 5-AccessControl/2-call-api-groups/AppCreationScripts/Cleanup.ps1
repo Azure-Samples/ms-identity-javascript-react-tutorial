@@ -82,6 +82,20 @@ Function RemoveSecurityGroup([string] $name, [switch] $promptBeforeDelete)
     return $group.Id    
 }
 
+<#.Description
+   This function assigns a provided user to a security group
+#>  
+Function AssignUserToGroup([Microsoft.Graph.PowerShell.Models.MicrosoftGraphDirectoryObject]$userToAssign, [Microsoft.Graph.PowerShell.Models.MicrosoftGraphGroup]$groupToAssign)
+{
+    $owneruserId = $userToAssign.Id
+    $params = @{
+        "@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/{$owneruserId}"
+    }
+
+    New-MgGroupMemberByRef -GroupId $groupToAssign.Id -BodyParameter $params
+    Write-Host "Successfully assigned user '$($userToAssign.UserPrincipalName)' to group '$($groupToAssign.DisplayName)'"
+}
+
 Function Cleanup
 {
     if (!$azureEnvironmentName)
@@ -99,16 +113,34 @@ Function Cleanup
 
     # Connect to the Microsoft Graph API
     Write-Host "Connecting to Microsoft Graph"
+
+
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
-        $tenantId = (Get-MgContext).TenantId
+        Connect-MgGraph -Scopes "Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     
+    $context = Get-MgContext
+    $tenantId = $context.TenantId
+
+    # Get the user running the script
+    $currentUserPrincipalName = $context.Account
+    $user = Get-MgUser -Filter "UserPrincipalName eq '$($context.Account)'"
+
+    # get the tenant we signed in to
+    $Tenant = Get-MgOrganization
+    $tenantName = $Tenant.DisplayName
+    
+    $verifiedDomain = $Tenant.VerifiedDomains | where {$_.Isdefault -eq $true}
+    $verifiedDomainName = $verifiedDomain.Name
+    $tenantId = $Tenant.Id
+
+    Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
+
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantId'"
 
@@ -155,10 +187,43 @@ Function Cleanup
     RemoveSecurityGroup -name 'GroupMember' -promptBeforeDelete 'Y'
 }
 
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) { 
-    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser                                            
-} 
+# Pre-requisites
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
+    Install-Module "Microsoft.Graph" -Scope CurrentUser 
+}
+
+#Import-Module Microsoft.Graph
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Authentication
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Identity.DirectoryManagement")) {
+    Install-Module "Microsoft.Graph.Identity.DirectoryManagement" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {
+    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser 
+}
+
 Import-Module Microsoft.Graph.Applications
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Groups
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Users
+
 $ErrorActionPreference = "Stop"
 
 

@@ -34,7 +34,7 @@ Function GetGroupName([int] $val)
 <#.Description
    This function removes security groups from tenant
 #> 
-Function RemoveGroup 
+Function RemoveGroups
 {
     $val = 1;
     while ($val -ne 223) 
@@ -43,12 +43,14 @@ Function RemoveGroup
         $groupName = GetGroupName -val $val
        
         $group = Get-MgGroup -Filter "DisplayName eq '$groupName'"
-        if ($group) {
+        if ($group) 
+        {
             Remove-MgGroup -GroupId $group.Id
-            Write-Host "Successfully deleted $($group.DisplayName)"
+            Write-Host "Successfully deleted '$($group.DisplayName)'"
         }
-        else {
-            Write-Host " couldn't find group $($groupName)"
+        else 
+        {
+            Write-Host "Couldn't find group $($groupName) with ID: $($group.Id)"
         }
        
        
@@ -71,45 +73,66 @@ Function ConfigureApplications
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
-        $tenantId = (Get-MgContext).TenantId
+        Connect-MgGraph -Scopes "Organization.Read.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Organization.Read.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
+            
+    $context = Get-MgContext
+    $tenantId = $context.TenantId
 
-    RemoveGroup
+    # Get the user running the script
+    $currentUserPrincipalName = $context.Account
+    $user = Get-MgUser -Filter "UserPrincipalName eq '$currentUserPrincipalName'"
 
+    # get the tenant we signed in to
+    $Tenant = Get-MgOrganization
+    $tenantName = $Tenant.DisplayName
+    
+    $verifiedDomain = $Tenant.VerifiedDomains | where {$_.Isdefault -eq $true}
+    $verifiedDomainName = $verifiedDomain.Name
+    $tenantId = $Tenant.Id
+
+    Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
+
+    # now remove groups
+    RemoveGroups
 
 }
 
 
 $ErrorActionPreference = "Stop"
 
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) 
+{
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
 }
 
 Import-Module Microsoft.Graph.Authentication
 
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) 
+{
     Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
 }
 
 Import-Module Microsoft.Graph.Groups
 
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) 
+{
     Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
 }
 
 Import-Module Microsoft.Graph.Users
 
-
-try {
+try 
+{
     ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
 }
-catch {
+catch 
+{
+    $_.Exception.ToString() | out-host
     $message = $_
     Write-Warning $Error[0]
     Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red

@@ -1,118 +1,118 @@
 {
-    "Sample": {
-        "Title": "React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control",
-        "Level": 300,
-        "Client": "React SPA",
-        "Service": "Node.js & Express web API",
-        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-        "Endpoint": "AAD v2.0",
-        "platform": "javascript",
-        "Languages": ["javascript"],
-        "Description": "React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control",
-        "products": ["azure-active-directory", "ms-graph", "msal-js", "msal-react", "msal-node"]
-    },
-    "AADApps": [
+  "Sample": {
+    "Title": "React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control",
+    "Level": 300,
+    "Client": "React SPA",
+    "Service": "Node.js & Express web API",
+    "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+    "Endpoint": "AAD v2.0",
+    "platform": "javascript",
+    "Languages": [ "javascript" ],
+    "Description": "React single-page application calling a protected Node.js & Express.js web API using Security Groups to implement Role-Based Access Control",
+    "products": [ "azure-active-directory", "ms-graph", "msal-js", "msal-react", "msal-node" ]
+  },
+  "AADApps": [
+    {
+      "Id": "client",
+      "Name": "msal-react-app",
+      "Kind": "SinglePageApplication",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "http://localhost:3000/",
+      "ReplyUrls": "http://localhost:3000/ , http://localhost:3000/redirect.html",
+      "GroupMembershipClaims": "SecurityGroup",
+      "PasswordCredentials": "Auto",
+      "scopes": [ "access_via_group_assignments" ],
+      "SecurityGroups": [
         {
-            "Id": "client",
-            "Name": "msal-react-app",
-            "Kind": "SinglePageApplication",
-            "Audience": "AzureADMyOrg",
-            "HomePage": "http://localhost:3000/",
-            "ReplyUrls": "http://localhost:3000/ , http://localhost:3000/redirect.html",
-            "GroupMembershipClaims": "SecurityGroup",
-            "PasswordCredentials": "Auto",
-            "scopes": ["access_via_group_assignments"],
-            "SecurityGroups": [
-                {
-                    "Name": "GroupAdmin",
-                    "Description": "Admin Security Group"
-                },
-                {
-                    "Name": "GroupMember",
-                    "Description": "User Security Group"
-                }
-            ],
-            "RequiredResourcesAccess": [
-                {
-                    "Resource": "client",
-                    "DelegatedPermissions": ["access_via_group_assignments"]
-                },
-                {
-                    "Resource": "Microsoft Graph",
-                    "DelegatedPermissions": ["User.Read", "GroupMember.Read.All"]
-                }
-            ],
-            "OptionalClaims": {
-                "IdTokenClaims": ["acct"]
-            },
-            "ManualSteps": [
-                {
-                    "Comment": "Navigate to the SPA Permissions page and select 'Grant admin consent for (your tenant)"
-                },
-                {
-                    "Comment": "This script has created a group named GroupAdmin for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it."
-                },
-                {
-                    "Comment": "This script has created a group named GroupMember for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it."
-                }
-            ]
-        }
-    ],
-    "CodeConfiguration": [
-        {
-            "App": "client",
-            "SettingKind": "Replace",
-            "SettingFile": "\\..\\API\\authConfig.json",
-            "Mappings": [
-                {
-                    "key": "Enter_the_Tenant_Info_Here",
-                    "value": "$tenantId"
-                },
-                {
-                    "key": "Enter_the_Application_Id_Here",
-                    "value": "client.AppId"
-                },
-                {
-                    "key": "Enter_the_Client_Secret_Here",
-                    "value": "client.AppKey"
-                },
-                {
-                    "key": "Enter_the_Object_Id_of_GroupAdmin_Group_Here",
-                    "value": "$GroupAdmin.Id"
-                },
-                {
-                    "key": "Enter_the_Object_Id_of_GroupMember_Group_Here",
-                    "value": "$GroupMember.Id"
-                }
-            ]
+          "Name": "GroupAdmin",
+          "Description": "Admin Security Group"
         },
-
         {
-            "App": "client",
-            "SettingKind": "Replace",
-            "SettingFile": "\\..\\SPA\\src\\authConfig.js",
-            "Mappings": [
-                {
-                    "key": "Enter_the_Application_Id_Here",
-                    "value": "client.AppId"
-                },
-                {
-                    "key": "Enter_the_Tenant_Info_Here",
-                    "value": "$tenantId"
-                },
-                {
-                    "key": "Enter_the_Web_Api_Application_Id_Here",
-                    "value": "client.AppId"
-                },
-                {
-                    "key": "Enter_the_Object_Id_of_GroupAdmin_Group_Here",
-                    "value": "$GroupAdmin.Id"
-                },
-                {
-                    "key": "Enter_the_Object_Id_of_GroupMember_Group_Here",
-                    "value": "$GroupMember.Id"
-                }
-            ]
+          "Name": "GroupMember",
+          "Description": "User Security Group"
         }
-    ]
+      ],
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "client",
+          "DelegatedPermissions": [ "access_via_group_assignments" ]
+        },
+        {
+          "Resource": "Microsoft Graph",
+          "DelegatedPermissions": [ "User.Read", "GroupMember.Read.All" ]
+        }
+      ],
+      "OptionalClaims": {
+        "IdTokenClaims": [ "acct" ]
+      },
+      "ManualSteps": [
+        {
+          "Comment": "To support overage scenario, remember to provide admin consent for GroupMember.Read.All permission in the portal."
+        },
+        {
+          "Comment": "This script has created a group named 'GroupAdmin' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it."
+        },
+        {
+          "Comment": "This script has created a group named 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it."
+        }
+      ]
+    }
+  ],
+  "CodeConfiguration": [
+    {
+      "App": "client",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\API\\authConfig.json",
+      "Mappings": [
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        },
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": "client.AppId"
+        },
+        {
+          "key": "Enter_the_Client_Secret_Here",
+          "value": "client.AppKey"
+        },
+        {
+          "key": "Enter_the_Object_Id_of_GroupAdmin_Group_Here",
+          "value": "$GroupAdmin.Id"
+        },
+        {
+          "key": "Enter_the_Object_Id_of_GroupMember_Group_Here",
+          "value": "$GroupMember.Id"
+        }
+      ]
+    },
+
+    {
+      "App": "client",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\SPA\\src\\authConfig.js",
+      "Mappings": [
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": "client.AppId"
+        },
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        },
+        {
+          "key": "Enter_the_Web_Api_Application_Id_Here",
+          "value": "client.AppId"
+        },
+        {
+          "key": "Enter_the_Object_Id_of_GroupAdmin_Group_Here",
+          "value": "$GroupAdmin.Id"
+        },
+        {
+          "key": "Enter_the_Object_Id_of_GroupMember_Group_Here",
+          "value": "$GroupMember.Id"
+        }
+      ]
+    }
+  ]
 }
