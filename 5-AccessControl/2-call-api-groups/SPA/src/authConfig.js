@@ -77,8 +77,8 @@ export const loginRequest = {
 };
 
 export const groups = {
-    groupAdmin: 'Enter_the_Object_Id_of_GroupMember_Group_Here',
-    groupMember: 'Enter_the_Object_Id_of_GroupAdmin_Group_Here',
+    groupAdmin: 'Enter_the_Object_Id_of_GroupAdmin_Group_Here',
+    groupMember: 'Enter_the_Object_Id_of_GroupMember_Group_Here',
 };
 
 /**
