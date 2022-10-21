@@ -102,7 +102,6 @@ Function ConfigureApplications
 
 }
 
-
 $ErrorActionPreference = "Stop"
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) 

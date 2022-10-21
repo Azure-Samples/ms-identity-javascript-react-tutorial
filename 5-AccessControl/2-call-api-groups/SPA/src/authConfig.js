@@ -17,7 +17,6 @@ export const msalConfig = {
         redirectUri: '/', // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
         postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
-        clientCapabilities: ['CP1'], // this lets the resource owner know that this client is capable of handling claims challenge.
     },
     cache: {
         cacheLocation: 'sessionStorage', // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
@@ -61,7 +60,7 @@ export const protectedResources = {
         scopes: ['api://Enter_the_Application_Id_Here/access_via_group_assignments'],
     },
     apiGraph: {
-        endpoint: 'https://graph.microsoft.com/v1.0/me/memberOf',
+        endpoint: 'https://graph.microsoft.com/v1.0/me/checkMemberGroups',
         scopes: ['User.Read', 'GroupMember.Read.All'],
     },
 };

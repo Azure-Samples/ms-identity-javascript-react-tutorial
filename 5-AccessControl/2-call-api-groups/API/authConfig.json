@@ -17,7 +17,7 @@
     },
     "protectedResources": {
         "graphAPI": {
-            "endpoint": "https://graph.microsoft.com/v1.0/me/memberOf",
+            "endpoint": "https://graph.microsoft.com/v1.0/me/checkMemberGroups",
             "scopes": [
                 "User.Read",
                 "GroupMember.Read.All"

@@ -2,7 +2,7 @@
 page_type: sample
 name: React single-page application calling a protected Node.js & Express web API using Security Groups to implement Role-Based Access Control
 description: React single-page application calling a protected Node.js & Express.js web API using Security Groups to implement Role-Based Access Control
-- languages:
+languages:
  - javascript
 products:
  - azure-active-directory
@@ -27,17 +27,9 @@ extensions:
 - [Contents](#contents)
 - [Prerequisites](#prerequisites)
 - [Setup the sample](#setup-the-sample)
-  - [Step 1: Clone or download this repository](#step-1-clone-or-download-this-repository)
-  - [Step 2: Install project dependencies](#step-2-install-project-dependencies)
-  - [Step 3: Register the sample application(s) in your tenant](#step-3-register-the-sample-applications-in-your-tenant)
-  - [Create Security Groups](#create-security-groups)
-  - [Configure Security Groups](#configure-security-groups)
-  - [Step 4: Running the sample](#step-4-running-the-sample)
 - [Explore the sample](#explore-the-sample)
-- [We'd love your feedback!](#wed-love-your-feedback)
 - [Troubleshooting](#troubleshooting)
 - [About the code](#about-the-code)
-  - [Groups overage claim](#groups-overage-claim)
 - [Next Steps](#next-steps)
 - [Contributing](#contributing)
 - [Learn More](#learn-more)
@@ -201,20 +193,19 @@ To manually register the apps, as a first step you'll need to:
 ##### Grant Delegated Permissions to msal-react-app
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
     1. Select the **Add a permission** button and then:
         1. Ensure that the **My APIs** tab is selected.
         1. In the list of APIs, select the API `msal-react-app`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
-      * In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
+        1. In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
         1. Select the **Add permissions** button at the bottom.
     1. Select the **Add a permission** button and then:
         1. Ensure that the **Microsoft APIs** tab is selected.
         1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
-      * In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
+        1. In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
         1. Select the **Add permissions** button at the bottom.
-   > :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
+
+> :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
 
 ##### Configure Optional Claims
 
@@ -259,9 +250,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. For **Group Description**, enter **User Security Group**
     1. Add **Group Owners** and **Group Members** as you see fit.
     1. Select **Create**.
-1. Assign the user accounts that you plan to work with to these security groups.
-
-For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
+1. Assign the user accounts that you plan to work with to these security groups. For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
 
 ### Configure Security Groups
 
@@ -378,7 +367,7 @@ Much of the specifics of implementing **RBAC** with **Security Groups** is the s
 
 ### Groups overage claim
 
-To ensure that the token size doesn’t exceed HTTP header size limits, the Microsoft Identity Platform limits the number of object Ids that it includes in the **groups** claim.
+To ensure that the token size doesn’t exceed HTTP header size limits, the Microsoft identity platform limits the number of object Ids that it includes in the **groups** claim.
 
 If a user is member of more groups than the overage limit (**150 for SAML tokens, 200 for JWT tokens, 6 for single-page applications using implicit flow**), then the Microsoft Identity Platform does not emit the group IDs in the `groups` claim in the token. Instead, it includes an **overage** claim in the token that indicates to the application to query the [MS Graph API](https://graph.microsoft.com) to retrieve the user’s group membership.
 
@@ -386,13 +375,9 @@ If a user is member of more groups than the overage limit (**150 for SAML tokens
 
 #### Create the Overage Scenario for testing
 
-1. You can use the `BulkCreateGroups.ps1` provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. :warning: Remember to change the user's **objectId** provided in the `BulkCreateGroups.ps1` script.
+1. You can use the [BulkCreateGroups.ps1](./AppCreationScripts/BulkCreateGroups.ps1) provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. You'll need to enter a user Object ID when prompted by the `BulkCreateGroups.ps1` script. If you would like to delete these groups, run the [BulkRemoveGroups.ps1](./AppCreationScripts/BulkRemoveGroups.ps1) after testing the overage scenario.
 
 > When attending to overage scenarios, which requires a call to [Microsoft Graph](https://graph.microsoft.com) to read the signed-in user's group memberships, your app will need to have the [User.Read](https://docs.microsoft.com/graph/permissions-reference#user-permissions) and [GroupMember.Read.All](https://docs.microsoft.com/graph/permissions-reference#group-permissions) for the [getMemberGroups](https://docs.microsoft.com/graph/api/user-getmembergroups) function to execute successfully.
-
-> :warning: For the overage scenario, make sure you have granted **Admin Consent** for the MS Graph API's **GroupMember.Read.All** scope for both the Client and the Service apps (see the **App Registration** steps above).
-
-##### Detecting group overage in your code by examining claims
 
 1. When you run this sample and an overage occurred, then you'd see the `_claim_names` in the home page after the user signs-in.
 1. We strongly advise you use the [group filtering feature](#configure-your-application-to-receive-the-groups-claim-values-from-a-filtered-set-of-groups-a-user-may-be-assigned-to) (if possible) to avoid running into group overages.
@@ -400,10 +385,9 @@ If a user is member of more groups than the overage limit (**150 for SAML tokens
 1. In case you cannot avoid running into group overage, we suggest you use the following logic to process groups claim in your token.  
     1. Check for the claim `_claim_names` with one of the values being `groups`. This indicates overage.
     1. If found, make a call to the endpoint specified in `_claim_sources` to fetch user’s groups.
-    1. If none found, look into the `groups`  claim for user’s groups.
+    1. If none found, look into the `groups` claim for user’s groups.
 
 > You can gain a good familiarity of programming for Microsoft Graph by going through the [An introduction to Microsoft Graph for developers](https://www.youtube.com/watch?v=EBbnpFdB92A) recorded session.
-
 
 ##### React RouteGuard component
 
@@ -527,7 +511,7 @@ export const Overage = () => {
 };
 ```
 
-#### Express custom handleOverage middleware
+#### Express.js web API custom handleOverage middleware
 
 Similar to the React **RouteGuard** component above, in custom Express.js middleware [routeGuard.js](./API/auth/guard.js) we are checking whether the token for the user has the `_claim_names` claim, which indicates that the user has too many group memberships and thus overage has occurred.
 
@@ -551,9 +535,7 @@ const routeGuard = (accessMatrix, cache) => {
 };
 ```
 
-If overage occurs, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the full list of groups that the user belongs to. Finally we check for the designated `groupID`s among this list.
-
-To do this, we are using [MSAL Node](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node)'s `acquireTokenOnBehalf` API, as we are querying MS Graph on-behalf-of the user that is trying to access our web API. See [overage.js](./API/auth/overage.js) for more.
+If overage occurs, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/checkMemberGroups` endpoint to query the full list of groups that the user belongs to. Finally we check for the designated `groupID`s among this list. To do this, we are using [MSAL Node](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-node)'s `acquireTokenOnBehalf` API, as we are querying Microsoft Graph *on-behalf-of* the user that is trying to access our web API. See [overage.js](./API/auth/overage.js) for more.
 
 ```javascript
 const handleOverage = async (req, res, next, cacheProvider) => {
@@ -579,7 +561,7 @@ const handleOverage = async (req, res, next, cacheProvider) => {
         // cache the groups and the source token id
         cacheProvider.set(oid, {
             groups: res.locals.groups,
-            sourceTokenId: accessToken['uti']
+            sourceTokenId: accessToken['uti'] // id of the token
         });
 
         return checkAccess(req, res, next);
@@ -590,11 +572,14 @@ const handleOverage = async (req, res, next, cacheProvider) => {
 };
 ```
 
+#### Caching user group memberships in overage scenario
+
+Since overaged tokens will not contain group membership IDs, yet these IDs are required for controlling access to pages and/or resources, applications have to call Microsoft Graph whenever a user action (e.g. accessing a page on the UI, accessing a todolist item in the web API etc.) takes place. These network calls are costly and will impact the application performance and user experience. As such, both the SPA and web API projects here would benefit from caching the group membership IDs once they are fetched from Microsoft Graph for the first time. By default, these are cached for **1 hour** in the sample. Cached groups will miss any changes to a users group membership for this duration. If you need more fine grained control, you can configure cache duration in [authConfig.js](./SPA/src/authConfig.js) for the SPA and in [authConfig.json](./API/authConfig.json) for the web API. If your scenario requires capturing real-time changes to a user's group membership, consider implementing [Microsoft Graph change notifications](https://learn.microsoft.com/graph/api/resources/webhooks) instead.
+
 ## Next Steps
 
-* [Use MSAL React to call a protected web API using Security Groups to implement Role-Based Access Control](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/5-AccessControl/2-call-api-groups)
-* [Use MSAL React to call a protected web API using Conditional Access auth context to perform step-up authentication](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/6-AdvancedScenarios/3-call-api-acrs)
-* [Sign-in users interactively server-side (Node.js) and silently acquire a token for MS Graph from a React single-page app (SPA)](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/6-AdvancedScenarios/4-sign-in-hybrid)
+- [Use MSAL React to call a protected web API using Conditional Access auth context to perform step-up authentication](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/6-AdvancedScenarios/3-call-api-acrs)
+- [Sign-in users interactively server-side (Node.js) and silently acquire a token for MS Graph from a React single-page app](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/6-AdvancedScenarios/4-sign-in-hybrid)
 
 ## Contributing
 

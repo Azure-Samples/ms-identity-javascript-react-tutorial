@@ -400,10 +400,10 @@ Function ConfigureApplications
 
     $newClaim =  CreateOptionalClaim  -name "groups" 
     $optionalClaims.IdToken += ($newClaim)
-    # $newClaim =  CreateOptionalClaim  -name "groups" 
-    # $optionalClaims.AccessToken += ($newClaim)
-    # $newClaim =  CreateOptionalClaim  -name "groups" 
-    # $optionalClaims.Saml2Token += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.AccessToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.Saml2Token += ($newClaim)
 
     # Add Optional Claims
 
@@ -533,7 +533,6 @@ Function ConfigureApplications
     Write-Host "  - To support overage scenario, remember to provide admin consent for GroupMember.Read.All permission in the portal." -ForegroundColor Red 
     Write-Host "  - This script has created a group named 'GroupAdmin' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
     Write-Host "  - This script has created a group named 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
-    Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
    
 if($isOpenSSL -eq 'Y')

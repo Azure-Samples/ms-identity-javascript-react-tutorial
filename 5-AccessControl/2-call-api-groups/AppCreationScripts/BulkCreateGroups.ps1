@@ -127,7 +127,7 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
     Install-Module "Microsoft.Graph" -Scope CurrentUser 
 }
 
-#Import-Module Microsoft.Graph
+Import-Module Microsoft.Graph
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
