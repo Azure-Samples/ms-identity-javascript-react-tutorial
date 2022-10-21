@@ -26,7 +26,7 @@ const getGraphClient = (accessToken) => {
  * @returns 
  */
 export const getFilteredGroups = async (accessToken, filterGroups = []) => {
-    const groups = [];
+    let groups = [];
 
     try {
         // Get a graph client instance for the given access token

@@ -146,7 +146,7 @@ To manually register the apps, as a first step you'll need to:
 
 #### Register the client app (msal-react-app)
 
-> :information_source: Below, we are using a single app registration for both SPA and web API projects.
+> :information_source: Below, we are using a single app registration for both SPA and web API projects. We will configure the web API to accept only the calls coming from this client SPA.
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
