@@ -4,15 +4,18 @@
   "description": "A Node.js & Express web API accepting authorized calls with Azure AD B2C",
   "author": "derisen",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "jest --forceExit"
   },
   "dependencies": {
-    "express": "^4.14.0",
-    "morgan": "^1.7.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.6.0",
+    "lowdb": "^1.0.0",
+    "morgan": "^1.10.0",
     "passport": "^0.6.0",
-    "passport-azure-ad": "^4.3.3"
+    "passport-azure-ad": "^4.3.4"
   },
   "main": "index.js",
   "repository": {
@@ -24,9 +27,9 @@
   },
   "homepage": "https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial#readme",
   "devDependencies": {
-    "jest": "^27.0.6",
-    "nodemon": "^2.0.19",
-    "supertest": "^6.1.4"
+    "jest": "^29.2.1",
+    "nodemon": "^2.0.20",
+    "supertest": "^6.3.0"
   },
   "keywords": [
     "azure",

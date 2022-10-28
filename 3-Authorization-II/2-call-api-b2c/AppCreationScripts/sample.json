@@ -1,53 +1,67 @@
 {
     "Sample": {
-      "Title": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C",
-      "Level": 200,
-      "Client": "React SPA",
-      "Service": "Node.js web API",
-      "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-      "Endpoint": "AAD v2.0",
-      "Provider": "B2C"
+        "Author": "Salman",
+        "Title": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C",
+        "Level": 200,
+        "Client": "React SPA",
+        "Service": "Node.js web API",
+        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+        "Endpoint": "AAD v2.0",
+        "Description": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C",
+        "Languages": ["javascript", "nodejs"],
+        "Products": ["React", "Express", "azure-active-directory", "msal-js", "passport-azure-ad"],
+        "Platform": "JavaScript",
+        "Provider": "B2C"
     },
     "AADApps": [
       {
-        "Id": "spa",
-        "Name": "ms-identity-react-c3s2-spa",
-        "Kind": "SinglePageApplication",
-        "Audience": "AzureADandPersonalMicrosoftAccount",
-        "HomePage": "http://localhost:3000/",
-        "ReplyUrls": "http://localhost:3000/",
-        "RequiredResourcesAccess": [
-          {
-            "Resource": "Microsoft Graph",
-            "DelegatedPermissions": ["User.Read"]
-          },
-          {
-            "Resource": "service",
-            "DelegatedPermissions": [ "access_as_user" ]
+          "Id": "service",
+          "Name": "ms-identity-react-c3s2-api",
+          "Kind": "WebApi",
+          "Audience": "AzureADandPersonalMicrosoftAccount",
+          "Scopes": ["Todolist.Read", "Todolist.ReadWrite"],
+          "Sample": {
+              "SampleSubPath": "3-Authorization-II\\2-call-api-b2c\\API",
+              "ProjectDirectory": "\\2-call-api-b2c\\API"
           }
-        ],
-        "ManualSteps": [
-          {
-            "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
-          }
-        ]
       },
       {
-        "Id": "service",
-        "Name": "ms-identity-react-c3s2-api",
-        "Kind": "WebApi",
-        "HomePage": "http://localhost:5000/api",
-        "Audience": "AzureADandPersonalMicrosoftAccount",
-        "ManualSteps": [
-          {
-            "Comment": "Navigate to the Manifest page, find the property 'accessTokenAcceptedVersion' and set it to '2'"
-          }
-        ]
+          "Id": "client",
+          "Name": "ms-identity-react-c3s2-spa",
+          "Kind": "SinglePageApplication",
+          "Audience": "AzureADandPersonalMicrosoftAccount",
+          "HomePage": "http://localhost:3000",
+          "ReplyUrls": "http://localhost:3000",
+          "Sample": {
+              "SampleSubPath": "3-Authorization-II\\2-call-api-b2c\\SPA",
+              "ProjectDirectory": "\\2-call-api-b2c\\SPA"
+          },
+          "RequiredResourcesAccess": [
+              {
+                  "Resource": "service",
+                  "DelegatedPermissions": ["Todolist.Read", "Todolist.ReadWrite"]
+              }
+          ]
       }
     ],
     "CodeConfiguration": [
       {
-        "App": "spa",
+        "App": "service",
+        "SettingKind": "JSON",
+        "SettingFile": "\\..\\API\\config.json",
+        "Mappings": [
+          {
+            "key": "clientID",
+            "value": ".AppId"
+          },
+          {
+            "key": "tenantID",
+            "value": "$tenantId"
+          }
+        ]
+      },
+      {
+        "App": "client",
         "SettingKind": "Replace",
         "SettingFile": "\\..\\SPA\\src\\authConfig.js",
         "Mappings": [
@@ -62,21 +76,6 @@
           {
             "key": "Enter_the_Web_Api_Scope_Here",
             "value": "service.Scope"
-          }
-        ]
-      },
-      {
-        "App": "service",
-        "SettingKind": "JSON",
-        "SettingFile": "\\..\\API\\config.json",
-        "Mappings": [
-          {
-            "key": "clientID",
-            "value": ".AppId"
-          },
-          {
-            "key": "tenantID",
-            "value": "$tenantId"
           }
         ]
       }
