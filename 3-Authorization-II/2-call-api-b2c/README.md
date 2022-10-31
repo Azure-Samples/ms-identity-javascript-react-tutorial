@@ -48,14 +48,12 @@ Here you'll learn how to [register a protected web API](https://docs.microsoft.c
 ## Scenario
 
 1. The client React SPA uses **MSAL React** to sign-in and obtain a JWT access token from **Azure AD B2C**.
-2. The access token is used as a bearer token to authorize the user to call the Node.js web API protected **Azure AD B2C**.
-3. The protected web API responds with the claims in the **Access Token**.
+1. The access token is used as a bearer token to authorize the user to call the Node.js web API protected **Azure AD B2C**.
+1. The protected web API responds with the signed-in user's todolist.
 
 ![Scenario Image](./ReadmeFiles/topology.png)
 
 ## Contents
-
-> Give a high-level folder structure of the sample. Emphasize the files that you want people to look at.
 
 | File/folder                   | Description                                                        |
 |-------------------------------|------------------------------------------------------------------- |
@@ -241,20 +239,71 @@ If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../
 
 ## About the code
 
-### Token Validation
+### Access token validation
 
-[passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) validates the token against the `issuer`, `scope` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API:
+On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) verifies the incoming access token's signature and validates it's payload against the `issuer` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API. In the `BearerStrategy` callback, you can add further validation steps as shown below (see [app.js](./API/app.js)):
 
 ```javascript
-    app.get('/api', passport.authenticate('oauth-bearer', { session: false }),
-        (req, res) => {
-            console.log('Validated claims: ', req.authInfo);
-    );
+    const options = {
+    identityMetadata: `https://${authConfig.metadata.b2cDomain}/${authConfig.credentials.tenantName}/${authConfig.policies.policyName}/${authConfig.metadata.version}/${authConfig.metadata.discovery}`,
+    clientID: authConfig.credentials.clientID,
+    audience: authConfig.credentials.clientID,
+    policyName: authConfig.policies.policyName,
+    isB2C: authConfig.settings.isB2C,
+    validateIssuer: authConfig.settings.validateIssuer,
+    loggingLevel: authConfig.settings.loggingLevel,
+    passReqToCallback: authConfig.settings.passReqToCallback,
+};
+
+const bearerStrategy = new passportAzureAd.BearerStrategy(options, (token, done) => {
+    /**
+     * Below you can do extended token validation and check for additional claims, such as:
+     * - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
+     * - check if the delegated permissions in the 'scp' are the same as the ones declared in the application registration.
+     *
+     * Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
+     * For more information, visit: https://learn.microsoft.com/en-us/azure/active-directory-b2c/tokens-overview
+     */
+
+    /**
+     * Lines below verifies if the caller's client ID is in the list of allowed clients.
+     * This ensures only the applications with the right client ID can access this API.
+     * To do so, we use "azp" claim in the access token. Uncomment the lines below to enable this check.
+     */
+
+    // const myAllowedClientsList = [
+    //     /* add here the client IDs of the applications that are allowed to call this API */
+    // ]
+
+    // if (!myAllowedClientsList.includes(token.azp)) {
+    //     return done(new Error('Unauthorized'), {}, "Client not allowed");
+    // }
+
+    // const myAllowedClientsList = [
+    //     /* add here the client IDs of the applications that are allowed to call this API */
+    // ]
+
+    /**
+     * Access tokens that have no 'scp' (for delegated permissions).
+     */
+    if (!token.hasOwnProperty('scp')) {
+        return done(new Error('Unauthorized'), null, 'No delegated permissions found');
+    }
+
+    done(null, {}, token);
+});
+
+
+app.use(passport.initialize());
+
+passport.use(bearerStrategy);
 ```
 
-On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) validates the token against the `issuer`, `scope` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API:
-
 Clients should treat access tokens as opaque strings, as the contents of the token are intended for the resource only (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
+
+### CORS Settings
+
+For the purpose of the sample, **cross-origin resource sharing** is enabled for **all** domains. This is insecure. In production, you should modify this as to allow only the domains that you designate.
 
 ```javascript
     app.use(cors());
