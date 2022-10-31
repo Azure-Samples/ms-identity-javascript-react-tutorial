@@ -1,6 +1,6 @@
 {
     "Sample": {
-        "Author": "Salman",
+        "Author": "salman90",
         "Title": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C",
         "Level": 200,
         "Client": "React SPA",
@@ -9,7 +9,7 @@
         "Endpoint": "AAD v2.0",
         "Description": "A React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C",
         "Languages": ["javascript", "nodejs"],
-        "Products": ["React", "Express", "azure-active-directory", "msal-js", "passport-azure-ad"],
+        "Products": ["React", "Express", "azure-active-directory-b2c", "msal-js", "passport-azure-ad"],
         "Platform": "JavaScript",
         "Provider": "B2C"
     },
@@ -19,7 +19,7 @@
           "Name": "ms-identity-react-c3s2-api",
           "Kind": "WebApi",
           "Audience": "AzureADandPersonalMicrosoftAccount",
-          "Scopes": ["Todolist.Read", "Todolist.ReadWrite"],
+          "Scopes": ["ToDoList.Read", "ToDoList.ReadWrite"],
           "Sample": {
               "SampleSubPath": "3-Authorization-II\\2-call-api-b2c\\API",
               "ProjectDirectory": "\\2-call-api-b2c\\API"
@@ -39,7 +39,7 @@
           "RequiredResourcesAccess": [
               {
                   "Resource": "service",
-                  "DelegatedPermissions": ["Todolist.Read", "Todolist.ReadWrite"]
+                  "DelegatedPermissions": ["ToDoList.Read", "ToDoList.ReadWrite"]
               }
           ]
       }
@@ -48,7 +48,7 @@
       {
         "App": "service",
         "SettingKind": "JSON",
-        "SettingFile": "\\..\\API\\config.json",
+        "SettingFile": "\\..\\API\\authConfig.json",
         "Mappings": [
           {
             "key": "clientID",

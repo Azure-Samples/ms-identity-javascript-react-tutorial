@@ -84,8 +84,8 @@ export const protectedResources = {
     apiTodoList: {
         endpoint: 'http://localhost:5000/api/todolist',
         scopes: {
-            read: ['https://fabrikamb2c.onmicrosoft.com/TodoList/Todolist.Read'],
-            write: ['https://fabrikamb2c.onmicrosoft.com/TodoList/Todolist.ReadWrite'],
+            read: ['https://fabrikamb2c.onmicrosoft.com/TodoList/ToDoList.Read'],
+            write: ['https://fabrikamb2c.onmicrosoft.com/TodoList/ToDoList.ReadWrite'],
         },
     },
 };

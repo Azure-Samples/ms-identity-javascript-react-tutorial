@@ -22,8 +22,8 @@ const passportConfig = {
         todolist: {
             endpoint: '/api/todolist',
             delegatedPermissions: {
-                read: ['Todolist.Read'],
-                write: ['Todolist.ReadWrite'],
+                read: ['ToDoList.Read'],
+                write: ['ToDoList.ReadWrite'],
             },
         },
     },

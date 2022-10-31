@@ -8,7 +8,7 @@ languages:
 products:
  - React
  - Express
- - azure-active-directory
+ - azure-active-directory-b2c
  - msal-js
  - passport-azure-ad
 urlFragment: ms-identity-javascript-react-tutorial
@@ -41,8 +41,6 @@ This sample demonstrates a React single-page application (SPA) calling a protect
 
 Here you'll learn how to [register a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-app-registration), [accept authorized calls](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-verification-scope-app-roles) and [validate access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens).
 
-> :information_source: See the community call: [Develop multi-tenant applications with the Microsoft identity platform](https://www.youtube.com/watch?v=B416AxHoMJ4)
-
 > :information_source: See the community call: [Deep dive on using MSAL.js to integrate React single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=7oPSL5wWeS0)
 
 ## Scenario
@@ -71,7 +69,7 @@ Here you'll learn how to [register a protected web API](https://docs.microsoft.c
 * [VS Code Azure Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with Azure through VS Code Interface.
 * A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
 * An **Azure AD B2C** tenant. For more information, see: [How to get an Azure AD B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant)
-* A user account in your **Azure AD B2C** tenant.## Setup the sample
+* A user account in your **Azure AD B2C** tenant.
 
 ## Setup the sample
 
@@ -141,13 +139,13 @@ Please refer to: [Tutorial: Add identity providers to your applications in Azure
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `Todolist.Read`.
-    1. For **Admin consent display name** type in *Todolist.Read*.
-    1. For **Admin consent description** type in *e.g. Allows the app to read the signed-in user's files.*.
+    1. For **Scope name**, use `ToDoList.Read`.
+    1. For **Admin consent display name** type in *Read users ToDo list using the 'ms-identity-react-c3s2-api'*.
+    1. For **Admin consent description** type in *Allow the app to read the user's ToDo list using the 'ms-identity-react-c3s2-api'*.
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
 
-    > Repeat the steps above for another scope named **Todolist.ReadWrite**
+    > Repeat the steps above for another scope named **ToDoList.ReadWrite**
 1. Select the **Manifest** blade on the left.
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
@@ -184,7 +182,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. Ensure that the **My APIs** tab is selected.
     1. In the list of APIs, select the API `ms-identity-react-c3s2-api`.
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      * In the **Delegated permissions** section, select **Todolist.Read**, **Todolist.ReadWrite** in the list. Use the search box if necessary.
+      * In the **Delegated permissions** section, select **ToDoList.Read**, **ToDoList.ReadWrite** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
 
 ##### Configure the client app (ms-identity-react-c3s2-spa) to use your app registration
@@ -233,7 +231,7 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## Troubleshooting
 
-Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community. Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before. Make sure that your questions or comments are tagged with [`azure-active-directory` `react` `ms-identity` `adal` `msal`].
+Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community. Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before. Make sure that your questions or comments are tagged with [`azure-active-directory-b2c` `react` `ms-identity` `adal` `msal`].
 
 If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
