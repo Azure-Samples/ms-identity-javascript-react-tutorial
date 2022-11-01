@@ -6,8 +6,6 @@ languages:
  -  javascript
  -  nodejs
 products:
- - React
- - Express
  - azure-active-directory-b2c
  - msal-js
  - passport-azure-ad
@@ -144,7 +142,6 @@ Please refer to: [Tutorial: Add identity providers to your applications in Azure
     1. For **Admin consent description** type in *Allow the app to read the user's ToDo list using the 'ms-identity-react-c3s2-api'*.
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
-
     > Repeat the steps above for another scope named **ToDoList.ReadWrite**
 1. Select the **Manifest** blade on the left.
     1. Set `accessTokenAcceptedVersion` property to **2**.
@@ -161,6 +158,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `API\authConfig.js` file.
 1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `ms-identity-react-c3s2-api` app copied from the Azure portal.
 1. Find the key `tenantName` and replace the existing value with your Azure AD B2C tenant's name (e.g. `fabrikamb2c.onmicrosoft.com`).
+1. Find the key `b2cDomain` and replace it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
+1. Find the key `policyName` and replace it with your policy name e.g. `B2C_1_susi_v2`
 
 #### Register the client app (ms-identity-react-c3s2-spa)
 
@@ -184,6 +183,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
       * In the **Delegated permissions** section, select **ToDoList.Read**, **ToDoList.ReadWrite** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
+    1. At this stage, the permissions are assigned correctly, but since it's a B2C tenant, the users themselves cannot consent to these permissions. To get around this problem, we'd let the [tenant administrator consent on behalf of all users in the tenant](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent). Select the **Grant admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all accounts in the tenant. You need to be a tenant admin to be able to carry out this operation.
 
 ##### Configure the client app (ms-identity-react-c3s2-spa) to use your app registration
 
@@ -256,7 +256,6 @@ On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azu
 const bearerStrategy = new passportAzureAd.BearerStrategy(options, (token, done) => {
     /**
      * Below you can do extended token validation and check for additional claims, such as:
-     * - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
      * - check if the delegated permissions in the 'scp' are the same as the ones declared in the application registration.
      *
      * Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
@@ -277,9 +276,6 @@ const bearerStrategy = new passportAzureAd.BearerStrategy(options, (token, done)
     //     return done(new Error('Unauthorized'), {}, "Client not allowed");
     // }
 
-    // const myAllowedClientsList = [
-    //     /* add here the client IDs of the applications that are allowed to call this API */
-    // ]
 
     /**
      * Access tokens that have no 'scp' (for delegated permissions).
@@ -311,8 +307,8 @@ For the purpose of the sample, **cross-origin resource sharing** is enabled for 
 
 Learn how to:
 
-* [Call a web API using Roles for Access Control](../../../5-AccessControl/1-call-api-roles/README.md)
-* [Call a web API using Groups for Access Control](../../../5-AccessControl/1-call-api-groups/README.md)
+* [Deploy your React Application to Azure Cloud and use Azure services to manage your operations](../../../ms-identity-javascript-react-tutorial/4-Deployment/1-deploy-storage/README.md)
+* [Deploy your React Application to Azure Cloud and use Azure services to manage your operations](../../../ms-identity-javascript-react-tutorial/4-Deployment/2-deploy-static/README.md)
 
 ## Contributing
 

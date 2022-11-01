@@ -55,12 +55,12 @@ const options = {
     validateIssuer: authConfig.settings.validateIssuer,
     loggingLevel: authConfig.settings.loggingLevel,
     passReqToCallback: authConfig.settings.passReqToCallback,
+    loggingNoPII: authConfig.settings.loggingNoPII, // set this to true in the authConfig.js if you want to enable logging and debugging
 };
 
-const bearerStrategy = new passportAzureAd.BearerStrategy(options, (token, done) => {
+const bearerStrategy = new passportAzureAd.BearerStrategy(options, (req,token, done) => {
     /**
      * Below you can do extended token validation and check for additional claims, such as:
-     * - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
      * - check if the delegated permissions in the 'scp' are the same as the ones declared in the application registration.
      *
      * Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
@@ -72,11 +72,6 @@ const bearerStrategy = new passportAzureAd.BearerStrategy(options, (token, done)
      * This ensures only the applications with the right client ID can access this API.
      * To do so, we use "azp" claim in the access token. Uncomment the lines below to enable this check.
      */
-
-    // const myAllowedClientsList = [
-    //     /* add here the client IDs of the applications that are allowed to call this API */
-    // ]
-
     // if (!myAllowedClientsList.includes(token.azp)) {
     //     return done(new Error('Unauthorized'), {}, "Client not allowed");
     // }
@@ -107,14 +102,6 @@ app.use(
             'oauth-bearer',
             {
                 session: false,
-
-                /**
-                 * If you are building a multi-tenant application and you need supply the tenant ID or name dynamically,
-                 * uncomment the line below and pass in the tenant information. For more information, see:
-                 * https://github.com/AzureAD/passport-azure-ad#423-options-available-for-passportauthenticate
-                 */
-
-                // tenantIdOrName: <some-tenant-id-or-name>
             },
             (err, user, info) => {
                 if (err) {

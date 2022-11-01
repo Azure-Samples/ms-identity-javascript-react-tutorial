@@ -23,7 +23,7 @@ exports.getTodo = (req, res, next) => {
 exports.getTodos = (req, res, next) => {
     if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
         try {
-            const owner = req.authInfo['oid'];
+            const owner = req.authInfo['sub'];
             const todos = db.get('todos').filter({ owner: owner }).value();
 
             res.status(200).send(todos);
@@ -52,7 +52,7 @@ exports.updateTodo = (req, res, next) => {
     if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.write)) {
         try {
             const id = req.params.id;
-            const owner = req.authInfo['oid'];
+            const owner = req.authInfo['sub'];
             db.get('todos').filter({ owner: owner }).find({ id: id }).assign(req.body).write();
 
             res.status(200).json({ message: 'success' });
@@ -70,7 +70,7 @@ exports.deleteTodo = (req, res, next) => {
     ) {
         try {
             const id = req.params.id;
-            const owner = req.authInfo['oid'];
+            const owner = req.authInfo['sub'];
 
             db.get('todos').remove({ owner: owner, id: id }).write();
 
