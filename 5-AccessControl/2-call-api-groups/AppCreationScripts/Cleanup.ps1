@@ -7,6 +7,51 @@ param(
     [string] $azureEnvironmentName
 )
 
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Groups
+
+<#.Description
+   This function creates a new Azure AD Security Group with provided values
+#>  
+Function CreateSecurityGroup([string] $name, [string] $description)
+{
+    Write-Host "Creating a security group by the name '$name'."
+    $newGroup = New-MgGroup -Description $description -DisplayName $name -MailEnabled:$false -SecurityEnabled:$true -MailNickName $name
+    return Get-MgGroup -Filter "DisplayName eq '$name'" 
+}
+
+<#.Description
+   This function first checks and then creates a new Azure AD Security Group with provided values, if required
+#>  
+Function CreateIfNotExistsSecurityGroup([string] $name, [string] $description,  [switch] $promptBeforeCreate)
+{
+
+    # check if Group exists
+    $group = Get-MgGroup -Filter "DisplayName eq '$name'"    
+    
+    if( $group -eq $null)
+    {
+        if ($promptBeforeCreate) 
+        {
+            $confirmation = Read-Host "Proceed to create a new security group named '$name' in the tenant ? (Y/N)"
+
+            if($confirmation -eq 'y')
+            {
+                $group = CreateSecurityGroup -name $name -description $description
+            }
+        }
+        else
+        {
+            Write-Host "No Security Group created!"
+        }     
+    }
+    
+    return $group    
+}
+
 <#.Description
    This function first checks and then deletes an existing Azure AD Security Group, if required
 #>  
@@ -40,7 +85,7 @@ Function RemoveSecurityGroup([string] $name, [switch] $promptBeforeDelete)
 <#.Description
    This function assigns a provided user to a security group
 #>  
-Function AssignUserToGroup([Microsoft.Graph.PowerShell.Models.MicrosoftGraphDirectoryObject]$userToAssign, [Microsoft.Graph.PowerShell.Models.MicrosoftGraphGroup]$groupToAssign)
+Function AssignUserToGroup([Microsoft.Graph.PowerShell.Models.MicrosoftGraphUser]$userToAssign, [Microsoft.Graph.PowerShell.Models.MicrosoftGraphGroup]$groupToAssign)
 {
     $owneruserId = $userToAssign.Id
     $params = @{
@@ -72,11 +117,11 @@ Function Cleanup
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     
     $context = Get-MgContext
@@ -147,7 +192,7 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
     Install-Module "Microsoft.Graph" -Scope CurrentUser 
 }
 
-Import-Module Microsoft.Graph
+#Import-Module Microsoft.Graph
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 

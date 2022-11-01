@@ -87,6 +87,46 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
 
 <#.Description
    This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#> 
+Function UpdateLine([string] $line, [string] $value)
+{
+    $index = $line.IndexOf(':')
+    $lineEnd = ''
+
+    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
+    
+    if ($index -ige 0)
+    {
+        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
+    }
+    return $line
+}
+
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#> 
+Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
+{
+    $lines = Get-Content $configFilePath
+    $index = 0
+    while($index -lt $lines.Length)
+    {
+        $line = $lines[$index]
+        foreach($key in $dictionary.Keys)
+        {
+            if ($line.Contains($key))
+            {
+                $lines[$index] = UpdateLine $line $dictionary[$key]
+            }
+        }
+        $index++
+    }
+
+    Set-Content -Path $configFilePath -Value $lines -Force
+}
+
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
 #>     
 Function ReplaceInLine([string] $line, [string] $key, [string] $value)
 {
@@ -157,45 +197,6 @@ Function CreateAppRole([string] $types, [string] $name, [string] $description)
     $appRole.Description = $description
     $appRole.Value = $name;
     return $appRole
-}
-<#.Description
-   This function takes a string input as a single line, matches a key value and replaces with the replacement value
-#> 
-Function UpdateLine([string] $line, [string] $value)
-{
-    $index = $line.IndexOf(':')
-    $lineEnd = ''
-
-    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
-    
-    if ($index -ige 0)
-    {
-        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
-    }
-    return $line
-}
-
-<#.Description
-   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
-#> 
-Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
-{
-    $lines = Get-Content $configFilePath
-    $index = 0
-    while($index -lt $lines.Length)
-    {
-        $line = $lines[$index]
-        foreach($key in $dictionary.Keys)
-        {
-            if ($line.Contains($key))
-            {
-                $lines[$index] = UpdateLine $line $dictionary[$key]
-            }
-        }
-        $index++
-    }
-
-    Set-Content -Path $configFilePath -Value $lines -Force
 }
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
     Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
@@ -275,7 +276,7 @@ Function RemoveSecurityGroup([string] $name, [switch] $promptBeforeDelete)
 <#.Description
    This function assigns a provided user to a security group
 #>  
-Function AssignUserToGroup([Microsoft.Graph.PowerShell.Models.MicrosoftGraphDirectoryObject]$userToAssign, [Microsoft.Graph.PowerShell.Models.MicrosoftGraphGroup]$groupToAssign)
+Function AssignUserToGroup([Microsoft.Graph.PowerShell.Models.MicrosoftGraphUser]$userToAssign, [Microsoft.Graph.PowerShell.Models.MicrosoftGraphGroup]$groupToAssign)
 {
     $owneruserId = $userToAssign.Id
     $params = @{
@@ -324,10 +325,10 @@ Function ConfigureApplications
     # Connect to the Microsoft Graph API, non-interactive is not supported for the moment (Oct 2021)
     Write-Host "Connecting to Microsoft Graph"
     if ($tenantId -eq "") {
-        Connect-MgGraph -Scopes "Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     else {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     
     $context = Get-MgContext
@@ -346,7 +347,6 @@ Function ConfigureApplications
     $tenantId = $Tenant.Id
 
     Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
-
 
    # Create the client AAD application
    Write-Host "Creating the AAD application (msal-react-app)"
@@ -400,10 +400,10 @@ Function ConfigureApplications
 
     $newClaim =  CreateOptionalClaim  -name "groups" 
     $optionalClaims.IdToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "groups" 
-    $optionalClaims.AccessToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "groups" 
-    $optionalClaims.Saml2Token += ($newClaim)
+    # $newClaim =  CreateOptionalClaim  -name "groups" 
+    # $optionalClaims.AccessToken += ($newClaim)
+    # $newClaim =  CreateOptionalClaim  -name "groups" 
+    # $optionalClaims.Saml2Token += ($newClaim)
 
     # Add Optional Claims
 
@@ -486,7 +486,7 @@ Function ConfigureApplications
 
     if ($ownerAssigned -eq $false)
     {
-        AssignUserToGroup -userToAssign $owner -groupToAssign $GroupAdmin
+        AssignUserToGroup -userToAssign $user -groupToAssign $GroupAdmin
         $ownerAssigned = $true
     }
 
@@ -495,7 +495,7 @@ Function ConfigureApplications
 
     if ($ownerAssigned -eq $false)
     {
-        AssignUserToGroup -userToAssign $owner -groupToAssign $GroupMember
+        AssignUserToGroup -userToAssign $user -groupToAssign $GroupMember
         $ownerAssigned = $true
     }
     Write-Host "Don't forget to assign the users you wish to work with to the newly created security groups !" -ForegroundColor Red 
@@ -533,6 +533,7 @@ Function ConfigureApplications
     Write-Host "  - To support overage scenario, remember to provide admin consent for GroupMember.Read.All permission in the portal." -ForegroundColor Red 
     Write-Host "  - This script has created a group named 'GroupAdmin' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
     Write-Host "  - This script has created a group named 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
+    Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
    
 if($isOpenSSL -eq 'Y')
