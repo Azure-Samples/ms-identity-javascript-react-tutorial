@@ -1,17 +1,24 @@
 footer {
   position: fixed;
-  bottom: 5%;
+  bottom: 0%;
   width: 100%;
-}
-
-.footer-text {
-  font-size: small;
-  text-align: center;
-  flex: 1 1 auto;
 }
 
 .App {
   text-align: center;
+}
+
+.iconText {
+  margin: 0 .5rem;
+}
+
+.navbarStyle {
+  padding: .5rem 1rem;
+}
+
+.navbarButton {
+  color: #fff !important;
+  padding: .5rem 1rem !important;
 }
 
 .data-area-div {
@@ -29,16 +36,6 @@ footer {
   width: 60%;
 }
 
-.todo-view {
-}
-
-.todo-edit {
-
-}
-
-.todo-item {
-}
-
 .todo-label {
   font-size: large;
   margin-right: 22%;
@@ -47,4 +44,16 @@ footer {
 
 .todo-view-btn {
   float: right;
+}
+
+.tableColumn {
+  word-break: break-all
+}
+
+.table {
+  max-height: 37rem;
+}
+
+.warningMessage {
+  color: red;
 }

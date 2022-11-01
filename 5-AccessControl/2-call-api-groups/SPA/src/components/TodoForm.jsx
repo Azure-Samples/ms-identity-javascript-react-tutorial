@@ -1,7 +1,7 @@
-import React, { useState } from "react";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
-import InputGroup from "react-bootstrap/InputGroup";
+import React, { useState } from 'react';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
 
 export const TodoForm = (props) => {
     const [name, setName] = useState('');
@@ -15,11 +15,11 @@ export const TodoForm = (props) => {
 
         props.addTask(name);
         setName('');
-    }
+    };
 
     const handleChange = (e) => {
         setName(e.target.value);
-    }
+    };
 
     return (
         <Form className="todo-form" onSubmit={handleSubmit}>
@@ -34,11 +34,11 @@ export const TodoForm = (props) => {
                         onChange={handleChange}
                         placeholder="Enter a task"
                     />
-                    <InputGroup.Append>
-                        <Button variant="primary" type="submit">Add</Button>
-                    </InputGroup.Append>
+                    <Button variant="primary" type="submit">
+                        Add
+                    </Button>
                 </InputGroup>
             </Form.Group>
         </Form>
     );
-}
+};

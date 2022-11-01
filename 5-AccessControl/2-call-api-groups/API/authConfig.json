@@ -12,11 +12,12 @@
     "settings": {
         "validateIssuer": true,
         "passReqToCallback": false,
-        "loggingLevel": "info"
+        "loggingLevel": "info",
+        "cacheTTL": 3600
     },
     "protectedResources": {
         "graphAPI": {
-            "endpoint": "https://graph.microsoft.com/v1.0/me/memberOf",
+            "endpoint": "https://graph.microsoft.com/v1.0/me/checkMemberGroups",
             "scopes": [
                 "User.Read",
                 "GroupMember.Read.All"
@@ -27,7 +28,7 @@
         "todolist": {
             "endpoint": "/api",
             "scopes": [
-                "access_as_user"
+                "access_via_group_assignments"
             ]
         }
     },

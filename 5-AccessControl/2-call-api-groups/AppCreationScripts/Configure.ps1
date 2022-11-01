@@ -1,49 +1,32 @@
+ 
 [CmdletBinding()]
 param(
-    [PSCredential] $Credential,
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
     [string] $tenantId,
-    [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script (it defaults to AzureCloud)')]
+    [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script. Default = Global')]
     [string] $azureEnvironmentName
 )
-
-#Requires -Modules AzureAD -RunAsAdministrator
 
 <#
  This script creates the Azure AD applications needed for this sample and updates the configuration files
  for the visual Studio projects from the data in the Azure AD applications.
 
- Before running this script you need to install the AzureAD cmdlets as an administrator. 
- For this:
- 1) Run Powershell as an administrator
- 2) in the PowerShell window, type: Install-Module AzureAD
-
- There are four ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
+ In case you don't have Microsoft.Graph.Applications already installed, the script will automatically install it for the current user
+ 
+ There are two ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
 #>
-
-# Create a password that can be used as an application key
-Function ComputePassword
-{
-    $aesManaged = New-Object "System.Security.Cryptography.AesManaged"
-    $aesManaged.Mode = [System.Security.Cryptography.CipherMode]::CBC
-    $aesManaged.Padding = [System.Security.Cryptography.PaddingMode]::Zeros
-    $aesManaged.BlockSize = 128
-    $aesManaged.KeySize = 256
-    $aesManaged.GenerateKey()
-    return [System.Convert]::ToBase64String($aesManaged.Key)
-}
 
 # Create an application key
 # See https://www.sabin.io/blog/adding-an-azure-active-directory-application-and-key-using-powershell/
-Function CreateAppKey([DateTime] $fromDate, [double] $durationInYears, [string]$pw)
+Function CreateAppKey([DateTime] $fromDate, [double] $durationInMonths)
 {
-    $endDate = $fromDate.AddYears($durationInYears) 
-    $keyId = (New-Guid).ToString();
-    $key = New-Object Microsoft.Open.AzureAD.Model.PasswordCredential
-    $key.StartDate = $fromDate
-    $key.EndDate = $endDate
-    $key.Value = $pw
-    $key.KeyId = $keyId
+    $key = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphPasswordCredential
+
+    $key.StartDateTime = $fromDate
+    $key.EndDateTime = $fromDate.AddMonths($durationInMonths)
+    $key.KeyId = (New-Guid).ToString()
+    $key.DisplayName = "app secret"
+
     return $key
 }
 
@@ -53,19 +36,19 @@ Function CreateAppKey([DateTime] $fromDate, [double] $durationInYears, [string]$
 Function AddResourcePermission($requiredAccess, `
                                $exposedPermissions, [string]$requiredAccesses, [string]$permissionType)
 {
-        foreach($permission in $requiredAccesses.Trim().Split("|"))
+    foreach($permission in $requiredAccesses.Trim().Split("|"))
+    {
+        foreach($exposedPermission in $exposedPermissions)
         {
-            foreach($exposedPermission in $exposedPermissions)
-            {
-                if ($exposedPermission.Value -eq $permission)
-                 {
-                    $resourceAccess = New-Object Microsoft.Open.AzureAD.Model.ResourceAccess
-                    $resourceAccess.Type = $permissionType # Scope = Delegated permissions | Role = Application permissions
-                    $resourceAccess.Id = $exposedPermission.Id # Read directory data
-                    $requiredAccess.ResourceAccess.Add($resourceAccess)
-                 }
-            }
+            if ($exposedPermission.Value -eq $permission)
+                {
+                $resourceAccess = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphResourceAccess
+                $resourceAccess.Type = $permissionType # Scope = Delegated permissions | Role = Application permissions
+                $resourceAccess.Id = $exposedPermission.Id # Read directory data
+                $requiredAccess.ResourceAccess += $resourceAccess
+                }
         }
+    }
 }
 
 #
@@ -80,17 +63,17 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
     }
     else
     {
-        $sp = Get-AzureADServicePrincipal -Filter "DisplayName eq '$applicationDisplayName'"
+        $sp = Get-MgServicePrincipal -Filter "DisplayName eq '$applicationDisplayName'"
     }
     $appid = $sp.AppId
-    $requiredAccess = New-Object Microsoft.Open.AzureAD.Model.RequiredResourceAccess
+    $requiredAccess = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess
     $requiredAccess.ResourceAppId = $appid 
-    $requiredAccess.ResourceAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.ResourceAccess]
+    $requiredAccess.ResourceAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphResourceAccess]
 
     # $sp.Oauth2Permissions | Select Id,AdminConsentDisplayName,Value: To see the list of all the Delegated permissions for the application:
     if ($requiredDelegatedPermissions)
     {
-        AddResourcePermission $requiredAccess -exposedPermissions $sp.Oauth2Permissions -requiredAccesses $requiredDelegatedPermissions -permissionType "Scope"
+        AddResourcePermission $requiredAccess -exposedPermissions $sp.Oauth2PermissionScopes -requiredAccesses $requiredDelegatedPermissions -permissionType "Scope"
     }
     
     # $sp.AppRoles | Select Id,AdminConsentDisplayName,Value: To see the list of all the Application permissions for the application
@@ -102,6 +85,49 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
 }
 
 
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#> 
+Function UpdateLine([string] $line, [string] $value)
+{
+    $index = $line.IndexOf(':')
+    $lineEnd = ''
+
+    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
+    
+    if ($index -ige 0)
+    {
+        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
+    }
+    return $line
+}
+
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#> 
+Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
+{
+    $lines = Get-Content $configFilePath
+    $index = 0
+    while($index -lt $lines.Length)
+    {
+        $line = $lines[$index]
+        foreach($key in $dictionary.Keys)
+        {
+            if ($line.Contains($key))
+            {
+                $lines[$index] = UpdateLine $line $dictionary[$key]
+            }
+        }
+        $index++
+    }
+
+    Set-Content -Path $configFilePath -Value $lines -Force
+}
+
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#>     
 Function ReplaceInLine([string] $line, [string] $key, [string] $value)
 {
     $index = $line.IndexOf($key)
@@ -113,6 +139,9 @@ Function ReplaceInLine([string] $line, [string] $key, [string] $value)
     return $line
 }
 
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#>     
 Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
 {
     $lines = Get-Content $configFilePath
@@ -132,12 +161,13 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 
     Set-Content -Path $configFilePath -Value $lines -Force
 }
+
 <#.Description
    This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
 #>  
 Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription)
 {
-    $scope = New-Object Microsoft.Open.AzureAD.Model.OAuth2Permission
+    $scope = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope
     $scope.Id = New-Guid
     $scope.Value = $value
     $scope.UserConsentDisplayName = $userConsentDisplayName
@@ -154,12 +184,12 @@ Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string
 #>  
 Function CreateAppRole([string] $types, [string] $name, [string] $description)
 {
-    $appRole = New-Object Microsoft.Open.AzureAD.Model.AppRole
+    $appRole = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole
     $appRole.AllowedMemberTypes = New-Object System.Collections.Generic.List[string]
     $typesArr = $types.Split(',')
     foreach($type in $typesArr)
     {
-        $appRole.AllowedMemberTypes.Add($type);
+        $appRole.AllowedMemberTypes += $type;
     }
     $appRole.DisplayName = $name
     $appRole.Id = New-Guid
@@ -168,255 +198,406 @@ Function CreateAppRole([string] $types, [string] $name, [string] $description)
     $appRole.Value = $name;
     return $appRole
 }
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Groups
+
+<#.Description
+   This function creates a new Azure AD Security Group with provided values
+#>  
+Function CreateSecurityGroup([string] $name, [string] $description)
+{
+    Write-Host "Creating a security group by the name '$name'."
+    $newGroup = New-MgGroup -Description $description -DisplayName $name -MailEnabled:$false -SecurityEnabled:$true -MailNickName $name
+    return Get-MgGroup -Filter "DisplayName eq '$name'" 
+}
+
+<#.Description
+   This function first checks and then creates a new Azure AD Security Group with provided values, if required
+#>  
+Function CreateIfNotExistsSecurityGroup([string] $name, [string] $description,  [switch] $promptBeforeCreate)
+{
+
+    # check if Group exists
+    $group = Get-MgGroup -Filter "DisplayName eq '$name'"    
+    
+    if( $group -eq $null)
+    {
+        if ($promptBeforeCreate) 
+        {
+            $confirmation = Read-Host "Proceed to create a new security group named '$name' in the tenant ? (Y/N)"
+
+            if($confirmation -eq 'y')
+            {
+                $group = CreateSecurityGroup -name $name -description $description
+            }
+        }
+        else
+        {
+            Write-Host "No Security Group created!"
+        }     
+    }
+    
+    return $group    
+}
+
+<#.Description
+   This function first checks and then deletes an existing Azure AD Security Group, if required
+#>  
+Function RemoveSecurityGroup([string] $name, [switch] $promptBeforeDelete)
+{
+
+    # check if Group exists
+    $group = Get-MgGroup -Filter "DisplayName eq '$name'"
+    
+    if( $group -ne $null)
+    {
+        if ($promptBeforeDelete) 
+        {
+            $confirmation = Read-Host "Proceed to delete an existing group named '$name' in the tenant ?(Y/N)"
+
+            if($confirmation -eq 'y')
+            {
+               Remove-MgGroup -GroupId $group.Id
+               Write-Host "Security group '$name' successfully deleted"
+            }
+        }
+        else
+        {
+            Write-Host "No Security group by name '$name' exists in the tenant, no deletion needed."
+        }     
+    }
+    
+    return $group.Id    
+}
+
+<#.Description
+   This function assigns a provided user to a security group
+#>  
+Function AssignUserToGroup([Microsoft.Graph.PowerShell.Models.MicrosoftGraphUser]$userToAssign, [Microsoft.Graph.PowerShell.Models.MicrosoftGraphGroup]$groupToAssign)
+{
+    $owneruserId = $userToAssign.Id
+    $params = @{
+        "@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/{$owneruserId}"
+    }
+
+    New-MgGroupMemberByRef -GroupId $groupToAssign.Id -BodyParameter $params
+    Write-Host "Successfully assigned user '$($userToAssign.UserPrincipalName)' to group '$($groupToAssign.DisplayName)'"
+}
+
+<#.Description
+   This function takes a string as input and creates an instance of an Optional claim object
+#> 
+Function CreateOptionalClaim([string] $name)
+{
+    <#.Description
+    This function creates a new Azure AD optional claims  with default and provided values
+    #>  
+
+    $appClaim = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim
+    $appClaim.AdditionalProperties =  New-Object System.Collections.Generic.List[string]
+    $appClaim.Source =  $null
+    $appClaim.Essential = $false
+    $appClaim.Name = $name
+    return $appClaim
+}
+
+<#.Description
+   Primary entry method to create and configure app registrations
+#> 
+Function ConfigureApplications
+{
+    $isOpenSSl = 'N' #temporary disable open certificate creation 
+
+    <#.Description
+       This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
+       configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
+       so that they are consistent with the Applications parameters
+    #> 
+    
+    if (!$azureEnvironmentName)
+    {
+        $azureEnvironmentName = "Global"
+    }
+
+    # Connect to the Microsoft Graph API, non-interactive is not supported for the moment (Oct 2021)
+    Write-Host "Connecting to Microsoft Graph"
+    if ($tenantId -eq "") {
+        Connect-MgGraph -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
+    }
+    else {
+        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
+    }
+    
+    $context = Get-MgContext
+    $tenantId = $context.TenantId
+
+    # Get the user running the script
+    $currentUserPrincipalName = $context.Account
+    $user = Get-MgUser -Filter "UserPrincipalName eq '$($context.Account)'"
+
+    # get the tenant we signed in to
+    $Tenant = Get-MgOrganization
+    $tenantName = $Tenant.DisplayName
+    
+    $verifiedDomain = $Tenant.VerifiedDomains | where {$_.Isdefault -eq $true}
+    $verifiedDomainName = $verifiedDomain.Name
+    $tenantId = $Tenant.Id
+
+    Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
+
+   # Create the client AAD application
+   Write-Host "Creating the AAD application (msal-react-app)"
+   # Get a 6 months application key for the client Application
+   $fromDate = [DateTime]::Now;
+   $key = CreateAppKey -fromDate $fromDate -durationInMonths 6
+   
+   # create the application 
+   $clientAadApplication = New-MgApplication -DisplayName "msal-react-app" `
+                                                      -Spa `
+                                                      @{ `
+                                                          RedirectUris = "http://localhost:3000/", "http://localhost:3000/redirect.html"; `
+                                                        } `
+                                                        -Api `
+                                                        @{ `
+                                                           RequestedAccessTokenVersion = 2 `
+                                                        } `
+                                                       -SignInAudience AzureADMyOrg `
+                                                      -GroupMembershipClaims "SecurityGroup" `
+                                                      #end of command
+
+    #add a secret to the application
+    $pwdCredential = Add-MgApplicationPassword -ApplicationId $clientAadApplication.Id -PasswordCredential $key
+    $clientAppKey = $pwdCredential.SecretText
+
+    $currentAppId = $clientAadApplication.AppId
+    $currentAppObjectId = $clientAadApplication.Id
+
+    $clientIdentifierUri = 'api://'+$currentAppId
+    Update-MgApplication -ApplicationId $currentAppObjectId -IdentifierUris @($clientIdentifierUri)
+    
+    # create the service principal of the newly created application     
+    $clientServicePrincipal = New-MgServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
+
+    # add the user running the script as an app owner if needed
+    $owner = Get-MgApplicationOwner -ApplicationId $currentAppObjectId
+    if ($owner -eq $null)
+    { 
+        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
+        Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
+    }
+
+    # Add Claims
+
+    $optionalClaims = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaims
+    $optionalClaims.AccessToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+    $optionalClaims.IdToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+    $optionalClaims.Saml2Token = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+
+    # Add Groups Claims
+
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.IdToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.AccessToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.Saml2Token += ($newClaim)
+
+    # Add Optional Claims
+
+    $newClaim =  CreateOptionalClaim  -name "acct" 
+    $optionalClaims.IdToken += ($newClaim)
+    Update-MgApplication -ApplicationId $currentAppObjectId -OptionalClaims $optionalClaims
+    
+    # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
+    $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
+    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "user_impersonation" }
+    
+    if($scope -ne $null)
+    {    
+        # disable the scope
+        $scope.IsEnabled = $false
+        $scopes.Add($scope)
+        Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @($scopes)}
+
+        # clear the scope
+        Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @()}
+    }
+
+    $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
+    $scope = CreateScope -value access_via_group_assignments  `
+        -userConsentDisplayName "Access 'msal-react-app' as the signed-in user assigned to group memberships"  `
+        -userConsentDescription "Allow the app to access the 'msal-react-app' on your behalf after assignment to one or more security groups"  `
+        -adminConsentDisplayName "Access 'msal-react-app' as the signed-in user assigned to group memberships"  `
+        -adminConsentDescription "Allow the app to access the 'msal-react-app' as a signed-in user assigned to one or more security groups"
+            
+    $scopes.Add($scope)
+    
+    # add/update scopes
+    Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @($scopes)}
+    Write-Host "Done creating the client application (msal-react-app)"
+
+    # URL of the AAD application in the Azure portal
+    # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+
+    Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-app</a></td></tr>" -Path createdApps.html
+    # Declare a list to hold RRA items    
+    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
+
+    # Add Required Resources Access (from 'client' to 'client')
+    Write-Host "Getting access from 'client' to 'client'"
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-react-app"`
+        -requiredDelegatedPermissions "access_via_group_assignments"
+
+    $requiredResourcesAccess.Add($requiredPermission)
+    Write-Host "Added 'client' to the RRA list."
+    # Useful for RRA additions troubleshooting
+    # $requiredResourcesAccess.Count
+    # $requiredResourcesAccess
+    
+
+    # Add Required Resources Access (from 'client' to 'Microsoft Graph')
+    Write-Host "Getting access from 'client' to 'Microsoft Graph'"
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph"`
+        -requiredDelegatedPermissions "User.Read|GroupMember.Read.All"
+
+    $requiredResourcesAccess.Add($requiredPermission)
+    Write-Host "Added 'Microsoft Graph' to the RRA list."
+    # Useful for RRA additions troubleshooting
+    # $requiredResourcesAccess.Count
+    # $requiredResourcesAccess
+    
+    Update-MgApplication -ApplicationId $currentAppObjectId -RequiredResourceAccess $requiredResourcesAccess
+    Write-Host "Granted permissions."
+    
+    # we assign the currently signed-in user to the first security group. The following flag tracks that
+    [bool] $ownerAssigned = $false
+
+    # Create any security groups that this app requires.
+
+    $GroupAdmin = CreateIfNotExistsSecurityGroup -name 'GroupAdmin' -description 'Admin Security Group' -promptBeforeCreate 'Y'
+    Write-Host "group id of 'GroupAdmin'" -> $GroupAdmin.Id -ForegroundColor Green 
+
+    if ($ownerAssigned -eq $false)
+    {
+        AssignUserToGroup -userToAssign $user -groupToAssign $GroupAdmin
+        $ownerAssigned = $true
+    }
+
+    $GroupMember = CreateIfNotExistsSecurityGroup -name 'GroupMember' -description 'User Security Group' -promptBeforeCreate 'Y'
+    Write-Host "group id of 'GroupMember'" -> $GroupMember.Id -ForegroundColor Green 
+
+    if ($ownerAssigned -eq $false)
+    {
+        AssignUserToGroup -userToAssign $user -groupToAssign $GroupMember
+        $ownerAssigned = $true
+    }
+    Write-Host "Don't forget to assign the users you wish to work with to the newly created security groups !" -ForegroundColor Red 
+
+    # print the registered app portal URL for any further navigation
+    Write-Host "Successfully registered and configured that app registration for 'msal-react-app' at `n $clientPortalUrl" -ForegroundColor Green 
+    
+    # Update config file for 'client'
+    # $configFile = $pwd.Path + "\..\API\authConfig.json"
+    $configFile = $(Resolve-Path ($pwd.Path + "\..\API\authConfig.json"))
+    
+    $dictionary = @{ "Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Client_Secret_Here" = $clientAppKey;"Enter_the_Object_Id_of_GroupAdmin_Group_Here" = $GroupAdmin.Id;"Enter_the_Object_Id_of_GroupMember_Group_Here" = $GroupMember.Id };
+
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
+    $dictionary
+    Write-Host "-----------------"
+
+    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
+    
+    # Update config file for 'client'
+    # $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
+    $configFile = $(Resolve-Path ($pwd.Path + "\..\SPA\src\authConfig.js"))
+    
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Object_Id_of_GroupAdmin_Group_Here" = $GroupAdmin.Id;"Enter_the_Object_Id_of_GroupMember_Group_Here" = $GroupMember.Id };
+
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
+    $dictionary
+    Write-Host "-----------------"
+
+    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
+    Write-Host "- For client"
+    Write-Host "  - Navigate to $clientPortalUrl"
+    Write-Host "  - To support overage scenario, remember to provide admin consent for GroupMember.Read.All permission in the portal." -ForegroundColor Red 
+    Write-Host "  - This script has created a group named 'GroupAdmin' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
+    Write-Host "  - This script has created a group named 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
+    Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+   
+if($isOpenSSL -eq 'Y')
+{
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+    Write-Host "You have generated certificate using OpenSSL so follow below steps: "
+    Write-Host "Install the certificate on your system from current folder."
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+}
+Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
+} # end of ConfigureApplications function
+
+# Pre-requisites
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
+    Install-Module "Microsoft.Graph" -Scope CurrentUser 
+}
+
+#Import-Module Microsoft.Graph
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Authentication
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Identity.DirectoryManagement")) {
+    Install-Module "Microsoft.Graph.Identity.DirectoryManagement" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {
+    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Applications
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Groups
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Users
 
 Set-Content -Value "<html><body><table>" -Path createdApps.html
 Add-Content -Value "<thead><tr><th>Application</th><th>AppId</th><th>Url in the Azure portal</th></tr></thead><tbody>" -Path createdApps.html
 
 $ErrorActionPreference = "Stop"
 
-Function ConfigureApplications
-{
-<#.Description
-   This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
-   configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
-   so that they are consistent with the Applications parameters
-#> 
-    $commonendpoint = "common"
-    
-    if (!$azureEnvironmentName)
-    {
-        $azureEnvironmentName = "AzureCloud"
-    }
-
-    # $tenantId is the Active Directory Tenant. This is a GUID which represents the "Directory ID" of the AzureAD tenant
-    # into which you want to create the apps. Look it up in the Azure portal in the "Properties" of the Azure AD.
-
-    # Login to Azure PowerShell (interactive if credentials are not already provided:
-    # you'll need to sign-in with creds enabling your to create apps in the tenant)
-    if (!$Credential -and $TenantId)
-    {
-        $creds = Connect-AzureAD -TenantId $tenantId -AzureEnvironmentName $azureEnvironmentName
-    }
-    else
-    {
-        if (!$TenantId)
-        {
-            $creds = Connect-AzureAD -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
-        }
-        else
-        {
-            $creds = Connect-AzureAD -TenantId $tenantId -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
-        }
-    }
-
-    if (!$tenantId)
-    {
-        $tenantId = $creds.Tenant.Id
-    }
-
-    
-
-    $tenant = Get-AzureADTenantDetail
-    $tenantName =  ($tenant.VerifiedDomains | Where { $_._Default -eq $True }).Name
-
-    # Get the user running the script to add the user as the app owner
-    $user = Get-AzureADUser -ObjectId $creds.Account.Id
-
-   # Create the service AAD application
-   Write-Host "Creating the AAD application (msal-node-api)"
-   # Get a 2 years application key for the service Application
-   $pw = ComputePassword
-   $fromDate = [DateTime]::Now;
-   $key = CreateAppKey -fromDate $fromDate -durationInYears 2 -pw $pw
-   $serviceAppKey = $pw
-   # create the application 
-   $serviceAadApplication = New-AzureADApplication -DisplayName "msal-node-api" `
-                                                   -HomePage "http://localhost:5000/api" `
-                                                   -PasswordCredentials $key `
-                                                   -GroupMembershipClaims "SecurityGroup" `
-                                                   -PublicClient $False
-
-   $serviceIdentifierUri = 'api://'+$serviceAadApplication.AppId
-   Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -IdentifierUris $serviceIdentifierUri
-
-   # create the service principal of the newly created application 
-   $currentAppId = $serviceAadApplication.AppId
-   $serviceServicePrincipal = New-AzureADServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
-
-   # add the user running the script as an app owner if needed
-   $owner = Get-AzureADApplicationOwner -ObjectId $serviceAadApplication.ObjectId
-   if ($owner -eq $null)
-   { 
-        Add-AzureADApplicationOwner -ObjectId $serviceAadApplication.ObjectId -RefObjectId $user.ObjectId
-        Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($serviceServicePrincipal.DisplayName)'"
-   }
-
-    # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
-    $scopes = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.OAuth2Permission]
-   
-    # delete default scope i.e. User_impersonation
-    $scope = $serviceAadApplication.Oauth2Permissions | Where-Object { $_.Value -eq "User_impersonation" }
-    if($scope -ne $null)
-    {
-       # disable the scope
-       $scope.IsEnabled = $false
-       $scopes.Add($scope)
-       Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -Oauth2Permissions $scopes
-
-       # clear the scope
-       $scopes.Clear()
-       Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -Oauth2Permissions $scopes
-    }
-
-    if ($scopes.Count -ge 0) 
-    {
-             $scope = CreateScope -value access_as_user  `
-                -userConsentDisplayName "Access msal-node-api"  `
-                -userConsentDescription "Allow the application to access msal-node-api on your behalf."  `
-                -adminConsentDisplayName "Access msal-node-api"  `
-                -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
-            
-                $scopes.Add($scope)
-    
-    }
-     
-    # add/update scopes
-    Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -OAuth2Permission $scopes
-
-   Write-Host "Done creating the service application (msal-node-api)"
-
-   # URL of the AAD application in the Azure portal
-   # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
-   $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-node-api</a></td></tr>" -Path createdApps.html
-
-   $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
-
-   # Add Required Resources Access (from 'service' to 'Microsoft Graph')
-   Write-Host "Getting access from 'service' to 'Microsoft Graph'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
-                                                -requiredDelegatedPermissions "User.Read|GroupMember.Read.All" `
-
-   $requiredResourcesAccess.Add($requiredPermissions)
-
-
-   Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
-   Write-Host "Granted permissions."
-
-   # Create the client AAD application
-   Write-Host "Creating the AAD application (msal-react-spa)"
-   # create the application 
-   $clientAadApplication = New-AzureADApplication -DisplayName "msal-react-spa" `
-                                                  -HomePage "http://localhost:3000/" `
-                                                  -ReplyUrls "http://localhost:3000/" `
-                                                  -IdentifierUris "https://$tenantName/msal-react-spa" `
-                                                  -GroupMembershipClaims "SecurityGroup" `
-                                                  -PublicClient $False
-
-   # create the service principal of the newly created application 
-   $currentAppId = $clientAadApplication.AppId
-   $clientServicePrincipal = New-AzureADServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
-
-   # add the user running the script as an app owner if needed
-   $owner = Get-AzureADApplicationOwner -ObjectId $clientAadApplication.ObjectId
-   if ($owner -eq $null)
-   { 
-        Add-AzureADApplicationOwner -ObjectId $clientAadApplication.ObjectId -RefObjectId $user.ObjectId
-        Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
-   }
-
-
-   Write-Host "Done creating the client application (msal-react-spa)"
-
-   # URL of the AAD application in the Azure portal
-   # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.ObjectId+"/isMSAApp/"
-   $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-spa</a></td></tr>" -Path createdApps.html
-
-   $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
-
-   # Add Required Resources Access (from 'client' to 'service')
-   Write-Host "Getting access from 'client' to 'service'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-node-api" `
-                                                -requiredDelegatedPermissions "access_as_user" `
-
-   $requiredResourcesAccess.Add($requiredPermissions)
-
-   # Add Required Resources Access (from 'client' to 'Microsoft Graph')
-   Write-Host "Getting access from 'client' to 'Microsoft Graph'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
-                                                -requiredDelegatedPermissions "User.Read|GroupMember.Read.All" `
-
-   $requiredResourcesAccess.Add($requiredPermissions)
-
-
-   Set-AzureADApplication -ObjectId $clientAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
-   Write-Host "Granted permissions."
-
-   # Configure known client applications for service 
-   Write-Host "Configure known client applications for the 'service'"
-   $knowApplications = New-Object System.Collections.Generic.List[System.String]
-    $knowApplications.Add($clientAadApplication.AppId)
-   Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -KnownClientApplications $knowApplications
-   Write-Host "Configured."
-
-   if($null -eq (Get-AzureADGroup -SearchString "GroupAdmin")) {
-    Write-Host "Creating group"
-    $newsg = New-AzureADGroup -Description "GroupAdmin"  -DisplayName "GroupAdmin" -MailEnabled $false -SecurityEnabled $true -MailNickName "GroupAdmin"
-    Write-Host "Successfully created $($newsg.DisplayName)"
-   }
-
-   if($null -eq (Get-AzureADGroup -SearchString "GroupMember")) {
-    Write-Host "Creating group"
-    $newsg = New-AzureADGroup -Description "GroupMember"  -DisplayName "GroupMember" -MailEnabled $false -SecurityEnabled $true -MailNickName "GroupMember"
-    Write-Host "Successfully created $($newsg.DisplayName)"
-   }
-
-   $groupAdmin = Get-AzureADGroup -SearchString "GroupAdmin"
-   $groupMember = Get-AzureADGroup -SearchString "GroupMember"
-
-   # Update config file for 'service'
-   $configFile = $pwd.Path + "\..\API\authConfig.json"
-   Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Client_Secret_Here" = $serviceAppKey; "Enter_the_Object_Id_of_GroupAdmin_Group_Here" = $groupAdmin.objectId; "Enter_the_Object_Id_of_GroupMember_Group_Here" = $groupMember.objectId };
-   ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-
-   # Update config file for 'client'
-   $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
-   Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_here" = ("api://"+$serviceAadApplication.AppId+"/access_as_user"); "Enter_the_Object_Id_of_GroupAdmin_Group_Here" = $groupAdmin.objectId; "Enter_the_Object_Id_of_GroupMember_Group_Here" = $groupMember.objectId };
-   ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-   Write-Host ""
-   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-   Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
-   Write-Host "- For 'service'"
-   Write-Host "  - Navigate to '$servicePortalUrl'"
-   Write-Host "  - Navigate to the portal and set the 'accessTokenAcceptedVersion' to '2' in the application manifest" -ForegroundColor Red 
-   Write-Host "  - This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
-   Write-Host "  - This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
-   Write-Host "- For 'client'"
-   Write-Host "  - Navigate to '$clientPortalUrl'"
-   Write-Host "  - Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" -ForegroundColor Red 
-   Write-Host "  - This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
-   Write-Host "  - This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
-
-   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-      if($isOpenSSL -eq 'Y')
-   {
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-        Write-Host "You have generated certificate using OpenSSL so follow below steps: "
-        Write-Host "Install the certificate on your system from current folder."
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-   }
-   Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
-}
-
-# Pre-requisites
-if ((Get-Module -ListAvailable -Name "AzureAD") -eq $null) { 
-    Install-Module "AzureAD" -Scope CurrentUser 
-}
-
-Import-Module AzureAD
-
 # Run interactively (will ask you for the tenant ID)
-ConfigureApplications -Credential $Credential -tenantId $TenantId
+
+try
+{
+    ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
+}
+catch
+{
+    $_.Exception.ToString() | out-host
+    $message = $_
+    Write-Warning $Error[0]    
+    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
+Write-Host "Disconnecting from tenant"
+Disconnect-MgGraph
