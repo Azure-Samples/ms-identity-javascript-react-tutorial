@@ -400,10 +400,10 @@ Function ConfigureApplications
 
     $newClaim =  CreateOptionalClaim  -name "groups" 
     $optionalClaims.IdToken += ($newClaim)
-    # $newClaim =  CreateOptionalClaim  -name "groups" 
-    # $optionalClaims.AccessToken += ($newClaim)
-    # $newClaim =  CreateOptionalClaim  -name "groups" 
-    # $optionalClaims.Saml2Token += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.AccessToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.Saml2Token += ($newClaim)
 
     # Add Optional Claims
 
@@ -412,11 +412,8 @@ Function ConfigureApplications
     Update-MgApplication -ApplicationId $currentAppObjectId -OptionalClaims $optionalClaims
     
     # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
-       
-    # delete default scope i.e. User_impersonation
-    # Alex: the scope deletion doesn't work - see open issue - https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/1054
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "User_impersonation" }
+    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "user_impersonation" }
     
     if($scope -ne $null)
     {    

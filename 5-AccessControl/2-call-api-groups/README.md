@@ -40,7 +40,7 @@ extensions:
 
 This sample demonstrates a cross-platform application suite involving an React single-page application (*TodoListSPA*) calling an Node.js web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **[Security Groups](https://learn.microsoft.com/azure/active-directory/fundamentals/how-to-manage-groups)**.
 
-Role based access control in Azure AD can be done with **Delegated** and **App** permissions and **App Roles** as well. We will cover RBAC using App Roles in the [previous tutorial](../1-call-api-roles/README.md). **Delegated** and **App** permissions, **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
+Role based access control in Azure AD can be done with **Delegated** and **App** permissions and **App Roles** as well. We cover RBAC using App Roles in the [previous tutorial](../1-call-api-roles/README.md). **Delegated** and **App** permissions, **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
 > :information_source: See the community call: [Deep dive on using MSAL.js to integrate React single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=7oPSL5wWeS0)
 
@@ -195,20 +195,19 @@ To manually register the apps, as a first step you'll need to:
 ##### Grant Delegated Permissions to msal-react-app
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
     1. Select the **Add a permission** button and then:
         1. Ensure that the **My APIs** tab is selected.
         1. In the list of APIs, select the API `msal-react-app`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      * In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
+        1. In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
         1. Select the **Add permissions** button at the bottom.
     1. Select the **Add a permission** button and then:
         1. Ensure that the **Microsoft APIs** tab is selected.
         1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      * In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
+        1. In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
         1. Select the **Add permissions** button at the bottom.
-   > :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
+
+> :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
 
 ##### Configure Optional Claims
 
@@ -372,15 +371,15 @@ Much of the specifics of implementing **RBAC** with **Security Groups** is the s
 
 ### The Groups Overage Claim
 
-To ensure that the token size doesn’t exceed HTTP header size limits, the Microsoft Identity Platform limits the number of object Ids that it includes in the **groups** claim.
+To ensure that the token size doesn’t exceed HTTP header size limits, the Microsoft identity platform limits the number of object Ids that it includes in the **groups** claim.
 
-If a user is member of more groups than the overage limit (**150 for SAML tokens, 200 for JWT tokens, 6 for single-page applications using implicit flow**), then the Microsoft Identity Platform does not emit the group IDs in the `groups` claim in the token. Instead, it includes an **overage** claim in the token that indicates to the application to query the [MS Graph API](https://graph.microsoft.com) to retrieve the user’s group membership.
+If a user is member of more groups than the overage limit (**150 for SAML tokens, 200 for JWT tokens, 6 for single-page applications using implicit flow**), then the Microsoft identity platform does not emit the group IDs in the `groups` claim in the token. Instead, it includes an **overage** claim in the token that indicates to the application to query the [MS Graph API](https://graph.microsoft.com) to retrieve the user’s group membership.
 
 > We strongly advise you use the [group filtering feature](#configure-your-application-to-receive-the-groups-claim-values-from-a-filtered-set-of-groups-a-user-may-be-assigned-to) (if possible) to avoid running into group overages.
 
 #### Create the Overage Scenario for testing
 
-1. You can use the [BulkCreateGroups.ps1](./AppCreationScripts/BulkCreateGroups.ps1) provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. You'll need to enter a user'S Object ID when prompted by the `BulkCreateGroups.ps1` script. If you would like to delete these groups after your testing, run the [BulkRemoveGroups.ps1](./AppCreationScripts/BulkRemoveGroups.ps1).
+1. You can use the [BulkCreateGroups.ps1](./AppCreationScripts/BulkCreateGroups.ps1) provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. You'll need to enter a user's object ID when prompted by the `BulkCreateGroups.ps1` script. If you would like to delete these groups after your testing, run the [BulkRemoveGroups.ps1](./AppCreationScripts/BulkRemoveGroups.ps1).
 
 > When attending to overage scenarios, which requires a call to [Microsoft Graph](https://graph.microsoft.com) to read the signed-in user's group memberships, your app will need to have the [User.Read](https://docs.microsoft.com/graph/permissions-reference#user-permissions) and [GroupMember.Read.All](https://docs.microsoft.com/graph/permissions-reference#group-permissions) for the [getMemberGroups](https://docs.microsoft.com/graph/api/user-getmembergroups) function to execute successfully.
 
