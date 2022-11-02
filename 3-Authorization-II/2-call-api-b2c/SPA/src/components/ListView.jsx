@@ -40,7 +40,7 @@ export const ListView = (props) => {
 
     const handleAddTask = (name) => {
         const newTask = {
-            owner: account.idTokenClaims?.oid,
+            owner: account.idTokenClaims?.sub,
             id: nanoid(),
             name: name,
             completed: false

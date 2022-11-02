@@ -39,7 +39,7 @@ export const NavigationBar = () => {
            instance.acquireTokenRedirect(b2cPolicies.authorities.editProfile);
         }
     };
-
+    
     return (
         <>
             <Navbar bg="primary" variant="dark" className="navbarStyle">
@@ -58,7 +58,7 @@ export const NavigationBar = () => {
                         <DropdownButton
                             variant="warning"
                             drop="start"
-                            title={activeAccount ? activeAccount.name : 'Unknown'}
+                            title={activeAccount && activeAccount.username ? activeAccount.username : 'Unknown'}
                         >
                             <Dropdown.Item as="button" onClick={handleLogoutPopup}>
                                 Sign out using Popup
