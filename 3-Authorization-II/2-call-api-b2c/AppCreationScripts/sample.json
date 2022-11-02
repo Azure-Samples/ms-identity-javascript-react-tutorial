@@ -27,7 +27,7 @@
           "Kind": "SinglePageApplication",
           "Audience": "AzureADandPersonalMicrosoftAccount",
           "HomePage": "http://localhost:3000",
-          "ReplyUrls": "http://localhost:3000",
+          "ReplyUrls": "http://localhost:3000, http://localhost:3000/redirect.html",
           "RequiredResourcesAccess": [
               {
                   "Resource": "service",
