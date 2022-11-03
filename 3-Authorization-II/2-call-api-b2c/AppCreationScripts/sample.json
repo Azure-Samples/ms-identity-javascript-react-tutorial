@@ -14,12 +14,14 @@
         "Provider": "B2C"
     },
     "AADApps": [
+      
       {
           "Id": "service",
           "Name": "ms-identity-react-c3s2-api",
           "Kind": "WebApi",
           "Audience": "AzureADandPersonalMicrosoftAccount",
-          "Scopes": ["ToDoList.Read", "ToDoList.ReadWrite"]
+          "Scopes": ["ToDoList.Read", "ToDoList.ReadWrite"],
+          "SampleSubPath": "3-Authorization-II\\1-call-api-b2c\\API"
       },
       {
           "Id": "client",
@@ -28,6 +30,7 @@
           "Audience": "AzureADandPersonalMicrosoftAccount",
           "HomePage": "http://localhost:3000",
           "ReplyUrls": "http://localhost:3000, http://localhost:3000/redirect.html",
+          "SampleSubPath": "3-Authorization-II\\1-call-api-b2c\\SPA",
           "RequiredResourcesAccess": [
               {
                   "Resource": "service",
@@ -49,6 +52,10 @@
           {
             "key": "tenantID",
             "value": "$tenantId"
+          },
+          {
+              "key": "policyName",
+              "value": "Enter_The_Your_policy_Name"
           }
         ]
       },
@@ -68,6 +75,14 @@
           {
             "key": "Enter_the_Web_Api_Scope_Here",
             "value": "service.Scope"
+          },
+          {
+              "key": "policyName",
+              "value": "Enter_The_Your_policy_Name"
+          },
+          {
+              "key": "b2cDomain",
+              "value": "Enter_The_Tenant_Domain_name"
           }
         ]
       }

@@ -207,12 +207,12 @@ To setup your B2C user-flows, do the following:
 From your shell or command line, execute the following commands:
 
 ```console
-    cd 3-Authorization-II/2-call-api-b2c/API
+    cd 3-Authorization-II\1-call-api-b2c\API
     npm start
 ```
 
 ```console
-     cd 3-Authorization-II/2-call-api-b2c/SPA
+    cd 3-Authorization-II\1-call-api-b2c\SPA
     npm start
 ```
 
@@ -237,6 +237,18 @@ Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get supp
 If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
 ## About the code
+
+### CORS Settings
+
+For the purpose of the sample, **cross-origin resource sharing** (CORS) is enabled for **all** domains and methods, using the Express.js cors middleware. This is insecure and only used for demonstration purposes here. In production, you should modify this as to allow only the domains that you designate. If your web API is going to be hosted on **Azure App Service**, we recommend configuring CORS on the App Service itself.
+
+```javascript
+    const express = require('express');
+    const cors = require('cors');
+
+    const app = express();
+    app.use(cors());
+```
 
 ### Access token validation
 
@@ -296,13 +308,27 @@ passport.use(bearerStrategy);
 
 Clients should treat access tokens as opaque strings, as the contents of the token are intended for the resource only (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
-### CORS Settings
+### Access to data
 
-For the purpose of the sample, **cross-origin resource sharing** is enabled for **all** domains. This is insecure. In production, you should modify this as to allow only the domains that you designate.
+Controllers should check if the presented access token has the necessary permissions to access the data, depending on the type of permission. This is illustrated in [todolist.js](./API/controllers/todolist.js):
 
 ```javascript
-    app.use(cors());
+    exports.getTodo = (req, res, next) => {
+        if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
+            try {
+                const id = req.params.id;
+                const todo = db.get('todos').find({ id: id }).value();
+                res.status(200).send(todo);
+            } catch (error) {
+                next(error);
+            }
+        } else {
+            next(new Error('User does not have the required permissions'));
+        }
+    };
 ```
+
+When granting access to data based on scopes, be sure to follow [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access).
 
 ## Next Steps
 
