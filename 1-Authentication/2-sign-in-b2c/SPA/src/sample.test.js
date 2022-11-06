@@ -41,9 +41,10 @@ describe('Ensure that the app starts', () => {
 
     it('should render the app without crashing', () => {
         const div = document.createElement('div');
+        const root = ReactDOM.createRoot(document.getElementById('root'));
 
         act(() => {
-            ReactDOM.render(<App msalInstance={msalInstance} />, div);
+            root.render(<App msalInstance={msalInstance} />, div);
         });
         expect(div.textContent).toBe("Microsoft identity platformWelcome to the Microsoft Authentication Library For React Tutorial");
     });
