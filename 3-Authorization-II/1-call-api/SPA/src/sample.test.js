@@ -1,4 +1,4 @@
-import { PublicClientApplication } from '@azure/msal-browser';
+import { PublicClientApplication } from "@azure/msal-browser";
 
 describe('Sanitize configuration object', () => {
     beforeAll(() => {
@@ -21,7 +21,7 @@ describe('Sanitize configuration object', () => {
 
     it('should not contain tenant id', () => {
         const regexGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        expect(regexGuid.test(msalConfig.auth.authority.split('.com/')[1])).toBe(false);
+        expect(regexGuid.test(msalConfig.auth.authority.split(".com/")[1])).toBe(false);
     });
 
     it('should define a redirect uri', () => {
