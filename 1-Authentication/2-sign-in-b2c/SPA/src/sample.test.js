@@ -1,8 +1,3 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { act } from "react-dom/test-utils";
-
-import App from './App';
 import { PublicClientApplication } from "@azure/msal-browser";
 
 describe('Sanitize configuration object', () => {
@@ -34,18 +29,10 @@ describe('Ensure that the app starts', () => {
         global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;
         global.msalInstance = new PublicClientApplication(msalConfig);
-    
-        expect(msalInstance).toBeDefined();
-        expect(msalInstance).toBeInstanceOf(PublicClientApplication);
     });
 
-    it('should render the app without crashing', () => {
-        const div = document.createElement('div');
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-
-        act(() => {
-            root.render(<App msalInstance={msalInstance} />, div);
-        });
-        expect(div.textContent).toBe("Microsoft identity platformWelcome to the Microsoft Authentication Library For React Tutorial");
+    it('should instantiate msal', () => {
+        expect(msalInstance).toBeDefined();
+        expect(msalInstance).toBeInstanceOf(PublicClientApplication);
     });
 });
