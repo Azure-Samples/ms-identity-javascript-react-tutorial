@@ -8,6 +8,7 @@ export const createClaimsTable = (claims) => {
     let index = 0;
 
     Object.keys(claims).forEach((key) => {
+        if (typeof claims[key] !== 'string' && typeof claims[key] !== 'number') return;
         switch (key) {
             case 'aud':
                 populateClaim(
