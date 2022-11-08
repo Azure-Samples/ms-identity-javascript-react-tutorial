@@ -30,12 +30,8 @@
           "SettingFile": "\\..\\SPA\\src\\authConfig.js",
           "Mappings": [
             {
-              "key": "Enter_the_Application_Id_Here",
+              "key": "clientId",
               "value": ".AppId"
-            },
-            {
-                "key": "Enter_the_Tenant_Info_Here",
-                "value": "$tenantName"
             }
           ]
         }

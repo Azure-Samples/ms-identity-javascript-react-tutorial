@@ -48,11 +48,11 @@ Here you'll learn about authentication and **B2C** concepts, such as [ID tokens]
 
 ## Contents
 
-| File/folder     | Description                                      |
-|-----------------|--------------------------------------------------|
-| `App.jsx`       | Main application logic resides here.             |
-| `ui.jsx`        | UI components reside here.                       |
-| `authConfig.js` | Contains authentication parameters.              |
+| File/folder                         | Description                                                                |
+|-------------------------------------|----------------------------------------------------------------------------|
+| `App.jsx`                           | Main application logic resides here.                                       |
+| `authConfig.js`                     | Contains authentication configuration parameters.                          |
+| `pages/Home.jsx`                    | Contains a table with ID token claims and description                      |
 
 ## Prerequisites
 
@@ -131,8 +131,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\authConfig.js` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ms-identity-react-c1s2` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant domain, ex. `contoso.onmicrosoft.com`.
+1. Find the key `msalConfig.auth.clientId` and replace the existing value with the application ID (clientId) of `ms-identity-react-c1s2` app copied from the Azure portal.
 
 To setup your B2C user-flows, do the following:
 
