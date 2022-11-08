@@ -8,6 +8,7 @@ export const createClaimsTable = (claims) => {
     let index = 0;
 
     Object.keys(claims).map((key) => {
+        if (typeof claims[key] !== 'string' && typeof claims[key] !== 'number') return;
         switch (key) {
             case 'aud':
                 populateClaim(
@@ -144,25 +145,33 @@ export const createClaimsTable = (claims) => {
                 index++;
                 break;
             case 'sub':
-                populateClaim(key, claims[key], 'The sub claim is a pairwise identifier - it is unique to a particular application ID. If a single user signs into two different apps using two different client IDs, those apps will receive two different values for the subject claim.', index, claimsObj);
+                populateClaim(
+                    key,
+                    claims[key],
+                    'The sub claim is a pairwise identifier - it is unique to a particular application ID. If a single user signs into two different apps using two different client IDs, those apps will receive two different values for the subject claim.',
+                    index,
+                    claimsObj
+                );
                 index++;
                 break;
             case 'ver':
-                populateClaim(key, claims[key], 'Version of the token issued by the Microsoft identity platform', index, claimsObj);
+                populateClaim(
+                    key,
+                    claims[key],
+                    'Version of the token issued by the Microsoft identity platform',
+                    index,
+                    claimsObj
+                );
                 index++;
                 break;
             case 'uti':
             case 'rh':
                 index++;
                 break;
+            case '_claim_names':
+            case '_claim_sources':
             default:
-                populateClaim(
-                    key,
-                    claims[key],
-                    '',
-                    index,
-                    claimsObj
-                );
+                populateClaim(key, claims[key], '', index, claimsObj);
                 index++;
         }
     });
@@ -171,13 +180,13 @@ export const createClaimsTable = (claims) => {
 };
 
 /**
-* Populates claim, description, and value into an claimsObject
-* @param {String} claim
-* @param {String} value
-* @param {String} description
-* @param {Number} index
-* @param {Object} claimsObject
-*/
+ * Populates claim, description, and value into an claimsObject
+ * @param {String} claim
+ * @param {String} value
+ * @param {String} description
+ * @param {Number} index
+ * @param {Object} claimsObject
+ */
 const populateClaim = (claim, value, description, index, claimsObject) => {
     let claimsArray = [];
     claimsArray[0] = claim;
@@ -187,10 +196,10 @@ const populateClaim = (claim, value, description, index, claimsObject) => {
 };
 
 /**
-* Transforms Unix timestamp to date and returns a string value of that date
-* @param {String} date Unix timestamp
-* @returns
-*/
+ * Transforms Unix timestamp to date and returns a string value of that date
+ * @param {String} date Unix timestamp
+ * @returns
+ */
 const changeDateFormat = (date) => {
     let dateObj = new Date(date * 1000);
     return `${date} - [${dateObj.toString()}]`;
