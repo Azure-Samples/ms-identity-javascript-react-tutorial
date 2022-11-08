@@ -131,7 +131,7 @@ Please refer to: [Tutorial: Add identity providers to your applications in Azure
 1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
     1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
-    1. For this sample, accept the proposed Application ID URI (`https://{tenantName}.onmicrosoft.com/{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
+    2. For this sample, accept the proposed Application ID URI (`https://{tenantName}.onmicrosoft.com/{clientId}`) by selecting **Save**. 
 
 ##### Publish Delegated Permissions
 
@@ -143,8 +143,6 @@ Please refer to: [Tutorial: Add identity providers to your applications in Azure
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
     > Repeat the steps above for another scope named **ToDoList.ReadWrite**
-1. Select the **Manifest** blade on the left.
-    1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
 
 > :information_source:  Follow [the principle of least privilege when publishing permissions](https://learn.microsoft.com/security/zero-trust/develop/protected-api-example) for a web API.
@@ -184,7 +182,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
       * In the **Delegated permissions** section, select **ToDoList.Read**, **ToDoList.ReadWrite** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
-    1. At this stage, the permissions are assigned correctly, but since it's a B2C tenant, the users themselves cannot consent to these permissions. To get around this problem, we'd let the [tenant administrator consent on behalf of all users in the tenant](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent). Select the **Grant admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all accounts in the tenant. You need to be a tenant admin to be able to carry out this operation.
+1.  At this stage, the permissions are assigned correctly, but since it's a B2C tenant, the users themselves cannot consent to these permissions. To get around this problem, we'd let the [tenant administrator consent on behalf of all users in the tenant](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent). Select the **Grant admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all accounts in the tenant. You need to be a tenant admin to be able to carry out this operation.
 
 ##### Configure the client app (ms-identity-react-c3s2-spa) to use your app registration
 
