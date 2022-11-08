@@ -102,7 +102,7 @@ To manually register the apps, as a first step you'll need to:
 
 Please refer to: [Tutorial: Create userflows in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-user-flows)
 
-> :warning: You must configure your user-flows to emit **username** and **object ID (oid)** claims in ID tokens. To do so, navigate to the [Azure portal](https://portal.azure.com) and locate the **Azure AD B2C** service. Then, navigate to the **User flows** blade. Select the **User Attributes** tab and make sure **Email Address** is checked. Then select the **Application Claims** tab and make sure **Email Addresses** and **User's Object ID** are checked. You can verify that the emails and object ID (oid) claims is now being returned by acquiring an ID token and inspecting its contents. For more information, please refer to: [User profile attributes](https://learn.microsoft.com/azure/active-directory-b2c/user-profile-attributes)
+> :warning: You may want additional claims (such as **username**, **emails**, **object ID** (*oid*) and etc.) to appear in the ID tokens obtained from Azure AD B2C user-flows. In that case, please refer to [User profile attributes](https://learn.microsoft.com/azure/active-directory-b2c/user-profile-attributes) to learn about how to configure your user-flows to emit those claims. For instance, to emit the **username** claim, navigate to the [Azure portal](https://portal.azure.com) and locate the **Azure AD B2C** service. Then, navigate to the **User flows** blade. Select the **User Attributes** tab and make sure **Email Address** is checked. Then select the **Application Claims** tab and make sure **Email Addresses** is checked.
 
 #### Add External Identity Providers
 
