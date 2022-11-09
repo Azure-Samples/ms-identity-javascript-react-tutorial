@@ -1,41 +1,85 @@
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
-
-import { Nav, Navbar, Button, Dropdown, DropdownButton} from "react-bootstrap";
-
-import { loginRequest, b2cPolicies } from "../authConfig";
+import { Nav, Navbar, Dropdown, DropdownButton, Button } from 'react-bootstrap';
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
+import { InteractionStatus } from "@azure/msal-browser"; 
+import { loginRequest, b2cPolicies } from '../authConfig';
 
 export const NavigationBar = () => {
+    const { instance, inProgress } = useMsal();
+     let activeAccount;
 
-    const { instance } = useMsal();
+     if (instance) {
+         activeAccount = instance.getActiveAccount();
+     }
 
-    const handleLogin = () => {
-        instance.loginPopup(loginRequest)
-            .catch((error) => console.log(error))
-    }
-    /**
-     * Most applications will need to conditionally render certain components based on whether a user is signed in or not. 
-     * msal-react provides 2 easy ways to do this. AuthenticatedTemplate and UnauthenticatedTemplate components will 
-     * only render their children if a user is authenticated or unauthenticated, respectively.
-     */
+    const handleLoginPopup = () => {
+        instance
+            .loginPopup({
+                ...loginRequest,
+                redirectUri: '/redirect.html',
+            })
+            .catch((error) => console.log(error));
+    };
+
+    const handleLoginRedirect = () => {
+        instance.loginRedirect(loginRequest).catch((error) => console.log(error));
+    };
+
+    const handleLogoutRedirect = () => {
+        instance.logoutRedirect();
+    };
+
+    const handleLogoutPopup = () => {
+        instance.logoutPopup({
+            mainWindowRedirectUri: '/', // redirects the top level app after logout
+        });
+    };
+
+    const handleProfileEdit = () => {
+        if(inProgress === InteractionStatus.None){
+           instance.acquireTokenRedirect(b2cPolicies.authorities.editProfile);
+        }
+    };
+    
     return (
         <>
-            <Navbar bg="primary" variant="dark">
-                <a className="navbar-brand" href="/">Microsoft identity platform</a>
+            <Navbar bg="primary" variant="dark" className="navbarStyle">
+                <a className="navbar-brand" href="/">
+                    Microsoft identity platform
+                </a>
                 <AuthenticatedTemplate>
-                    <Nav.Link as={Button} href="/hello">HelloAPI</Nav.Link>
-                    <div className="ml-auto">
-                        <Button variant="info" onClick={() => instance.loginPopup(b2cPolicies.authorities.editProfile)} className="ml-auto">Edit Profile</Button>
-                        <DropdownButton variant="warning" className="ml-auto" drop="left" title="Sign Out">
-                            <Dropdown.Item as="button" onClick={() => instance.logoutPopup({ postLogoutRedirectUri: "/", mainWindowRedirectUri: "/" })}>Sign out using Popup</Dropdown.Item>
-                            <Dropdown.Item as="button" onClick={() => instance.logoutRedirect({ postLogoutRedirectUri: "/" })}>Sign out using Redirect</Dropdown.Item>
+                    <Nav.Link className="navbarButton" href="/todolist">
+                        Todolist
+                    </Nav.Link>
+                    <div className="collapse navbar-collapse justify-content-end">
+                        <Button variant="info" onClick={handleProfileEdit} className="profileButton">
+                            Edit Profile
+                        </Button>
+
+                        <DropdownButton
+                            variant="warning"
+                            drop="start"
+                            title={activeAccount && activeAccount.username ? activeAccount.username : 'Unknown'}
+                        >
+                            <Dropdown.Item as="button" onClick={handleLogoutPopup}>
+                                Sign out using Popup
+                            </Dropdown.Item>
+                            <Dropdown.Item as="button" onClick={handleLogoutRedirect}>
+                                Sign out using Redirect
+                            </Dropdown.Item>
                         </DropdownButton>
                     </div>
                 </AuthenticatedTemplate>
                 <UnauthenticatedTemplate>
-                    <DropdownButton variant="secondary" className="ml-auto" drop="left" title="Sign In">
-                        <Dropdown.Item as="button" onClick={handleLogin}>Sign in using Popup</Dropdown.Item>
-                        <Dropdown.Item as="button" onClick={() => instance.loginRedirect(loginRequest)}>Sign in using Redirect</Dropdown.Item>
-                    </DropdownButton>
+                    <div className="collapse navbar-collapse justify-content-end">
+                        <DropdownButton variant="secondary" className="ml-auto" drop="start" title="Sign In">
+                            <Dropdown.Item as="button" onClick={handleLoginPopup}>
+                                Sign in using Popup
+                            </Dropdown.Item>
+                            <Dropdown.Item as="button" onClick={handleLoginRedirect}>
+                                Sign in using Redirect
+                            </Dropdown.Item>
+                        </DropdownButton>
+                    </div>
                 </UnauthenticatedTemplate>
             </Navbar>
         </>

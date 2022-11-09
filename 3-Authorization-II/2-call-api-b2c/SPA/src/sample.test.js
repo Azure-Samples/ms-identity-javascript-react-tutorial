@@ -29,7 +29,7 @@ describe('Ensure that the app starts', () => {
         global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;
         global.msalInstance = new PublicClientApplication(msalConfig);
-    
+
         expect(msalInstance).toBeDefined();
         expect(msalInstance).toBeInstanceOf(PublicClientApplication);
     });
