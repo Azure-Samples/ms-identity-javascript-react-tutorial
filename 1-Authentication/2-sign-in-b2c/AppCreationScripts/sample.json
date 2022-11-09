@@ -1,37 +1,36 @@
 {
     "Sample": {
-      "Title": "React single-page application using MSAL React to sign-in users against Azure AD B2C",
-      "Level": 100,
-      "Client": "React SPA",
-      "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-      "Endpoint": "AAD v2.0",
-      "Provider": "B2C"
+        "Title": "React single-page application using MSAL React to sign-in users against Azure AD B2C",
+        "Level": 100,
+        "Client": "React SPA",
+        "RepositoryUrl": "ms-identity-javascript-react-tutorial",
+        "Endpoint": "AAD v2.0",
+        "Languages": ["javascript"],
+        "Description": "React single-page application using MSAL React to sign-in users against Azure AD B2C",
+        "Products": ["azure-active-directory-b2c", "msal-js", "msal-react"],
+        "Platform": "JavaScript",
+        "Provider": "B2C"
     },
 
     "AADApps": [
       {
-        "Id": "spa",
+        "Id": "client",
         "Name": "ms-identity-react-c1s2",
         "Kind" :  "SinglePageApplication",
         "Audience": "AzureADandPersonalMicrosoftAccount",
         "HomePage": "http://localhost:3000",
-        "ReplyUrls":"http://localhost:3000",
-        "ManualSteps": [
-            {
-                "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
-            }
-        ]
+        "SampleSubPath": "1-Authorization\\2-sign-in-b2c\\SPA",
+        "ReplyUrls":"http://localhost:3000, http://localhost:3000/redirect.html"
       }
     ],
-  
     "CodeConfiguration": [
         {
-          "App": "spa",
+          "App": "client",
           "SettingKind": "Replace",
           "SettingFile": "\\..\\SPA\\src\\authConfig.js",
           "Mappings": [
             {
-              "key": "Enter_the_Application_Id_Here",
+              "key": "clientId",
               "value": ".AppId"
             }
           ]
