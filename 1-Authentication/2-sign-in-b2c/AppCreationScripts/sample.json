@@ -7,7 +7,7 @@
         "Endpoint": "AAD v2.0",
         "Languages": ["javascript"],
         "Description": "React single-page application using MSAL React to sign-in users against Azure AD B2C",
-        "Products": ["azure-active-directory-b2c", "msal-js"],
+        "Products": ["azure-active-directory-b2c", "msal-js", "msal-react"],
         "Platform": "JavaScript",
         "Provider": "B2C"
     },
