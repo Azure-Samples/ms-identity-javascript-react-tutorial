@@ -14,7 +14,6 @@ extensions:
 - endpoint: AAD v2.0
 - level: 100
 - client: React SPA
-- service: 
 ---
 
 # React single-page application using MSAL React to sign-in users against Azure AD B2C
