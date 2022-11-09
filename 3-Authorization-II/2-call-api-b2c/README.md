@@ -336,8 +336,8 @@ When granting access to data based on scopes, be sure to follow [the principle o
 
 Learn how to:
 
-* [Deploy your React Application to Azure Cloud and use Azure services to manage your operations](../../../ms-identity-javascript-react-tutorial/4-Deployment/1-deploy-storage/README.md)
-* [Deploy your React Application to Azure Cloud and use Azure services to manage your operations](../../../ms-identity-javascript-react-tutorial/4-Deployment/2-deploy-static/README.md)
+* [Deploy your React Application to Azure Cloud using Azure Storage and Azure App Service](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/blob/main/4-Deployment/1-deploy-storage/README.md)
+* [Deploy your React Application to Azure Cloud using the Azure Static Web Apps service](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/4-Deployment/2-deploy-static)
 
 ## Contributing
 
