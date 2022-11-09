@@ -7,6 +7,7 @@ languages:
 products:
  - azure-active-directory-b2c
  - msal-js
+ - msal-react
 urlFragment: ms-identity-javascript-react-tutorial
 extensions:
 - services: ms-identity
