@@ -21,10 +21,7 @@
             "HomePage": "http://localhost:3000/",
             "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
             "Audience": "AzureADMyOrg",
-            "Sample": {
-                "SampleSubPath": "2-Authorization-I\\1-call-graph",
-                "ProjectDirectory": "\\SPA"
-            },
+            "SampleSubPath": "2-Authorization-I\\1-call-graph\\SPA",  
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
