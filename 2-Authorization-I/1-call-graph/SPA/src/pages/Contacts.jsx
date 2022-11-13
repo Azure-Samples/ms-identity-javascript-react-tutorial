@@ -58,8 +58,9 @@ export const Contacts = () => {
                 .catch((error) => {
                     if (error === 'claims_challenge_occurred') {
                         login(InteractionType.Redirect, request);
+                    } else {
+                        setGraphData(error);
                     }
-                    console.log(error);
                 });
 
         }
