@@ -26,7 +26,10 @@ export const Profile = () => {
         claims: claims,
     };
 
-    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, {
+        ...request,
+        redirectUri: '/redirect.html',
+    });
     useEffect(() => {
         if (!!graphData) {
             return;

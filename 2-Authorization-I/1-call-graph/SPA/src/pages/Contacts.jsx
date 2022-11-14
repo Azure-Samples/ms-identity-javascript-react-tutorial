@@ -26,7 +26,10 @@ export const Contacts = () => {
         claims: claims
     };
 
-    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, {
+        ...request,
+        redirectUri: '/redirect.html',
+    });
 
     useEffect(() => {
         if (!!graphData) {
@@ -58,8 +61,9 @@ export const Contacts = () => {
                 .catch((error) => {
                     if (error === 'claims_challenge_occurred') {
                         login(InteractionType.Redirect, request);
+                    } else {
+                        setGraphData(error);
                     }
-                    console.log(error);
                 });
 
         }

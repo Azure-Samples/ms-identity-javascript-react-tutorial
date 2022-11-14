@@ -82,7 +82,7 @@ or download and extract the repository *.zip* file.
 
 ```console
     cd ms-identity-javascript-react-tutorial
-    cd 2-Authorization-I\1-call-graph
+    cd 2-Authorization-I\1-call-graph\SPA
     npm install
 ```
 
@@ -166,7 +166,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 From your shell or command line, execute the following commands:
 
 ```console
-    cd  2-Authorization-I/1-call-graph/SPA
+    cd 2-Authorization-I\1-call-graph\SPA
     npm start
 ```
 
