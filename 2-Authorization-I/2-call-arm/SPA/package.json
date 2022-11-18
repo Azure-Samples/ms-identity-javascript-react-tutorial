@@ -7,9 +7,6 @@
     "@azure/msal-browser": "^2.28.1",
     "@azure/msal-react": "^1.4.5",
     "@azure/storage-blob": "^12.11.0",
-    "@testing-library/jest-dom": "^5.16.5",
-    "@testing-library/react": "^13.3.0",
-    "@testing-library/user-event": "^13.5.0",
     "bootstrap": "^5.2.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
@@ -41,5 +38,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^14.4.3"
   }
 }

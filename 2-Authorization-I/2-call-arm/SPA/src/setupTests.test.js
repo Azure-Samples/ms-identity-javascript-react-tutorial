@@ -13,9 +13,9 @@ describe('Sanitize configuration object', () => {
         expect(global.msalConfig).toBeDefined();
     });
 
-    it('should contain credentials', () => {
+    it('should not contain credentials', () => {
         const regexGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        expect(regexGuid.test(global.msalConfig.auth.clientId)).toBe(true);
+        expect(regexGuid.test(global.msalConfig.auth.clientId)).toBe(false);
     });
 
     it('should contain authority uri', () => {
@@ -23,12 +23,17 @@ describe('Sanitize configuration object', () => {
         expect(regexUri.test(global.msalConfig.auth.authority)).toBe(true);
     });
 
+    it('should not contain tenant id', () => {
+        const regexGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        expect(regexGuid.test(global.msalConfig.auth.authority.split('.com/')[1])).toBe(false);
+    });
+
     it('should define a redirect uri', () => {
         expect(global.msalConfig.auth.redirectUri).toBeDefined();
     });
 });
 
-describe('Ensure that the app starts', () => {
+describe('Ensure that the msal instantiates', () => {
     let handleRedirectSpy;
     let pca;
     beforeEach(() => {
@@ -49,10 +54,10 @@ describe('Ensure that the app starts', () => {
                 <App instance={pca} />
             </BrowserRouter>
         );
-
         await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
         expect(
             await screen.findByText('Welcome to the Microsoft Authentication Library For React Tutorial')
         ).toBeInTheDocument();
-    })
+    });
+
 });
