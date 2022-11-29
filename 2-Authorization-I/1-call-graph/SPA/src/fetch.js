@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { msalInstance } from './index';
+import { msalInstance } from './authConfig';
 import { msalConfig } from '../src/authConfig';
 import { addClaimsToStorage } from './utils/storageUtils';
 import { parseChallenges } from './utils/claimUtils';

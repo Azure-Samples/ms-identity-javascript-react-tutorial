@@ -4,6 +4,7 @@
  */
 
 import { LogLevel } from "@azure/msal-browser";
+import { PublicClientApplication } from "@azure/msal-browser";
 
 /**
  * Enter here the user flows and custom policies for your B2C application
@@ -99,3 +100,10 @@ export const protectedResources = {
  export const loginRequest = {
      scopes: [...protectedResources.apiTodoList.scopes.read, ...protectedResources.apiTodoList.scopes.write],
  };
+
+ /**
+ * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
+ * For more, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
+ */
+global.crypto = require('crypto');
+export const msalInstance = new PublicClientApplication(msalConfig);

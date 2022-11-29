@@ -3,7 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { msalInstance } from './index';
+import { msalInstance } from './authConfig';
 import { protectedResources } from './authConfig';
 
 const getToken = async (scopes) => {

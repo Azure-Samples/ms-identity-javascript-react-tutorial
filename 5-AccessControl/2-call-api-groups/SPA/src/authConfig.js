@@ -4,6 +4,7 @@
  */
 
 import { LogLevel } from '@azure/msal-browser';
+import { PublicClientApplication } from '@azure/msal-browser';
 
 /**
  * Configuration object to be passed to MSAL instance on creation.
@@ -87,3 +88,10 @@ export const groups = {
  * For more information, visit: https://learn.microsoft.com/graph/api/resources/webhooks
  */
  export const CACHE_TTL_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+
+ /**
+ * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
+ * For more, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
+ */
+ global.crypto = require('crypto');
+ export const msalInstance = new PublicClientApplication(msalConfig);

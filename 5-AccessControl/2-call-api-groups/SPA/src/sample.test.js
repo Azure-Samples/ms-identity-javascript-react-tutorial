@@ -37,12 +37,6 @@ describe('Ensure that the msal instantiates', () => {
     let handleRedirectSpy;
     let pca;
     beforeEach(() => {
-        global.crypto = require('crypto');
-        Object.defineProperty(global.self, 'crypto', {
-            value: {
-                getRandomValues: (arr) => crypto.randomBytes(arr.length),
-            },
-        });
         global.msalConfig = require('./authConfig.js').msalConfig;
         pca = new PublicClientApplication(global.msalConfig);
         handleRedirectSpy = jest.spyOn(pca, 'handleRedirectPromise');

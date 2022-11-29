@@ -3,8 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { msalInstance } from './index';
-import { protectedResources } from './authConfig';
+import { protectedResources, msalInstance } from './authConfig';
 
 const getToken = async (scopes) => {
     const account = msalInstance.getActiveAccount();

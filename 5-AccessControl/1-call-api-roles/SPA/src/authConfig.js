@@ -4,6 +4,7 @@
  */
 
 import { LogLevel } from "@azure/msal-browser";
+import { PublicClientApplication } from '@azure/msal-browser';
 
 /**
  * Configuration object to be passed to MSAL instance on creation. 
@@ -73,3 +74,10 @@ export const appRoles = {
     TaskUser: "TaskUser",
     TaskAdmin: "TaskAdmin"
 }
+
+/**
+ * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
+ * For more, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
+ */
+global.crypto = require('crypto');
+export const msalInstance = new PublicClientApplication(msalConfig);
