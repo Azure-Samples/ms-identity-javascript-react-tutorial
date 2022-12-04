@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 
-import { BrowserRouter as Router } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import { PublicClientApplication, EventType } from '@azure/msal-browser';
 import { msalConfig } from './authConfig';
 
@@ -17,8 +17,8 @@ export const msalInstance = new PublicClientApplication(msalConfig);
 
 // Default to using the first account if no account is active on page load
 if (!msalInstance.getActiveAccount() && msalInstance.getAllAccounts().length > 0) {
-  // Account selection logic is app dependent. Adjust as needed for different use cases.
-  msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
+    // Account selection logic is app dependent. Adjust as needed for different use cases.
+    msalInstance.setActiveAccount(msalInstance.getAllAccounts()[0]);
 }
 
 msalInstance.addEventCallback((event) => {
@@ -35,8 +35,8 @@ msalInstance.addEventCallback((event) => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
     <React.StrictMode>
-        <Router>
+        <BrowserRouter>
             <App instance={msalInstance} />
-        </Router>
+        </BrowserRouter>
     </React.StrictMode>
 );

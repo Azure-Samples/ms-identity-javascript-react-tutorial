@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { PublicClientApplication } from '@azure/msal-browser';
 import { render, screen, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
 describe('Sanitize configuration object', () => {
@@ -45,7 +46,9 @@ describe('Ensure that the app starts', () => {
 
     it('should render the app without crashing', async () => {
         render(
-            <App instance={pca} />
+            <BrowserRouter>
+                <App instance={pca} />
+            </BrowserRouter>
         );
 
         await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
