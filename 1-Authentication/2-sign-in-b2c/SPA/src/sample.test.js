@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { PublicClientApplication } from '@azure/msal-browser';
 import { render, screen, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 
 describe('Sanitize configuration object', () => {
@@ -29,8 +28,9 @@ describe('Sanitize configuration object', () => {
 });
 
 describe('Ensure that the app starts', () => {
-    let handleRedirectSpy;
     let pca;
+    let handleRedirectSpy;
+
     beforeEach(() => {
         global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;
@@ -45,12 +45,11 @@ describe('Ensure that the app starts', () => {
 
     it('should render the app without crashing', async () => {
         render(
-            <BrowserRouter>
-                <App instance={pca} />
-            </BrowserRouter>
+            <App instance={pca} />
         );
 
         await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
+
         expect(
             await screen.findByText('Welcome to the Microsoft Authentication Library For React Tutorial')
         ).toBeInTheDocument();

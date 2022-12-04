@@ -35,8 +35,9 @@ describe('Sanitize configuration object', () => {
 });
 
 describe('Ensure that the app starts', () => {
-    let handleRedirectSpy;
     let pca;
+    let handleRedirectSpy;
+
     beforeEach(() => {
         global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;
@@ -55,8 +56,9 @@ describe('Ensure that the app starts', () => {
         ReactDOM.render(<App msalInstance={pca} />, div);
 
         await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
-        expect(div.textContent).toBe(
-            'Microsoft identity platformSign InWelcome to the Microsoft Authentication Library For React TutorialPlease sign-in to see your profile information.'
+
+        expect(div.textContent).toContain(
+            'Welcome to the Microsoft Authentication Library For React Tutorial'
         );
     });
 });

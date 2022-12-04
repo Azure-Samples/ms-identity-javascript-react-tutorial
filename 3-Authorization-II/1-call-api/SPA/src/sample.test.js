@@ -1,6 +1,7 @@
-import { PublicClientApplication } from "@azure/msal-browser";
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
+import { PublicClientApplication } from "@azure/msal-browser";
+import { BrowserRouter } from "react-router-dom";
 import App from './App';
 
 
@@ -34,9 +35,11 @@ describe('Sanitize configuration object', () => {
 });
 
 describe('Ensure that the app starts', () => {
-    let handleRedirectSpy;
     let pca;
+    let handleRedirectSpy;
+
     beforeEach(() => {
+        global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;
         pca = new PublicClientApplication(global.msalConfig);
         handleRedirectSpy = jest.spyOn(pca, 'handleRedirectPromise');
@@ -49,7 +52,9 @@ describe('Ensure that the app starts', () => {
 
     it('should render the app without crashing', async () => {
         render(
-            <App instance={pca} />
+            <BrowserRouter>
+                <App instance={pca} />
+            </BrowserRouter>
         );
         await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
         expect(

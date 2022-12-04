@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { MsalProvider } from "@azure/msal-react";
 
 import { PageLayout } from "./components/PageLayout";
@@ -13,8 +13,8 @@ const Pages = () => {
             <Route path="/todolist" element={<TodoList />} />
             <Route path="/" element={<Home />} />
         </Routes>
-    )
-}
+    );
+};
 
 /**
  * msal-react is built on the React context API and all parts of your app that require authentication must be
@@ -25,14 +25,12 @@ const Pages = () => {
  */
 const App = ({ instance }) => {
     return (
-        <Router>
-            <MsalProvider instance={instance}>
-                <PageLayout>
-                    <Pages />
-                </PageLayout>
-            </MsalProvider>
-        </Router>
+        <MsalProvider instance={instance}>
+            <PageLayout>
+                <Pages />
+            </PageLayout>
+        </MsalProvider>
     );
-}
+};
 
 export default App;

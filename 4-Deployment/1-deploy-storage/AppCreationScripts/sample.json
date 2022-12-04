@@ -28,7 +28,7 @@
             "Name": "msal-react-spa",
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMyOrg",
-            "HomePage": "https://localhost:3000",
+            "HomePage": "http://localhost:3000",
             "ReplyUrls": "http://localhost:3000",
             "Sample": {
                 "SampleSubPath": "4-Deployment\\1-deploy-storage\\SPA",

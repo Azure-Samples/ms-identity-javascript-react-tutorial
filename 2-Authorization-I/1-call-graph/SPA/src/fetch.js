@@ -3,8 +3,7 @@
  * Licensed under the MIT License.
  */
 
-import { msalInstance } from './authConfig';
-import { msalConfig } from '../src/authConfig';
+import { msalConfig } from './authConfig';
 import { addClaimsToStorage } from './utils/storageUtils';
 import { parseChallenges } from './utils/claimUtils';
 
@@ -15,13 +14,12 @@ import { parseChallenges } from './utils/claimUtils';
  * @param {object} response
  * @returns response
  */
-export const handleClaimsChallenge = async (response, apiEndpoint) => {
+export const handleClaimsChallenge = async (response, apiEndpoint, account) => {
     if (response.status === 200) {
         return response.json();
     } else if (response.status === 401) {
-        if (response.headers.get('www-authenticate')) {
-            const account = msalInstance.getActiveAccount();
-            const authenticateHeader = response.headers.get('www-authenticate');
+        if (response.headers.get('WWW-Authenticate')) {
+            const authenticateHeader = response.headers.get('WWW-Authenticate');
             const claimsChallenge = parseChallenges(authenticateHeader);
 
             /**

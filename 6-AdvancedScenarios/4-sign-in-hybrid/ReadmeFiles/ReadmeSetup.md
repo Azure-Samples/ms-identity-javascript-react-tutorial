@@ -144,8 +144,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-hybrid-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Client_Secret_Here` and replace the existing value with the key you saved during the creation of `msal-hybrid-spa` copied from the Azure portal.
-1. Find the key `Redirect_URI` and replace the existing value with the Redirect URI for `msal-hybrid-spa`. (by default `https://localhost:5000`).
-
+1. Find the key `Redirect_URI` and replace the existing value with the Redirect URI for `msal-hybrid-spa`. (by default `http://localhost:5000`).
 
 ### Step 4: Running the sample
 
