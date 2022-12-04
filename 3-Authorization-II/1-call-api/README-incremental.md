@@ -316,7 +316,6 @@ const isAppOnlyToken = (accessTokenPayload) => {
 
 Controllers should check if the presented access token has the necessary permissions to access the data, depending on the type of permission. This is illustrated in [todolist.js](./API/controllers/todolist.js):
 
-
 ```JavaScript
 exports.getTodos = (req, res, next) => {
     if (isAppOnlyToken(req.authInfo)) {

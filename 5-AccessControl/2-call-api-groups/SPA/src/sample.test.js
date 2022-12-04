@@ -34,9 +34,10 @@ describe('Sanitize configuration object', () => {
 });
 
 describe('Ensure that the msal instantiates', () => {
-    let handleRedirectSpy;
     let pca;
+    let handleRedirectSpy;
     beforeEach(() => {
+        global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;
         pca = new PublicClientApplication(global.msalConfig);
         handleRedirectSpy = jest.spyOn(pca, 'handleRedirectPromise');

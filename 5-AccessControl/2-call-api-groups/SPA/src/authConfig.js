@@ -87,11 +87,4 @@ export const groups = {
  * changes to a user's group membership, consider implementing Microsoft Graph change notifications. 
  * For more information, visit: https://learn.microsoft.com/graph/api/resources/webhooks
  */
- export const CACHE_TTL_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds
-
- /**
- * MSAL should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders.
- * For more, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
- */
- global.crypto = require('crypto');
- export const msalInstance = new PublicClientApplication(msalConfig);
+export const CACHE_TTL_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds
