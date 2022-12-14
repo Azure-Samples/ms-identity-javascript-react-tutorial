@@ -12,13 +12,14 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: "Enter_the_Application_Id_Here", // This is the ONLY mandatory field that you need to supply.
-        authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here", // Defaults to "https://login.microsoftonline.com/common"
-        redirectUri: "/", // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
-        postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
+        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Id_Here', // Defaults to "https://login.microsoftonline.com/common"
+        redirectUri: '/', // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
+        postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
+        clientCapabilities: ['CP1'],
     },
     cache: {
-        cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+        cacheLocation: 'sessionStorage', // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
         storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
     },
     system: {
@@ -40,10 +41,12 @@ export const msalConfig = {
                     case LogLevel.Warning:
                         console.warn(message);
                         return;
+                    default:
+                        return;
                 }
-            }
-        }
-    }
+            },
+        },
+    },
 };
 
 /**
@@ -51,11 +54,11 @@ export const msalConfig = {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
  export const protectedResources = {
-    apiHello: {
-        endpoint: "http://localhost:5000/api",
-        scopes: ["api://Enter_the_Web_Api_Scope_Here/.default"],
-    },
-}
+     apiHello: {
+         endpoint: 'http://localhost:5000/api/profile',
+         scopes: ['api://Enter_the_Web_Api_Application_Id_Here/.default'],
+     },
+ };
 
 /**
  * Scopes you add here will be prompted for user consent during sign-in.
