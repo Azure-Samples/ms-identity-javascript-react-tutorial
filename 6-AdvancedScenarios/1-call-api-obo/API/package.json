@@ -17,6 +17,7 @@
     "@microsoft/microsoft-graph-client": "^3.0.4",
     "cors": "^2.8.5",
     "express": "^4.14.0",
+    "express-rate-limit": "^6.7.0",
     "isomorphic-fetch": "^3.0.0",
     "morgan": "^1.10.0",
     "node-fetch": "^2.6.7",

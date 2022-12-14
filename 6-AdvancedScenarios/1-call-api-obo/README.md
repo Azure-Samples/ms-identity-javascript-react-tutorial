@@ -104,24 +104,24 @@ There are two projects in this sample. Each needs to be separately registered in
 <details>
    <summary>Expand this section if you want to use this automation:</summary>
 
-    >: warning: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts Guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+>: warning: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts Guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
   
-    1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-    1. In PowerShell run:
+1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
+1. In PowerShell run:
 
-       ```PowerShell
-       Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-       ```
+    ```PowerShell
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+    ```
 
-    1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-    1. For interactive process -in PowerShell, run:
+1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
+1. For interactive process -in PowerShell, run:
 
-       ```PowerShell
-       cd .\AppCreationScripts\
-       .\Configure.ps1 -TenantId "[Optional] - your tenant id" -AzureEnvironmentName "[Optional] - Azure environment, defaults to 'Global'"
-       ```
+    ```PowerShell
+    cd .\AppCreationScripts\
+    .\Configure.ps1 -TenantId "[Optional] - your tenant id" -AzureEnvironmentName "[Optional] - Azure environment, defaults to 'Global'"
+     ```
 
-    > Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md). The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
+> Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md). The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
 
 </details>
 
