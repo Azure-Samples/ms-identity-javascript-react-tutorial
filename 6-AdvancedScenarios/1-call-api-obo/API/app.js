@@ -17,6 +17,8 @@ const app = express();
  * the line below.
  */
 
+// app.set('trust proxy',  /* numberOfProxies */);
+
 /**
  * HTTP request handlers should not perform expensive operations such as accessing the file system, 
  * executing an operating system command or interacting with a database without limiting the rate at 
