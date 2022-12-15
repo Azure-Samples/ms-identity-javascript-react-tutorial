@@ -1,7 +1,7 @@
 ---
 page_type: sample
-name: Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user
-description: Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user
+name: Authenticate a user with Azure AD using msal.js and call an Azure AD protected Node.js Web Api using on-behalf of flow and handle Conditional Access (CA) challenges
+description: Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user using the on-behalf of flow
 languages:
  - typescript
  - Node
@@ -19,7 +19,7 @@ extensions:
 - service: Node.js web API
 ---
 
-# Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user
+# Authenticate a user with Azure AD using msal.js and call an Azure AD protected Node.js Web Api using on-behalf of flow and handle Conditional Access (CA) challenges
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -42,8 +42,9 @@ This sample demonstrates an React single-page application (SPA) which lets a use
 ## Scenario
 
 1. The client app uses **MSAL React** to sign-in a user and obtain a **JWT** [Access Token](https://aka.ms/access-tokens) from **Azure AD** for the **API**.
-1. The access token is used as a *bearer token* to authorize the user to call the **API** protected by the **Azure AD**.
-1. The access token is then used to authorize the **API**. This access token is also used to obtain another access token to call MS Graph API **on user's behalf**. In order to call MS Graph API, **API** uses the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview)
+1. The access token is used as a *bearer token* to authorize the user to call the Node.js **API** protected by **Azure AD**.
+1. This access token is also used by the Node.js API to obtain another Access token to call the MS Graph API **on user's behalf** using the [OAuth 2.0 on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow). 
+1. The Node.js **API** uses the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview) to call MS Graph
 
 ![Scenario Image](./ReadmeFiles/topology.png)
 
@@ -64,7 +65,7 @@ This sample demonstrates an React single-page application (SPA) which lets a use
 * An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/test-setup-environment#get-a-test-tenant)
 * A user account in your **Azure AD** tenant.
 
-> This sample will not work with a **personal Microsoft account**. If you're signed in to the [Azure portal](https://portal.azure.com) with a personal Microsoft account and have not created a user account in your directory before, you will need to create one before proceeding.
+>This sample will not work with a **personal Microsoft account**. If you're signed in to the [Azure portal](https://portal.azure.com) with a personal Microsoft account and have not created a user account in your directory before, you will need to create one before proceeding.
 
 ## Setup the sample
 
@@ -96,16 +97,15 @@ or download and extract the repository *.zip* file.
 
 There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
 
-* follow the steps below for manually register your apps
-* or use PowerShell scripts that:
-  * **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  * modify the projects' configuration files.
+- follow the steps below for manually register your apps
+- or use PowerShell scripts that:
+  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  - modify the projects' configuration files.
 
 <details>
    <summary>Expand this section if you want to use this automation:</summary>
+> :warning: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts Guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
 
->: warning: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts Guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-  
 1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
 1. In PowerShell run:
 
@@ -119,7 +119,7 @@ There are two projects in this sample. Each needs to be separately registered in
     ```PowerShell
     cd .\AppCreationScripts\
     .\Configure.ps1 -TenantId "[Optional] - your tenant id" -AzureEnvironmentName "[Optional] - Azure environment, defaults to 'Global'"
-     ```
+        ```
 
 > Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md). The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
 

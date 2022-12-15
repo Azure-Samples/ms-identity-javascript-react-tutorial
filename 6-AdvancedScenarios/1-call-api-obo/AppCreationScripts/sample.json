@@ -1,6 +1,6 @@
 {
     "Sample": {
-        "Title": "Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user",
+        "Title": "Authenticate a user with Azure AD using msal.js and call an Azure AD protected Node.js Web Api using on-behalf of flow and handle Conditional Access (CA) challenges",
         "Level": 300,
         "Client": "React SPA",
         "Service": "Node.js web API",
@@ -11,8 +11,8 @@
             "typescript",
             "Node"
         ],
-        "Description": "Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user",
-        "products": ["azure-active-directory", "msal-js", "passport-azure-ad"]
+        "Description": "Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user using the on-behalf of flow",
+        "products": ["azure-active-directory", "msal-js", "passport-azure-ad", "msal-react"]
     },
     "AADApps": [
         {
