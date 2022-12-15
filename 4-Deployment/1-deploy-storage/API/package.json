@@ -9,7 +9,7 @@
     "test": "jest --forceExit"
   },
   "dependencies": {
-    "express": "^4.14.0",
+    "express": "^4.17.3",
     "morgan": "^1.10.0",
     "passport": "^0.6.0",
     "passport-azure-ad": "^4.3.3"
