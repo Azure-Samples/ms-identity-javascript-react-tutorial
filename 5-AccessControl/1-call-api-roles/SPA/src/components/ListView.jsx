@@ -33,10 +33,10 @@ export const ListView = (props) => {
         const updatedTask = tasks.find(task => id === task.id);
         updatedTask.completed = !updatedTask.completed;
 
-        execute("PUT", protectedResources.apiTodoList.endpoint + `/${id}`, updatedTask).then(() => {
-            const updatedTasks = tasks.map(task => {
+        execute('PUT', protectedResources.apiTodoList.todoListEndpoint + `/${id}`, updatedTask).then(() => {
+            const updatedTasks = tasks.map((task) => {
                 if (id === task.id) {
-                    return { ...task, completed: !task.completed }
+                    return { ...task, completed: !task.completed };
                 }
                 return task;
             });
@@ -52,17 +52,17 @@ export const ListView = (props) => {
             completed: false
         };
 
-        execute("POST", protectedResources.apiTodoList.endpoint, newTask).then((response) => {
-            if (response && response.message === "success") {
+        execute('POST', protectedResources.apiTodoList.todoListEndpoint, newTask).then((response) => {
+            if (response && response.message === 'success') {
                 setTasks([...tasks, newTask]);
             }
-        })
+        });
     }
 
     const handleDeleteTask = (id) => {
-        execute("DELETE", protectedResources.apiTodoList.endpoint + `/${id}`).then((response) => {
-            if (response && response.message === "success") {
-                const remainingTasks = tasks.filter(task => id !== task.id);
+        execute('DELETE', protectedResources.apiTodoList.todoListEndpoint + `/${id}`).then((response) => {
+            if (response && response.message === 'success') {
+                const remainingTasks = tasks.filter((task) => id !== task.id);
                 setTasks(remainingTasks);
             }
         });
@@ -72,10 +72,10 @@ export const ListView = (props) => {
         const updatedTask = tasks.find(task => id === task.id);
         updatedTask.name = newName;
 
-        execute("PUT", protectedResources.apiTodoList.endpoint + `/${id}`, updatedTask).then(() => {
-            const updatedTasks = tasks.map(task => {
+        execute('PUT', protectedResources.apiTodoList.todoListEndpoint + `/${id}`, updatedTask).then(() => {
+            const updatedTasks = tasks.map((task) => {
                 if (id === task.id) {
-                    return { ...task, name: newName }
+                    return { ...task, name: newName };
                 }
                 return task;
             });
