@@ -9,7 +9,7 @@
         "Platform": "javascript",
         "Languages": [
             "typescript",
-            "Node"
+            "javascript"
         ],
         "Description": "Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user using the on-behalf of flow",
         "products": ["azure-active-directory", "msal-js", "passport-azure-ad", "msal-react"]
