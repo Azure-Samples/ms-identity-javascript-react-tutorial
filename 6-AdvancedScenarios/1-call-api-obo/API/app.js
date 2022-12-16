@@ -36,7 +36,6 @@ const app = express();
 // Apply the rate limiting middleware to all requests
 app.use(limiter)
 
-// app.set('trust proxy',  /* numberOfProxies */);
 
 /**
  * Enable CORS middleware. In production, modify as to allow only designated origins and methods.
