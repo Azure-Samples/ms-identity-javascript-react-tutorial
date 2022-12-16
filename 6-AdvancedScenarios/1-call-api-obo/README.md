@@ -35,7 +35,7 @@ extensions:
 
 ## Overview
 
-This sample demonstrates an React single-page application (SPA) which lets a user authenticate with their Azure AD tenant and obtains an [access token](https://aka.ms/access-tokens) to call an Node.js web API, protected by [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad). The web API then proceeds to obtain another access token for [Microsoft Graph API](https://developer.microsoft.com/graph) using the [OAuth 2.0 on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow). The web API's call to Microsoft Graph is made using the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview)
+This sample demonstrates a React single-page application (SPA) which lets a user authenticate with their Azure AD tenant and obtains an [access token](https://aka.ms/access-tokens) to call a Node.js web API, protected by [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad). The web API then proceeds to obtain another access token for [Microsoft Graph API](https://developer.microsoft.com/graph) using the [OAuth 2.0 on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow). The web API's call to Microsoft Graph is made using the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview)
 
 > :information_source: To learn how to integrate a JavaScript React application with Azure AD, consider going through the recorded session: [Deep dive on using MSAL.js to integrate React single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=7oPSL5wWeS0)
 
