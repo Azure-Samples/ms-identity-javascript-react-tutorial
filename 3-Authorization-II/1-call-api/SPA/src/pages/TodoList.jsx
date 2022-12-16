@@ -1,31 +1,31 @@
-import { useEffect, useState } from "react";
-import { MsalAuthenticationTemplate } from "@azure/msal-react";
-import { InteractionType } from "@azure/msal-browser";
+import { useEffect, useState } from 'react';
+import { MsalAuthenticationTemplate } from '@azure/msal-react';
+import { InteractionType } from '@azure/msal-browser';
 
 import { ListView } from '../components/ListView';
-import { loginRequest } from "../authConfig";
-import { getTasks } from "../fetch";
+import { loginRequest, protectedResources } from "../authConfig";
+import useFetchWithMsal from '../hooks/useFetchWithMsal';
 
 const TodoListContent = () => {
-    /**
-     * useMsal is hook that returns the PublicClientApplication instance,
-     * an array of all accounts currently signed in and an inProgress value
-     * that tells you what msal is currently doing. For more, visit:
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
-     */
+    const { error, execute } = useFetchWithMsal({
+        scopes: protectedResources.apiTodoList.scopes.read,
+    });
+
     const [todoListData, setTodoListData] = useState(null);
 
     useEffect(() => {
         if (!todoListData) {
-            getTasks().then(response => setTodoListData(response));
+            execute("GET", protectedResources.apiTodoList.endpoint).then((response) => {
+                setTodoListData(response);
+            });
         }
-    }, [todoListData]);
+    }, [execute, todoListData])
 
-    return (
-        <>
-            { todoListData ? <ListView  todoListData={todoListData} /> : null }
-        </>
-    );
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
+
+    return <>{todoListData ? <ListView todoListData={todoListData} /> : null}</>;
 };
 
 /**
@@ -35,17 +35,17 @@ const TodoListContent = () => {
  * authentication is in progress or a component to display if an error occurs. For more, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/getting-started.md
  */
- export const TodoList = () => {
-  const authRequest = {
-      ...loginRequest
-  };
+export const TodoList = () => {
+    const authRequest = {
+        ...loginRequest,
+    };
 
-  return (
-      <MsalAuthenticationTemplate
-          interactionType={InteractionType.Redirect}
-          authenticationRequest={authRequest}
-      >
-          <TodoListContent />
-      </MsalAuthenticationTemplate>
-    )
+    return (
+        <MsalAuthenticationTemplate 
+            interactionType={InteractionType.Redirect} 
+            authenticationRequest={authRequest}
+        >
+            <TodoListContent />
+        </MsalAuthenticationTemplate>
+    );
 };

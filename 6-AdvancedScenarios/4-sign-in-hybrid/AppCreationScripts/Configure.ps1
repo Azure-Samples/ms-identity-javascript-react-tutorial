@@ -166,7 +166,7 @@ Function ConfigureApplications
                                                        -Web `
                                                        @{ `
                                                            RedirectUris = "http://localhost:5000/redirect"; `
-                                                           HomePageUrl = "https://localhost:5000"; `
+                                                           HomePageUrl = "http://localhost:5000"; `
                                                          } `
                                                        -Spa `
                                                        @{ `

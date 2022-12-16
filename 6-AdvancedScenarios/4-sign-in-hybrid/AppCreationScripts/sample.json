@@ -45,7 +45,7 @@
             "Name": "msal-hybrid-spa",
             "Kind": "WebApp",
             "Audience": "AzureADMyOrg",
-            "HomePage": "https://localhost:5000",
+            "HomePage": "http://localhost:5000",
             "ManualSteps": [],
             "HybridRedirectUris": [
                 {

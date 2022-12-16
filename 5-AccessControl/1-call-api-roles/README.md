@@ -191,8 +191,7 @@ To manually register the apps, as a first step you'll need to:
    1. Select the **Add a permission** button and then:
    1. Ensure that the **My APIs** tab is selected.
    1. In the list of APIs, select the API `msal-react-spa`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select **access_via_approle_assignments** in the list. Use the search box if necessary.
+   1. In the **Delegated permissions** section, select **access_via_approle_assignments** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 
 ##### Publish Application Roles for users and groups
@@ -203,7 +202,6 @@ To manually register the apps, as a first step you'll need to:
     1. For **Allowed member types**, choose **User**.
     1. For **Value**, enter **TaskAdmin**.
     1. For **Description**, enter **Admins can read and write any user's todo list**.
-
     > Repeat the steps above for another role named **TaskUser**
     1. Select **Apply** to save your changes.
 

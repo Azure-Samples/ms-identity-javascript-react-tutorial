@@ -1,9 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { act } from "react-dom/test-utils";
+import { waitFor } from '@testing-library/react';
 
 import App from './App';
-import { PublicClientApplication } from "@azure/msal-browser";
+import { PublicClientApplication } from '@azure/msal-browser';
 
 describe('Sanitize configuration object', () => {
     beforeAll(() => {
@@ -26,7 +26,7 @@ describe('Sanitize configuration object', () => {
 
     it('should not contain tenant id', () => {
         const regexGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        expect(regexGuid.test(msalConfig.auth.authority.split(".com/")[1])).toBe(false);
+        expect(regexGuid.test(msalConfig.auth.authority.split('.com/')[1])).toBe(false);
     });
 
     it('should define a redirect uri', () => {
@@ -35,21 +35,30 @@ describe('Sanitize configuration object', () => {
 });
 
 describe('Ensure that the app starts', () => {
-    beforeAll(() => {
+    let pca;
+    let handleRedirectSpy;
+
+    beforeEach(() => {
         global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;
-        global.msalInstance = new PublicClientApplication(msalConfig);
-    
-        expect(msalInstance).toBeDefined();
-        expect(msalInstance).toBeInstanceOf(PublicClientApplication);
+        pca = new PublicClientApplication(msalConfig);
+        handleRedirectSpy = jest.spyOn(pca, 'handleRedirectPromise');
     });
 
-    it('should render the app without crashing', () => {
+    it('should instantiate msal', () => {
+        expect(pca).toBeDefined();
+        expect(pca).toBeInstanceOf(PublicClientApplication);
+    });
+
+    it('should render the app without crashing', async () => {
         const div = document.createElement('div');
 
-        act(() => {
-            ReactDOM.render(<App msalInstance={msalInstance} />, div);
-        });
-        expect(div.textContent).toBe("Microsoft identity platformWelcome to the Microsoft Authentication Library For React Tutorial");
+        ReactDOM.render(<App msalInstance={pca} />, div);
+
+        await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
+
+        expect(div.textContent).toContain(
+            'Welcome to the Microsoft Authentication Library For React Tutorial'
+        );
     });
 });

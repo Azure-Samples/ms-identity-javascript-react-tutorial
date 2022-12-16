@@ -1,25 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useMsal, useMsalAuthentication } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
+import { ResponseType } from '@microsoft/microsoft-graph-client';
 
 import { ProfileData } from '../components/DataDisplay';
 import { protectedResources, msalConfig } from '../authConfig';
 import { getClaimsFromStorage } from '../utils/storageUtils';
 import { handleClaimsChallenge } from '../fetch';
 import { getGraphClient } from '../graph';
-import { ResponseType } from '@microsoft/microsoft-graph-client';
 
 export const Profile = () => {
     const { instance } = useMsal();
     const account = instance.getActiveAccount();
     const [graphData, setGraphData] = useState(null);
+
     const resource = new URL(protectedResources.graphMe.endpoint).hostname;
+
     const claims =
         account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
             ? window.atob(
-                  getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
-              )
+                getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
+            )
             : undefined; // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+
     const request = {
         scopes: protectedResources.graphMe.scopes,
         account: account,
@@ -30,6 +33,7 @@ export const Profile = () => {
         ...request,
         redirectUri: '/redirect.html',
     });
+    
     useEffect(() => {
         if (!!graphData) {
             return;
@@ -46,13 +50,13 @@ export const Profile = () => {
         }
 
         if (result) {
-           let accessToken = result.accessToken;
+            let accessToken = result.accessToken;
             getGraphClient(accessToken)
                 .api('/me')
                 .responseType(ResponseType.RAW)
                 .get()
                 .then((response) => {
-                    return handleClaimsChallenge(response, protectedResources.graphMe.endpoint);
+                    return handleClaimsChallenge(response, protectedResources.graphMe.endpoint, account);
                 })
                 .then((response) => {
                     if (response && response.error === 'claims_challenge_occurred') throw response.error;

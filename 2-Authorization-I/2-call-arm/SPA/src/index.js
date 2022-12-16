@@ -1,16 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './styles/index.css';
-import { App } from './App';
-import reportWebVitals from './reportWebVitals';
-import { PublicClientApplication, EventType } from '@azure/msal-browser';
-import { msalConfig } from './authConfig';
 import { BrowserRouter } from 'react-router-dom';
+import { PublicClientApplication, EventType } from '@azure/msal-browser';
 
+import { App } from './App';
+import { msalConfig } from './authConfig';
+
+import './styles/index.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
 
 export const msalInstance = new PublicClientApplication(msalConfig);
 
@@ -28,7 +25,9 @@ msalInstance.addEventCallback((event) => {
       const account = event.payload.account;
       msalInstance.setActiveAccount(account);
     }
-})
+});
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
 
 root.render(
     <React.StrictMode>
@@ -37,8 +36,3 @@ root.render(
         </BrowserRouter>
     </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();

@@ -4,6 +4,7 @@
  */
 
 import { LogLevel } from '@azure/msal-browser';
+import { PublicClientApplication } from '@azure/msal-browser';
 
 /**
  * Configuration object to be passed to MSAL instance on creation.
@@ -86,4 +87,4 @@ export const groups = {
  * changes to a user's group membership, consider implementing Microsoft Graph change notifications. 
  * For more information, visit: https://learn.microsoft.com/graph/api/resources/webhooks
  */
- export const CACHE_TTL_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds
+export const CACHE_TTL_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds

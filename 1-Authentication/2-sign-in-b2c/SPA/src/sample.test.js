@@ -1,4 +1,8 @@
-import { PublicClientApplication } from "@azure/msal-browser";
+import '@testing-library/jest-dom';
+import { PublicClientApplication } from '@azure/msal-browser';
+import { render, screen, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import App from './App';
 
 describe('Sanitize configuration object', () => {
     beforeAll(() => {
@@ -25,14 +29,32 @@ describe('Sanitize configuration object', () => {
 });
 
 describe('Ensure that the app starts', () => {
-    beforeAll(() => {
+    let pca;
+    let handleRedirectSpy;
+
+    beforeEach(() => {
         global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;
-        global.msalInstance = new PublicClientApplication(msalConfig);
+        pca = new PublicClientApplication(msalConfig);
+        handleRedirectSpy = jest.spyOn(pca, 'handleRedirectPromise');
     });
 
     it('should instantiate msal', () => {
-        expect(msalInstance).toBeDefined();
-        expect(msalInstance).toBeInstanceOf(PublicClientApplication);
+        expect(pca).toBeDefined();
+        expect(pca).toBeInstanceOf(PublicClientApplication);
     });
+
+    it('should render the app without crashing', async () => {
+        render(
+            <BrowserRouter>
+                <App instance={pca} />
+            </BrowserRouter>
+        );
+
+        await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
+
+        expect(
+            await screen.findByText('Welcome to the Microsoft Authentication Library For React Tutorial')
+        ).toBeInTheDocument();
+    })
 });

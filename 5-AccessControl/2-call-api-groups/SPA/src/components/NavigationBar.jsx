@@ -1,7 +1,6 @@
 import { useMsal, AuthenticatedTemplate, UnauthenticatedTemplate } from '@azure/msal-react';
 
 import { Nav, Navbar, Dropdown, DropdownButton } from 'react-bootstrap';
-import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 
 import { loginRequest } from '../authConfig';
 import { clearGroupsInStorage } from '../utils/storageUtils';
@@ -47,7 +46,7 @@ export const NavigationBar = () => {
     };
     return (
         <>
-            <Navbar bg="primary" variant="dark" className='navbarButton'>
+            <Navbar bg="primary" variant="dark" className="navbarButton">
                 <a className="navbar-brand" href="/">
                     {' '}
                     Microsoft identity platform
@@ -65,12 +64,12 @@ export const NavigationBar = () => {
                             drop="start"
                             title={activeAccount ? activeAccount.name : 'Sign Out'}
                         >
-                            <DropdownItem as="button" onClick={handleLogoutPopup}>
+                            <Dropdown.Item as="button" onClick={handleLogoutPopup}>
                                 Sign out using Popup
-                            </DropdownItem>
-                            <DropdownItem as="button" onClick={handleLogoutRedirect}>
+                            </Dropdown.Item>
+                            <Dropdown.Item as="button" onClick={handleLogoutRedirect}>
                                 Sign out using Redirect
-                            </DropdownItem>
+                            </Dropdown.Item>
                         </DropdownButton>
                     </div>
                 </AuthenticatedTemplate>
