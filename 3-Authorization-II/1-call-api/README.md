@@ -50,7 +50,7 @@ Here you'll learn how to [register a protected web API](https://docs.microsoft.c
 | File/folder         | Description                                         |
 |---------------------|-----------------------------------------------------|
 | `SPA/App.jsx`       | Main application logic resides here.                |
-| `SPA/fetch.jsx`     | Provides helper methods for making fetch calls.     |
+| `SPA/hooks/useFetchWithMsal.jsx`     | Custom hook to make fetch calls with bearer tokens.     |
 | `SPA/authConfig.js` | Contains authentication parameters for SPA project. |
 | `API/config.js`     | Contains authentication parameters for API project. |
 | `API/app.js`        | Main application logic of custom web API.             |
@@ -273,6 +273,34 @@ Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get supp
 If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
 ## About the code
+
+### Calling the web API with access token
+
+Using a custom hook [useFetchWithMsal](./SPA/src/hooks/useFetchWithMsal.jsx), SPA acquires an access token using MSAL React useMsalAuthentication hook and then makes a call to the web API (i.e. bearer token authorization). This is illustrated in [TodoList.jsx](./SPA/src/pages/TodoList.jsx):
+
+```javascript
+const TodoListContent = () => {
+    const { error, execute } = useFetchWithMsal({
+        scopes: protectedResources.apiTodoList.scopes.read,
+    });
+
+    const [todoListData, setTodoListData] = useState(null);
+
+    useEffect(() => {
+        if (!todoListData) {
+            execute("GET", protectedResources.apiTodoList.endpoint).then((response) => {
+                setTodoListData(response);
+            });
+        }
+    }, [execute, todoListData])
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
+
+    return <>{todoListData ? <ListView todoListData={todoListData} /> : null}</>;
+};
+```
 
 ### CORS settings
 

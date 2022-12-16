@@ -32,7 +32,7 @@ Here you'll learn how to [register a protected web API](https://docs.microsoft.c
 | File/folder         | Description                                         |
 |---------------------|-----------------------------------------------------|
 | `SPA/App.jsx`       | Main application logic resides here.                |
-| `SPA/fetch.jsx`     | Provides a helper method for making fetch calls.    |
+| `SPA/hooks/useFetchWithMsal.jsx`     | Custom hook to make fetch calls with bearer tokens.     |
 | `SPA/authConfig.js` | Contains authentication parameters for SPA project. |
 | `API/config.js`     | Contains authentication parameters for API project. |
 | `API/index.js`      | Main application logic of custom web API.           |
@@ -178,6 +178,34 @@ To setup your B2C user-flows, do the following:
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu).
 
 ## About the code
+
+### Calling the web API with access token
+
+Using a custom hook [useFetchWithMsal](./SPA/src/hooks/useFetchWithMsal.jsx), SPA acquires an access token using MSAL React useMsalAuthentication hook and then makes a call to the web API (i.e. bearer token authorization). This is illustrated in [TodoList.jsx](./SPA/src/pages/TodoList.jsx):
+
+```javascript
+const TodoListContent = () => {
+    const { error, execute } = useFetchWithMsal({
+        scopes: protectedResources.apiTodoList.scopes.read,
+    });
+
+    const [todoListData, setTodoListData] = useState(null);
+
+    useEffect(() => {
+        if (!todoListData) {
+            execute("GET", protectedResources.apiTodoList.endpoint).then((response) => {
+                setTodoListData(response);
+            });
+        }
+    }, [execute, todoListData])
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
+
+    return <>{todoListData ? <ListView todoListData={todoListData} /> : null}</>;
+};
+```
 
 ### Token Validation
 
