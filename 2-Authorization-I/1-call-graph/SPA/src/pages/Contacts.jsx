@@ -13,14 +13,17 @@ export const Contacts = () => {
     const { instance } = useMsal();
     const account = instance.getActiveAccount();
     const [graphData, setGraphData] = useState(null);
+    
     const resource = new URL(protectedResources.graphContacts.endpoint).hostname;
+    
     const claims =
         account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
             ? window.atob(
-                  getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
-              )
+                getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
+            )
             : undefined; // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
-    const request = {
+    
+            const request = {
         scopes: protectedResources.graphContacts.scopes,
         account: account,
         claims: claims
@@ -52,7 +55,7 @@ export const Contacts = () => {
                 .responseType(ResponseType.RAW)
                 .get()
                 .then((response) => {
-                    return handleClaimsChallenge(response, protectedResources.graphMe.endpoint);
+                    return handleClaimsChallenge(response, protectedResources.graphMe.endpoint, account);
                 })
                 .then((response) => {
                     if (response && response.error === 'claims_challenge_occurred') throw response.error;

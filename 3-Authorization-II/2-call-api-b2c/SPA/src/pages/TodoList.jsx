@@ -2,27 +2,32 @@ import { useEffect, useState } from 'react';
 import { MsalAuthenticationTemplate } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
 
-import { loginRequest } from '../authConfig';
-import { getTasks } from "../fetch";
 import { ListView } from '../components/ListView';
+import { loginRequest, protectedResources } from "../authConfig";
+import useFetchWithMsal from '../hooks/useFetchWithMsal';
 
 const TodoListContent = () => {
-    /**
-     * useMsal is hook that returns the PublicClientApplication instance,
-     * an array of all accounts currently signed in and an inProgress value
-     * that tells you what msal is currently doing. For more, visit:
-     * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
-     */
+    const { error, execute } = useFetchWithMsal({
+        scopes: protectedResources.apiTodoList.scopes.read,
+    });
+
     const [todoListData, setTodoListData] = useState(null);
 
     useEffect(() => {
         if (!todoListData) {
-            getTasks().then((response) => setTodoListData(response));
+            execute("GET", protectedResources.apiTodoList.endpoint).then((response) => {
+                setTodoListData(response);
+            });
         }
-    },[todoListData])
-    
+    }, [execute, todoListData])
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
+
     return <>{todoListData ? <ListView todoListData={todoListData} /> : null}</>;
 };
+
 /**
  * The `MsalAuthenticationTemplate` component will render its children if a user is authenticated
  * or attempt to sign a user in. Just provide it with the interaction type you would like to use
@@ -36,7 +41,10 @@ export const TodoList = () => {
     };
 
     return (
-        <MsalAuthenticationTemplate interactionType={InteractionType.Redirect} authenticationRequest={authRequest}>
+        <MsalAuthenticationTemplate 
+            interactionType={InteractionType.Redirect} 
+            authenticationRequest={authRequest}
+        >
             <TodoListContent />
         </MsalAuthenticationTemplate>
     );

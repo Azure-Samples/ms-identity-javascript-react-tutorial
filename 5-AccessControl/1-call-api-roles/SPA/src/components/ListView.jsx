@@ -1,10 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useMsal } from '@azure/msal-react';
-import { nanoid } from 'nanoid';
-import ListGroup from 'react-bootstrap/ListGroup';
-import { TodoForm } from './TodoForm';
-import { TodoItem } from './TodoItem';
-import { deleteTask, postTask, editTask } from '../fetch';
+import React, { useState, useRef, useEffect } from "react";
+import { useMsal } from "@azure/msal-react";
+import { nanoid } from "nanoid";
+import ListGroup from "react-bootstrap/ListGroup";
+
+import { TodoForm } from "./TodoForm";
+import { TodoItem } from "./TodoItem";
+
+import useFetchWithMsal from '../hooks/useFetchWithMsal';
+import { protectedResources } from "../authConfig";
 
 function usePrevious(value) {
     const ref = useRef();
@@ -18,85 +21,69 @@ function usePrevious(value) {
 
 export const ListView = (props) => {
     const { instance } = useMsal();
-    const [tasks, setTasks] = useState(props.todoListData);
     const account = instance.getActiveAccount();
 
+    const { error, execute } = useFetchWithMsal({
+        scopes: protectedResources.apiTodoList.scopes
+    });
+
+    const [tasks, setTasks] = useState(props.todoListData);
+
     const handleCompleteTask = (id) => {
-        const updatedTask = tasks.find((task) => id === task.id);
+        const updatedTask = tasks.find(task => id === task.id);
         updatedTask.completed = !updatedTask.completed;
 
-        editTask(id, updatedTask)
-            .then((response) => {
-                if (response && response.error) throw response.error;
-                const updatedTasks = tasks.map((task) => {
-                    if (id === task.id) {
-                        return { ...task, completed: !task.completed };
-                    }
-                    return task;
-                });
-                setTasks(updatedTasks);
-            })
-            .catch((error) => {
-                console.log(error);
+        execute('PUT', protectedResources.apiTodoList.todoListEndpoint + `/${id}`, updatedTask).then(() => {
+            const updatedTasks = tasks.map((task) => {
+                if (id === task.id) {
+                    return { ...task, completed: !task.completed };
+                }
+                return task;
             });
-    };
+            setTasks(updatedTasks);
+        });
+    }
 
     const handleAddTask = (name) => {
         const newTask = {
             owner: account.idTokenClaims?.oid,
             id: nanoid(),
             name: name,
-            completed: false,
+            completed: false
         };
 
-        postTask(newTask)
-            .then((response) => {
-                if (response && response.error) throw response.error;
-                if (response && response.message === 'success') {
-                    setTasks([...tasks, newTask]);
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    };
+        execute('POST', protectedResources.apiTodoList.todoListEndpoint, newTask).then((response) => {
+            if (response && response.message === 'success') {
+                setTasks([...tasks, newTask]);
+            }
+        });
+    }
 
     const handleDeleteTask = (id) => {
-        deleteTask(id)
-            .then((response) => {
-                if (response && response.error) throw response.error;
-                if (response && response.message === 'success') {
-                    const remainingTasks = tasks.filter((task) => id !== task.id);
-                    setTasks(remainingTasks);
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-    };
+        execute('DELETE', protectedResources.apiTodoList.todoListEndpoint + `/${id}`).then((response) => {
+            if (response && response.message === 'success') {
+                const remainingTasks = tasks.filter((task) => id !== task.id);
+                setTasks(remainingTasks);
+            }
+        });
+    }
 
     const handleEditTask = (id, newName) => {
-        const updatedTask = tasks.find((task) => id === task.id);
-
+        const updatedTask = tasks.find(task => id === task.id);
         updatedTask.name = newName;
 
-        editTask(id, updatedTask)
-            .then((response) => {
-                if (response && response.error) throw response.error;
-                const updatedTasks = tasks.map((task) => {
-                    if (id === task.id) {
-                        return { ...task, name: newName };
-                    }
-                    return task;
-                });
-                setTasks(updatedTasks);
-            })
-            .catch((error) => {
-                console.log(error);
+        execute('PUT', protectedResources.apiTodoList.todoListEndpoint + `/${id}`, updatedTask).then(() => {
+            const updatedTasks = tasks.map((task) => {
+                if (id === task.id) {
+                    return { ...task, name: newName };
+                }
+                return task;
             });
-    };
+            setTasks(updatedTasks);
+        });
+    }
 
-    const taskList = tasks.map((task) => (
+    const taskList = tasks.map(task => (
         <TodoItem
             id={task.id}
             name={task.name}
@@ -117,11 +104,17 @@ export const ListView = (props) => {
         }
     }, [tasks.length, prevTaskLength]);
 
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
+    
     return (
         <div className="data-area-div">
             <TodoForm addTask={handleAddTask} />
             <h2 id="list-heading" tabIndex="-1" ref={listHeadingRef}></h2>
-            <ListGroup className="todo-list">{taskList}</ListGroup>
+            <ListGroup className="todo-list">
+                {taskList}
+            </ListGroup>
         </div>
     );
-};
+}

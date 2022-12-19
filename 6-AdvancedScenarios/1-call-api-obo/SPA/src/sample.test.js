@@ -1,9 +1,6 @@
-import '@testing-library/jest-dom';
-import { render, screen, waitFor } from '@testing-library/react';
 import { PublicClientApplication } from "@azure/msal-browser";
-import { BrowserRouter } from "react-router-dom";
+import { waitFor, screen, render } from '@testing-library/react';
 import App from './App';
-
 
 describe('Sanitize configuration object', () => {
     beforeAll(() => {
@@ -26,7 +23,7 @@ describe('Sanitize configuration object', () => {
 
     it('should not contain tenant id', () => {
         const regexGuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-        expect(regexGuid.test(msalConfig.auth.authority.split('.com/')[1])).toBe(false);
+        expect(regexGuid.test(msalConfig.auth.authority.split(".com/")[1])).toBe(false);
     });
 
     it('should define a redirect uri', () => {
@@ -35,9 +32,8 @@ describe('Sanitize configuration object', () => {
 });
 
 describe('Ensure that the app starts', () => {
-    let pca;
     let handleRedirectSpy;
-
+    let pca;
     beforeEach(() => {
         global.crypto = require('crypto');
         global.msalConfig = require('./authConfig.js').msalConfig;
@@ -51,14 +47,10 @@ describe('Ensure that the app starts', () => {
     });
 
     it('should render the app without crashing', async () => {
-        render(
-            <BrowserRouter>
-                <App instance={pca} />
-            </BrowserRouter>
-        );
+        render(<App instance={pca} />);
         await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
         expect(
             await screen.findByText('Welcome to the Microsoft Authentication Library For React Tutorial')
-        ).toBeInTheDocument();
-    })
+        ).toBeDefined();
+    });
 });

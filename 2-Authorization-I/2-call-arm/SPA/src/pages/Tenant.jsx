@@ -14,7 +14,10 @@ export const Tenant = () => {
         account: account,
     };
 
-    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
+    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, {
+        ...request,
+        redirectUri: '/redirect.html',
+    });
 
     const fetchData = async (accessToken) => {
         const client = await getSubscriptionClient(accessToken);
