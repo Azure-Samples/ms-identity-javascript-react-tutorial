@@ -24,8 +24,6 @@ exports.getProfile = async (req, res, next) => {
                  graphResponse = await graphResponse.json();
                  res.status(200).send(graphResponse);
              } catch (error) {
-                 console.log(error);
-                 console.log(error['errorCode']);
                  next(error);
              }
         }else {
@@ -44,12 +42,10 @@ exports.getProfile = async (req, res, next) => {
         ) {
             try {
                 accessToken = await getOboToken(tokenValue);
-                console.log(accessToken, " accessToken")
                 let graphResponse = await getGraphClient(accessToken).api('/me').responseType(ResponseType.RAW).get();
                 graphResponse = await graphResponse.json();
                 res.json(graphResponse);
             } catch (error) {
-                console.log(error)
                 next(error);
             }
         } else {
