@@ -261,13 +261,13 @@ Function ConfigureApplications
     Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
 
    # Create the service AAD application
-   Write-Host "Creating the AAD application (msal-react-api)"
+   Write-Host "Creating the AAD application (msal-node-api)"
    # Get a 6 months application key for the service Application
    $fromDate = [DateTime]::Now;
    $key = CreateAppKey -fromDate $fromDate -durationInMonths 6
    
    # create the application 
-   $serviceAadApplication = New-MgApplication -DisplayName "msal-react-api" `
+   $serviceAadApplication = New-MgApplication -DisplayName "msal-node-api" `
                                                        -Web `
                                                        @{ `
                                                            HomePageUrl = "http://localhost:5000/api"; `
@@ -343,13 +343,13 @@ Function ConfigureApplications
     
     # add/update scopes
     Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @($scopes)}
-    Write-Host "Done creating the service application (msal-react-api)"
+    Write-Host "Done creating the service application (msal-node-api)"
 
     # URL of the AAD application in the Azure portal
     # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
     $servicePortalUrl = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/"+$currentAppId+"/isMSAApp~/false"
 
-    Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-react-api</a></td></tr>" -Path createdApps.html
+    Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-node-api</a></td></tr>" -Path createdApps.html
     # Declare a list to hold RRA items    
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
 
@@ -369,7 +369,7 @@ Function ConfigureApplications
     
 
     # print the registered app portal URL for any further navigation
-    Write-Host "Successfully registered and configured that app registration for 'msal-react-api' at `n $servicePortalUrl" -ForegroundColor Green 
+    Write-Host "Successfully registered and configured that app registration for 'msal-node-api' at `n $servicePortalUrl" -ForegroundColor Green 
    # Create the client AAD application
    Write-Host "Creating the AAD application (msal-react-spa)"
    # create the application 
@@ -422,7 +422,7 @@ Function ConfigureApplications
 
     # Add Required Resources Access (from 'client' to 'service')
     Write-Host "Getting access from 'client' to 'service'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-react-api"`
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-node-api"`
         -requiredDelegatedPermissions "access_graph_on_behalf_of_user"
 
     $requiredResourcesAccess.Add($requiredPermission)

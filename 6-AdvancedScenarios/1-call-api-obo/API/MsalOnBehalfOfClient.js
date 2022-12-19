@@ -6,7 +6,7 @@ const msalConfig = {
         clientId: config.credentials.clientID,
         authority: `https://${config.metadata.authority}/${config.credentials.tenantID}`,
         clientSecret: config.credentials.clientSecret,
-        clientCapabilities: ["CP1"],
+        clientCapabilities: ['CP1'],
     },
     system: {
         loggerOptions: {
@@ -32,8 +32,7 @@ const getOboToken = async (oboAssertion) => {
         const response = await cca.acquireTokenOnBehalfOf(oboRequest);
         return response.accessToken;
     } catch (error) {
-        console.log(error);
-        return error;
+        throw error;
     }
 };
 

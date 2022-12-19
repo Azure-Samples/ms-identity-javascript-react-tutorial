@@ -43,20 +43,21 @@ const ProfileContent = () => {
         }
 
         if (result) {
-            console.log(result)
             callApiWithToken(result.accessToken, protectedResources.apiHello.endpoint)
                 .then((response) => {
-                    console.log(response, "response")
                     setGraphData(response)
                 })
                 .catch((error) => {
-                    console.log("in error")
                     console.log(error)
                 })
 
         }
         // eslint-disable-next-line
     }, [graphData, result, error, login]);
+
+    if (error) {
+        return <div>Error: {error.message}</div>;
+    }
 
     return <>{graphData ? <ProfileData helloData={graphData} /> : null}</>;
 };

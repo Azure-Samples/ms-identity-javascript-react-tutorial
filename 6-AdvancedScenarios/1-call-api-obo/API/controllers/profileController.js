@@ -1,5 +1,4 @@
-
-const { getOboToken } = require('../fetch');
+const { getOboToken } = require('../MsalOnBehalfOfClient');
 const { getGraphClient } = require('../util/graphClient');
 const { ResponseType } = require('@microsoft/microsoft-graph-client');
 const  authConfig  = require('../authConfig');
@@ -19,13 +18,14 @@ exports.getProfile = async (req, res, next) => {
                 authConfig.resources.middleTierAPI.applicationPermissions.scopes
             )
         ) {
-            try {
+            try {                
                  accessToken = await getOboToken(tokenValue);
                  let graphResponse = await getGraphClient(accessToken).api('/me').responseType(ResponseType.RAW).get();
                  graphResponse = await graphResponse.json();
                  res.status(200).send(graphResponse);
              } catch (error) {
                  console.log(error);
+                 console.log(error['errorCode']);
                  next(error);
              }
         }else {
@@ -34,6 +34,7 @@ exports.getProfile = async (req, res, next) => {
     } else {
         const userToken = req.get('authorization');
         const [bearer, tokenValue] = userToken.split(' ');
+        
         let accessToken;
         if (
             hasRequiredDelegatedPermissions(
@@ -43,11 +44,12 @@ exports.getProfile = async (req, res, next) => {
         ) {
             try {
                 accessToken = await getOboToken(tokenValue);
+                console.log(accessToken, " accessToken")
                 let graphResponse = await getGraphClient(accessToken).api('/me').responseType(ResponseType.RAW).get();
                 graphResponse = await graphResponse.json();
                 res.json(graphResponse);
             } catch (error) {
-                console.log(error);
+                console.log(error)
                 next(error);
             }
         } else {

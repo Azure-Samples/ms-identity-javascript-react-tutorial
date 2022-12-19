@@ -56,20 +56,20 @@ Function Cleanup
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantId'"
 
-    Write-Host "Removing 'service' (msal-react-api) if needed"
+    Write-Host "Removing 'service' (msal-node-api) if needed"
     try
     {
-        Get-MgApplication -Filter "DisplayName eq 'msal-react-api'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+        Get-MgApplication -Filter "DisplayName eq 'msal-node-api'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
         $message = $_
         Write-Warning $Error[0]
-        Write-Host "Unable to remove the application 'msal-react-api'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove the application 'msal-node-api'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
-    Write-Host "Making sure there are no more (msal-react-api) applications found, will remove if needed..."
-    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-react-api'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
+    Write-Host "Making sure there are no more (msal-node-api) applications found, will remove if needed..."
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-node-api'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
     
     if ($apps)
     {
@@ -79,19 +79,19 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-MgApplication -ApplicationId $app.Id
-        Write-Host "Removed msal-react-api.."
+        Write-Host "Removed msal-node-api.."
     }
 
     # also remove service principals of this app
     try
     {
-        Get-MgServicePrincipal -filter "DisplayName eq 'msal-react-api'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-node-api'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
     }
     catch
     {
         $message = $_
         Write-Warning $Error[0]
-        Write-Host "Unable to remove ServicePrincipal 'msal-react-api'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove ServicePrincipal 'msal-node-api'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
     Write-Host "Removing 'client' (msal-react-spa) if needed"
     try

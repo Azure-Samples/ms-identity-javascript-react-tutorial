@@ -44,13 +44,13 @@ export const IdTokenData = (props) => {
 };
 
 export const ProfileData = (props) => {
-    const tableRows = Object.entries(props.helloData).map((entry, index) => {
+    const tableRows = Object.entries(props.helloData).map(([ key, value ], index) => {
         return (
             <tr key={index}>
                 <td>
-                    <b>{entry[0]}: </b>
+                    <b>{key}: </b>
                 </td>
-                <td>{entry[1]}</td>
+                <td>{value}</td>
             </tr>
         );
     });
