@@ -317,6 +317,67 @@ The middle-tier application adds the client to the `knownClientApplications` lis
 
 > :information_source: **KnownClientApplications** is an attribute in **application manifest**. It is used for bundling consent if you have a solution that contains two (or more) parts: a client app and a custom web API. If you enter the `appID` (clientID) of the client app into this array, the user will have to consent only once to the client app. Azure AD will know that consenting to the client means implicitly consenting to the web API. It will automatically provision service principals for both the client and web API at the same time. Both the client and the web API app must be registered in the same tenant.
 
+### Acquire an access token with the OBO flow
+
+To get the access token for Graph API using the OBO flow, the middle-tier web API will initialize a **ConfidentialClientApplication** to exchange the access token using the **acquireTokenOnBehalfOf** API to get a new access token for the down-stream resource in the case Graph API.
+
+```javascript
+const msal = require('@azure/msal-node');
+const config = require('./authConfig');
+
+const msalConfig = {
+    auth: {
+        clientId: config.credentials.clientID,
+        authority: `https://${config.metadata.authority}/${config.credentials.tenantID}`,
+        clientSecret: config.credentials.clientSecret,
+    },
+    system: {
+        loggerOptions: {
+            loggerCallback(loglevel, message, containsPii) {
+                console.log(message);
+            },
+            piiLoggingEnabled: false,
+            logLevel: msal.LogLevel.Info,
+        },
+    },
+};
+
+// Create msal application object
+const cca = new msal.ConfidentialClientApplication(msalConfig);
+
+const getOboToken = async (oboAssertion) => {
+    const oboRequest = {
+        oboAssertion: oboAssertion,
+        scopes: config.resources.downstreamAPI.scopes,
+    };
+
+    try {
+        const response = await cca.acquireTokenOnBehalfOf(oboRequest);
+        return response.accessToken;
+    } catch (error) {
+        throw error;
+    }
+};
+```
+
+### Calling the Microsoft Graph API
+
+After receiving the access token for Graph, we will initialize the [Graph SDK client](https://github.com/microsoftgraph/msgraph-sdk-javascript) with an [authProvider function](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md#2-create-with-options). In this case, the user has to provide their implementation for getting and refreshing accessToken. A callback will be passed into this authProvider function; an access token or error needs to be passed into that callback.
+
+```javascript
+const getGraphClient = (accessToken) => {
+    // Initialize Graph client
+    const client = graph.Client.init({
+        // Use the provided access token to authenticate requests
+        authProvider: (done) => {
+            done(null, accessToken);
+        },
+    });
+
+    return client;
+};
+```
+
 ## Contributing
 
 If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
