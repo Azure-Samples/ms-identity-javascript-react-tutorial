@@ -26,9 +26,6 @@ const authConfig = {
             delegatedPermissions: {
                 scopes: ['access_graph_on_behalf_of_user'],
             },
-            applicationPermissions: {
-                scopes: ['access_graph_on_behalf_of_user'],
-            },
         },
     },
 };
