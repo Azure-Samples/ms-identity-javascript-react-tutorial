@@ -1,5 +1,5 @@
 const msal = require('@azure/msal-node');
-const config = require('./authConfig');
+const config = require('../authConfig');
 
 const msalConfig = {
     auth: {
@@ -25,7 +25,7 @@ const cca = new msal.ConfidentialClientApplication(msalConfig);
 const getOboToken = async (oboAssertion) => {
     const oboRequest = {
         oboAssertion: oboAssertion,
-        scopes: config.resources.downstreamAPI.scopes,
+        scopes: config.protectedResources.graphApi.scopes
     };
 
     try {

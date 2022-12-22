@@ -15,18 +15,19 @@ const authConfig = {
         loggingLevel: 'info',
         loggingNoPII: true,
     },
-
-    resources: {
-        downstreamAPI: {
-            endpoint: 'https://graph.microsoft.com/v1.0',
-            scopes: ['User.Read', 'offline_access'],
-        },
-        middleTierAPI: {
+    protectedRoutes: {
+        profile: {
             endpoint: '/api/profile',
             delegatedPermissions: {
                 scopes: ['access_graph_on_behalf_of_user'],
             },
         },
+    },
+    protectedResources: {
+        graphApi: {
+            endpoint: 'https://graph.microsoft.com/v1.0',
+            scopes: ['User.Read', 'offline_access'],
+        }
     },
 };
 

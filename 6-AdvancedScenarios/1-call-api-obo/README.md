@@ -3,11 +3,11 @@ page_type: sample
 name: Authenticate a user with Azure AD using msal.js and call an Azure AD protected Node.js Web Api using on-behalf of flow
 description: Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user using the on-behalf of flow
 languages:
- - typescript
- - Node
+ - javascript
 products:
  - azure-active-directory
  - msal-js
+ - msal-react
  - passport-azure-ad
 urlFragment: ms-identity-javascript-react-tutorial
 extensions:
@@ -42,7 +42,7 @@ This sample demonstrates a React single-page application (SPA) which lets a user
 
 1. The client app uses **MSAL React** to sign-in a user and obtain a **JWT** [Access Token](https://aka.ms/access-tokens) from **Azure AD** for the **API**.
 1. The access token is used as a *bearer token* to authorize the user to call the Node.js **API** protected by **Azure AD**.
-1. This access token is also used by the Node.js API to obtain another Access token to call the MS Graph API **on user's behalf** using the [OAuth 2.0 on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow). 
+1. This access token is also used by the Node.js API to obtain another Access token to call the MS Graph API **on user's behalf** using the [OAuth 2.0 on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow).
 1. The Node.js **API** uses the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview) to call MS Graph
 
 ![Scenario Image](./ReadmeFiles/topology.png)
@@ -54,7 +54,7 @@ This sample demonstrates a React single-page application (SPA) which lets a user
 | `AppCreationScripts/` | Contains Powershell scripts to automate app registration. |
 | `SPA/src/authConfig.js`   | Contains configuration parameters for the SPA.   |
 | `API/authConfig.json`| Contains authentication parameters for the API. |
-| `API/MsalOnBehalfOfClient.js`| Contains the logic to Acquire an access token for Graph API using OBO flow. |
+| `API/auth/onBehalfOfClient.js`| Contains logic to acquire an access token for Graph API using OBO flow. |
 
 ## Prerequisites
 
@@ -119,7 +119,7 @@ There are two projects in this sample. Each needs to be separately registered in
     ```PowerShell
     cd .\AppCreationScripts\
     .\Configure.ps1 -TenantId "[Optional] - your tenant id" -AzureEnvironmentName "[Optional] - Azure environment, defaults to 'Global'"
-        ```
+    ```
 
 > Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md). The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
 
@@ -189,19 +189,18 @@ To manually register the apps, as a first step you'll need to:
    1. Set the **optionalClaims** property as shown below to request client capabilities claim *xms_cc*:
 
    ```json
-      "optionalClaims": 
-      {
-      "accessToken": [
-         {
-            "additionalProperties": [],
-            "essential": false,
-            "name": "xms_cc",
-            "source": null
-         }
-      ],
-      "idToken": [],
-      "saml2Token": []
-      }
+        "optionalClaims": {
+            "accessToken": [
+                {
+                    "additionalProperties": [],
+                    "essential": false,
+                    "name": "xms_cc",
+                    "source": null
+                }
+            ],
+            "idToken": [],
+            "saml2Token": []
+        }
     ```
 
 ##### Configure the service app (msal-node-api) to use your app registration
@@ -319,32 +318,9 @@ The middle-tier application adds the client to the `knownClientApplications` lis
 
 ### Acquire an access token with the OBO flow
 
-To get the access token for Graph API using the OBO flow, the middle-tier web API will initialize a **ConfidentialClientApplication** to exchange the access token using the **acquireTokenOnBehalfOf** API to get a new access token for the down-stream resource in the case Graph API.
+To get the access token for Graph API using the OBO flow, the middle-tier web API will initialize a **ConfidentialClientApplication** to exchange the access token using the **acquireTokenOnBehalfOf** API to get a new access token for the down-stream resource in the case Graph API. This is shown in [onBehalfOfClient.js](./API/auth/onBehalfOfClient.js):
 
 ```javascript
-const msal = require('@azure/msal-node');
-const config = require('./authConfig');
-
-const msalConfig = {
-    auth: {
-        clientId: config.credentials.clientID,
-        authority: `https://${config.metadata.authority}/${config.credentials.tenantID}`,
-        clientSecret: config.credentials.clientSecret,
-    },
-    system: {
-        loggerOptions: {
-            loggerCallback(loglevel, message, containsPii) {
-                console.log(message);
-            },
-            piiLoggingEnabled: false,
-            logLevel: msal.LogLevel.Info,
-        },
-    },
-};
-
-// Create msal application object
-const cca = new msal.ConfidentialClientApplication(msalConfig);
-
 const getOboToken = async (oboAssertion) => {
     const oboRequest = {
         oboAssertion: oboAssertion,

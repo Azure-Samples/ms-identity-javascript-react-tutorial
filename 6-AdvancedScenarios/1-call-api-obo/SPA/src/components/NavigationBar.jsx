@@ -53,7 +53,7 @@ export const NavigationBar = () => {
                 </a>
                 <AuthenticatedTemplate>
                     <Nav.Link className="navbarButton" href="/profile">
-                        Call API
+                        Profile
                     </Nav.Link> 
                     <div className="collapse navbar-collapse justify-content-end">
                         <DropdownButton
