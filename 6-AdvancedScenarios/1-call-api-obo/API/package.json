@@ -8,18 +8,22 @@
     "node": ">=6.9.1"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "test": "jest --forceExit"
   },
   "dependencies": {
+    "@azure/msal-node": "^1.14.5",
+    "@microsoft/microsoft-graph-client": "^3.0.4",
+    "cors": "^2.8.5",
     "express": "^4.14.0",
+    "express-rate-limit": "^6.7.0",
+    "isomorphic-fetch": "^3.0.0",
     "morgan": "^1.10.0",
-    "node-fetch": "^2.6.7",
     "passport": "^0.6.0",
     "passport-azure-ad": "^4.3.3"
   },
-  "main": "index.js",
+  "main": "app.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git"

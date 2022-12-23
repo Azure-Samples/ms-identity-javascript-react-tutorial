@@ -1,119 +1,80 @@
 {
     "Sample": {
-        "Title": "Handling Conditional Access challenges in an Azure AD protected Node.js web API calling another protected Node.js web API on behalf of a user",
+        "Title": "Authenticate a user with Azure AD using msal.js and call an Azure AD protected Node.js Web Api using on-behalf of flow",
         "Level": 300,
         "Client": "React SPA",
         "Service": "Node.js web API",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-        "Endpoint": "AAD v2.0"
+        "Endpoint": "AAD v2.0",
+        "Platform": "javascript",
+        "Languages": [
+            "typescript",
+            "javascript"
+        ],
+        "Description": "Authenticate a user with Azure AD using msal.js and call an Azure AD protected Node.js Web Api using on-behalf of flow",
+        "products": ["azure-active-directory", "msal-js", "passport-azure-ad", "msal-react"]
     },
     "AADApps": [
         {
-            "Id": "DownstreamAPI",
-            "Name": "msal-react-downstream",
-            "Kind": "WebApi",
-            "HomePage": "http://localhost:7000/api",
-            "Audience": "AzureADMyOrg",
-            "ManualSteps": [
-                {
-                    "Comment": "Navigate to the Manifest and set 'accessTokenAcceptedVersion' to '2' instead of 'null'"
-                },
-                {
-                    "Comment": "Create a new conditional access policy as described in the sample's README"
-                }
-            ]
-        },
-        {
-            "Id": "MiddletierAPI",
-            "Name": "msal-react-middletier",
+            "Id": "service",
+            "Name": "msal-node-api",
             "Kind": "WebApi",
             "HomePage": "http://localhost:5000/api",
             "Audience": "AzureADMyOrg",
             "PasswordCredentials": "Auto",
+            "SampleSubPath": "6-AdvancedScenarios\\1-call-api-obo\\API",
+            "Scopes": ["access_graph_on_behalf_of_user"],
             "RequiredResourcesAccess": [
                 {
-                    "Resource": "DownstreamAPI",
-                    "DelegatedPermissions": [
-                        "access_downstream_as_user"
-                    ]
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": ["User.Read", "offline_access"]
                 }
             ],
-            "ManualSteps": [
-                {
-                    "Comment": "Navigate to the Manifest and set 'accessTokenAcceptedVersion' to '2' instead of 'null'"
-                }
-            ]
+            "OptionalClaims": {
+                "AccessTokenClaims": ["idtyp", "xms_cc"]
+            }
         },
         {
-            "Id": "spa",
+            "Id": "client",
             "Name": "msal-react-spa",
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:3000/",
-            "ReplyUrls": "http://localhost:3000/",
+            "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
+            "SampleSubPath": "6-AdvancedScenarios\\1-call-api-obo\\SPA",
             "RequiredResourcesAccess": [
                 {
-                    "Resource": "MiddletierAPI",
-                    "DelegatedPermissions": [
-                        "access_middletier_as_user"
-                    ]
+                    "Resource": "service",
+                    "DelegatedPermissions": ["access_graph_on_behalf_of_user"]
                 }
             ],
-            "ManualSteps": [
-                {
-                    "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
-                }
-            ]
+            "OptionalClaims": {
+                "AccessTokenClaims": ["acct"]
+            }
         }
     ],
     "CodeConfiguration": [
         {
-            "App": "DownstreamAPI",
+            "App": "service",
             "SettingKind": "JSON",
-            "SettingFile": "\\..\\DownstreamAPI\\config.json",
+            "SettingFile": "\\..\\API\\authConfig.js",
             "Mappings": [
                 {
-                    "key": "clientID",
+                    "key": "Enter_the_Application_Id_Here",
                     "value": ".AppId"
                 },
                 {
-                    "key": "tenantID",
-                    "value": "$tenantId"
-                }
-            ]
-        },
-        {
-            "App": "middletierAPI",
-            "SettingKind": "JSON",
-            "SettingFile": "\\..\\MiddletierAPI\\config.json",
-            "Mappings": [
-                {
-                    "key": "clientID",
-                    "value": ".AppId"
-                },
-                {
-                    "key": "tenantID",
+                    "key": "Enter_the_Tenant_Id_Here",
                     "value": "$tenantId"
                 },
                 {
-                    "key": "clientSecret",
-                    "value": ".AppKey"
+                    "key": "Enter_the_Client_Secret_Here",
+                    "value": "service.AppKey"
                 }
             ]
         },
         {
-            "App": "middletierAPI",
-            "SettingKind": "Replace",
-            "SettingFile": "\\..\\MiddletierAPI\\config.json",
-            "Mappings": [
-                {
-                    "key": "Enter_the_Web_Api_Scope_Here",
-                    "value": "DownstreamAPI.Scope"
-                }
-            ]
-        },
-        {
-            "App": "spa",
+            "App": "client",
             "SettingKind": "Replace",
             "SettingFile": "\\..\\SPA\\src\\authConfig.js",
             "Mappings": [
@@ -122,12 +83,12 @@
                     "value": ".AppId"
                 },
                 {
-                    "key": "Enter_the_Tenant_Info_Here",
+                    "key": "Enter_the_Tenant_Id_Here",
                     "value": "$tenantId"
                 },
                 {
-                    "key": "Enter_the_Web_Api_Scope_Here",
-                    "value": "MiddletierAPI.Scope"
+                    "key": "Enter_the_Web_Api_Application_Id_Here",
+                    "value": "service.AppId"
                 }
             ]
         }

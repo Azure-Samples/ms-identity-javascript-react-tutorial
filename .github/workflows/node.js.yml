@@ -104,13 +104,7 @@ jobs:
         npm run test
 
     - run: |
-        cd 6-AdvancedScenarios/1-call-api-obo/DownstreamAPI
-        npm ci
-        npm audit --production
-        npm run test
-
-    - run: |
-        cd 6-AdvancedScenarios/1-call-api-obo/MiddletierAPI
+        cd 6-AdvancedScenarios/1-call-api-obo/API
         npm ci
         npm audit --production
         npm run test
