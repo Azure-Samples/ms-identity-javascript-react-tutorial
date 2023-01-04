@@ -31,7 +31,9 @@ const Pages = () => {
                  * policies may use "acr" instead of "tfp"). To learn more about B2C tokens, visit:
                  * https://docs.microsoft.com/en-us/azure/active-directory-b2c/tokens-overview
                  */
-                if (event.payload.idTokenClaims['tfp'] === b2cPolicies.names.editProfile) {
+                let tfp = event.payload.idTokenClaims['tfp'] ?? event.payload.idTokenClaims["acr"];
+                
+                if (tfp=== b2cPolicies.names.editProfile) {
                     // retrieve the account from initial sing-in to the app
                     const originalSignInAccount = instance
                         .getAllAccounts()
@@ -58,7 +60,7 @@ const Pages = () => {
                  * you can replace the code below with the same pattern used for handling the return from
                  * profile edit flow
                  */
-                if (event.payload.idTokenClaims['tfp'] === b2cPolicies.names.forgotPassword) {
+                if (tfp === b2cPolicies.names.forgotPassword) {
                     let signUpSignInFlowRequest = {
                         authority: b2cPolicies.authorities.signUpSignIn.authority,
                         scopes: [
