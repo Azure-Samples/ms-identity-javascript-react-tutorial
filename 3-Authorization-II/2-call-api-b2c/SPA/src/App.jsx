@@ -31,9 +31,14 @@ const Pages = () => {
                  * policies may use "acr" instead of "tfp"). To learn more about B2C tokens, visit:
                  * https://docs.microsoft.com/en-us/azure/active-directory-b2c/tokens-overview
                  */
-                let tfp = event.payload.idTokenClaims['tfp'] ?? event.payload.idTokenClaims["acr"];
+                let tfpClaim = event.payload.idTokenClaims['tfp'] ? 'tfp' : 'acr';
                 
-                if (tfp=== b2cPolicies.names.editProfile) {
+                function formatCase(policyName, tfpClaim) {
+                    // A custom policy's "acr" claim is returned in lowercase despite being expressed in uppercase in the Azure portal
+                    return tfpClaim === 'acr' ? policyName.toLowerCase(): policyName;
+                }
+                
+                if (event.payload.idTokenClaims[tfpClaim] === formatCase(b2cPolicies.names.editProfile, tfpClaim)) {
                     // retrieve the account from initial sing-in to the app
                     const originalSignInAccount = instance
                         .getAllAccounts()
@@ -41,7 +46,7 @@ const Pages = () => {
                             (account) =>
                                 account.idTokenClaims.oid === event.payload.idTokenClaims.oid &&
                                 account.idTokenClaims.sub === event.payload.idTokenClaims.sub &&
-                                account.idTokenClaims['tfp'] === b2cPolicies.names.signUpSignIn
+                                (account.idTokenClaims['tfp'] === b2cPolicies.names.signUpSignIn || account.idTokenClaims['acr'] === formatCase(b2cPolicies.names.signUpSignIn,'acr'))
                         );
 
                     let signUpSignInFlowRequest = {
@@ -60,7 +65,7 @@ const Pages = () => {
                  * you can replace the code below with the same pattern used for handling the return from
                  * profile edit flow
                  */
-                if (tfp === b2cPolicies.names.forgotPassword) {
+                if (event.payload.idTokenClaims[tfpClaim] === formatCase(b2cPolicies.names.forgotPassword, tfpClaim)) {
                     let signUpSignInFlowRequest = {
                         authority: b2cPolicies.authorities.signUpSignIn.authority,
                         scopes: [
