@@ -22,10 +22,7 @@ const passportConfig = {
     protectedRoutes: {
         todolist: {
             endpoint: '/api/todolist',
-            delegatedPermissions: {
-                read: ['ToDoList.Read', 'ToDoList.ReadWrite'],
-                write: ['ToDoList.ReadWrite'],
-            },
+            scopes: ["tasks.read", "tasks.write"]
         },
     },
 };
