@@ -14,7 +14,7 @@
   "author": "salem",
   "license": "ISC",
   "dependencies": {
-    "@azure/msal-node": "^1.9.0",
+    "@azure/msal-node": "^1.14.6",
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
