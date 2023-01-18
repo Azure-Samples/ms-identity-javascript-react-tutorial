@@ -13,7 +13,7 @@
     "test": "jest --forceExit"
   },
   "dependencies": {
-    "@azure/msal-node": "^1.14.5",
+    "@azure/msal-node": "^1.14.6",
     "@microsoft/microsoft-graph-client": "^3.0.4",
     "cors": "^2.8.5",
     "express": "^4.14.0",
