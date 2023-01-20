@@ -28,7 +28,12 @@ const IdTokenContent = () => {
 
     return (
         <>
-            <h5 className="card-title">Welcome {accounts[0].name}</h5>
+            {accounts.length > 0 ? 
+                <h5 className="card-title">Welcome {accounts[0].name}</h5> 
+                : 
+                <></>
+            }
+            
             {idTokenClaims ?
                 <IdTokenClaims idTokenClaims={idTokenClaims} />
                 :
