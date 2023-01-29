@@ -1,6 +1,7 @@
-import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from "@azure/msal-react";
-import { Nav, Navbar, Dropdown, DropdownButton } from "react-bootstrap";
-import { loginRequest } from "../authConfig";
+import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
+import { Nav, Navbar, Dropdown, DropdownButton } from 'react-bootstrap';
+import { loginRequest } from '../authConfig';
+import { clearStorage } from '../utils/storageUtils';
 
 export const NavigationBar = () => {
     const { instance } = useMsal();
@@ -13,31 +14,35 @@ export const NavigationBar = () => {
 
     const handleLoginPopup = () => {
         /**
-         * When using popup and silent APIs, we recommend setting the redirectUri to a blank page or a page 
+         * When using popup and silent APIs, we recommend setting the redirectUri to a blank page or a page
          * that does not implement MSAL. Keep in mind that all redirect routes must be registered with the application
-         * For more information, please follow this link: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/login-user.md#redirecturi-considerations 
+         * For more information, please follow this link: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/login-user.md#redirecturi-considerations
          */
-        instance.loginPopup({
-            ...loginRequest,
-            redirectUri: "/redirect.html"
-        }).catch((error) => console.log(error));
+        instance
+            .loginPopup({
+                ...loginRequest,
+                redirectUri: '/redirect.html',
+            })
+            .catch((error) => console.log(error));
     };
 
     const handleLoginRedirect = () => {
-      instance.loginRedirect(loginRequest).catch((error) => console.log(error));
+        instance.loginRedirect(loginRequest).catch((error) => console.log(error));
     };
 
     const handleLogoutPopup = () => {
-         instance
+        clearStorage(activeAccount);
+        instance
             .logoutPopup({
-                 mainWindowRedirectUri: '/', // redirects the top level app after logout
-                 account: instance.getActiveAccount(),
-             })
-             .catch((error) => console.log(error));
+                mainWindowRedirectUri: '/', // redirects the top level app after logout
+                account: instance.getActiveAccount(),
+            })
+            .catch((error) => console.log(error));
     };
 
     const handleLogoutRedirect = () => {
-         instance.logoutRedirect().catch((error) => console.log(error));
+        clearStorage(activeAccount);
+        instance.logoutRedirect().catch((error) => console.log(error));
     };
 
     /**
@@ -54,7 +59,7 @@ export const NavigationBar = () => {
                 <AuthenticatedTemplate>
                     <Nav.Link className="navbarButton" href="/profile">
                         Profile
-                    </Nav.Link> 
+                    </Nav.Link>
                     <div className="collapse navbar-collapse justify-content-end">
                         <DropdownButton
                             variant="warning"

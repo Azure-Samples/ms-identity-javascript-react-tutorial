@@ -1,6 +1,7 @@
 const { ResponseType } = require('@microsoft/microsoft-graph-client');
 const { getOboToken } = require('../auth/onBehalfOfClient');
 const { getGraphClient } = require('../util/graphClient');
+const msal = require('@azure/msal-node');
 
 const authConfig = require('../authConfig');
 
@@ -8,6 +9,7 @@ const {
     isAppOnlyToken,
     hasRequiredDelegatedPermissions,
 } = require('../auth/permissionUtils');
+const { handleClaimsChallenge } = require("../util/claimUtils");
 
 exports.getProfile = async (req, res, next) => {
     if (isAppOnlyToken(req.authInfo)) {
@@ -24,11 +26,20 @@ exports.getProfile = async (req, res, next) => {
                 .api('/me')
                 .responseType(ResponseType.RAW)
                 .get();
-
-            const response = await graphResponse.json();
-            res.json(response);
+            
+            const graphData = await handleClaimsChallenge(graphResponse);
+            if (graphData && graphData.errorMessage === 'claims_challenge_occurred') {
+                throw graphData;
+            }
+            res.status(200).json(graphData);
         } catch (error) {
-            next(error);
+            if(error instanceof msal.InteractionRequiredAuthError) {
+                res.status(403).json(error);
+            } else if (error.message === "claims_challenge_occurred") {
+                res.status(401).json(error);
+            } else {
+                next(error);
+            }
         }
     } else {
         next(new Error('User does not have the required permissions'));
