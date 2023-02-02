@@ -45,5 +45,5 @@ const hasRequiredDelegatedPermissions = (accessTokenPayload, requiredPermission)
 
 module.exports = {
     isAppOnlyToken,
-    hasRequiredDelegatedPermissions,
+    hasRequiredDelegatedPermissions
 }

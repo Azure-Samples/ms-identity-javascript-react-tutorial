@@ -18,12 +18,10 @@ export const NavigationBar = () => {
          * that does not implement MSAL. Keep in mind that all redirect routes must be registered with the application
          * For more information, please follow this link: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/login-user.md#redirecturi-considerations
          */
-        instance
-            .loginPopup({
-                ...loginRequest,
-                redirectUri: '/redirect.html',
-            })
-            .catch((error) => console.log(error));
+        instance.loginPopup({
+            ...loginRequest,
+            redirectUri: '/redirect.html',
+        }).catch((error) => console.log(error));
     };
 
     const handleLoginRedirect = () => {
@@ -32,16 +30,16 @@ export const NavigationBar = () => {
 
     const handleLogoutPopup = () => {
         clearStorage(activeAccount);
-        instance
-            .logoutPopup({
-                mainWindowRedirectUri: '/', // redirects the top level app after logout
-                account: instance.getActiveAccount(),
-            })
-            .catch((error) => console.log(error));
+
+        instance.logoutPopup({
+            mainWindowRedirectUri: '/', // redirects the top level app after logout
+            account: instance.getActiveAccount(),
+        }).catch((error) => console.log(error));
     };
 
     const handleLogoutRedirect = () => {
         clearStorage(activeAccount);
+
         instance.logoutRedirect().catch((error) => console.log(error));
     };
 

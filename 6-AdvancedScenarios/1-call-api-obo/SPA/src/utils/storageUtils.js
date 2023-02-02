@@ -4,7 +4,7 @@ import { msalConfig } from "../authConfig";
  *  This method stores the claims to the sessionStorage in the browser to be used when acquiring a token
  * @param {String} claimsChallenge
  */
-export const addClaimsToStorage = (claims, claimsChallengeId) => {
+export const addClaimsToStorage = (claimsChallengeId, claims) => {
     sessionStorage.setItem(claimsChallengeId, claims);
 };
 
