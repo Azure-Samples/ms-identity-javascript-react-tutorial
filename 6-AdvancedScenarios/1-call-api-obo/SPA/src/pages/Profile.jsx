@@ -29,7 +29,7 @@ const ProfileContent = () => {
             : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
     };
 
-    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, {
+    const { acquireToken, result, error } = useMsalAuthentication(InteractionType.Popup, {
         ...request,
         redirectUri: '/redirect.html',
     });
@@ -42,7 +42,7 @@ const ProfileContent = () => {
         if (!!error) {
             // in case popup is blocked, use redirect instead
             if (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error') {
-                login(InteractionType.Redirect, request);
+                acquireToken(InteractionType.Redirect, request);
             }
 
             console.log(error);
@@ -51,18 +51,17 @@ const ProfileContent = () => {
 
         if (result) {
             callApiWithToken(result.accessToken, protectedResources.apiHello.endpoint, account)
-                .then((response) => setGraphData(response))
+                .then((response) => setGraphData(response.value))
                 .catch((error) => {
                     if (error.message === 'claims_challenge_occurred') {
-                        login(InteractionType.Redirect, request);
+                        acquireToken(InteractionType.Redirect, request);
                     } else {
                         console.log(error);
-                        setGraphData(error);
                     }
                 });
         }
         // eslint-disable-next-line
-    }, [graphData, result, error, login]);
+    }, [graphData, result, error, acquireToken]);
 
     if (error) {
         return <div>Error: {error.message}</div>;
