@@ -26,22 +26,24 @@ const app = express();
  * where an attacker can cause the application to crash or become unresponsive by issuing a large number of 
  * requests at the same time. For more information, visit: https://cheatsheetseries.owasp.org/cheatsheets/Denial_of_Service_Cheat_Sheet.html
  */
- const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 
 // Apply the rate limiting middleware to all requests
-app.use(limiter)
-
+app.use(limiter);
 
 /**
  * Enable CORS middleware. In production, modify as to allow only designated origins and methods.
  * If you are using Azure App Service, we recommend removing the line below and configure CORS on the App Service itself.
  */
-app.use(cors());
+app.use(cors({
+    origin: '*',
+    exposedHeaders: "WWW-Authenticate",
+}));
 
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
@@ -58,7 +60,7 @@ const bearerStrategy = new passportAzureAd.BearerStrategy(
         loggingLevel: authConfig.settings.loggingLevel,
         loggingNoPII: authConfig.settings.loggingNoPII,
     },
-    (req,token, done) => {
+    (req, token, done) => {
         /**
          * Below you can do extended token validation and check for additional claims, such as:
          * - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
@@ -94,6 +96,7 @@ const bearerStrategy = new passportAzureAd.BearerStrategy(
 );
 
 app.use(passport.initialize());
+
 passport.use(bearerStrategy);
 
 app.use(

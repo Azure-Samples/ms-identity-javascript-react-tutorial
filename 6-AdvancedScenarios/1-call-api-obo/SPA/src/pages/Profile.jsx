@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 import { useMsalAuthentication, useMsal } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
 
-import { protectedResources } from '../authConfig';
+import { msalConfig, protectedResources } from '../authConfig';
+import { getClaimsFromStorage } from '../utils/storageUtils';
 import { callApiWithToken } from '../fetch';
+
 import { ProfileData } from '../components/DataDisplay';
 
 const ProfileContent = () => {
@@ -14,15 +16,20 @@ const ProfileContent = () => {
      * that tells you what msal is currently doing. For more, visit:
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/docs/hooks.md
      */
-    const { instance, } = useMsal();
+    const { instance } = useMsal();
     const account = instance.getActiveAccount();
     const [graphData, setGraphData] = useState(null);
+    const resource = new URL(protectedResources.apiHello.endpoint).hostname;
+
     const request = {
         scopes: protectedResources.apiHello.scopes,
         account: account,
+        claims: account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
+            ? window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`))
+            : undefined, // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
     };
 
-    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, {
+    const { acquireToken, result, error } = useMsalAuthentication(InteractionType.Popup, {
         ...request,
         redirectUri: '/redirect.html',
     });
@@ -35,7 +42,7 @@ const ProfileContent = () => {
         if (!!error) {
             // in case popup is blocked, use redirect instead
             if (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error') {
-                login(InteractionType.Redirect, request);
+                acquireToken(InteractionType.Redirect, request);
             }
 
             console.log(error);
@@ -43,17 +50,18 @@ const ProfileContent = () => {
         }
 
         if (result) {
-            callApiWithToken(result.accessToken, protectedResources.apiHello.endpoint)
-                .then((response) => {
-                    setGraphData(response)
-                })
+            callApiWithToken(result.accessToken, protectedResources.apiHello.endpoint, account)
+                .then((response) => setGraphData(response.value))
                 .catch((error) => {
-                    console.log(error)
-                })
-
+                    if (error.message === 'claims_challenge_occurred') {
+                        acquireToken(InteractionType.Redirect, request);
+                    } else {
+                        console.log(error);
+                    }
+                });
         }
         // eslint-disable-next-line
-    }, [graphData, result, error, login]);
+    }, [graphData, result, error, acquireToken]);
 
     if (error) {
         return <div>Error: {error.message}</div>;

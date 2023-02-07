@@ -354,6 +354,148 @@ const getGraphClient = (accessToken) => {
 };
 ```
 
+### Handle Continuous Access Evaluation (CAE) challenges from Microsoft Graph
+
+Continuous access evaluation (CAE) enables applications to do just-in time token validation, for instance enforcing user session revocation in the case of password change/reset but there are other benefits. For details, see [Continuous access evaluation](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation).
+
+Microsoft Graph is now CAE-enabled. This means that it can ask its client apps for more claims when conditional access policies require it. Your can enable your application to be ready to consume CAE-enabled APIs by:
+
+1. Declaring that the client app is capable of handling [claims challenges](https://aka.ms/claimschallenge).
+2. Processing the claim challenge when they are thrown by MS Graph Api.
+
+#### Declare the CAE capability in the configuration
+
+Apps using MSAL can declare CAE-capability by adding the `clientCapabilities` property in the configuration object. This is shown in [authConfig.js](./SPA/src/authConfig.js):
+
+```javascript
+    const msalConfig = {
+        auth: {
+            clientId: 'Enter_the_Application_Id_Here', 
+            authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
+            redirectUri: "/", 
+            postLogoutRedirectUri: "/",
+            navigateToLoginRequestUrl: true, 
+            clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
+        }
+    }
+
+    const msalInstance = new PublicClientApplication(msalConfig);
+```
+
+Note that both the SPA and the web API projects need to declare this, since the web API in this sample also obtains tokens via the **on-behalf-of** flow (see [onBehalfOfClient.js](./API/auth/onBehalfOfClient.js)).
+
+#### Processing the CAE challenge from Microsoft Graph
+
+Once the middle-tier web API (msal-node-api) app receives the CAE claims challenge from Microsoft Graph, it needs to process the challenge and redirect the user back to Azure AD for re-authorization. However, since the middle-tier web API does not have UI to carry out this, it needs to propagate the error to the client app (msal-react-spa) instead, where it can be handled. This is shown in [profileController.js](./API/controllers/profileController.js):
+
+```javascript
+exports.getProfile = async (req, res, next) => {
+    if (isAppOnlyToken(req.authInfo)) {
+        return next(new Error('This route requires a user token'));
+    }
+
+    const userToken = req.get('authorization');
+    const [bearer, tokenValue] = userToken.split(' ');
+
+    if (hasRequiredDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.profile.delegatedPermissions.scopes)) {
+        try {
+            const accessToken = await getOboToken(tokenValue);
+
+            const graphResponse = await getGraphClient(accessToken)
+                .api('/me')
+                .responseType(ResponseType.RAW)
+                .get();
+
+            if (graphResponse.status === 401) {
+                if (graphResponse.headers.get('WWW-Authenticate')) {
+
+                    if (isClientCapableOfClaimsChallenge(req.authInfo)) {
+                        /**
+                         * Append the WWW-Authenticate header from the Microsoft Graph response to the response to 
+                         * the client app. To learn more, visit: https://learn.microsoft.com/azure/active-directory/develop/app-resilience-continuous-access-evaluation
+                         */
+                        return res.status(401)
+                            .set('WWW-Authenticate', graphResponse.headers.get('WWW-Authenticate').toString())
+                            .json({ errorMessage: 'Continuous access evaluation resulted in claims challenge' });
+                    }
+
+                    return res.status(401).json({ errorMessage: 'Continuous access evaluation resulted in claims challenge but the client is not capable. Please enable client capabilities and try again' });
+                }
+
+                throw new Error('Unauthorized');
+            }
+
+            const graphData = await graphResponse.json();
+            res.status(200).json(graphData);
+        } catch (error) {
+            if (error instanceof msal.InteractionRequiredAuthError) {
+                if (error.claims) {
+                    const claimsChallenge = generateClaimsChallenge(error.claims);
+
+                    return res.status(401)
+                        .set(claimsChallenge.headers[0], claimsChallenge.headers[1])
+                        .json({ errorMessage: error.errorMessage });
+                }
+
+                return res.status(401).json(error);
+            }
+
+            next(error);
+        }
+    } else {
+        next(new Error('User does not have the required permissions'));
+    }
+};
+
+```
+
+On the client side, we use MSAL's `acquireToken` API and provide the claims challenge as a parameter in the token request (see  [Profile.jsx](./SPA/src/pages/Profile.jsx)). To retrieve the claims challenge from the API response, refer to the [fetch.js](./SPA/src/fetch.js), where we handle the response with the `handleClaimsChallenge` method:
+
+```javascript
+export const callApiWithToken = async (accessToken, apiEndpoint, account) => {
+    const headers = new Headers();
+    const bearer = `Bearer ${accessToken}`;
+
+    headers.append("Authorization", bearer);
+
+    const options = {
+        method: "GET",
+        headers: headers
+    };
+
+    const response = await fetch(apiEndpoint, options);
+    return handleClaimsChallenge(response, apiEndpoint, account);
+}
+
+export const handleClaimsChallenge = async (response, apiEndpoint, account) => {
+    if (response.status === 200) {
+        return response.json();
+    } else if (response.status === 401) {
+        if (response.headers.get('WWW-Authenticate')) {
+            const authenticateHeader = response.headers.get('WWW-Authenticate');
+            const claimsChallenge = parseChallenges(authenticateHeader);
+
+            /**
+             * This method stores the claim challenge to the session storage in the browser to be used when acquiring a token.
+             * To ensure that we are fetching the correct claim from the storage, we are using the clientId
+             * of the application and oid (user’s object id) as the key identifier of the claim with schema
+             * cc.<clientId>.<oid>.<resource.hostname>
+             */
+            addClaimsToStorage(
+                `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${new URL(apiEndpoint).hostname}`,
+                claimsChallenge.claims,
+            );
+
+            throw new Error(`claims_challenge_occurred`);
+        }
+
+        throw new Error(`Unauthorized: ${response.status}`);
+    } else {
+        throw new Error(`Something went wrong with the request: ${response.status}`);
+    }
+};
+```
+
 ## Contributing
 
 If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
