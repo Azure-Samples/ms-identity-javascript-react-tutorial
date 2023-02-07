@@ -53,11 +53,11 @@ const ProfileContent = () => {
             callApiWithToken(result.accessToken, protectedResources.apiHello.endpoint, account)
                 .then((response) => setGraphData(response))
                 .catch((error) => {
-                    if (error.errorMessage === 'claims_challenge_occurred') {
+                    if (error.message === 'claims_challenge_occurred') {
                         login(InteractionType.Redirect, request);
                     } else {
                         console.log(error);
-                        setGraphData(error)
+                        setGraphData(error);
                     }
                 });
         }

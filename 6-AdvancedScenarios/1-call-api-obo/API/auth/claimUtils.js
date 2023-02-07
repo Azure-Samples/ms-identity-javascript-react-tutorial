@@ -22,7 +22,8 @@ const generateClaimsChallenge = (claims) => {
     const clientId = authConfig.credentials.clientID;
 
     // base64 encode the challenge object
-    const base64str = Buffer.from(JSON.stringify(claims)).toString('base64');
+    let bufferObj = Buffer.from(claims, 'utf8');
+    let base64str = bufferObj.toString('base64');
     const headers = ["WWW-Authenticate", "Bearer realm=\"\", authorization_uri=\"https://login.microsoftonline.com/common/oauth2/v2.0/authorize\", client_id=\"" + clientId + "\", error=\"insufficient_claims\", claims=\"" + base64str + "\""];
 
     return {
