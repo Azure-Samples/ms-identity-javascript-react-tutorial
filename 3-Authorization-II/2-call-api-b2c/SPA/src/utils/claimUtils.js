@@ -230,7 +230,7 @@ const changeDateFormat = (date) => {
  * @returns {boolean}
  */
  export function compareIssuingPolicy(idTokenClaims, policyToCompare) {
-    let tfpMatches = idTokenClaims['tfp'] === policyToCompare
+    let tfpMatches = idTokenClaims['tfp'] === policyToCompare.toLowerCase();
     let acrMatches = idTokenClaims['acr'] === policyToCompare.toLowerCase()
     return tfpMatches || acrMatches
   }
