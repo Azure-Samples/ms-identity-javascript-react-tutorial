@@ -8,6 +8,7 @@ import { TodoList } from './pages/TodoList';
 import { Home } from './pages/Home';
 
 import { b2cPolicies, protectedResources } from './authConfig';
+import { compareIssuingPolicy } from './utils/claimUtils';
 
 import './styles/App.css';
 
@@ -31,15 +32,15 @@ const Pages = () => {
                  * policies may use "acr" instead of "tfp"). To learn more about B2C tokens, visit:
                  * https://docs.microsoft.com/en-us/azure/active-directory-b2c/tokens-overview
                  */
-                if (event.payload.idTokenClaims['tfp'] === b2cPolicies.names.editProfile) {
+                if (compareIssuingPolicy(event.payload.idTokenClaims, b2cPolicies.names.editProfile)) {
                     // retrieve the account from initial sing-in to the app
                     const originalSignInAccount = instance
                         .getAllAccounts()
                         .find(
                             (account) =>
                                 account.idTokenClaims.oid === event.payload.idTokenClaims.oid &&
-                                account.idTokenClaims.sub === event.payload.idTokenClaims.sub &&
-                                account.idTokenClaims['tfp'] === b2cPolicies.names.signUpSignIn
+                                account.idTokenClaims.sub === event.payload.idTokenClaims.sub && 
+                                compareIssuingPolicy(account.idTokenClaims, b2cPolicies.names.signUpSignIn)        
                         );
 
                     let signUpSignInFlowRequest = {
@@ -58,7 +59,7 @@ const Pages = () => {
                  * you can replace the code below with the same pattern used for handling the return from
                  * profile edit flow
                  */
-                if (event.payload.idTokenClaims['tfp'] === b2cPolicies.names.forgotPassword) {
+                if (compareIssuingPolicy(event.payload.idTokenClaims, b2cPolicies.names.forgotPassword)) {
                     let signUpSignInFlowRequest = {
                         authority: b2cPolicies.authorities.signUpSignIn.authority,
                         scopes: [

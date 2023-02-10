@@ -222,3 +222,16 @@ const changeDateFormat = (date) => {
     let dateObj = new Date(date * 1000);
     return `${date} - [${dateObj.toString()}]`;
 };
+
+/**
+ * Compare the token issuing policy with a specific policy name
+ * @param {object} idTokenClaims - Object containining token claims
+ * @param {string} policyToCompare - ID/Name of the policy as expressed in the Azure portal
+ * @returns {boolean}
+ */
+ export function compareIssuingPolicy(idTokenClaims, policyToCompare) {
+    let tfpMatches = idTokenClaims['tfp'] === policyToCompare.toLowerCase();
+    let acrMatches = idTokenClaims['acr'] === policyToCompare.toLowerCase()
+    return tfpMatches || acrMatches
+  }
+  
