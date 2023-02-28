@@ -30,11 +30,11 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 ## Contents
 
-| File/folder     | Description                                      |
-|-----------------|--------------------------------------------------|
-| `App.jsx`       | Main application logic resides here.             |
-| `ui.jsx`        | UI components reside here.                       |
-| `authConfig.js` | Contains authentication parameters.              |
+| File/folder                | Description                                      |
+|----------------------------|--------------------------------------------------|
+| `App.jsx`                  | Main application logic resides here.             |
+| `NavigationBar.jsx`        | Authentication logic .                           |
+| `authConfig.js`            | Contains authentication parameters.              |
 
 ## Prerequisites
 
@@ -59,28 +59,26 @@ There is one project in this sample. To register it, you can:
   - modify the projects' configuration files.
 
 <details>
-  <summary>Expand this section if you want to use this automation:</summary>
+   <summary>Expand this section if you want to use this automation:</summary>
 
-> :warning: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-
+> :warning: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts Guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+  
 1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-1. If you have never used Azure AD Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
 1. In PowerShell run:
 
-   ```PowerShell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-   ```
+    ```PowerShell
+    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
+    ```
 
 1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-1. In PowerShell run:
+1. For interactive process -in PowerShell, run:
 
-   ```PowerShell
-   cd .\AppCreationScripts\
-   .\Configure.ps1
-   ```
+    ```PowerShell
+    cd .\AppCreationScripts\
+    .\Configure.ps1 -TenantId "[Optional] - your tenant id" -AzureEnvironmentName "[Optional] - Azure environment, defaults to 'Global'"
+    ```
 
-   > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
-   > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
+> Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md). The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
 
 </details>
 
@@ -91,17 +89,21 @@ As a first step you'll need to:
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
-### Register the app (msal-react-spa)
+#### Register the client app (msal-react-spa)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:3000/`.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. Select **Save** to save your changes.
+    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
+    1. Under **Supported account types**, select **Accounts in this organizational directory only**
+    1. Select **Register** to create the application.
+1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. In the app's registration screen, select the **Authentication** blade to the left.
+1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
+    1. In the **Redirect URI** section enter the following redirect URIs:
+        1. `http://localhost:3000/`
+        1. `http://localhost:3000/redirect.html`
+    1. Click **Save** to save your changes
 
 #### Configure the app (msal-react-spa) to use your app registration
 
@@ -118,6 +120,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 Locate the folder where `package.json` resides in your terminal. Then:
 
 ```console
+    cd 1-Authentication\1-sign-in\SPA
     npm start
 ```
 
@@ -125,7 +128,6 @@ Locate the folder where `package.json` resides in your terminal. Then:
 
 1. Open your browser and navigate to `http://localhost:3000`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows (see: [MSAL.js interaction types](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/initialization.md#choosing-an-interaction-type)).
-1. Select the **View ID Token Claims** button at the center. This will display some of the important claims in your ID token.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
