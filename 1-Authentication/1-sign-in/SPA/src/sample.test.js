@@ -53,7 +53,7 @@ describe('Ensure that the app starts', () => {
     it('should render the app without crashing', async () => {
         const div = document.createElement('div');
 
-        ReactDOM.render(<App msalInstance={pca} />, div);
+        ReactDOM.render(<App instance={pca} />, div);
 
         await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
 
