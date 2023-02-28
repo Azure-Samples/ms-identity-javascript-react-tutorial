@@ -1,29 +1,30 @@
 {
     "Sample": {
-        "Title": "React single-page application using MSAL React to sign-in users against Azure Active Directory",
+        "Title": "React single-page application using MSAL React to authentication users against Azure Active Directory",
         "Level": 100,
         "Client": "React SPA",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-        "Endpoint": "AAD v2.0"
+        "Endpoint": "AAD v2.0",
+        "Languages": ["javascript"],
+        "Description": "React single-page application using MSAL React to authentication users against Azure Active Directory",
+        "products": ["azure-active-directory", "msal-js", "msal-react"],
+        "Platform": "javascript"
     },
     "AADApps": [
         {
-            "Id": "spa",
-            "Name": "ms-identity-react-c1s1",
+            "Id": "client",
+            "Name": "msal-react-spa",
             "Kind": "SinglePageApplication",
             "HomePage": "http://localhost:3000/",
-            "ReplyUrls": "http://localhost:3000/",
-            "Audience": "AzureADMyOrg",
-            "ManualSteps": [
-                {
-                    "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
-                }
-            ]
+            "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
+            "Audience": "AzureADMyOrg", 
+            "SDK": "MsalJs",
+            "SampleSubPath": "1-Authentication\\1-sign-in\\SPA"
         }
     ],
     "CodeConfiguration": [
         {
-            "App": "spa",
+            "App": "client",
             "SettingKind": "Replace",
             "SettingFile": "\\..\\SPA\\src\\authConfig.js",
             "Mappings": [
@@ -32,7 +33,7 @@
                     "value": ".AppId"
                 },
                 {
-                    "key": "Enter_the_Tenant_Info_Here",
+                    "key": "Enter_the_Tenant_Id_Here",
                     "value": "$tenantId"
                 }
             ]

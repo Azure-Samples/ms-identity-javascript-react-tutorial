@@ -57,8 +57,6 @@ describe('Ensure that the app starts', () => {
 
         await waitFor(() => expect(handleRedirectSpy).toHaveBeenCalledTimes(1));
 
-        expect(div.textContent).toContain(
-            'Welcome to the Microsoft Authentication Library For React Tutorial'
-        );
+        expect(div.textContent).toContain('Welcome to the Microsoft Authentication Library For React Tutorial');
     });
 });
