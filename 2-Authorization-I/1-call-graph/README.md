@@ -44,16 +44,17 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 
 ## Contents
 
-| File/folder                         | Description                                                                |
-|-------------------------------------|----------------------------------------------------------------------------|
-| `App.jsx`                           | Main application logic resides here.                                       |
-| `fetch.jsx`                         | Provides a helper method for making fetch calls using bearer token scheme. |
-| `graph.jsx`                         | Instantiates Graph SDK client using a custom authentication provider.      |
-| `authConfig.js`                     | Contains authentication configuration parameters.                          |
-| `pages/Home.jsx`                    | Contains a table with ID token claims and description                      |
-| `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` endpoint with Graph SDK.                       |
-| `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` endpoint with Graph SDK.              |
-| `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js         |
+| File/folder                         | Description                                                                        |
+|-------------------------------------|----------------------------------------------------------------------------------  |
+| `App.jsx`                           | Main application logic resides here.                                               |
+| `fetch.jsx`                         | Provides a helper method for making fetch calls using bearer token scheme.         |
+| `graph.jsx`                         | Instantiates Graph SDK client using a custom authentication provider.              |
+| `authConfig.js`                     | Contains authentication configuration parameters.                                  |
+| `pages/Home.jsx`                    | Contains a table with ID token claims and description                              |
+| `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` by executing `useFetchWithMsal` custom hook.           |
+| `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` by executing `useFetchWithMsal` custom hook.  |
+| `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js                 |
+| `hooks/useFetchWithMsal.jsx`        | Contains token acquisition logic to call Microsoft Graph endpoints with Graph SDK. |
 
 ## Prerequisites
 
@@ -363,68 +364,57 @@ Once the client app receives the CAE claims challenge from Microsoft Graph, it n
     };
 ```
 
-After that, we require a new access token via the `useMsalAuthentication` hook, fetch the claims challenge from the browser's localStorage, and pass it to the `useMsalAuthentication` hook in the request parameter.
+After that, we require a new access token via the `useMsalAuthentication` hook, fetch the claims challenge from the browser's localStorage, and pass it to the `useMsalAuthentication` hook in the request parameter as shown in the [useFetchWithMsal](./SPA/src/hooks/useFetchWithMsal.jsx) custom hook: .
 
 ```javascript
-export const Profile = () => {
+const useFetchWithMsal = (request, endpoint) => {
+    const [error, setError] = useState(null);
     const { instance } = useMsal();
     const account = instance.getActiveAccount();
-    const [graphData, setGraphData] = useState(null);
-    const resource = new URL(protectedResources.graphMe.endpoint).hostname;
+    const resource = new URL(endpoint).hostname;
+
     const claims =
         account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
             ? window.atob(
                   getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
               )
             : undefined; // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
-    const request = {
-        scopes: protectedResources.graphMe.scopes,
+
+    const {
+        result,
+        login,
+        error: msalError,
+    } = useMsalAuthentication(InteractionType.Popup, {
+        ...request,
+        redirectUri: '/redirect.html',
         account: account,
         claims: claims,
+    });
+
+    /**
+     * Execute a fetch request with Graph SDK
+     * @param {String} endpoint
+     * @returns JSON response
+     */
+    const execute = async (endpoint) => {
+        if (msalError) {
+            setError(msalError);
+            return;
+        }
+        if (result) {
+            let accessToken = result.accessToken;
+           // do something with the access token
+        }
     };
 
-    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
-    useEffect(() => {
-        if (!!graphData) {
-            return;
-        }
-
-        if (!!error) {
-            // in case popup is blocked, use redirect instead
-            if (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error') {
-                login(InteractionType.Redirect, request);
-            }
-
-            console.log(error);
-            return;
-        }
-
-        if (result) {
-            getGraphClient(result.accessToken)
-                .api('/me')
-                .responseType(ResponseType.RAW)
-                .get()
-                .then((response) => {
-                    return handleClaimsChallenge(response, protectedResources.graphMe.endpoint);
-                })
-                .then((response) => {
-                    if (response && response.error === 'claims_challenge_occurred') throw response.error;
-                    setGraphData(response);
-                })
-                .catch((error) => {
-                    if (error === 'claims_challenge_occurred') {
-                        login(InteractionType.Redirect, request);
-                    }
-                    console.log(error);
-                });
-        }
-    }, [graphData, result, error, login]);
-
-    if (error) {
-        return <div>Error: {error.message}</div>;
-    }
-    return <>{graphData ? <ProfileData response={result} graphData={graphData} /> : null}</>;
+    return {
+        error,
+        result: result,
+        execute: useCallback(execute, [result, msalError]),
+    };
 };
+
+export default useFetchWithMsal;
 ```
 
 ### Access token validation
@@ -451,27 +441,30 @@ For more details on what's inside the access token, clients should use the token
 };
 ```
 
-See [graph.js](./SPA/src/graph.js). The Graph client then can be used in your components as shown below:
+See [graph.js](./SPA/src/graph.js). The Graph client then can be used in your application as shown in the [useFetchWithMsal](./SPA/src/hooks/useFetchWithMsal.jsx) custom hook:
 
 ```javascript
-if (result) {
-    getGraphClient(result.accessToken)
-        .api('/me')
-        .responseType(ResponseType.RAW)
-        .get()
-        .then((response) => {
-            return handleClaimsChallenge(response, protectedResources.graphMe.endpoint);
-        })
-        .then((response) => {
-            if (response && response.error === 'claims_challenge_occurred') throw response.error;
-                setGraphData(response);
-            })
-            .catch((error) => {
-                if (error === 'claims_challenge_occurred') {
+    if (result) {
+        let accessToken = result.accessToken;
+
+        try {
+            const graphResponse = await getGraphClient(accessToken)
+                    .api(endpoint)
+                    .responseType(ResponseType.RAW)
+                    .get();
+            const responseHasClaimsChallenge = await handleClaimsChallenge(graphResponse);
+            if (responseHasClaimsChallenge && responseHasClaimsChallenge.error === 'claims_challenge_occurred') {
+                    throw responseHasClaimsChallenge.error;
+            } else {
+                return responseHasClaimsChallenge;
+            }
+        } catch (error) {
+            if (error === 'claims_challenge_occurred') {
                     login(InteractionType.Redirect, request);
-                }
-                console.log(error);
-            });
+            } else {
+                setError(error);
+            }
+        }
     }
 ```
 
