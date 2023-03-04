@@ -36,7 +36,7 @@ const useFetchWithMsal = (request, endpoint) => {
         account: account,
         claims: claims,
     });
-
+   
     /**
      * Execute a fetch request with Graph SDK
      * @param {String} endpoint
@@ -55,7 +55,7 @@ const useFetchWithMsal = (request, endpoint) => {
                     .api(endpoint)
                     .responseType(ResponseType.RAW)
                     .get();
-                const responseHasClaimsChallenge = await handleClaimsChallenge(graphResponse);
+                const responseHasClaimsChallenge = await handleClaimsChallenge(graphResponse, endpoint, account);
                 if (responseHasClaimsChallenge && responseHasClaimsChallenge.error === 'claims_challenge_occurred') {
                     throw responseHasClaimsChallenge.error;
                 } else {
