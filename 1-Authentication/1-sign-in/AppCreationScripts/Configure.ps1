@@ -1,26 +1,64 @@
+ 
 [CmdletBinding()]
 param(
-    [PSCredential] $Credential,
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
     [string] $tenantId,
-    [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script (it defaults to AzureCloud)')]
+    [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script. Default = Global')]
     [string] $azureEnvironmentName
 )
-
-#Requires -Modules AzureAD -RunAsAdministrator
 
 <#
  This script creates the Azure AD applications needed for this sample and updates the configuration files
  for the visual Studio projects from the data in the Azure AD applications.
 
- Before running this script you need to install the AzureAD cmdlets as an administrator. 
- For this:
- 1) Run Powershell as an administrator
- 2) in the PowerShell window, type: Install-Module AzureAD
-
- There are four ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
+ In case you don't have Microsoft.Graph.Applications already installed, the script will automatically install it for the current user
+ 
+ There are two ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
 #>
 
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#> 
+Function UpdateLine([string] $line, [string] $value)
+{
+    $index = $line.IndexOf(':')
+    $lineEnd = ''
+
+    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
+    
+    if ($index -ige 0)
+    {
+        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
+    }
+    return $line
+}
+
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#> 
+Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
+{
+    $lines = Get-Content $configFilePath
+    $index = 0
+    while($index -lt $lines.Length)
+    {
+        $line = $lines[$index]
+        foreach($key in $dictionary.Keys)
+        {
+            if ($line.Contains($key))
+            {
+                $lines[$index] = UpdateLine $line $dictionary[$key]
+            }
+        }
+        $index++
+    }
+
+    Set-Content -Path $configFilePath -Value $lines -Force
+}
+
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#>     
 Function ReplaceInLine([string] $line, [string] $key, [string] $value)
 {
     $index = $line.IndexOf($key)
@@ -32,6 +70,9 @@ Function ReplaceInLine([string] $line, [string] $key, [string] $value)
     return $line
 }
 
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#>     
 Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
 {
     $lines = Get-Content $configFilePath
@@ -52,112 +93,159 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
     Set-Content -Path $configFilePath -Value $lines -Force
 }
 
+
+<#.Description
+   Primary entry method to create and configure app registrations
+#> 
+Function ConfigureApplications
+{
+    <#.Description
+       This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
+       configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
+       so that they are consistent with the Applications parameters
+    #> 
+    
+    if (!$azureEnvironmentName)
+    {
+        $azureEnvironmentName = "Global"
+    }
+
+    # Connect to the Microsoft Graph API, non-interactive is not supported for the moment (Oct 2021)
+    Write-Host "Connecting to Microsoft Graph"
+    if ($tenantId -eq "") {
+        Connect-MgGraph -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All" -Environment $azureEnvironmentName
+    }
+    else {
+        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All" -Environment $azureEnvironmentName
+    }
+    
+    $context = Get-MgContext
+    $tenantId = $context.TenantId
+
+    # Get the user running the script
+    $currentUserPrincipalName = $context.Account
+    $user = Get-MgUser -Filter "UserPrincipalName eq '$($context.Account)'"
+
+    # get the tenant we signed in to
+    $Tenant = Get-MgOrganization
+    $tenantName = $Tenant.DisplayName
+    
+    $verifiedDomain = $Tenant.VerifiedDomains | where {$_.Isdefault -eq $true}
+    $verifiedDomainName = $verifiedDomain.Name
+    $tenantId = $Tenant.Id
+
+    Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
+
+   # Create the client AAD application
+   Write-Host "Creating the AAD application (msal-react-spa)"
+   # create the application 
+   $clientAadApplication = New-MgApplication -DisplayName "msal-react-spa" `
+                                                      -Spa `
+                                                      @{ `
+                                                          RedirectUris = "http://localhost:3000/", "http://localhost:3000/redirect.html"; `
+                                                        } `
+                                                       -SignInAudience AzureADMyOrg `
+                                                      #end of command
+
+    $currentAppId = $clientAadApplication.AppId
+    $currentAppObjectId = $clientAadApplication.Id
+
+    $tenantName = (Get-MgApplication -ApplicationId $currentAppObjectId).PublisherDomain
+    #Update-MgApplication -ApplicationId $currentAppObjectId -IdentifierUris @("https://$tenantName/msal-react-spa")
+    
+    # create the service principal of the newly created application     
+    $clientServicePrincipal = New-MgServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
+
+    # add the user running the script as an app owner if needed
+    $owner = Get-MgApplicationOwner -ApplicationId $currentAppObjectId
+    if ($owner -eq $null)
+    { 
+        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
+        Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
+    }
+    Write-Host "Done creating the client application (msal-react-spa)"
+
+    # URL of the AAD application in the Azure portal
+    # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    $clientPortalUrl = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/"+$currentAppId+"/isMSAApp~/false"
+
+    Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-spa</a></td></tr>" -Path createdApps.html
+
+    # print the registered app portal URL for any further navigation
+    Write-Host "Successfully registered and configured that app registration for 'msal-react-spa' at `n $clientPortalUrl" -ForegroundColor Green 
+    
+    # Update config file for 'client'
+    # $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
+    $configFile = $(Resolve-Path ($pwd.Path + "\..\SPA\src\authConfig.js"))
+    
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Id_Here" = $tenantId };
+
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
+    $dictionary
+    Write-Host "-----------------"
+
+    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
+    Write-Host "- App client  - created at $clientPortalUrl"
+
+
+Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
+} # end of ConfigureApplications function
+
+# Pre-requisites
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
+    Install-Module "Microsoft.Graph" -Scope CurrentUser 
+}
+
+#Import-Module Microsoft.Graph
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Authentication
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Identity.DirectoryManagement")) {
+    Install-Module "Microsoft.Graph.Identity.DirectoryManagement" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {
+    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Applications
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Groups
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Users
+
 Set-Content -Value "<html><body><table>" -Path createdApps.html
 Add-Content -Value "<thead><tr><th>Application</th><th>AppId</th><th>Url in the Azure portal</th></tr></thead><tbody>" -Path createdApps.html
 
 $ErrorActionPreference = "Stop"
 
-Function ConfigureApplications
-{
-<#.Description
-   This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
-   configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
-   so that they are consistent with the Applications parameters
-#> 
-    $commonendpoint = "common"
-    
-    if (!$azureEnvironmentName)
-    {
-        $azureEnvironmentName = "AzureCloud"
-    }
-
-    # $tenantId is the Active Directory Tenant. This is a GUID which represents the "Directory ID" of the AzureAD tenant
-    # into which you want to create the apps. Look it up in the Azure portal in the "Properties" of the Azure AD.
-
-    # Login to Azure PowerShell (interactive if credentials are not already provided:
-    # you'll need to sign-in with creds enabling your to create apps in the tenant)
-    if (!$Credential -and $TenantId)
-    {
-        $creds = Connect-AzureAD -TenantId $tenantId -AzureEnvironmentName $azureEnvironmentName
-    }
-    else
-    {
-        if (!$TenantId)
-        {
-            $creds = Connect-AzureAD -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
-        }
-        else
-        {
-            $creds = Connect-AzureAD -TenantId $tenantId -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
-        }
-    }
-
-    if (!$tenantId)
-    {
-        $tenantId = $creds.Tenant.Id
-    }
-
-    
-
-    $tenant = Get-AzureADTenantDetail
-    $tenantName =  ($tenant.VerifiedDomains | Where { $_._Default -eq $True }).Name
-
-    # Get the user running the script to add the user as the app owner
-    $user = Get-AzureADUser -ObjectId $creds.Account.Id
-
-   # Create the spa AAD application
-   Write-Host "Creating the AAD application (ms-identity-react-c1s1)"
-   # create the application 
-   $spaAadApplication = New-AzureADApplication -DisplayName "ms-identity-react-c1s1" `
-                                               -HomePage "http://localhost:3000/" `
-                                               -ReplyUrls "http://localhost:3000/" `
-                                               -IdentifierUris "https://$tenantName/ms-identity-react-c1s1" `
-                                               -PublicClient $False
-
-   # create the service principal of the newly created application 
-   $currentAppId = $spaAadApplication.AppId
-   $spaServicePrincipal = New-AzureADServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
-
-   # add the user running the script as an app owner if needed
-   $owner = Get-AzureADApplicationOwner -ObjectId $spaAadApplication.ObjectId
-   if ($owner -eq $null)
-   { 
-        Add-AzureADApplicationOwner -ObjectId $spaAadApplication.ObjectId -RefObjectId $user.ObjectId
-        Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($spaServicePrincipal.DisplayName)'"
-   }
-
-
-   Write-Host "Done creating the spa application (ms-identity-react-c1s1)"
-
-   # URL of the AAD application in the Azure portal
-   # Future? $spaPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
-   $spaPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>ms-identity-react-c1s1</a></td></tr>" -Path createdApps.html
-
-
-   # Update config file for 'spa'
-   $configFile = $pwd.Path + "\..\SPA\src\authConfig.js"
-   Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
-   ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-   Write-Host ""
-   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-   Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
-   Write-Host "- For 'spa'"
-   Write-Host "  - Navigate to '$spaPortalUrl'"
-   Write-Host "  - Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'" -ForegroundColor Red 
-
-   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-     
-   Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
-}
-
-# Pre-requisites
-if ((Get-Module -ListAvailable -Name "AzureAD") -eq $null) { 
-    Install-Module "AzureAD" -Scope CurrentUser 
-}
-
-Import-Module AzureAD
-
 # Run interactively (will ask you for the tenant ID)
-ConfigureApplications -Credential $Credential -tenantId $TenantId
+
+try
+{
+    ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
+}
+catch
+{
+    $_.Exception.ToString() | out-host
+    $message = $_
+    Write-Warning $Error[0]    
+    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
+Write-Host "Disconnecting from tenant"
+Disconnect-MgGraph

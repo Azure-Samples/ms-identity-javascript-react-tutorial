@@ -12,14 +12,14 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const msalConfig = {
     auth: {
-        clientId: "Enter_the_Application_Id_Here", // This is the ONLY mandatory field that you need to supply.
-        authority: "https://login.microsoftonline.com/Enter_the_Tenant_Info_Here", // Defaults to "https://login.microsoftonline.com/common"
-        redirectUri: "/", // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
-        postLogoutRedirectUri: "/", // Indicates the page to navigate after logout.
+        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Id_Here', // Defaults to "https://login.microsoftonline.com/common"
+        redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
+        postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
     },
     cache: {
-        cacheLocation: "sessionStorage", // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+        cacheLocation: 'sessionStorage', // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
         storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
     },
     system: {
@@ -41,10 +41,12 @@ export const msalConfig = {
                     case LogLevel.Warning:
                         console.warn(message);
                         return;
+                    default:
+                        return;
                 }
-            }
-        }
-    }
+            },
+        },
+    },
 };
 
 /**
