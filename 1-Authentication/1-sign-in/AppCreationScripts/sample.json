@@ -1,12 +1,12 @@
 {
     "Sample": {
-        "Title": "React single-page application using MSAL React to authentication users against Azure Active Directory",
+        "Title": "React single-page application using MSAL React to authenticate users against Azure Active Directory",
         "Level": 100,
         "Client": "React SPA",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0",
         "Languages": ["javascript"],
-        "Description": "React single-page application using MSAL React to authentication users against Azure Active Directory",
+        "Description": "React single-page application using MSAL React to authenticate users against Azure Active Directory",
         "products": ["azure-active-directory", "msal-js", "msal-react"],
         "Platform": "javascript"
     },

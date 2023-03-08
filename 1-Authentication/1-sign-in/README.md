@@ -1,7 +1,7 @@
 ---
 page_type: sample
-name: React single-page application using MSAL React to authentication users against Azure Active Directory
-description: React single-page application using MSAL React to authentication users against Azure Active Directory
+name: React single-page application using MSAL React to authenticate users against Azure Active Directory
+description: React single-page application using MSAL React to authenticate users against Azure Active Directory
 languages:
  - javascript
 products:
@@ -17,7 +17,7 @@ extensions:
 - client: React SPA
 ---
 
-# React single-page application using MSAL React to authentication users against Azure Active Directory
+# React single-page application using MSAL React to authenticate users against Azure Active Directory
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -51,7 +51,7 @@ Here you'll learn how to [sign-in](https://docs.microsoft.com/azure/active-direc
 | File/folder                | Description                                      |
 |----------------------------|--------------------------------------------------|
 | `App.jsx`                  | Main application logic resides here.             |
-| `NavigationBar.jsx`        | Authentication logic .                           |
+| `NavigationBar.jsx`        | Contains buttons for login and logout.           |
 | `authConfig.js`            | Contains authentication parameters.              |
 
 ## Prerequisites

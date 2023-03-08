@@ -15,6 +15,7 @@ export const IdTokenData = (props) => {
             </tr>
         );
     });
+    
     return (
         <>
             <div className="data-area-div">
