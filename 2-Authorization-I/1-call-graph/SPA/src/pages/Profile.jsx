@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 
 import { ProfileData } from '../components/DataDisplay';
 import { protectedResources } from '../authConfig';
-import  useFetchWithMsal  from '../hooks/useFetchWithMsal' 
+import  useGraphWithMsal  from '../hooks/useGraphWithMsal' 
 
 export const Profile = () => {
     const [graphData, setGraphData] = useState(null);
-    const request = {
+
+    const { error, execute, result } = useGraphWithMsal({
         scopes: protectedResources.graphMe.scopes,
-    };
-    const { error, execute, result } = useFetchWithMsal(request, protectedResources.graphMe.endpoint);   
+    }, protectedResources.graphMe.endpoint);   
      
     useEffect(() => {
         if (!!graphData) {

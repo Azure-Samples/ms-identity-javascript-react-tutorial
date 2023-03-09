@@ -2,10 +2,11 @@ import { useState, useCallback } from 'react';
 import { useMsalAuthentication, useMsal } from '@azure/msal-react';
 import { InteractionType } from '@azure/msal-browser';
 import { ResponseType } from '@microsoft/microsoft-graph-client';
+
+import { msalConfig } from '../authConfig';
 import { getGraphClient } from '../graph';
 import { getClaimsFromStorage } from '../utils/storageUtils';
-import { msalConfig } from '../authConfig';
-import { handleClaimsChallenge } from '../fetch';
+import { handleClaimsChallenge } from '../utils/claimUtils';
 
 /**
  * Custom hook to call a Graph API using Graph SDK
@@ -13,30 +14,27 @@ import { handleClaimsChallenge } from '../fetch';
  * @param {String} endpoint 
  * @returns 
  */
-const useFetchWithMsal = (request, endpoint) => {
+const useGraphWithMsal = (request, endpoint) => {
     const [error, setError] = useState(null);
     const { instance } = useMsal();
+
     const account = instance.getActiveAccount();
     const resource = new URL(endpoint).hostname;
 
     const claims =
         account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
-            ? window.atob(
-                  getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
-              )
-            : undefined; // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+            ?
+            window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`))
+            :
+            undefined; // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
 
-    const {
-        result,
-        login,
-        error: msalError,
-    } = useMsalAuthentication(InteractionType.Popup, {
+    const { result, login, error: msalError } = useMsalAuthentication(InteractionType.Popup, {
         ...request,
         redirectUri: '/redirect.html',
         account: account,
         claims: claims,
     });
-   
+
     /**
      * Execute a fetch request with Graph SDK
      * @param {String} endpoint
@@ -47,6 +45,7 @@ const useFetchWithMsal = (request, endpoint) => {
             setError(msalError);
             return;
         }
+
         if (result) {
             let accessToken = result.accessToken;
 
@@ -55,14 +54,12 @@ const useFetchWithMsal = (request, endpoint) => {
                     .api(endpoint)
                     .responseType(ResponseType.RAW)
                     .get();
+
                 const responseHasClaimsChallenge = await handleClaimsChallenge(graphResponse, endpoint, account);
-                if (responseHasClaimsChallenge && responseHasClaimsChallenge.error === 'claims_challenge_occurred') {
-                    throw responseHasClaimsChallenge.error;
-                } else {
-                    return responseHasClaimsChallenge;
-                }
+                return responseHasClaimsChallenge;
+
             } catch (error) {
-                if (error === 'claims_challenge_occurred') {
+                if (error.name === 'ClaimsChallengeAuthError') {
                     login(InteractionType.Redirect, request);
                 } else {
                     setError(error);
@@ -78,4 +75,4 @@ const useFetchWithMsal = (request, endpoint) => {
     };
 };
 
-export default useFetchWithMsal;
+export default useGraphWithMsal;
