@@ -29,14 +29,14 @@ In this chapter we will extend our React single-page application (SPA) by making
 
 | File/folder                         | Description                                                                |
 |-------------------------------------|----------------------------------------------------------------------------|
-| `App.jsx`                           | Main application logic resides here.                                       |
-| `fetch.jsx`                         | Provides a helper method for making fetch calls using bearer token scheme. |
-| `graph.jsx`                         | Instantiates Graph SDK client using a custom authentication provider.      |
-| `authConfig.js`                     | Contains authentication configuration parameters.                          |
-| `pages/Home.jsx`                    | Contains a table with ID token claims and description                      |
-| `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` endpoint with Graph SDK.                       |
-| `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` endpoint with Graph SDK.              |
-| `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js         |
+| `App.jsx`                           | Main application logic resides here.                                               |
+| `graph.jsx`                         | Instantiates Graph SDK client using MSAL as authentication provider.               |
+| `authConfig.js`                     | Contains authentication configuration parameters.                                  |
+| `pages/Home.jsx`                    | Contains a table with ID token claims and description                              |
+| `pages/Profile.jsx`                 | Calls Microsoft Graph `/me` by executing `useGraphWithMsal` custom hook.           |
+| `pages/Contacts.jsx`                | Calls Microsoft Graph `/me/contacts` by executing `useGraphWithMsal` custom hook.  |
+| `components/AccountPicker.jsx`      | Contains logic to handle multiple `account` selection with MSAL.js                 |
+| `hooks/useGraphWithMsal.jsx`        | Contains token acquisition logic to call Microsoft Graph endpoints with Graph SDK. |
 
 ## Setup the sample
 
@@ -240,95 +240,68 @@ This sample app declares that it's CAE-capable by adding the `clientCapabilities
 
 #### Processing the CAE challenge from Microsoft Graph
 
-Once the client app receives the CAE claims challenge from Microsoft Graph, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `useMsalAuthentication` hook and provide the claims challenge as a parameter in the token request. This is shown in [fetch.js](./SPA/src/fetch.js), where we handle the response from the Microsoft Graph API with the `handleClaimsChallenge` method:
+Once the client app receives the CAE claims challenge from Microsoft Graph, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `useMsalAuthentication` hook and provide the claims challenge as a parameter in the token request. This is shown in the [useGraphWithMsal](./SPA/src/hooks/useGraphWithMsal.jsx) custom hook:
 
 ```javascript
-    const handleClaimsChallenge = async (response) => {
-        if (response.status === 200) {
-            return response.json();
-        } else if (response.status === 401) {
-            if (response.headers.get('www-authenticate')) {
-                const account = msalInstance.getActiveAccount();
-                const authenticateHeader = response.headers.get('www-authenticate');
-                const claimsChallenge = parseChallenges(authenticateHeader);   
-                /**
-                 * This method stores the claim challenge to the session storage in the browser to be used when acquiring a token.
-                 * To ensure that we are fetching the correct claim from the storage, we are using the clientId
-                 * of the application and oid (user’s object id) as the key identifier of the claim with schema
-                 * cc.<clientId>.<oid>.<resource.hostname>
-                 */
-                addClaimsToStorage(claimsChallenge, `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`);
-                return { error: 'claims_challenge_occurred', payload: claimsChallenge };
-            }
-
-            throw new Error(`Unauthorized: ${response.status}`);
-        } else {
-            throw new Error(`Something went wrong with the request: ${response.status}`);
-        }
-    };
-```
-
-After that, we require a new access token via the `useMsalAuthentication` hook, fetch the claims challenge from the browser's localStorage, and pass it to the `useMsalAuthentication` hook in the request parameter.
-
-```javascript
-export const Profile = () => {
+const useGraphWithMsal = (request, endpoint) => {
+    const [error, setError] = useState(null);
     const { instance } = useMsal();
+
     const account = instance.getActiveAccount();
-    const [graphData, setGraphData] = useState(null);
-    const resource = new URL(protectedResources.graphMe.endpoint).hostname;
+    const resource = new URL(endpoint).hostname;
+
     const claims =
         account && getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
-            ? window.atob(
-                  getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`)
-              )
-            : undefined; // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
-    const request = {
-        scopes: protectedResources.graphMe.scopes,
+            ?
+            window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${resource}`))
+            :
+            undefined; // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+
+    const { result, login, error: msalError } = useMsalAuthentication(InteractionType.Popup, {
+        ...request,
+        redirectUri: '/redirect.html',
         account: account,
         claims: claims,
-    };
+    });
 
-    const { login, result, error } = useMsalAuthentication(InteractionType.Popup, request);
-    useEffect(() => {
-        if (!!graphData) {
-            return;
-        }
-
-        if (!!error) {
-            // in case popup is blocked, use redirect instead
-            if (error.errorCode === 'popup_window_error' || error.errorCode === 'empty_window_error') {
-                login(InteractionType.Redirect, request);
-            }
-
-            console.log(error);
+    /**
+     * Execute a fetch request with Graph SDK
+     * @param {String} endpoint
+     * @returns JSON response
+     */
+    const execute = async (endpoint) => {
+        if (msalError) {
+            setError(msalError);
             return;
         }
 
         if (result) {
-            getGraphClient(result.accessToken)
-                .api('/me')
-                .responseType(ResponseType.RAW)
-                .get()
-                .then((response) => {
-                    return handleClaimsChallenge(response, protectedResources.graphMe.endpoint);
-                })
-                .then((response) => {
-                    if (response && response.error === 'claims_challenge_occurred') throw response.error;
-                    setGraphData(response);
-                })
-                .catch((error) => {
-                    if (error === 'claims_challenge_occurred') {
-                        login(InteractionType.Redirect, request);
-                    }
-                    console.log(error);
-                });
-        }
-    }, [graphData, result, error, login]);
+            let accessToken = result.accessToken;
 
-    if (error) {
-        return <div>Error: {error.message}</div>;
-    }
-    return <>{graphData ? <ProfileData response={result} graphData={graphData} /> : null}</>;
+            try {
+                const graphResponse = await getGraphClient(accessToken)
+                    .api(endpoint)
+                    .responseType(ResponseType.RAW)
+                    .get();
+
+                const responseHasClaimsChallenge = await handleClaimsChallenge(graphResponse, endpoint, account);
+                return responseHasClaimsChallenge;
+
+            } catch (error) {
+                if (error.name === 'ClaimsChallengeAuthError') {
+                    login(InteractionType.Redirect, request);
+                } else {
+                    setError(error);
+                }
+            }
+        }
+    };
+
+    return {
+        error,
+        result: result,
+        execute: useCallback(execute, [result, msalError]),
+    };
 };
 ```
 
@@ -340,7 +313,7 @@ For more details on what's inside the access token, clients should use the token
 
 ### Calling the Microsoft Graph API
 
-[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with an [authProvider function](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md#2-create-with-options). In this case, user has to provide their own implementation for getting and refreshing accessToken. A callback will be passed into this `authProvider` function, accessToken or error needs to be passed in to that callback
+[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with an [authProvider function](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md#2-create-with-options). In this case, user has to provide their own implementation for getting and refreshing access tokens.
 
 ```javascript
     export const getGraphClient = (accessToken) => {
@@ -356,29 +329,7 @@ For more details on what's inside the access token, clients should use the token
 };
 ```
 
-See [graph.js](./SPA/src/graph.js). The Graph client then can be used in your components as shown below:
-
-```javascript
-if (result) {
-    getGraphClient(result.accessToken)
-        .api('/me')
-        .responseType(ResponseType.RAW)
-        .get()
-        .then((response) => {
-            return handleClaimsChallenge(response, protectedResources.graphMe.endpoint);
-        })
-        .then((response) => {
-            if (response && response.error === 'claims_challenge_occurred') throw response.error;
-                setGraphData(response);
-            })
-            .catch((error) => {
-                if (error === 'claims_challenge_occurred') {
-                    login(InteractionType.Redirect, request);
-                }
-                console.log(error);
-            });
-    }
-```
+The Graph client then can be used in your application as shown in the [useGraphWithMsal](./SPA/src/hooks/useGraphWithMsal.jsx) custom hook.
 
 ### Working with React routes
 
