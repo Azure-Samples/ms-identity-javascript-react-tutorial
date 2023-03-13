@@ -51,7 +51,7 @@ const ProfileContent = () => {
 
         if (result) {
             callApiWithToken(result.accessToken, protectedResources.apiHello.endpoint, account)
-                .then((response) => setGraphData(response.value))
+                .then((response) => setGraphData(response))
                 .catch((error) => {
                     if (error.message === 'claims_challenge_occurred') {
                         acquireToken(InteractionType.Redirect, request);
