@@ -156,7 +156,6 @@ To setup your B2C user-flows, do the following:
 1. Select the **Edit Profile** button on the top right corner. This initiates the Azure AD B2C edit profile user-flow using a popup window (hint: alternatively, you may use redirect flow here instead).
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
-
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
 > :information_source: if you believe your issue is with the B2C service itself rather than with the sample, please file a support ticket with the B2C team by following the instructions [here](https://docs.microsoft.com/azure/active-directory-b2c/support-options).
@@ -177,7 +176,7 @@ Make sure that your questions or comments are tagged with [`azure-active-directo
 
 ## About the code
 
-MSAL React should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders. After instantiation, pass it as props to your application.
+MSAL React should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders. After instantiation, pass it as props to your application. This is illustrated in [index.js](./SPA/src/index.js).
 
 ```javascript
 const msalInstance = new PublicClientApplication(msalConfig);
@@ -189,6 +188,11 @@ ReactDOM.render(
     document.getElementById("root")
 );
 
+```
+
+This is illustrated in [App.jsx](./SPA/src/App.jsx).
+
+```javascript
 export default function App({msalInstance}) {
 
     return (
@@ -201,7 +205,7 @@ export default function App({msalInstance}) {
 }
 ```
 
-At the top of your component tree, wrap everything between **MsalProvider** component. All components underneath **MsalProvider** will have access to the *PublicClientApplication* instance via context as well as all hooks and components provided by msal-react.
+At the top of your component tree, wrap everything between **MsalProvider** component. All components underneath **MsalProvider** will have access to the *PublicClientApplication* instance via context as well as all hooks and components provided by msal-react. This is illustrated in [App.jsx](./SPA/src/App.jsx).
 
 ```javascript
 export default function App({msalInstance}) {
@@ -301,7 +305,7 @@ This user-flow allows your users to sign-in to your application if the user has 
 
 * **Password reset**
 
-When a user clicks on the **forgot your password?** link during sign-in, **Azure AD B2C** will throw an error. To initiate the password reset user-flow, you need to catch this error and handle it by sending another login request with the corresponding password reset authority string.
+When a user clicks on the **forgot your password?** link during sign-in, **Azure AD B2C** will throw an error. To initiate the password reset user-flow, you need to catch this error and handle it by sending another login request with the corresponding password reset authority string. This is illustrated in [App.jsx](./SPA/src/App.jsx).
 
 ```javascript
 if (event.eventType === EventType.LOGIN_FAILURE) {
@@ -317,7 +321,7 @@ if (event.eventType === EventType.LOGIN_FAILURE) {
 }
 ```
 
-We need to reject ID tokens that were not issued with the default sign-in policy. After the user resets her password and signs-in again, we will force the user to login again(with the default sign-in policy).
+We need to reject ID tokens that were not issued with the default sign-in policy. After the user resets her password and signs-in again, we will force the user to login again(with the default sign-in policy). This is illustrated in [App.jsx](./SPA/src/App.jsx).
 
 ```javascript
 /**
@@ -337,7 +341,7 @@ if (event.payload.idTokenClaims['tfp'] === b2cPolicies.names.forgotPassword) {
 
 * **Edit Profile**
 
-When a user selects the **Edit Profile** button on the navigation bar, we simply initiate a sign-in flow. Like password reset, edit profile user-flow requires users to sign-out and sign-in again.
+When a user selects the **Edit Profile** button on the navigation bar, we simply initiate a sign-in flow. Like password reset, edit profile user-flow requires users to sign-out and sign-in again. This is illustrated in [App.jsx](./SPA/src/App.jsx).
 
 ```javascript
 /**

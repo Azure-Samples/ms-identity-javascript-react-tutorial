@@ -183,7 +183,7 @@ We briefly discuss other important aspects of the sample below.
 
 ### Handling React routes
 
-Routing in **Azure Static Web Apps** defines back-end routing rules and authorization behavior for both static content and APIs. The rules are defined as an array of rules in the [routes.json](./APP/public/routes.json) file, located in the **public** folder. In this sample, we are serving the same file, `index.html`, for all possible routes using a wildcard character.
+Routing in **Azure Static Web Apps** defines back-end routing rules and authorization behavior for both static content and APIs. The rules are defined as an array of rules in the [routes.json](./APP/public/routes.json) file, located in the **public** folder. In this sample, we are serving the same file, [index.html](./App/public/index.html), for all possible routes using a wildcard character.
 
 ```json
 {
@@ -218,7 +218,7 @@ For more information, visit [Routes in Azure Static Web Apps](https://docs.micro
 
 ### Protecting Function API
 
-the function API expects a valid access token to initiate the call to Microsoft Graph using on-behalf-of flow.
+The function API expects a valid access token to initiate the call to Microsoft Graph using on-behalf-of flow. This is illustrated in [index.js](./App/src/index.js).
 
 ```javascript
 module.exports = async function (context, req) {
@@ -252,7 +252,7 @@ module.exports = async function (context, req) {
 }
 ```
 
-In React SPA, we call the function API using a POST request as shown below:
+In React SPA, we call the function API using a POST request as shown below. This is illustrated in [fetch.js](./App/src/fetch.js):
 
 ```javascript
 export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
@@ -268,7 +268,7 @@ export const callOwnApiWithToken = async(accessToken, apiEndpoint) => {
 
 ### Validating access tokens
 
-Before authorizing a user, the access token sent by the user needs to be validated. A minimal token validation can be illustrated as follows:
+Before authorizing a user, the access token sent by the user needs to be validated. A minimal token validation can be illustrated as follows, see [index.js](./App/api/HelloUser/index.js):
 
 ```javascript
 validateAccessToken = async(accessToken) => {
