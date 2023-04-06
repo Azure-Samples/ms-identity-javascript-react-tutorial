@@ -31,7 +31,7 @@ const ProfileContent = () => {
 
     const { acquireToken, result, error } = useMsalAuthentication(InteractionType.Popup, {
         ...request,
-        redirectUri: '/redirect.html',
+        redirectUri: '/redirect',
     });
 
     useEffect(() => {

@@ -20,7 +20,7 @@
         "Audience": "AzureADandPersonalMicrosoftAccount",
         "HomePage": "http://localhost:3000",
         "SampleSubPath": "1-Authorization\\2-sign-in-b2c\\SPA",
-        "ReplyUrls":"http://localhost:3000, http://localhost:3000/redirect.html"
+        "ReplyUrls":"http://localhost:3000, http://localhost:3000/redirect"
       }
     ],
     "CodeConfiguration": [

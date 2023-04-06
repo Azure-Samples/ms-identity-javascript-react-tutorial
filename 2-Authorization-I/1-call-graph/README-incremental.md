@@ -259,7 +259,7 @@ const useGraphWithMsal = (request, endpoint) => {
 
     const { result, login, error: msalError } = useMsalAuthentication(InteractionType.Popup, {
         ...request,
-        redirectUri: '/redirect.html',
+        redirectUri: '/redirect',
         account: account,
         claims: claims,
     });

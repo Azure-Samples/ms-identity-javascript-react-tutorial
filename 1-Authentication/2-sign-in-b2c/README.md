@@ -123,7 +123,7 @@ Please refer to: [Tutorial: Add identity providers to your applications in Azure
 1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
     1. In the **Redirect URI** section enter the following redirect URIs:
         1. `http://localhost:3000`
-        1. `http://localhost:3000/redirect.html`
+        1. `http://localhost:3000/redirect`
     1. Click **Save** to save your changes.
 
 ##### Configure the client app (ms-identity-react-c1s2) to use your app registration
