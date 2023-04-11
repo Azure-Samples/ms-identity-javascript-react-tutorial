@@ -264,7 +264,7 @@ In the code snippet above, the user will be prompted for consent once they authe
 
 ### Acquire a Token
 
-**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. MSAL React uses these APIs underneath, while offering developers higher level hooks and templates to simplify the token acquisition process:
+**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. MSAL React uses these APIs underneath, while offering developers higher level hooks and templates to simplify the token acquisition process. This is illustrated in [Profile.jsx](./SPA/src/pages/Profile.jsx).
 
 ```javascript
     const { result, error, login } = useMsalAuthentication(InteractionType.Silent, {
@@ -315,7 +315,7 @@ Microsoft Graph is now CAE-enabled in Preview. This means that it can ask its cl
 
 #### Declare the CAE capability in the configuration
 
-This sample app declares that it's CAE-capable by adding the `clientCapabilities` property in the configuration in `authConfig.js`:
+This sample app declares that it's CAE-capable by adding the `clientCapabilities` property in the configuration in [authConfig.js](./SPA/src/authConfig.js):
 
 ```javascript
     const msalConfig = {
@@ -407,7 +407,7 @@ For more details on what's inside the access token, clients should use the token
 
 ### Calling the Microsoft Graph API
 
-[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with an [authProvider function](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md#2-create-with-options). In this case, user has to provide their own implementation for getting and refreshing access tokens.
+[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with an [authProvider function](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md#2-create-with-options). In this case, user has to provide their own implementation for getting and refreshing access tokens. This is illustrated in [graph.js](./SPA/src/graph.js).
 
 ```javascript
     export const getGraphClient = (accessToken) => {
@@ -427,7 +427,7 @@ The Graph client then can be used in your application as shown in the [useGraphW
 
 ### Working with React routes
 
-You can use [React Router](https://reactrouter.com/) component in conjunction with **MSAL React**. Simply wrap the `MsalProvider` component between the `Router` component, passing the `PublicClientApplication` instance you have created earlier as props:
+You can use [React Router](https://reactrouter.com/) component in conjunction with **MSAL React**. Simply wrap the `MsalProvider` component between the `Router` component, passing the `PublicClientApplication` instance you have created earlier as props. This is illustrated in [index.js](./SPA/src/index.js).
 
 ```javascript
     const msalInstance = new PublicClientApplication(msalConfig);
@@ -439,6 +439,11 @@ You can use [React Router](https://reactrouter.com/) component in conjunction wi
             </BrowserRouter>
         </React.StrictMode>
     );
+```
+
+This is illustrated in [App.jsx](./SPA/src/App.jsx).
+
+```javascript
 
     export const App = ({ instance }) => {
         return (

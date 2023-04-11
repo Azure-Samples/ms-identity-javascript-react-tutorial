@@ -322,7 +322,7 @@ const msalInstance = new PublicClientApplication(msalConfig);
 
 ### Checking for auth context
 
-In [app.js](./API/app.js), we add custom a `routeGuard` middleware to handle incoming requests web API's todolist endpoints:
+In [app.js](./API/app.js), we add custom a [routeGuard](./API/auth/routeGuard.js) middleware to handle incoming requests web API's todolist endpoints:
 
 ```javascript
 app.use('/api',

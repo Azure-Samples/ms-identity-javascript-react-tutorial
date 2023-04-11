@@ -186,7 +186,7 @@ To provide feedback on or suggest features for Azure Active Directory, visit [Us
 
 ## About the code
 
-MSAL React should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders. After instantiation, pass it as props to your application.
+MSAL React should be instantiated outside of the component tree to prevent it from being re-instantiated on re-renders. After instantiation, pass it as props to your application. This is illustrated in [index.js](./SPA/src/index.js).
 
 ```javascript
 const msalInstance = new PublicClientApplication(msalConfig);
@@ -197,7 +197,11 @@ ReactDOM.render(
     </React.StrictMode>,
     document.getElementById("root")
 );
+```
 
+This is illustrated in [App.jsx](./SPA/src/App.jsx).
+
+```javascript
 export default function App({msalInstance}) {
 
     return (
@@ -211,6 +215,7 @@ export default function App({msalInstance}) {
 ```
 
 At the top of your component tree, wrap everything between **MsalProvider** component. All components underneath **MsalProvider** will have access to the *PublicClientApplication* instance via context as well as all hooks and components provided by msal-react.
+This is illustrated in [App.jsx](./SPA/src/App.jsx).
 
 ```javascript
 export default function App({msalInstance}) {
@@ -293,7 +298,7 @@ When you receive an [ID token](https://docs.microsoft.com/azure/active-directory
 
 ### Sign-in audience and account types
 
-This sample is meant to work with accounts in your organization (aka *single-tenant*). If you would like to allow sign-ins from other organizations and/or with other types of accounts, you have to configure your `authority` string in `authConfig.js` accordingly. For example:
+This sample is meant to work with accounts in your organization (aka *single-tenant*). If you would like to allow sign-ins from other organizations and/or with other types of accounts, you have to configure your `authority` string in [authConfig.js](./SPA/src/authConfig.js) accordingly. For example:
 
 ```javascript
 const msalConfig = {

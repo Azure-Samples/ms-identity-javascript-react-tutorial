@@ -222,7 +222,7 @@ From your shell or command line, execute the following commands:
 
 ## We'd love your feedback!
 
-Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](Enter_Survey_Form_Link).
+Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUMlRHSkc5U1NLUkxFNEtVN0dEOTFNQkdTWiQlQCN0PWcu).
 
 ## Troubleshooting
 
@@ -280,7 +280,7 @@ In case you *erroneously* pass multiple resources in your token request, Azure A
 
 ### Acquire a Token
 
-**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. MSAL React uses these APIs underneath, while offering developers higher level hooks and templates to simplify the token acquisition process:
+**MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. MSAL React uses these APIs underneath, while offering developers higher level hooks and templates to simplify the token acquisition process. This is illustrated in [Tenant.jsx](./SPA/src/pages/Tenant.jsx).
 
 ```javascript
 export const Tenant = () => {
@@ -335,7 +335,7 @@ export const Tenant = () => {
 
 ### Calling the Microsoft Azure REST API and Azure Storage
 
-[Azure SDK for JavaScript](https://github.com/Azure/azure-sdk-for-js) contains libraries for the breadth of Azure services. Management libraries are packages that you would use to provision and manage Azure resources. Client libraries are packages that you would use to consume these resources and interact with them. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a pre-fetched access token. To do so, we will initialize the `SubscriptionClient` object and the `BlobServiceClient` object, which both contain a [StaticTokenCredential](https://github.com/Azure/azure-sdk-for-js/blob/@azure/identity_2.1.0/sdk/identity/identity/samples/AzureIdentityExamples.md#authenticating-with-a-pre-fetched-access-token) object of a class that implements the `TokenCredential` abstraction. It takes a pre-fetched access token in its constructor as an AccessToken and returns that from its implementation of `getToken()`.
+[Azure SDK for JavaScript](https://github.com/Azure/azure-sdk-for-js) contains libraries for the breadth of Azure services. Management libraries are packages that you would use to provision and manage Azure resources. Client libraries are packages that you would use to consume these resources and interact with them. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a pre-fetched access token. To do so, we will initialize the `SubscriptionClient` object and the `BlobServiceClient` object, which both contain a [StaticTokenCredential](https://github.com/Azure/azure-sdk-for-js/blob/@azure/identity_2.1.0/sdk/identity/identity/samples/AzureIdentityExamples.md#authenticating-with-a-pre-fetched-access-token) object of a class that implements the `TokenCredential` abstraction. It takes a pre-fetched access token in its constructor as an AccessToken and returns that from its implementation of `getToken()`. This is illustrated in [azureManagement.js](./SPA/src/azureManagement.js).
 
 ```javascript
 /**
@@ -382,7 +382,7 @@ class StaticTokenCredential {
 }
 ```
 
-See [azureManagement.js](./SPA/src/azureManagement.js). The Subscription client can be used in your components as shown below:
+See [azureManagement.js](./SPA/src/azureManagement.js). The Subscription client can be used in your components as shown below. This is illustrated in [Tenant.jsx](./SPA/src/pages/Tenant.jsx).
 
 ```javascript
  useEffect(() => {
@@ -416,7 +416,7 @@ See [azureManagement.js](./SPA/src/azureManagement.js). The Subscription client 
     }, [tenantInfo, result, error, login]);
 ```
 
-The Azure `BlobServiceClient` can be used in your component as shown:
+The Azure `BlobServiceClient` can be used in the your component as shown in the [BlobStorage.jsx](./SPA/src/pages/BlobStorage.jsx) file:
 
 ```javascript
 const handleSubmit = async (e) => {

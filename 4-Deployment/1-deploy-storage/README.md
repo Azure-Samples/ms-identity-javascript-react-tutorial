@@ -272,7 +272,7 @@ Now you need to update your authentication configuration files in the client pro
 
 ![spa_step4](./ReadmeFiles/spa_step4.png)
 
-Open `authConfig.js`. Then:
+Open [authConfig.js](/4-Deployment/1-deploy-storage/SPA/src/authConfig.js). Then:
 
 1. Find the key `protectedResources.apiHello.endpoint` and replace the existing value with your published web API's endpoint, e.g. `https://my-web-api.azurewebsites.net/hello`
 

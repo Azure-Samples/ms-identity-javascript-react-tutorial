@@ -193,7 +193,7 @@ For command line run the next commands:
 
 ### MSAL Node confidential client
 
-In this sample, the user is first authenticated to backend as shown in the `authController.js` file using the MSAL Node confidential client application.
+In this sample, the user is first authenticated to backend as shown in the [authController.js](./App/controllers/authController.js) file using the MSAL Node confidential client application.
 
 ```javascript
   const msal = require('@azure/msal-node');
@@ -218,7 +218,7 @@ In this sample, the user is first authenticated to backend as shown in the `auth
 
 ```
 
-Begin by generating an authorization code URL and redirect the app to it:
+Begin by generating an authorization code URL and redirect the app to it. See [authController.js](./App/controllers/authController.js):
 
 ```javascript
  const authCodeUrlParameters = {
@@ -232,7 +232,7 @@ Begin by generating an authorization code URL and redirect the app to it:
         }).catch((error) => console.log(error))
 ```
 
-Next, get the auth code from the request body, and invoke the `acquireTokenByCode` API by setting the `enableSpaAuthorizationCode` to true,  which will enable MSAL to acquire a second authorization code to be redeemed by your single-page application. Your application should parse this second authorization code, as well as any account hints (e.g. sid, login_hint, preferred_username), and return them such that they can be obtained client-side:
+Next, get the auth code from the request body, and invoke the `acquireTokenByCode` API by setting the `enableSpaAuthorizationCode` to true,  which will enable MSAL to acquire a second authorization code to be redeemed by your single-page application. Your application should parse this second authorization code, as well as any account hints (e.g. sid, login_hint, preferred_username), and return them such that they can be obtained client-side. See [authController.js](./App/controllers/authController.js):
 
 ```javascript
    const tokenRequest = {
@@ -271,7 +271,7 @@ Next, get the auth code from the request body, and invoke the `acquireTokenByCod
 
 ### SPA Public clients
 
-First, configure a new **PublicClientApplication** from MSAL.js in your single-page application:
+First, configure a new **PublicClientApplication** from MSAL.js in your single-page application. This is illustrated in [index.js](./App/client/src/index.js):
 
 ```javascript
 export const msalInstance = new PublicClientApplication(msalConfig);
@@ -284,7 +284,7 @@ ReactDOM.render(
 );
 ```
 
-Next, obtain the authorization code that was acquired server-side for the SPA, and pass it to `acquireTokenByCode`. The application should also obtain any account hints, as they will be needed for any interactive requests to ensure the same user is used for both requests.
+Next, obtain the authorization code that was acquired server-side for the SPA, and pass it to `acquireTokenByCode`. The application should also obtain any account hints, as they will be needed for any interactive requests to ensure the same user is used for both requests. This is illustrated in [App.jsx](./App/client/src/App.jsx):
 
 ```javascript
  useEffect(() => {

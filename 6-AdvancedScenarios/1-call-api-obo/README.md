@@ -338,7 +338,7 @@ const getOboToken = async (oboAssertion) => {
 
 ### Calling the Microsoft Graph API
 
-After receiving the access token for Graph, we will initialize the [Graph SDK client](https://github.com/microsoftgraph/msgraph-sdk-javascript) with an [authProvider function](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md#2-create-with-options). In this case, the user has to provide their implementation for getting and refreshing accessToken. A callback will be passed into this authProvider function; an access token or error needs to be passed into that callback.
+After receiving the access token for Graph, we will initialize the [Graph SDK client](https://github.com/microsoftgraph/msgraph-sdk-javascript) with an [authProvider function](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md#2-create-with-options). In this case, the user has to provide their implementation for getting and refreshing accessToken. A callback will be passed into this authProvider function; an access token or error needs to be passed into that callback as shown in [graphClient.js](./API/utils/graphClient.js) file.
 
 ```javascript
 const getGraphClient = (accessToken) => {
