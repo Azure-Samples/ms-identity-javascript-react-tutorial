@@ -24,13 +24,14 @@ exports.loginUser = async (req, res, next) => {
  * to be redeemed by your single-page application.
  */
 exports.handleRedirectWithCode = (req, res, next) => {
+  const port = process.env.PORT || 5000;
   const tokenRequest = {
     code: req.body.code,
     redirectUri: process.env.REDIRECT_URI,
     enableSpaAuthorizationCode: true,
     scopes: ["User.Read"],
   };
-
+  
   msalInstance
     .acquireTokenByCode(tokenRequest)
     .then((response) => {
@@ -48,13 +49,7 @@ exports.handleRedirectWithCode = (req, res, next) => {
       req.session.referredUsername = preferredUsername;
       req.session.authenticated = true;
 
-      const urlFrom = (urlObject) =>
-        String(
-          Object.assign(
-            new URL(`http://localhost:${process.env.port ? port : 5000}`),
-            urlObject
-          )
-        );
+      const urlFrom = (urlObject) => String(Object.assign(new URL(`http://localhost:${port}`), urlObject));
 
       res.redirect(
         urlFrom({
