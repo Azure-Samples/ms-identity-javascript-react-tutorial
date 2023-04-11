@@ -6,7 +6,7 @@
         "@azure/arm-resources-subscriptions": "^2.0.1",
         "@azure/msal-browser": "~2.31.0",
         "@azure/msal-react": "~1.4.10",
-        "@azure/storage-blob": "^12.11.0",
+        "@azure/storage-blob": "^12.13.0",
         "bootstrap": "^5.2.0",
         "react": "^18.2.0",
         "react-bootstrap": "^2.5.0",
