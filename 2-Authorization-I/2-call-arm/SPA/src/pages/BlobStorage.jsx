@@ -21,7 +21,7 @@ export const BlobStorage = () => {
 
     const { login, result, error } = useMsalAuthentication(InteractionType.Popup, {
         ...request,
-        redirectUri: '/redirect.html',
+        redirectUri: '/redirect',
     });
 
     useEffect(() => {

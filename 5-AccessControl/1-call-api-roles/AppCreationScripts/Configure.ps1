@@ -277,7 +277,7 @@ Function ConfigureApplications
    $clientAadApplication = New-MgApplication -DisplayName "msal-react-spa" `
                                                       -Spa `
                                                       @{ `
-                                                          RedirectUris = "http://localhost:3000/", "http://localhost:3000/redirect.html"; `
+                                                          RedirectUris = "http://localhost:3000/", "http://localhost:3000/redirect"; `
                                                         } `
                                                         -Api `
                                                         @{ `

@@ -16,7 +16,7 @@ export const Tenant = () => {
 
     const { login, result, error } = useMsalAuthentication(InteractionType.Popup, {
         ...request,
-        redirectUri: '/redirect.html',
+        redirectUri: '/redirect',
     });
 
     const fetchData = async (accessToken) => {

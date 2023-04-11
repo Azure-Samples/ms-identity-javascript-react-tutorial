@@ -18,7 +18,7 @@
       "Kind": "SinglePageApplication",
       "Audience": "AzureADMyOrg",
       "HomePage": "http://localhost:3000/",
-      "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect.html",
+      "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
       "Scopes": [ "access_via_approle_assignments" ],
       "Sample": {
         "SampleSubPath": "5-AccessControl\\1-call-api-roles\\SPA",

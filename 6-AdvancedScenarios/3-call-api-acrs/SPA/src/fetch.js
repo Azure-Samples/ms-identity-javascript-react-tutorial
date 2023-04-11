@@ -16,7 +16,7 @@ const getToken = async (endpoint, scopes, method) => {
     const tokenRequest = {
         account: account,
         scopes: scopes,
-        redirectUri: '/redirect.html',
+        redirectUri: '/redirect',
         claims: getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${new URL(endpoint).hostname}.${method}`) ?
             window.atob(getClaimsFromStorage(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}.${new URL(endpoint).hostname}.${method}`)) : null
     }
@@ -68,7 +68,7 @@ const handleClaimsChallenge = async (response, endpoint, options, id = '') => {
         const tokenResponse = await msalInstance.acquireTokenPopup({
             claims: window.atob(claimsChallenge.claims), // decode the base64 string
             scopes: protectedResources.apiTodoList.scopes,
-            redirectUri: '/redirect.html',
+            redirectUri: '/redirect',
         });
 
         if (tokenResponse.accessToken) {

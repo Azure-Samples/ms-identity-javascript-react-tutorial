@@ -309,7 +309,7 @@ Function ConfigureApplications
     # create the application
     $clientAadApplication = New-AzureADApplication -DisplayName "msal-react-spa-acrs" `
         -HomePage "http://localhost:3000" `
-        -ReplyUrls "http://localhost:3000/redirect.html" `
+        -ReplyUrls "http://localhost:3000/redirect" `
         -PublicClient $False
 
     # create the service principal of the newly created application

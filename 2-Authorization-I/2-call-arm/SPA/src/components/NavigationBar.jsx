@@ -14,7 +14,7 @@ export const NavigationBar = () => {
         instance
             .loginPopup({
                 ...loginRequest,
-                redirectUri: '/redirect.html',
+                redirectUri: '/redirect',
             })
             .catch((error) => console.log(error));
     };

@@ -217,9 +217,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa-acrs`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI(s): 
+   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI(s):
         - `http://localhost:3000/`
-        - `http://localhost:3000/redirect.html`
+        - `http://localhost:3000/redirect`
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
@@ -470,7 +470,7 @@ const handleClaimsChallenge = async (response, endpoint, options, id = '') => {
         const tokenResponse = await msalInstance.acquireTokenPopup({
             claims: window.atob(claimsChallenge.claims), // decode the base64 string
             scopes: protectedResources.apiTodoList.scopes,
-            redirectUri: '/redirect.html',
+            redirectUri: '/redirect',
         });
 
         if (tokenResponse.accessToken) {
