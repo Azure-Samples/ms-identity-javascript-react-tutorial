@@ -1,5 +1,6 @@
 require("dotenv").config();
 const msalInstance = require("../msal");
+const port = process.env.PORT || 5000;
 
 exports.loginUser = async (req, res, next) => {
   const authCodeUrlParameters = {
@@ -24,7 +25,6 @@ exports.loginUser = async (req, res, next) => {
  * to be redeemed by your single-page application.
  */
 exports.handleRedirectWithCode = (req, res, next) => {
-  const port = process.env.PORT || 5000;
   const tokenRequest = {
     code: req.body.code,
     redirectUri: process.env.REDIRECT_URI,
