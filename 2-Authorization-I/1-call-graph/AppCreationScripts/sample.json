@@ -21,7 +21,8 @@
             "HomePage": "http://localhost:3000/",
             "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
             "Audience": "AzureADMyOrg",
-            "SampleSubPath": "2-Authorization-I\\1-call-graph\\SPA",  
+            "SampleSubPath": "2-Authorization-I\\1-call-graph\\SPA",
+            "SDK": "MsalReact",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",

@@ -18,7 +18,7 @@
             "HomePage": "http://localhost:3000/",
             "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
             "Audience": "AzureADMyOrg", 
-            "SDK": "MsalJs",
+            "SDK": "MsalReact",
             "SampleSubPath": "1-Authentication\\1-sign-in\\SPA"
         }
     ],

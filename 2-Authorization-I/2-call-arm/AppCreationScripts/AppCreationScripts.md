@@ -4,13 +4,6 @@
 
 ### Quick summary
 
-1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-1. In PowerShell run:
-
-   ```PowerShell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-   ```
-
 1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
 
    ```PowerShell
@@ -49,6 +42,8 @@ These scripts are:
 
 - `Cleanup.ps1` which cleans-up the Azure AD objects created by `Configure.ps1`. Note that this script does not revert the changes done in the configuration files, though. You will need to undo the change from source control (from Visual Studio, or from the command line using, for instance, `git reset`).
 
+> :information_source: If the sample supports using certificates instead of client secrets, this folder will contain an additional set of scripts: `Configure-WithCertificates.ps1` and `Cleanup-WithCertificates.ps1`. You can use them in the same way to register app(s) that use certificates instead of client secrets.
+
 ### Usage pattern for tests and DevOps scenarios
 
 The `Configure.ps1` will stop if it tries to create an Azure AD application which already exists in the tenant. For this, if you are using the script to try/test the sample, or in DevOps scenarios, you might want to run `Cleanup.ps1` just before `Configure.ps1`. This is what is shown in the steps below.
@@ -57,13 +52,8 @@ The `Configure.ps1` will stop if it tries to create an Azure AD application whic
 
 ### Pre-requisites
 
+1. PowerShell 7 or later (see: [installing PowerShell](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell))
 1. Open PowerShell (On Windows, press  `Windows-R` and type `PowerShell` in the search window)
-1. Navigate to the root directory of the project.
-1. Until you change it, the default [Execution Policy](https:/go.microsoft.com/fwlink/?LinkID=135170) for scripts is usually `Restricted`. In order to run the PowerShell script you need to set the Execution Policy to `RemoteSigned`. You can set this just for the current PowerShell process by running the command:
-
-    ```PowerShell
-    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
-    ```
 
 ### (Optionally) install Microsoft.Graph.Applications PowerShell modules
 
@@ -71,14 +61,14 @@ The scripts install the required PowerShell module (Microsoft.Graph.Applications
 
 1. If you have never done it already, in the PowerShell window, install the Microsoft.Graph.Applications PowerShell modules. For this:
 
-   1. Open PowerShell as admin (On Windows, Search Powershell in the search bar, right click on it and select **Run as administrator**).
+   1. Open PowerShell
    2. Type:
 
       ```PowerShell
       Install-Module Microsoft.Graph.Applications
       ```
 
-      or if you cannot be administrator on your machine, run:
+      or if you want the modules to be installed for the current user only, run:
 
       ```PowerShell
       Install-Module Microsoft.Graph.Applications -Scope CurrentUser

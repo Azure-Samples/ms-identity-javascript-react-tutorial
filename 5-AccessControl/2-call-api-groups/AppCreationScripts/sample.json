@@ -29,9 +29,8 @@
             "ReplyUrls": "http://localhost:3000/ , http://localhost:3000/redirect",
             "GroupMembershipClaims": "SecurityGroup",
             "PasswordCredentials": "Auto",
-            "scopes": [
-                "access_via_group_assignments"
-            ],
+            "scopes": ["access_via_group_assignments"],
+            "SDK": "MsalNode",
             "SecurityGroups": [
                 {
                     "Name": "GroupAdmin",
@@ -45,22 +44,15 @@
             "RequiredResourcesAccess": [
                 {
                     "Resource": "client",
-                    "DelegatedPermissions": [
-                        "access_via_group_assignments"
-                    ]
+                    "DelegatedPermissions": ["access_via_group_assignments"]
                 },
                 {
                     "Resource": "Microsoft Graph",
-                    "DelegatedPermissions": [
-                        "User.Read",
-                        "GroupMember.Read.All"
-                    ]
+                    "DelegatedPermissions": ["User.Read", "GroupMember.Read.All"]
                 }
             ],
             "OptionalClaims": {
-                "IdTokenClaims": [
-                    "acct"
-                ]
+                "IdTokenClaims": ["acct"]
             },
             "ManualSteps": [
                 {

@@ -7,10 +7,7 @@
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
         "Endpoint": "AAD v2.0",
         "Platform": "javascript",
-        "Languages": [
-            "typescript",
-            "javascript"
-        ],
+        "Languages": ["typescript", "javascript"],
         "Description": "Authenticate a user with Azure AD using msal.js and call an Azure AD protected Node.js Web Api using on-behalf of flow",
         "products": ["azure-active-directory", "msal-js", "passport-azure-ad", "msal-react"]
     },
@@ -24,6 +21,7 @@
             "PasswordCredentials": "Auto",
             "SampleSubPath": "6-AdvancedScenarios\\1-call-api-obo\\API",
             "Scopes": ["access_graph_on_behalf_of_user"],
+            "SDK": "MsalNode",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
@@ -42,6 +40,7 @@
             "HomePage": "http://localhost:3000/",
             "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
             "SampleSubPath": "6-AdvancedScenarios\\1-call-api-obo\\SPA",
+            "SDK": "MsalReact",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",

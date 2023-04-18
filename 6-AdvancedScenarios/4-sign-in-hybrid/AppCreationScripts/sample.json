@@ -1,6 +1,5 @@
 {
     "Sample": {
-        "Author": "Salman Salem",
         "Title": "Hybrid SPA sample",
         "Level": 300,
         "Client": "React SPA",
@@ -11,34 +10,6 @@
         "Description": "This sample demonstrates an Express web app calling a React SPA using the Hybrid SPA flow",
         "Products": ["React", "Express", "msal", "azure active directory"]
     },
-    "ReadmeScenario": {
-        "IncludeFilePath": "../ReadmeFiles/ReadmeScenario.md"
-    },
-    "ReadmePrerequirements": {
-        "IncludeFilePath": "../ReadmeFiles/ReadmePrerequirements.md"
-    },
-    "ReadmeSetup": {
-        "UseNewSetup": "1",
-        "CertificateOption": "0"
-    },
-    "ReadmeNextSteps": {
-        "IncludeFilePath": "../ReadmeFiles/ReadmeNextSteps.md"
-    },
-    "ReadmeContributing": {
-        "IncludeFilePath": "../ReadmeFiles/ReadmeContributing.md"
-    },
-    "ReadmeAboutTheCode": {
-        "IncludeFilePath": "../ReadmeFiles/ReadmeAboutTheCode.md"
-    },
-    "ReadmeLearnMore": {
-        "IncludeFilePath": "../ReadmeFiles/ReadmeLearnMore.md"
-    },
-    "ReadmeTroubleshooting": {
-        "IncludeFilePath": "../ReadmeFiles/ReadmeTroubleshooting.md"
-    },
-    "ReadmeCreateProject": {
-        "IncludeFilePath": "../ReadmeFiles/ReadmeCreateProject.md"
-    },
     "AADApps": [
         {
             "Id": "service",
@@ -47,6 +18,7 @@
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:5000",
             "ManualSteps": [],
+            "SDK": "MsalNode",
             "HybridRedirectUris": [
                 {
                     "ApplicationKind": "WebApp",
@@ -61,10 +33,7 @@
                 "IdTokenClaims": ["sid", "login_hint"]
             },
             "PasswordCredentials": "Auto",
-            "Sample": {
-                "SampleSubPath": "6-AdvancedScenarios\\4-sign-in-hybrid\\App",
-                "ProjectDirectory": "\\4-sign-in-hybrid\\App"
-            },
+            "SampleSubPath": "6-AdvancedScenarios\\4-sign-in-hybrid\\App",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
