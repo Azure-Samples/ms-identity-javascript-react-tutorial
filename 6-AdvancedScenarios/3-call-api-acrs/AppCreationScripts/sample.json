@@ -5,24 +5,28 @@
         "Client": "React SPA",
         "Service": "Express web API",
         "RepositoryUrl": "ms-identity-javascript-react-tutorial",
-        "Endpoint": "AAD v2.0"
+        "Endpoint": "AAD v2.0",
+        "Languages": ["javascript"],
+        "Description": "Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a web AP",
+        "products": ["azure-active-directory", "ms-graph", "msal-js", "msal-react", "msal-node"],
+        "Platform": "javascript"
     },
     "AADApps": [
         {
             "Id": "service",
             "Name": "msal-node-api-acrs",
             "Kind": "WebApi",
+            "SDK": "MsalNode",
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:5000/admin/home",
             "ReplyUrls": "http://localhost:5000/admin/redirect",
+            "SampleSubPath": "6-AdvancedScenarios\\3-call-api-acrs\\API",
+            "Scopes": ["access_as_user"],
             "PasswordCredentials": "Auto",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
-                    "DelegatedPermissions": [
-                        "Policy.Read.ConditionalAccess",
-                        "Policy.ReadWrite.ConditionalAccess"
-                    ]
+                    "DelegatedPermissions": ["Policy.Read.ConditionalAccess", "Policy.ReadWrite.ConditionalAccess"]
                 }
             ],
             "ManualSteps": [
@@ -41,12 +45,12 @@
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:3000",
             "ReplyUrls": "http://localhost:3000, http://localhost:3000/redirect",
+            "SDK": "MsalReact",
+            "SampleSubPath": "6-AdvancedScenarios\\3-call-api-acrs\\SPA",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",
-                    "DelegatedPermissions": [
-                        "access_as_user"
-                    ]
+                    "DelegatedPermissions": ["access_as_user"]
                 }
             ]
         }

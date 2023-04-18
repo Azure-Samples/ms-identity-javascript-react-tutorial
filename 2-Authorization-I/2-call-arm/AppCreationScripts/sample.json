@@ -21,10 +21,8 @@
             "HomePage": "http://localhost:3000",
             "ReplyUrls": "http://localhost:3000/, http://localhost:3000/redirect",
             "Audience": "AzureADMyOrg",
-            "Sample": {
-                "SampleSubPath": "2-Authorization-I\\2-call-arm",
-                "ProjectDirectory": "\\SPA"
-            },
+            "SDK": "MsalReact",
+            "SampleSubPath": "2-Authorization-I\\2-call-arm",
             "OptionalClaims": {
                 "IdTokenClaims": ["acct"]
             },

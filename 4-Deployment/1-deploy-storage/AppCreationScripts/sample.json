@@ -17,10 +17,8 @@
             "Name": "msal-node-api",
             "Kind": "WebApi",
             "Audience": "AzureADMyOrg",
-            "Sample": {
-                "SampleSubPath": "4-Deployment\\1-deploy-storage\\API",
-                "ProjectDirectory": "\\1-deploy-storage\\API"
-            },
+            "SDK": "MsalNode",
+            "SampleSubPath": "4-Deployment\\1-deploy-storage\\API",            
             "Scopes": ["access_as_user"]
         },
         {
@@ -30,10 +28,8 @@
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:3000",
             "ReplyUrls": "http://localhost:3000",
-            "Sample": {
-                "SampleSubPath": "4-Deployment\\1-deploy-storage\\SPA",
-                "ProjectDirectory": "\\1-deploy-storage\\SPA"
-            },
+            "SDK": "MsalReact",
+            "SampleSubPath": "4-Deployment\\1-deploy-storage\\SPA",        
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",

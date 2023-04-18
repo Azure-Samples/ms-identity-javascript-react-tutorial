@@ -17,10 +17,8 @@
             "Name": "msal-node-api",
             "Kind": "WebApi",
             "Audience": "AzureADMyOrg",
-            "Sample": {
-                "SampleSubPath": "3-Authorization-II\\1-call-api\\API",
-                "ProjectDirectory": "\\1-call-api\\API"
-            },
+            "SDK": "MsalNode",
+            "SampleSubPath": "3-Authorization-II\\1-call-api\\API",
             "Scopes": ["Todolist.Read", "Todolist.ReadWrite"],
             "AppRoles": [
                 {
@@ -45,10 +43,8 @@
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:3000",
             "ReplyUrls": "http://localhost:3000, http://localhost:3000/redirect",
-            "Sample": {
-                "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
-                "ProjectDirectory": "\\1-call-api\\SPA"
-            },
+            "SDK": "MsalReact",
+            "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",  
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",

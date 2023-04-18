@@ -1,3 +1,4 @@
+#Requires -Version 7
  
 [CmdletBinding()]
 param(
@@ -165,7 +166,7 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 <#.Description
    This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
 #>  
-Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription)
+Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription, [string] $consentType)
 {
     $scope = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope
     $scope.Id = New-Guid
@@ -175,7 +176,7 @@ Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string
     $scope.AdminConsentDisplayName = $adminConsentDisplayName
     $scope.AdminConsentDescription = $adminConsentDescription
     $scope.IsEnabled = $true
-    $scope.Type = "User"
+    $scope.Type = $consentType
     return $scope
 }
 
@@ -309,8 +310,6 @@ Function CreateOptionalClaim([string] $name)
 #> 
 Function ConfigureApplications
 {
-    $isOpenSSl = 'N' #temporary disable open certificate creation 
-
     <#.Description
        This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
        configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
@@ -385,7 +384,7 @@ Function ConfigureApplications
     $owner = Get-MgApplicationOwner -ApplicationId $currentAppObjectId
     if ($owner -eq $null)
     { 
-        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
+        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
     }
 
@@ -402,8 +401,8 @@ Function ConfigureApplications
     $optionalClaims.IdToken += ($newClaim)
     $newClaim =  CreateOptionalClaim  -name "groups" 
     $optionalClaims.AccessToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "groups" 
-    $optionalClaims.Saml2Token += ($newClaim)
+    # $newClaim =  CreateOptionalClaim  -name "groups" 
+    # $optionalClaims.Saml2Token += ($newClaim)
 
     # Add Optional Claims
 
@@ -412,8 +411,10 @@ Function ConfigureApplications
     Update-MgApplication -ApplicationId $currentAppObjectId -OptionalClaims $optionalClaims
     
     # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
+       
+    # delete default scope i.e. User_impersonation
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "user_impersonation" }
+    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "User_impersonation" }
     
     if($scope -ne $null)
     {    
@@ -431,7 +432,9 @@ Function ConfigureApplications
         -userConsentDisplayName "Access 'msal-react-app' as the signed-in user assigned to group memberships"  `
         -userConsentDescription "Allow the app to access the 'msal-react-app' on your behalf after assignment to one or more security groups"  `
         -adminConsentDisplayName "Access 'msal-react-app' as the signed-in user assigned to group memberships"  `
-        -adminConsentDescription "Allow the app to access the 'msal-react-app' as a signed-in user assigned to one or more security groups"
+        -adminConsentDescription "Allow the app to access the 'msal-react-app' as a signed-in user assigned to one or more security groups" `
+        -consentType "User" `
+        
             
     $scopes.Add($scope)
     
@@ -441,7 +444,7 @@ Function ConfigureApplications
 
     # URL of the AAD application in the Azure portal
     # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
-    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    $clientPortalUrl = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/"+$currentAppId+"/isMSAApp~/false"
 
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-react-app</a></td></tr>" -Path createdApps.html
     # Declare a list to hold RRA items    
@@ -531,15 +534,9 @@ Function ConfigureApplications
     Write-Host "  - This script has created a group named 'GroupAdmin' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
     Write-Host "  - This script has created a group named 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
     Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
+    Write-Host "  - Application 'client' publishes delegated permissions. Do remember to navigate to any client app(s) registration in the app portal and consent for those, (if required)" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
    
-if($isOpenSSL -eq 'Y')
-{
-    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-    Write-Host "You have generated certificate using OpenSSL so follow below steps: "
-    Write-Host "Install the certificate on your system from current folder."
-    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-}
 Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 } # end of ConfigureApplications function
 

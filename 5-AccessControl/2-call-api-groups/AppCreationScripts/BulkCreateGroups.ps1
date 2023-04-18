@@ -1,3 +1,4 @@
+#Requires -Version 7
 
 [CmdletBinding()]
 param(
@@ -142,6 +143,7 @@ Function ConfigureApplications
     Write-Host 'Found user -' 
     $userassigned | Format-List  ID, DisplayName, Mail, UserPrincipalName
 
+    Write-Host 'Starting operation. If you consistently get errors about existing odataref, please reboot your machine and try again. Restarting the PowerShell session does not always work.'
     CreateGroupsAndAssignUser -user $userassigned
 }
 

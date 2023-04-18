@@ -1,3 +1,4 @@
+#Requires -Version 7
 
 [CmdletBinding()]
 param(    
@@ -90,17 +91,33 @@ Function CreateRolesUsersAndRoleAssignments
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "Organization.Read.All Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Organization.Read.All Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
-    $userAccount = (Get-MgContext).Account
-    $split = $userAccount.Split("@")
-    $tenantName = $split[1]
+    $context = Get-MgContext
+    $tenantId = $context.TenantId
+
+    # Get the user running the script
+    $currentUserPrincipalName = $context.Account
+    $user = Get-MgUser -Filter "UserPrincipalName eq '$($context.Account)'"
+
+    # get the tenant we signed in to
+    $Tenant = Get-MgOrganization
+    $tenantName = $Tenant.DisplayName
+    
+    $verifiedDomain = $Tenant.VerifiedDomains | where {$_.Isdefault -eq $true}
+    $verifiedDomainName = $verifiedDomain.Name
+    $tenantId = $Tenant.Id
+
+    Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
+
+    #$split = $currentUserPrincipalName.Split("@")
+    $tenantName = $verifiedDomainName
 
      Write-Host "get the AAD application (msal-react-spa)"
     $app = Get-MgApplication -Filter "DisplayName eq 'msal-react-spa'" 
@@ -126,6 +143,25 @@ Function CreateRolesUsersAndRoleAssignments
             Write-Host "Couldn't find application (msal-react-spa)"  -BackgroundColor Red
         }
 }
+
+# Pre-requisites
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
+    Install-Module "Microsoft.Graph" -Scope CurrentUser 
+}
+
+#Import-Module Microsoft.Graph
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Authentication
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Identity.DirectoryManagement")) {
+    Install-Module "Microsoft.Graph.Identity.DirectoryManagement" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Identity.DirectoryManagement
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 

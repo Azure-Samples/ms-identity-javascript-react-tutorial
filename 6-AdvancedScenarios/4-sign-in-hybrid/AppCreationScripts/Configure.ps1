@@ -1,4 +1,5 @@
-
+#Requires -Version 7
+ 
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
@@ -13,7 +14,7 @@ param(
 
  In case you don't have Microsoft.Graph.Applications already installed, the script will automatically install it for the current user
  
- There are four ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
+ There are two ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
 #>
 
 # Create an application key
@@ -85,6 +86,49 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
 }
 
 
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#> 
+Function UpdateLine([string] $line, [string] $value)
+{
+    $index = $line.IndexOf(':')
+    $lineEnd = ''
+
+    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
+    
+    if ($index -ige 0)
+    {
+        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
+    }
+    return $line
+}
+
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#> 
+Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
+{
+    $lines = Get-Content $configFilePath
+    $index = 0
+    while($index -lt $lines.Length)
+    {
+        $line = $lines[$index]
+        foreach($key in $dictionary.Keys)
+        {
+            if ($line.Contains($key))
+            {
+                $lines[$index] = UpdateLine $line $dictionary[$key]
+            }
+        }
+        $index++
+    }
+
+    Set-Content -Path $configFilePath -Value $lines -Force
+}
+
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#>     
 Function ReplaceInLine([string] $line, [string] $key, [string] $value)
 {
     $index = $line.IndexOf($key)
@@ -96,6 +140,9 @@ Function ReplaceInLine([string] $line, [string] $key, [string] $value)
     return $line
 }
 
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#>     
 Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
 {
     $lines = Get-Content $configFilePath
@@ -115,6 +162,11 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 
     Set-Content -Path $configFilePath -Value $lines -Force
 }
+
+
+<#.Description
+   This function takes a string as input and creates an instance of an Optional claim object
+#> 
 Function CreateOptionalClaim([string] $name)
 {
     <#.Description
@@ -129,7 +181,9 @@ Function CreateOptionalClaim([string] $name)
     return $appClaim
 }
 
-
+<#.Description
+   Primary entry method to create and configure app registrations
+#> 
 Function ConfigureApplications
 {
     <#.Description
@@ -146,20 +200,34 @@ Function ConfigureApplications
     # Connect to the Microsoft Graph API, non-interactive is not supported for the moment (Oct 2021)
     Write-Host "Connecting to Microsoft Graph"
     if ($tenantId -eq "") {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
-        $tenantId = (Get-MgContext).TenantId
+        Connect-MgGraph -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All" -Environment $azureEnvironmentName
     }
     else {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All" -Environment $azureEnvironmentName
     }
     
+    $context = Get-MgContext
+    $tenantId = $context.TenantId
+
+    # Get the user running the script
+    $currentUserPrincipalName = $context.Account
+    $user = Get-MgUser -Filter "UserPrincipalName eq '$($context.Account)'"
+
+    # get the tenant we signed in to
+    $Tenant = Get-MgOrganization
+    $tenantName = $Tenant.DisplayName
+    
+    $verifiedDomain = $Tenant.VerifiedDomains | where {$_.Isdefault -eq $true}
+    $verifiedDomainName = $verifiedDomain.Name
+    $tenantId = $Tenant.Id
+
+    Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
 
    # Create the service AAD application
    Write-Host "Creating the AAD application (msal-hybrid-spa)"
    # Get a 6 months application key for the service Application
    $fromDate = [DateTime]::Now;
    $key = CreateAppKey -fromDate $fromDate -durationInMonths 6
-   
    
    # create the application 
    $serviceAadApplication = New-MgApplication -DisplayName "msal-hybrid-spa" `
@@ -174,22 +242,25 @@ Function ConfigureApplications
                                                          } `
                                                         -SignInAudience AzureADMyOrg `
                                                        #end of command
+
     #add a secret to the application
     $pwdCredential = Add-MgApplicationPassword -ApplicationId $serviceAadApplication.Id -PasswordCredential $key
     $serviceAppKey = $pwdCredential.SecretText
 
-    $tenantName = (Get-MgApplication -ApplicationId $serviceAadApplication.Id).PublisherDomain
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -IdentifierUris @("https://$tenantName/msal-hybrid-spa")
-    
-    # create the service principal of the newly created application 
     $currentAppId = $serviceAadApplication.AppId
+    $currentAppObjectId = $serviceAadApplication.Id
+
+    $tenantName = (Get-MgApplication -ApplicationId $currentAppObjectId).PublisherDomain
+    #Update-MgApplication -ApplicationId $currentAppObjectId -IdentifierUris @("https://$tenantName/msal-hybrid-spa")
+    
+    # create the service principal of the newly created application     
     $serviceServicePrincipal = New-MgServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
 
     # add the user running the script as an app owner if needed
-    $owner = Get-MgApplicationOwner -ApplicationId $serviceAadApplication.Id
+    $owner = Get-MgApplicationOwner -ApplicationId $currentAppObjectId
     if ($owner -eq $null)
     { 
-        New-MgApplicationOwnerByRef -ApplicationId $serviceAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
+        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($serviceServicePrincipal.DisplayName)'"
     }
 
@@ -200,64 +271,107 @@ Function ConfigureApplications
     $optionalClaims.IdToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
     $optionalClaims.Saml2Token = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
 
-
     # Add Optional Claims
 
     $newClaim =  CreateOptionalClaim  -name "sid" 
     $optionalClaims.IdToken += ($newClaim)
     $newClaim =  CreateOptionalClaim  -name "login_hint" 
     $optionalClaims.IdToken += ($newClaim)
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -OptionalClaims $optionalClaims
+    Update-MgApplication -ApplicationId $currentAppObjectId -OptionalClaims $optionalClaims
     Write-Host "Done creating the service application (msal-hybrid-spa)"
 
     # URL of the AAD application in the Azure portal
-    # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.Id+"/isMSAApp/"
-    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.Id+"/isMSAApp/"
+    # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    $servicePortalUrl = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/"+$currentAppId+"/isMSAApp~/false"
+
     Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-hybrid-spa</a></td></tr>" -Path createdApps.html
+    # Declare a list to hold RRA items    
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
 
-    
     # Add Required Resources Access (from 'service' to 'Microsoft Graph')
     Write-Host "Getting access from 'service' to 'Microsoft Graph'"
-    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
-        -requiredDelegatedPermissions "User.Read" `
-    
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph"`
+        -requiredDelegatedPermissions "User.Read"
 
-    $requiredResourcesAccess.Add($requiredPermissions)
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
+    $requiredResourcesAccess.Add($requiredPermission)
+    Write-Host "Added 'Microsoft Graph' to the RRA list."
+    # Useful for RRA additions troubleshooting
+    # $requiredResourcesAccess.Count
+    # $requiredResourcesAccess
+    
+    Update-MgApplication -ApplicationId $currentAppObjectId -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
     
+
+    # print the registered app portal URL for any further navigation
+    Write-Host "Successfully registered and configured that app registration for 'msal-hybrid-spa' at `n $servicePortalUrl" -ForegroundColor Green 
+    
     # Update config file for 'service'
-    $configFile = $pwd.Path + "\..\App\.env"
+    # $configFile = $pwd.Path + "\..\App\.env"
+    $configFile = $(Resolve-Path ($pwd.Path + "\..\App\.env"))
+    
     $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey;"Enter_the_Audience_Here" = $serviceAadApplication.AppId };
 
-    Write-Host "Updating the sample code ($configFile)"
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
+    $dictionary
+    Write-Host "-----------------"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     
     # Update config file for 'service'
-    $configFile = $pwd.Path + "\..\App\client\src\authConfig.js"
+    # $configFile = $pwd.Path + "\..\App\client\src\authConfig.js"
+    $configFile = $(Resolve-Path ($pwd.Path + "\..\App\client\src\authConfig.js"))
+    
     $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
 
-    Write-Host "Updating the sample code ($configFile)"
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
+    $dictionary
+    Write-Host "-----------------"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-    if($isOpenSSL -eq 'Y')
-    {
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-        Write-Host "You have generated certificate using OpenSSL so follow below steps: "
-        Write-Host "Install the certificate on your system from current folder."
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-    }
-    Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
-}
+    Write-Host "- App service  - created at $servicePortalUrl"
+
+
+Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
+} # end of ConfigureApplications function
 
 # Pre-requisites
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
+    Install-Module "Microsoft.Graph" -Scope CurrentUser 
+}
+
+#Import-Module Microsoft.Graph
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Authentication
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Identity.DirectoryManagement")) {
+    Install-Module "Microsoft.Graph.Identity.DirectoryManagement" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {
     Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser 
 }
 
 Import-Module Microsoft.Graph.Applications
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Groups
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Users
 
 Set-Content -Value "<html><body><table>" -Path createdApps.html
 Add-Content -Value "<thead><tr><th>Application</th><th>AppId</th><th>Url in the Azure portal</th></tr></thead><tbody>" -Path createdApps.html
@@ -265,7 +379,17 @@ Add-Content -Value "<thead><tr><th>Application</th><th>AppId</th><th>Url in the 
 $ErrorActionPreference = "Stop"
 
 # Run interactively (will ask you for the tenant ID)
-ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
 
+try
+{
+    ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
+}
+catch
+{
+    $_.Exception.ToString() | out-host
+    $message = $_
+    Write-Warning $Error[0]    
+    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph

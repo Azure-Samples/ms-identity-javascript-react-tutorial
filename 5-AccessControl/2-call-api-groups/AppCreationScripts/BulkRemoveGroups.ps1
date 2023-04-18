@@ -1,3 +1,4 @@
+#Requires -Version 7
 
 [CmdletBinding()]
 param(
@@ -48,7 +49,7 @@ Function RemoveGroups
             try
             {
                 Remove-MgGroup -GroupId $group.Id
-                Write-Host "Successfully deleted '$($group.DisplayName)'"
+                Write-Host "Successfully deleted group named '$($group.DisplayName)'"
             }
             catch 
             {
@@ -60,7 +61,7 @@ Function RemoveGroups
         }
         else 
         {
-            Write-Host "Couldn't find group $($groupName) with ID: $($group.Id)"
+            Write-Host "Couldn't find group with name '$($groupName)' "
         }
        
        

@@ -1,3 +1,4 @@
+﻿#Requires -Version 7
 
 [CmdletBinding()]
 param(    
@@ -6,6 +7,7 @@ param(
     [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script. Default = Global')]
     [string] $azureEnvironmentName
 )
+
 
 Function Cleanup
 {
@@ -24,29 +26,51 @@ Function Cleanup
 
     # Connect to the Microsoft Graph API
     Write-Host "Connecting to Microsoft Graph"
-    if ($tenantId -eq "") {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
-        $tenantId = (Get-MgContext).TenantId
+
+
+    if ($tenantId -eq "") 
+    {
+        Connect-MgGraph -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All" -Environment $azureEnvironmentName
     }
-    else {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+    else 
+    {
+        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read.All Organization.Read.All Application.ReadWrite.All" -Environment $azureEnvironmentName
     }
     
+    $context = Get-MgContext
+    $tenantId = $context.TenantId
+
+    # Get the user running the script
+    $currentUserPrincipalName = $context.Account
+    $user = Get-MgUser -Filter "UserPrincipalName eq '$($context.Account)'"
+
+    # get the tenant we signed in to
+    $Tenant = Get-MgOrganization
+    $tenantName = $Tenant.DisplayName
+    
+    $verifiedDomain = $Tenant.VerifiedDomains | where {$_.Isdefault -eq $true}
+    $verifiedDomainName = $verifiedDomain.Name
+    $tenantId = $Tenant.Id
+
+    Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
+
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantId'"
 
     Write-Host "Removing 'spa' (ms-identity-react-c2s1) if needed"
     try
     {
-        Get-MgApplication -Filter "DisplayName eq 'ms-identity-react-c2s1'"  | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+        Get-MgApplication -Filter "DisplayName eq 'ms-identity-react-c2s1'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
-        Write-Host "Unable to remove the application 'ms-identity-react-c2s1' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove the application 'ms-identity-react-c2s1'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (ms-identity-react-c2s1) applications found, will remove if needed..."
-    $apps = Get-MgApplication -Filter "DisplayName eq 'ms-identity-react-c2s1'"
+    $apps = Get-MgApplication -Filter "DisplayName eq 'ms-identity-react-c2s1'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
     
     if ($apps)
     {
@@ -62,23 +86,67 @@ Function Cleanup
     # also remove service principals of this app
     try
     {
-        Get-MgServicePrincipal -filter "DisplayName eq 'ms-identity-react-c2s1'" | ForEach-Object {Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'ms-identity-react-c2s1'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
     }
     catch
     {
-        Write-Host "Unable to remove ServicePrincipal 'ms-identity-react-c2s1' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove ServicePrincipal 'ms-identity-react-c2s1'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
 
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) { 
-    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser                                            
-} 
+# Pre-requisites
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
+    Install-Module "Microsoft.Graph" -Scope CurrentUser 
+}
+
+#Import-Module Microsoft.Graph
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Authentication
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Identity.DirectoryManagement")) {
+    Install-Module "Microsoft.Graph.Identity.DirectoryManagement" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Identity.DirectoryManagement
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) {
+    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser 
+}
+
 Import-Module Microsoft.Graph.Applications
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Groups
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Users
+
 $ErrorActionPreference = "Stop"
 
 
-Cleanup -tenantId $tenantId -environment $azureEnvironmentName
+try
+{
+    Cleanup -tenantId $tenantId -environment $azureEnvironmentName
+}
+catch
+{
+    $_.Exception.ToString() | out-host
+    $message = $_
+    Write-Warning $Error[0]    
+    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
 
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph
-
