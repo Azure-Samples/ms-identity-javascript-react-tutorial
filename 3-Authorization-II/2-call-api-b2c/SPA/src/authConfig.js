@@ -12,22 +12,22 @@ import { LogLevel } from "@azure/msal-browser";
  */
 export const b2cPolicies = {
     names: {
-        signUpSignIn: 'B2C_1_susi_v2',
-        forgotPassword: 'B2C_1_reset_v3',
+        signUpSignIn: 'B2C_1_paso_susi',
+        forgotPassword: 'B2C_1_paso_rst',
         editProfile: 'B2C_1_edit_profile_v2',
     },
     authorities: {
         signUpSignIn: {
-            authority: 'https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi_v2',
+            authority: 'https://pasopoc.b2clogin.com/pasopoc.onmicrosoft.com/B2C_1_paso_susi',
         },
         forgotPassword: {
-            authority: 'https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/B2C_1_reset_v3',
+            authority: 'https://pasopoc.b2clogin.com/pasopoc.onmicrosoft.com/B2C_1_paso_rst',
         },
         editProfile: {
             authority: 'https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_edit_profile_v2',
         },
     },
-    authorityDomain: 'fabrikamb2c.b2clogin.com',
+    authorityDomain: 'pasopoc.b2clogin.com',
 };
 
 
@@ -38,7 +38,7 @@ export const b2cPolicies = {
  */
 export const msalConfig = {
     auth: {
-        clientId: '2fdd06f3-7b34-49a3-a78b-0cf1dd87878e', // This is the ONLY mandatory field that you need to supply.
+        clientId: 'e8931e87-84d2-4210-9599-31abb0eb4742', // This is the ONLY mandatory field that you need to supply.
         authority: b2cPolicies.authorities.signUpSignIn.authority, // Choose SUSI as your default authority.
         knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
         redirectUri: '/', // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
@@ -47,7 +47,7 @@ export const msalConfig = {
     },
     cache: {
         cacheLocation: 'sessionStorage', // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
-        storeAuthStateInCookie: false, // Set this to "true" if you are having issues on IE11 or Edge
+        storeAuthStateInCookie: true, // Set this to "true" if you are having issues on IE11 or Edge
     },
     system: {
         loggerOptions: {
@@ -84,8 +84,8 @@ export const protectedResources = {
     apiTodoList: {
         endpoint: 'http://localhost:5000/api/todolist',
         scopes: {
-            read: ['https://fabrikamb2c.onmicrosoft.com/TodoList/ToDoList.Read'],
-            write: ['https://fabrikamb2c.onmicrosoft.com/TodoList/ToDoList.ReadWrite'],
+            read: ['https://pasopoc.onmicrosoft.com/tasks-api/tasks.read'],
+            write: ['https://pasopoc.onmicrosoft.com/tasks-api/tasks.write'],
         },
     },
 };

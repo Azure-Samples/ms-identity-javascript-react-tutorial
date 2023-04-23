@@ -1,13 +1,13 @@
 const passportConfig = {
     credentials: {
-        tenantName: 'fabrikamb2c.onmicrosoft.com',
-        clientID: 'e29ac359-6a90-4f9e-b31c-8f64e1ac20cb',
+        tenantName: 'pasopoc.onmicrosoft.com',
+        clientID: 'eb9ff10a-3fa2-4989-96a1-0cbaebb85bfb',
     },
     policies: {
-        policyName: 'B2C_1_susi_v2',
+        policyName: 'B2C_1_paso_susi',
     },
     metadata: {
-        b2cDomain: 'fabrikamb2c.b2clogin.com',
+        b2cDomain: 'pasopoc.b2clogin.com',
         authority: 'login.microsoftonline.com',
         discovery: '.well-known/openid-configuration',
         version: 'v2.0',
@@ -23,8 +23,8 @@ const passportConfig = {
         todolist: {
             endpoint: '/api/todolist',
             delegatedPermissions: {
-                read: ['ToDoList.Read', 'ToDoList.ReadWrite'],
-                write: ['ToDoList.ReadWrite'],
+                read: ['tasks.read'],
+                write: ['tasks.write'],
             },
         },
     },
