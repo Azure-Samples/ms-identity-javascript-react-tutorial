@@ -20,12 +20,7 @@ const routeGuard = require('./auth/routeGuard');
 
 const mongoHelper = require('./utils/mongoHelper');
 
-const {
-    msalConfig,
-    EXPRESS_SESSION_SECRET,
-    CORS_ALLOWED_DOMAINS,
-    API_REQUIRED_PERMISSION,
-} = require('./authConfig');
+const { msalConfig, EXPRESS_SESSION_SECRET, CORS_ALLOWED_DOMAINS, API_REQUIRED_PERMISSION } = require('./authConfig');
 
 const app = express();
 
@@ -45,34 +40,35 @@ app.use(express.json());
  * We need to enable CORS for client's domain in order to
  * expose www-authenticate header in response from the web API
  */
-app.use(cors({
-    origin: CORS_ALLOWED_DOMAINS, // replace with client domain
-    exposedHeaders: "www-authenticate",
-}));
+app.use(
+    cors({
+        origin: CORS_ALLOWED_DOMAINS, // replace with client domain
+        exposedHeaders: 'www-authenticate',
+    })
+);
 
 /**
  * Using express-session middleware. Be sure to familiarize yourself with available options
  * and set them as desired. Visit: https://www.npmjs.com/package/express-session
  */
- const sessionConfig = {
+const sessionConfig = {
     secret: EXPRESS_SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
         secure: false, // set this to true on production
-    }
-}
+    },
+};
 
 if (app.get('env') === 'production') {
-
     /**
      * In App Service, SSL termination happens at the network load balancers, so all HTTPS requests reach your app as unencrypted HTTP requests.
      * The line below is needed for getting the correct absolute URL for redirectUri configuration. For more information, visit:
      * https://docs.microsoft.com/azure/app-service/configure-language-nodejs?pivots=platform-linux#detect-https-session
      */
 
-    app.set('trust proxy', 1) // trust first proxy e.g. App Service
-    sessionConfig.cookie.secure = true // serve secure cookies
+    app.set('trust proxy', 1); // trust first proxy e.g. App Service
+    sessionConfig.cookie.secure = true; // serve secure cookies
 }
 
 app.use(session(sessionConfig));
@@ -99,23 +95,22 @@ app.use(passport.initialize());
 passport.use(bearerStrategy);
 
 // protected api endpoints
-app.use('/api',
+app.use(
+    '/api',
     passport.authenticate('oauth-bearer', { session: false }), // validate access tokens
     routeGuard, // check for auth context
     todolistRoutes
 );
 
-
-
-// pass down to the authProvider instance to use in router
+// admin routes
 app.use('/admin', adminRoutes);
 
 const port = process.env.PORT || 5000;
 
 mongoHelper.mongoConnect(() => {
-  app.listen(port, () => {
-      console.log('Listening on port ' + port);
-  });
+    app.listen(port, () => {
+        console.log('Listening on port ' + port);
+    });
 });
 
 module.exports = app;

@@ -36,9 +36,9 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 | `SPA/src/authConfig.js`             | Authentication parameters for SPA project reside here.                                |
 | `SPA/src/index.js`                  | MSAL React is initialized here.                                                       |
 | `SPA/src/fetch.js`                  | Claims challenge for the client is handled here.                                      |
-| `API/.env`                          | Authentication parameters for the web API project.                                    |
-| `API/auth/routeGuard.js`           | Custom middleware protecting app routes                                               |
-| `API/auth/claimsManager.js`        | Custom middleware handling checking for auth context and generating claims challenge. |
+| `API/authConfig.js`                 | Authentication parameters for the web API project.                                    |
+| `API/auth/routeGuard.js`            | Custom middleware protecting app routes                                               |
+| `API/auth/claimsManager.js`         | Custom middleware handling checking for auth context and generating claims challenge. |
 | `API/app.js`                        | passport-azure-ad is initialized here.                                                |
 
 ## Prerequisites
@@ -203,7 +203,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `API\.env` file.
+1. Open the `API\authConfig.js` file.
 1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api-acrs` app copied from the Azure portal.
 1. Find the string `Enter_the_Client_Secret_Here` and replace the existing value with the client secret you recorded earlier.

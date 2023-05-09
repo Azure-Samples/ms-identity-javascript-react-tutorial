@@ -24,7 +24,7 @@ class AuthProvider {
          * The MSAL Node library allows you to pass your custom state as state parameter in the Request object.
          * The state parameter can also be used to encode information of the app's state before redirect.
          * You can pass the user's state in the app, such as the page or view they were on, as input to this parameter.
-         */ 
+         */
 
         const state = this.cryptoProvider.base64Encode(
             JSON.stringify({
@@ -60,7 +60,12 @@ class AuthProvider {
          */
 
         if (!this.config.msalConfig.auth.authorityMetadata) {
-            const authorityMetadata = await this.getAuthorityMetadata();
+            const [cloudDiscoveryMetadata, authorityMetadata] = await Promise.all([
+                this.getCloudDiscoveryMetadata(),
+                this.getAuthorityMetadata(),
+            ]);
+
+            this.config.msalConfig.auth.cloudDiscoveryMetadata = JSON.stringify(cloudDiscoveryMetadata);
             this.config.msalConfig.auth.authorityMetadata = JSON.stringify(authorityMetadata);
         }
 
@@ -177,7 +182,7 @@ class AuthProvider {
 
                     const state = authProvider.cryptoProvider.base64Encode(
                         JSON.stringify({
-                            redirectTo: 'http://localhost:3000/todos',
+                            redirectTo: 'http://localhost:5000/admin/dashboard',
                             csrfToken: req.session.csrfToken,
                         })
                     );
@@ -224,6 +229,25 @@ class AuthProvider {
         req.session.destroy(() => {
             res.redirect(logoutUri);
         });
+    }
+
+    /**
+     * Retrieves cloud discovery metadata from the /discovery/instance endpoint
+     * @returns
+     */
+    async getCloudDiscoveryMetadata() {
+        const endpoint = 'https://login.microsoftonline.com/common/discovery/instance';
+        try {
+            const response = await axios.get(endpoint, {
+                params: {
+                    'api-version': '1.1',
+                    authorization_endpoint: `${this.config.msalConfig.auth.authority}/oauth2/v2.0/authorize`,
+                },
+            });
+            return await response.data;
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     /**
