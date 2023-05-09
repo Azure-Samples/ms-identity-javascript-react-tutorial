@@ -1,3 +1,5 @@
+const { msalConfig } = require("../authConfig");
+
 /**
  * This custom middleware inspects the incoming request for client capabilities and auth context
  * @param {string} authContextId
@@ -38,7 +40,7 @@ const isClientCapableOfClaimsChallenge = (accessTokenClaims) => {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
  */
 const generateClaimsChallenge = (authContextId) => {
-    const clientId = process.env.CLIENT_ID;
+    const clientId = msalConfig.auth.clientId;
     
     const statusCode = 401;
     

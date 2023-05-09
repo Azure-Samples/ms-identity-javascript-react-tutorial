@@ -59,7 +59,7 @@
         {
             "App": "service",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\API\\.env",
+            "SettingFile": "\\..\\API\\authConfig.js",
             "Mappings": [
                 {
                     "key": "Enter_the_Application_Id_Here",

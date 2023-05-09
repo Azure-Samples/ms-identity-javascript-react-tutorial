@@ -11,7 +11,6 @@ const methodOverride = require('method-override');
 const cors = require('cors');
 const path = require('path');
 
-const MsIdExpress = require('microsoft-identity-express');
 const passport = require('passport');
 const BearerStrategy = require('passport-azure-ad').BearerStrategy;
 
@@ -20,6 +19,13 @@ const adminRoutes = require('./routes/adminRoutes');
 const routeGuard = require('./auth/routeGuard');
 
 const mongoHelper = require('./utils/mongoHelper');
+
+const {
+    msalConfig,
+    EXPRESS_SESSION_SECRET,
+    CORS_ALLOWED_DOMAINS,
+    API_REQUIRED_PERMISSION,
+} = require('./authConfig');
 
 const app = express();
 
@@ -40,7 +46,7 @@ app.use(express.json());
  * expose www-authenticate header in response from the web API
  */
 app.use(cors({
-    origin: process.env.CORS_ALLOWED_DOMAINS, // replace with client domain
+    origin: CORS_ALLOWED_DOMAINS, // replace with client domain
     exposedHeaders: "www-authenticate",
 }));
 
@@ -49,7 +55,7 @@ app.use(cors({
  * and set them as desired. Visit: https://www.npmjs.com/package/express-session
  */
  const sessionConfig = {
-    secret: process.env.EXPRESS_SESSION_SECRET,
+    secret: EXPRESS_SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -72,16 +78,15 @@ if (app.get('env') === 'production') {
 app.use(session(sessionConfig));
 
 // =========== Initialize Passport ==============
-
 const bearerOptions = {
-    identityMetadata: `https://${process.env.AUTHORITY}/${process.env.TENANT_ID}/v2.0/.well-known/openid-configuration`,
-    issuer: `https://${process.env.AUTHORITY}/${process.env.TENANT_ID}/v2.0`,
-    clientID: process.env.CLIENT_ID,
-    audience: process.env.CLIENT_ID, // audience is this application
+    identityMetadata: `${msalConfig.auth.authority}/v2.0/.well-known/openid-configuration`,
+    issuer: `${msalConfig.auth.authority}/v2.0`,
+    clientID: msalConfig.auth.clientId,
+    audience: msalConfig.auth.clientId, // audience is this application
     validateIssuer: true,
     passReqToCallback: false,
-    loggingLevel: "info",
-    scope: [process.env.API_REQUIRED_PERMISSION] // scope you set during app registration
+    loggingLevel: 'info',
+    scope: [API_REQUIRED_PERMISSION], // scope you set during app registration
 };
 
 const bearerStrategy = new BearerStrategy(bearerOptions, (token, done) => {
@@ -100,39 +105,10 @@ app.use('/api',
     todolistRoutes
 );
 
-// =========== Initialize MSAL Node Wrapper==============
 
-const appSettings = {
-    appCredentials: {
-        clientId: process.env.CLIENT_ID,
-        tenantId: process.env.TENANT_ID,
-        clientSecret: process.env.CLIENT_SECRET,
-    },
-    authRoutes: {
-        redirect: process.env.REDIRECT_URI, // enter the path component of your redirect URI
-        unauthorized: "/admin/unauthorized" // the wrapper will redirect to this route in case of unauthorized access attempt
-    },
-    protectedResources: {
-        // Microsoft Graph beta authenticationContextClassReference endpoint. For more information,
-        // visit: https://docs.microsoft.com/en-us/graph/api/resources/authenticationcontextclassreference?view=graph-rest-beta
-        msGraphAcrs: {
-            endpoint: "https://graph.microsoft.com/beta/identity/conditionalAccess/policies",
-            scopes: ["Policy.ReadWrite.ConditionalAccess", "Policy.Read.ConditionalAccess"]
-        },
-    }
-}
-
-
-// instantiate the wrapper
-const authProvider = new MsIdExpress.WebAppAuthClientBuilder(appSettings).build();
-
-// initialize the wrapper
-app.use(authProvider.initialize());
 
 // pass down to the authProvider instance to use in router
-app.use('/admin',
-    adminRoutes(authProvider)
-);
+app.use('/admin', adminRoutes);
 
 const port = process.env.PORT || 5000;
 
