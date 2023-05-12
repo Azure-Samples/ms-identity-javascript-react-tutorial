@@ -43,7 +43,7 @@ app.use(express.json());
 app.use(
     cors({
         origin: CORS_ALLOWED_DOMAINS, // replace with client domain
-        exposedHeaders: 'www-authenticate',
+        exposedHeaders: 'WWW-Authenticate',
     })
 );
 
