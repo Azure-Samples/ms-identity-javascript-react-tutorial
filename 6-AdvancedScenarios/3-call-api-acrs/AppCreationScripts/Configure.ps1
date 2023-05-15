@@ -435,7 +435,7 @@ Function ConfigureApplications
     
     # Update config file for 'service'
     # $configFile = $pwd.Path + "\..\API\.env"
-    $configFile = $(Resolve-Path ($pwd.Path + "\..\API\.env"))
+    $configFile = $(Resolve-Path ($pwd.Path + "\..\API\authConfig.js"))
     
     $dictionary = @{ "Enter_the_Application_Id_Here" = $serviceAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Client_Secret_Here" = $serviceAppKey };
 
