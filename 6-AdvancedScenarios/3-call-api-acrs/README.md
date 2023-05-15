@@ -38,7 +38,7 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 | `SPA/src/fetch.js`                  | Claims challenge for the client is handled here.                                      |
 | `API/authConfig.js`                 | Authentication parameters for the web API project.                                    |
 | `API/auth/routeGuard.js`            | Custom middleware protecting app routes                                               |
-| `API/auth/claimsManager.js`         | Custom middleware handling checking for auth context and generating claims challenge. |
+| `API/auth/claimsHelper.js`          | Custom middleware handling checking for auth context and generating claims challenge. |
 | `API/app.js`                        | passport-azure-ad is initialized here.                                                |
 
 ## Prerequisites
@@ -354,7 +354,7 @@ const authContextGuard = (req, res, next) => {
 }
 ```
 
-In [claimsManager.js](./API/auth/claimsManager.js):
+In [claimsHelper.js](./API/auth/claimsHelper.js):
 
 ```javascript
 const checkForRequiredAuthContext = (req, res, next, authContextId) => {
@@ -386,7 +386,7 @@ const isClientCapableOfClaimsChallenge = (accessTokenClaims) => {
 
 ### Generating claims challenge
 
-If there is an auth context entry in the database and the incoming request does not contain an access token with the necessary claims, the web API needs to create a **claims challenge** and send it to client application to allow the user to satisfy the challenge (for instance, perform multi-factor authentication). This is shown in [claimsManager.js](./API/auth/claimsManager.js):
+If there is an auth context entry in the database and the incoming request does not contain an access token with the necessary claims, the web API needs to create a **claims challenge** and send it to client application to allow the user to satisfy the challenge (for instance, perform multi-factor authentication). This is shown in [claimsHelper.js](./API/auth/claimsHelper.js):
 
 ```javascript
 const generateClaimsChallenge = (authContextId) => {

@@ -18,9 +18,9 @@ router.get('/', (req, res, next) => res.redirect('/admin/home'));
 router.get('/home', dashboardController.getHomePage);
 
 // authentication routes
-router.get('/signin', (req, res, next) =>  authProvider.login(req, res, next));
-router.get('/signout', (req, res, next) => authProvider.logout(req, res, next));
-router.post('/redirect', (req, res, next) => authProvider.handleRedirect(req, res, next));
+router.get('/signin', authProvider.login);
+router.get('/signout', authProvider.logout);
+router.post('/redirect', authProvider.handleRedirect);
 
 // check if user is authenticated, then obtain an access token for the specified resource
 router.get(

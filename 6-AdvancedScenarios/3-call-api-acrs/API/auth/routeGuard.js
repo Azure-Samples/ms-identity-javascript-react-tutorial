@@ -1,4 +1,4 @@
-const checkForRequiredAuthContext = require('./claimsManager');
+const checkForRequiredAuthContext = require('./claimsHelper');
 const AuthContext = require('../models/authContext');
 
 const authContextGuard = async (req, res, next) => {

@@ -16,7 +16,7 @@ class AuthProvider {
         return new msal.ConfidentialClientApplication(msalConfig);
     }
 
-    async login(req, res, next) {
+    login = async (req, res, next) =>  {
         // create a GUID for csrf
         req.session.csrfToken = this.cryptoProvider.createNewGuid();
 
@@ -129,7 +129,7 @@ class AuthProvider {
         }
     }
 
-    async handleRedirect(req, res, next) {
+    handleRedirect = async (req, res, next) => {
         const authCodeRequest = {
             ...req.session.authCodeRequest,
             code: req.body.code, // authZ code
@@ -218,7 +218,7 @@ class AuthProvider {
      * @param res: Express response object
      * @param next: Express next function
      */
-    async logout(req, res, next) {
+    logout = async (req, res, next) => {
         /**
          * Construct a logout URI and redirect the user to end the
          * session with Azure AD. For more information, visit:

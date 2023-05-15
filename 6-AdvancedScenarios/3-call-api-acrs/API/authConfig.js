@@ -34,7 +34,7 @@ const msalConfig = {
 const protectedResources = {
     msGraphAcrs: {
         endpoint: 'https://graph.microsoft.com/beta/identity/conditionalAccess/policies',
-        scopes: ['Policy.ReadWrite.ConditionalAccess', 'Policy.Read.ConditionalAccess'],
+        scopes: ['Policy.Read.ConditionalAccess'],
     },
 };
 
