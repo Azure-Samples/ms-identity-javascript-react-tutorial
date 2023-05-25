@@ -37,7 +37,7 @@ export const b2cPolicies = {
  */
 export const msalConfig = {
     auth: {
-        clientId: '2fdd06f3-7b34-49a3-a78b-0cf1dd87878e', // This is the ONLY mandatory field that you need to supply.
+        clientId: '09dd92cf-78ba-4c25-94b2-ec3f3ef84352', // This is the ONLY mandatory field that you need to supply.
         authority: b2cPolicies.authorities.signUpSignIn.authority, // Choose SUSI as your default authority.
         knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
         redirectUri: '/', // You must register this URI on Azure Portal/App Registration. Defaults to window.location.origin
