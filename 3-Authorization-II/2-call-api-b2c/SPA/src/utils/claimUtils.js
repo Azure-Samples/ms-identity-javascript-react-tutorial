@@ -175,13 +175,13 @@ export const createClaimsTable = (claims) => {
                 index++;
                 break;
             case "at_hash":
-                 populateClaim(
-                     key,
-                     claims[key],
-                     'An access token hash included in an ID token only when the token is issued together with an OAuth 2.0 access token. An access token hash can be used to validate the authenticity of an access token',
-                     index,
-                     claimsObj
-                 );
+                populateClaim(
+                    key,
+                    claims[key],
+                    'An access token hash included in an ID token only when the token is issued together with an OAuth 2.0 access token. An access token hash can be used to validate the authenticity of an access token',
+                    index,
+                    claimsObj
+                );
                 index++;
                 break;
             case 'uti':
@@ -225,13 +225,12 @@ const changeDateFormat = (date) => {
 
 /**
  * Compare the token issuing policy with a specific policy name
- * @param {object} idTokenClaims - Object containining token claims
+ * @param {object} idTokenClaims - Object containing the claims from the parsed token
  * @param {string} policyToCompare - ID/Name of the policy as expressed in the Azure portal
  * @returns {boolean}
  */
- export function compareIssuingPolicy(idTokenClaims, policyToCompare) {
-    let tfpMatches = idTokenClaims['tfp'] === policyToCompare.toLowerCase();
-    let acrMatches = idTokenClaims['acr'] === policyToCompare.toLowerCase()
-    return tfpMatches || acrMatches
-  }
-  
+export function compareIssuingPolicy(idTokenClaims, policyToCompare) {
+    let tfpMatches = idTokenClaims.hasOwnProperty('tfp') && idTokenClaims['tfp'].toLowerCase() === policyToCompare.toLowerCase();
+    let acrMatches = idTokenClaims.hasOwnProperty('acr') && idTokenClaims['acr'].toLowerCase() === policyToCompare.toLowerCase();
+    return tfpMatches || acrMatches;
+}

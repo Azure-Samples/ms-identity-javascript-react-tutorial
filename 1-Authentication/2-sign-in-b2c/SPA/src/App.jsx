@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
+import { Route, Routes } from 'react-router-dom';
 import { MsalProvider, useMsal } from '@azure/msal-react';
 import { EventType } from '@azure/msal-browser';
 
-import { Route, Routes } from 'react-router-dom';
 import { PageLayout } from './components/PageLayout';
 import { Home } from './pages/Home';
 import { b2cPolicies } from './authConfig';
-
+import { compareIssuingPolicy } from './utils/claimUtils';
 
 import './styles/App.css';
 
@@ -57,7 +57,7 @@ const Pages = () => {
                  * you can replace the code below with the same pattern used for handling the return from
                  * profile edit flow
                  */
-                if (event.payload.idTokenClaims['tfp'] === b2cPolicies.names.forgotPassword) {
+                if (compareIssuingPolicy(event.payload.idTokenClaims, b2cPolicies.names.forgotPassword)) {
                     let signUpSignInFlowRequest = {
                         authority: b2cPolicies.authorities.signUpSignIn.authority,
                     };

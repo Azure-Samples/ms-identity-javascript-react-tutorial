@@ -3,7 +3,7 @@ import {
     useCallback,
 } from 'react';
 
-import { InteractionType, PopupRequest } from '@azure/msal-browser';
+import { InteractionType } from '@azure/msal-browser';
 import { useMsal, useMsalAuthentication } from "@azure/msal-react";
 
 /**
