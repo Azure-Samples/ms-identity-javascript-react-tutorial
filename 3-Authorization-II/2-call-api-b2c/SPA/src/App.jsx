@@ -1,12 +1,11 @@
 import { useEffect } from 'react';
+import { Routes, Route } from "react-router-dom";
 import { MsalProvider, useMsal } from '@azure/msal-react';
 import { EventType } from '@azure/msal-browser';
 
-import { Routes, Route } from "react-router-dom";
 import { PageLayout } from './components/PageLayout';
 import { TodoList } from './pages/TodoList';
 import { Home } from './pages/Home';
-
 import { b2cPolicies, protectedResources } from './authConfig';
 import { compareIssuingPolicy } from './utils/claimUtils';
 
