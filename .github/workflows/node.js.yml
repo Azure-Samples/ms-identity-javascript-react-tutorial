@@ -68,18 +68,6 @@ jobs:
         npm run test --no-watch
 
     - run: |
-        cd 4-Deployment/1-deploy-storage/SPA
-        npm ci
-        npm audit --production
-        npm run test --no-watch
-
-    - run: |
-        cd 4-Deployment/1-deploy-storage/API
-        npm ci
-        npm audit --production
-        npm run test
-
-    - run: |
         cd 5-AccessControl/1-call-api-roles/SPA
         npm ci
         npm audit --production
