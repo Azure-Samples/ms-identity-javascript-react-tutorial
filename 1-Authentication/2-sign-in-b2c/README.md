@@ -375,7 +375,7 @@ if (event.payload.idTokenClaims['tfp'] === b2cPolicies.names.editProfile) {
 Learn how to:
 
 * [React single-page application using MSAL React to authorize users for calling a protected web API on Azure AD B2C](https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial/tree/main/3-Authorization-II/2-call-api-b2c)
-* [Deploy your React Application to Azure Cloud and use Azure services to manage your operations](../../../ms-identity-javascript-react-tutorial/4-Deployment/1-deploy-storage/README.md)
+* [Deploy your React Application to Azure Cloud and use Azure services to manage your operations](../../../ms-identity-javascript-react-tutorial/4-Deployment/2-deploy-static/README.md)
 
 ## Contributing
 

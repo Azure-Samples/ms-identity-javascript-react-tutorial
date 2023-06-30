@@ -243,7 +243,7 @@ For the purpose of the sample, **cross-origin resource sharing** is enabled for 
 
 ## Next Tutorial
 
-Continue with the next tutorial: [Deploy your apps to Azure](../../4-Deployment/1-deploy-storage/README.md).
+Continue with the next tutorial: [Deploy your apps to Azure](../../4-Deployment/2-deploy-static/README.md).
 
 ## More information
 
