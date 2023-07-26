@@ -209,12 +209,12 @@ To setup your B2C user-flows, do the following:
 From your shell or command line, execute the following commands:
 
 ```console
-    cd 3-Authorization-II\1-call-api-b2c\API
+    cd 3-Authorization-II\2-call-api-b2c\API
     npm start
 ```
 
 ```console
-    cd 3-Authorization-II\1-call-api-b2c\SPA
+    cd 3-Authorization-II\2-call-api-b2c\SPA
     npm start
 ```
 
