@@ -430,8 +430,8 @@ When granting access to data based on scopes, be sure to follow [the principle o
 
 Learn how to:
 
-* [Call a web API using Roles for Access Control](../../../5-AccessControl/1-call-api-roles/README.md)
-* [Call a web API using Groups for Access Control](../../../5-AccessControl/1-call-api-groups/README.md)
+* [Call a web API using Roles for Access Control](../../../main/5-AccessControl/1-call-api-roles/README.md)
+* [Call a web API using Groups for Access Control](../../../main/5-AccessControl/1-call-api-groups/README.md)
 
 ## Contributing
 
