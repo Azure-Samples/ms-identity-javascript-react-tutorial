@@ -81,7 +81,7 @@ or download and extract the repository *.zip* file.
 
 ```console
     cd ms-identity-javascript-react-tutorial
-    cd 1-Authorization\2-sign-in-b2c\SPA
+    cd 1-Authentication\2-sign-in-b2c\SPA
     npm install
 ```
 
