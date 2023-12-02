@@ -10,7 +10,7 @@ products:
 - azure-functions
 - azure-resource-manager
 - azure-app-service-static
-- azure-active-directory
+- microsoft-entra-id
 - azure-active-directory-b2c
 description: "Tutorial: Enable your React single-page application to sign-in users, call the Graph API and deploy on Azure"
 urlFragment: "ms-identity-javascript-react-tutorial"
@@ -25,7 +25,7 @@ urlFragment: "ms-identity-javascript-react-tutorial"
 ![npm](https://img.shields.io/npm/v/@azure/msal-react?label=msal-react)
 ![GitHub](https://img.shields.io/github/license/Azure-Samples/ms-identity-javascript-react-tutorial)
 
-The [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-overview), along with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) and [Azure Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview) (Azure AD B2C) are central to the **Azure** cloud ecosystem. This tutorial aims to take you through the fundamentals of modern authentication with React, using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+The [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-overview), along with [Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Microsoft Entra ID) and [Azure Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview) (Azure AD B2C) are central to the **Azure** cloud ecosystem. This tutorial aims to take you through the fundamentals of modern authentication with React, using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
 We recommend following the chapters in successive order. However, the code samples are self-contained, so feel free to pick samples by topics that you may need at the moment.
 
@@ -46,13 +46,13 @@ Please refer to each sample's README for sample-specific prerequisites.
 - [jwt.ms](https://jwt.ms) for inspecting your tokens
 - [Fiddler](https://www.telerik.com/fiddler) for monitoring your network activity and troubleshooting
 - Check [MSAL.js FAQ](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/FAQ.md) and [MSAL React FAQ](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-react/FAQ.md) for your questions
-- Follow the [Azure AD Blog](https://techcommunity.microsoft.com/t5/azure-active-directory-identity/bg-p/Identity) to stay up-to-date with the latest developments
+- Follow the [Microsoft Entra ID Blog](https://techcommunity.microsoft.com/t5/azure-active-directory-identity/bg-p/Identity) to stay up-to-date with the latest developments
 
 Please refer to each sample's README for sample-specific recommendations.
 
 ## Contents
 
-- For **Azure AD**, start the tutorial from [here](./1-Authentication/1-sign-in/README-incremental.md)
+- For **Microsoft Entra ID**, start the tutorial from [here](./1-Authentication/1-sign-in/README-incremental.md)
 - For **Azure AD B2C**, start the tutorial from [here](./1-Authentication/2-sign-in-b2c/README-incremental.md)
 
 Alternatively, choose below the sample you want to review.
@@ -61,21 +61,21 @@ Alternatively, choose below the sample you want to review.
 
 |               |               |
 |---------------|---------------|
-| <img src="./1-Authentication/1-sign-in/ReadmeFiles/topology.png" width="200"> | [**Sign-in with Azure AD**](./1-Authentication/1-sign-in/README.md) </br> Sign-in your users with the **Azure AD** and learn to work with **ID Tokens**. Learn how **single sign-on (SSO)** works. Learn to secure your apps to operate in **national clouds**.|
+| <img src="./1-Authentication/1-sign-in/ReadmeFiles/topology.png" width="200"> | [**Sign-in with Microsoft Entra ID**](./1-Authentication/1-sign-in/README.md) </br> Sign-in your users with the **Microsoft Entra ID** and learn to work with **ID Tokens**. Learn how **single sign-on (SSO)** works. Learn to secure your apps to operate in **national clouds**.|
 | <img src="./1-Authentication/2-sign-in-b2c/ReadmeFiles/topology.png" width="200"> | [**Sign-in with Azure AD B2C**](./1-Authentication/2-sign-in-b2c/README.md) </br> Sign-in your customers with **Azure AD B2C**. Learn to integrate with **external social identity providers**. Learn how to use **user-flows** and **custom policies**. |
 
 ### Chapter 2: Sign-in a user and get an Access Token for Microsoft Graph
 
 |                |               |
 |----------------|---------------|
-| <img src="./2-Authorization-I/1-call-graph/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Azure AD and call Microsoft Graph**](./2-Authorization-I/1-call-graph/README.md) </br> Authenticate your users and acquire an **Access Token** for Microsoft Graph and then call the **Microsoft Graph API**. Handle Continous Access Evaluation (CAE) events. |
-| <img src="./2-Authorization-I/2-call-arm/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Azure AD and call Azure REST API and Azure Storage REST API**](./2-Authorization-I/2-call-arm/README.md) </br> Authenticate your users and acquire an **Access Token** for Azure Management Resource and Azure Storage then call the **Azure REST API** and **Azure Storage REST API**.|
+| <img src="./2-Authorization-I/1-call-graph/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Microsoft Entra ID and call Microsoft Graph**](./2-Authorization-I/1-call-graph/README.md) </br> Authenticate your users and acquire an **Access Token** for Microsoft Graph and then call the **Microsoft Graph API**. Handle Continous Access Evaluation (CAE) events. |
+| <img src="./2-Authorization-I/2-call-arm/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Microsoft Entra ID and call Azure REST API and Azure Storage REST API**](./2-Authorization-I/2-call-arm/README.md) </br> Authenticate your users and acquire an **Access Token** for Azure Management Resource and Azure Storage then call the **Azure REST API** and **Azure Storage REST API**.|
 
 ### Chapter 3: Protect an API and call the API from your client app
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./3-Authorization-II/1-call-api/ReadmeFiles/topology.png" width="200"> | [**Protect and call a web API on Azure AD**](./3-Authorization-II/1-call-api/README.md) </br> Protect your web API with the **Azure AD**. Use a client application to sign-in a user, acquire an **Access Token** for your web API and call your protected web API. |
+| <img src="./3-Authorization-II/1-call-api/ReadmeFiles/topology.png" width="200"> | [**Protect and call a web API on Microsoft Entra ID**](./3-Authorization-II/1-call-api/README.md) </br> Protect your web API with the **Microsoft Entra ID**. Use a client application to sign-in a user, acquire an **Access Token** for your web API and call your protected web API. |
 | <img src="./3-Authorization-II/2-call-api-b2c/ReadmeFiles/topology.png" width="200"> | [**Protect and call a web API on Azure AD B2C**](./3-Authorization-II/2-call-api-b2c/README.md) </br> Protect your web API with **Azure AD B2C**. Use a client application to sign-in a user, acquire an **Access Token** for your web API and call your protected web API. |
 
 ### Chapter 4: Deploy your application to Azure
@@ -108,12 +108,12 @@ Were we successful in addressing your learning objective? Consider taking a mome
 Learn more about the **Microsoft identity platform**:
 
 - [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/)
-- [Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/)
+- [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/)
 - [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
 - [Application types for Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-app-types)
-- [Understanding Azure AD application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
+- [Understanding Microsoft Entra application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
 - [Understand user and admin consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
-- [Application and service principal objects in Azure Active Directory](https://docs.microsoft.com/azure/active-directory/develop/app-objects-and-service-principals)
+- [Application and service principal objects in Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/develop/app-objects-and-service-principals)
 - [Microsoft identity platform best practices and recommendations](https://docs.microsoft.com/azure/active-directory/develop/identity-platform-integration-checklist)
 
 See more code samples:

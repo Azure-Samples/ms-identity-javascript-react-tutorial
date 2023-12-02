@@ -1,4 +1,4 @@
-# React single-page application using MSAL React to sign-in users against Azure Active Directory
+# React single-page application using MSAL React to sign-in users against Microsoft Entra ID
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -13,13 +13,13 @@
 
 ## Overview
 
-In the [previous chapter](../../1-Authentication\1-sign-in\README-incremental.md), you learnt how a React single-page application (SPA) authenticating users against [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD), using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
+In the [previous chapter](../../1-Authentication\1-sign-in\README-incremental.md), you learnt how a React single-page application (SPA) authenticating users against [Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Microsoft Entra ID), using the [Microsoft Authentication Library for React](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-react) (MSAL React).
 
 In this chapter we will extend our React single-page application (SPA) by making it also call [Microsoft Graph](https://docs.microsoft.com/graph/overview).
 
 ## Scenario
 
-1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD**.
+1. The client React SPA uses **MSAL React** to sign-in a user and obtain a JWT [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Microsoft Entra ID**.
 2. The access token is used as a *bearer token* to authorize the user to call the **Microsoft Graph API**.
 3. The **Microsoft Graph API** responds with the payload if user is authorized.
 
@@ -54,7 +54,7 @@ We'd make the following changes to our app registration
 
 ### Update the app registration (msal-react-spa)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Navigate to the [Microsoft admin center](https://portal.azure.com) and select the **Microsoft Entra ID** service.
 1. Select the **App Registrations** blade on the left, then find and select the application that you have registered in the previous tutorial (`msal-react-spa`).
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    * Select the **Add a permission** button and then,
@@ -98,7 +98,7 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 > Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`azure-active-directory` `react` `ms-identity` `adal` `msal`].
+Make sure that your questions or comments are tagged with [`microsoft-entra-id` `react` `ms-identity` `adal` `msal`].
 
 If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 </details>
@@ -136,7 +136,7 @@ Bear in mind that you *can* request multiple scopes for the same resource (e.g. 
      });
  ```
 
-In case you *erroneously* pass multiple resources in your token request, Azure AD will throw an exception, and your request will fail.
+In case you *erroneously* pass multiple resources in your token request, Microsoft Entra ID will throw an exception, and your request will fail.
 
  ```javascript
      // your request will fail for both resources
@@ -147,7 +147,7 @@ In case you *erroneously* pass multiple resources in your token request, Azure A
 
 ### Dynamic scopes and incremental consent
 
-In **Azure AD**, the scopes (permissions) set directly on the application registration are called static scopes. Other scopes that are only defined within the code are called dynamic scopes. This has implications on the **login** (i.e. loginPopup, loginRedirect) and **acquireToken** (i.e. `acquireTokenPopup`, `acquireTokenRedirect`, `acquireTokenSilent`) methods of **MSAL.js**. Consider:
+In **Microsoft Entra ID**, the scopes (permissions) set directly on the application registration are called static scopes. Other scopes that are only defined within the code are called dynamic scopes. This has implications on the **login** (i.e. loginPopup, loginRedirect) and **acquireToken** (i.e. `acquireTokenPopup`, `acquireTokenRedirect`, `acquireTokenSilent`) methods of **MSAL.js**. Consider:
 
 ```javascript
      const loginRequest = {
@@ -240,7 +240,7 @@ This sample app declares that it's CAE-capable by adding the `clientCapabilities
 
 #### Processing the CAE challenge from Microsoft Graph
 
-Once the client app receives the CAE claims challenge from Microsoft Graph, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `useMsalAuthentication` hook and provide the claims challenge as a parameter in the token request. This is shown in the [useGraphWithMsal](./SPA/src/hooks/useGraphWithMsal.jsx) custom hook:
+Once the client app receives the CAE claims challenge from Microsoft Graph, it needs to present the user with a prompt for satisfying the challenge via Microsoft Entra authorization endpoint. To do so, we use MSAL's `useMsalAuthentication` hook and provide the claims challenge as a parameter in the token request. This is shown in the [useGraphWithMsal](./SPA/src/hooks/useGraphWithMsal.jsx) custom hook:
 
 ```javascript
 const useGraphWithMsal = (request, endpoint) => {
@@ -383,17 +383,17 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 ## Learn More
 
-* [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
+* [Microsoft identity platform (Microsoft Entra ID for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
 * [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
 * [Register an application with the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
 * [Configure a client application to access web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
-* [Understanding Azure AD application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
+* [Understanding Microsoft Entra application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
 * [Understand user and admin consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
-* [Application and service principal objects in Azure Active Directory](https://docs.microsoft.com/azure/active-directory/develop/app-objects-and-service-principals)
-* [Authentication Scenarios for Azure AD](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios)
+* [Application and service principal objects in Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/develop/app-objects-and-service-principals)
+* [Authentication Scenarios for Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios)
 * [Building Zero Trust ready apps](https://aka.ms/ztdevsession)
 * [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints)
-* [Azure AD code samples](https://docs.microsoft.com/azure/active-directory/develop/sample-v2-code)
+* [Microsoft Entra ID code samples](https://docs.microsoft.com/azure/active-directory/develop/sample-v2-code)
 * [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
 * [Single sign-on with MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso)
 * [Handle MSAL.js exceptions and errors](https://docs.microsoft.com/azure/active-directory/develop/msal-handling-exceptions?tabs=javascript)
@@ -401,5 +401,5 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 * [Pass custom state in authentication requests using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-pass-custom-state-authentication-request)
 * [Prompt behavior in MSAL.js interactive requests](https://docs.microsoft.com/azure/active-directory/develop/msal-js-prompt-behavior)
 * [Use MSAL.js to work with Azure AD B2C](https://docs.microsoft.com/azure/active-directory/develop/msal-b2c-overview)
-* [Continuous access evaluation in Azure AD](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation)
+* [Continuous access evaluation in Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation)
 * [How to use Continuous Access Evaluation enabled APIs in your applications](https://docs.microsoft.com/azure/active-directory/develop/app-resilience-continuous-access-evaluation)

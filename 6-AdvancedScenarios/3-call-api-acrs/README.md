@@ -23,8 +23,8 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 
 ## Scenario
 
-1. The client React SPA uses the **MSAL React** to sign-in and obtain a JWT access token from **Azure AD**.
-1. The access token is used as a *bearer* token to authorize the user to call the Express web API protected by **Azure AD**.
+1. The client React SPA uses the **MSAL React** to sign-in and obtain a JWT access token from **Microsoft Entra ID**.
+1. The access token is used as a *bearer* token to authorize the user to call the Express web API protected by **Microsoft Entra ID**.
 1. For sensitive operations, the web API is configured to demand step-up authentication, like MFA, from the signed-in user.
 
 ![Overview](./ReadmeFiles/topology.png)
@@ -43,9 +43,9 @@ The web API is protected using [passport-azure-ad](https://github.com/AzureAD/pa
 
 ## Prerequisites
 
-- An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
-- A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
-- [Azure AD premium P1](https://azure.microsoft.com/pricing/details/active-directory/) is required to work with **Conditional Access** policies.
+- An **Microsoft Entra ID** tenant. For more information see: [How to get a Microsoft Entra tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
+- A user account in your **Microsoft Entra ID** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Microsoft admin center](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
+- [Microsoft Entra ID P1](https://azure.microsoft.com/pricing/details/active-directory/) is required to work with **Conditional Access** policies.
 - An [Azure CosmosDB API for MongoDB](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) instance is required to. See how to create here one [here](https://docs.microsoft.com/azure/cosmos-db/sql/create-cosmosdb-resources-portal#create-an-azure-cosmos-db-account).
 
 ## Setup
@@ -82,7 +82,7 @@ or download and extract the repository .zip file.
 
 > :information_source: See the tutorial on [Quickstart: Azure Cosmos DB MongoDB API for JavaScript with MongoDB driver](https://docs.microsoft.com/azure/cosmos-db/mongodb/quickstart-javascript?tabs=azure-portal%2Cwindows). Below we summarize the required steps.
 
-1. From the Azure portal menu or the **Home** page, select **Create a resource**.
+1. From the Microsoft admin center menu or the **Home** page, select **Create a resource**.
 1. On the New page, search for and select **Azure Cosmos DB**.
 1. On the **Select API option** page, select the **Azure Cosmos DB API for MongoDB** option.
 1. In the Create Azure Cosmos DB Account page, enter the basic settings for the new Azure Cosmos account (Subscription, Resource Group, Account Name etc.).
@@ -90,13 +90,13 @@ or download and extract the repository .zip file.
 1. Navigate to your newly created **Azure CosmosDB** resource, and select the **Connection String** blade to the left.
 1. Copy and note down the **primary connection string**, which you will use later in sample configuration parameters.
 
-### Register the sample application(s) with your Azure Active Directory tenant
+### Register the sample application(s) with your Microsoft Entra tenant
 
-There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
+There are two projects in this sample. Each needs to be separately registered in your Microsoft Entra tenant. To register these projects, you can:
 
 - follow the steps below for manually register your apps
 - or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  - **automatically** creates the Microsoft Entra applications and related objects (passwords, permissions, dependencies) for you.
   - modify the projects' configuration files.
 
 <details>
@@ -112,7 +112,7 @@ There are two projects in this sample. Each needs to be separately registered in
    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
    ```
 
-1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
+1. Run the script to create your Microsoft Entra application and configure the code of the sample application accordingly.
 1. In PowerShell run:
 
    ```PowerShell
@@ -125,16 +125,16 @@ There are two projects in this sample. Each needs to be separately registered in
 
 </details>
 
-### Choose the Azure AD tenant where you want to create your applications
+### Choose the Microsoft Entra tenant where you want to create your applications
 
 As a first step you'll need to:
 
-1. Sign in to the [Azure portal](https://portal.azure.com).
-1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
+1. Sign in to the [Microsoft admin center](https://portal.azure.com).
+1. If your account is present in more than one Microsoft Entra tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Microsoft Entra tenant.
 
 ### Register the service app (msal-node-api-acrs)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Navigate to the [Microsoft admin center](https://portal.azure.com) and select the **Microsoft Entra ID** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-node-api-acrs`.
@@ -153,7 +153,7 @@ As a first step you'll need to:
    - Type a key description (for instance `app secret`),
    - Select one of the available key durations (**6 months**, **12 months** or **Custom**) as per your security posture.
    - The generated key value will be displayed when you select the **Add** button. Copy and save the generated value for use in later steps.
-   - You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Azure portal before navigating to any other screen or blade.
+   - You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Microsoft admin center before navigating to any other screen or blade.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then,
    - Ensure that the **Microsoft APIs** tab is selected.
@@ -204,15 +204,15 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\authConfig.js` file.
-1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api-acrs` app copied from the Azure portal.
+1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Microsoft Entra tenant ID.
+1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-node-api-acrs` app copied from the Microsoft admin center.
 1. Find the string `Enter_the_Client_Secret_Here` and replace the existing value with the client secret you recorded earlier.
 1. Find the string `Enter_Database_Connection_String_Here` and replace the existing value with the connection string of your Azure CosmosDB instance.
 1. Find the string `ENTER_YOUR_SECRET_HERE` and replace the existing value with a secret that will be used when encrypting your app's session using the [express-session](https://www.npmjs.com/package/express-session) package.
 
 ### Register the client app (msal-react-spa-acrs)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Navigate to the [Microsoft admin center](https://portal.azure.com) and select the **Microsoft Entra ID** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa-acrs`.
@@ -236,8 +236,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA/src/authConfig.js` file.
-1. Find the string `Enter_the_Application_Id_Here` and replace it with the application ID (clientId) of `msal-react-spa-acrs` app copied from the Azure portal.
-1. Find the string `Enter_the_Tenant_Info_Here` and replace it with your Azure AD tenant ID.
+1. Find the string `Enter_the_Application_Id_Here` and replace it with the application ID (clientId) of `msal-react-spa-acrs` app copied from the Microsoft admin center.
+1. Find the string `Enter_the_Tenant_Info_Here` and replace it with your Microsoft Entra tenant ID.
 1. Find the string `Enter_the_Web_Api_Scope_here` and replace it with the scope of `msal-node-api-acrs` that you've exposed earlier, e.g. `api://API_CLIENT_ID/access_as_user`.
 
 ## Running the sample
@@ -268,7 +268,7 @@ In a separate terminal, type
 
 ![Overview](./ReadmeFiles/Create-Fetch_Click.png)
 
-Select an operation in the web API and an auth context value to apply. Then select **Save or Update**. This updates this mapping in the local app's database. We advise you use the same auth context value for operations if possible, as this ensures that the user is redirected to Azure AD just once to perform the step-up authN.
+Select an operation in the web API and an auth context value to apply. Then select **Save or Update**. This updates this mapping in the local app's database. We advise you use the same auth context value for operations if possible, as this ensures that the user is redirected to Microsoft Entra ID just once to perform the step-up authN.
 
 > :warning: When changing auth context mappings, have the user sign-out and sign-back in for the changes to take effect.
 
@@ -278,9 +278,9 @@ Select an operation in the web API and an auth context value to apply. Then sele
 
 The web API is now ready to challenge users for step-up auth for the selected operations.
 
-### Configure a conditional access policy to use auth context in Azure portal
+### Configure a conditional access policy to use auth context in Microsoft admin center
 
-1. Navigate to **Azure Active Directory** > **Security** > **Conditional Access**
+1. Navigate to **Microsoft Entra ID** > **Security** > **Conditional Access**
 1. Select **New policy** and go to **Cloud apps or actions**. In dropdown select **Authentication context**. The newly created auth context values will be listed for you to be used in this CA policy.
 
 ![AuthContext](./ReadmeFiles/authcontext.png)
@@ -291,7 +291,7 @@ Select the value and create the policy as required. For example, you might want 
 
 1. Browse `http://localhost:3000` and sign-in.
 1. Select **TodoList** page and perform the operations.
-    - If an operation was saved for a certain authContext and there is a CA policy configured and enabled, the user will be redirected to Azure AD and ask to perform the required step(s) like MFA.
+    - If an operation was saved for a certain authContext and there is a CA policy configured and enabled, the user will be redirected to Microsoft Entra ID and ask to perform the required step(s) like MFA.
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
@@ -412,7 +412,7 @@ const generateClaimsChallenge = (authContextId) => {
 
 ### Handling claims challenge
 
-Once the client app receives the claims challenge, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `acquireTokenPopup()` API and provide the claims challenge as a parameter in the token request. This is shown in [fetch.js](./SPA/src/fetch.js), where we handle the response from a HTTP POST request the to web API with the `handleClaimsChallenge` method:
+Once the client app receives the claims challenge, it needs to present the user with a prompt for satisfying the challenge via Microsoft Entra authorization endpoint. To do so, we use MSAL's `acquireTokenPopup()` API and provide the claims challenge as a parameter in the token request. This is shown in [fetch.js](./SPA/src/fetch.js), where we handle the response from a HTTP POST request the to web API with the `handleClaimsChallenge` method:
 
 ```javascript
 export const postTask = async (task) => {
@@ -501,27 +501,27 @@ const handleClaimsChallenge = async (response, endpoint, options, id = '') => {
 
 - [Developer's guide to Conditional Access authentication context](https://docs.microsoft.com/azure/active-directory/develop/developer-guide-conditional-access-authentication-context)
 - [Claims challenges, claims requests, and client capabilities](https://docs.microsoft.com/azure/active-directory/develop/claims-challenge)
-- [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
+- [Microsoft identity platform (Microsoft Entra ID for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
 - [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
 - [Quickstart: Register an application with the Microsoft identity platform (Preview)](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
 - [Quickstart: Configure a client application to access web APIs (Preview)](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
-- [Understanding Azure AD application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
+- [Understanding Microsoft Entra application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
 - [Understand user and admin consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
-- [Application and service principal objects in Azure Active Directory](https://docs.microsoft.com/azure/active-directory/develop/app-objects-and-service-principals)
+- [Application and service principal objects in Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/develop/app-objects-and-service-principals)
 - [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints)
 - [MSAL code samples](https://docs.microsoft.com/azure/active-directory/develop/sample-v2-code)
 
-For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Azure AD](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
+For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
 
 ## Community Help and Support
 
 Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`azure-active-directory` `react` `ms-identity` `adal` `msal`].
+Make sure that your questions or comments are tagged with [`microsoft-entra-id` `react` `ms-identity` `adal` `msal`].
 
 If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
-To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
+To provide feedback on or suggest features for Microsoft Entra ID, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
 ## Contributing
 

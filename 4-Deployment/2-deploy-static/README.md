@@ -22,9 +22,9 @@ The SPA component uses [Microsoft Authentication Library for React](https://gith
 
 ## Scenario
 
-1. The client application uses **MSAL React** to sign-in a user and obtain a JWT **Access Token** from **Azure AD**.
+1. The client application uses **MSAL React** to sign-in a user and obtain a JWT **Access Token** from **Microsoft Entra ID**.
 1. The **Access Token** is sent over to Function API using a **POST** request.
-1. The Function API responds validates the **Access Token** and then obtains a new access token from Azure AD
+1. The Function API responds validates the **Access Token** and then obtains a new access token from Microsoft Entra ID
 1. The Function API uses the new **Access Token** as a **bearer** token to the **Microsoft Graph API**.
 1. **The Microsoft Graph API** responds and the Function API propagates it back to the client application.
 
@@ -37,18 +37,18 @@ The SPA component uses [Microsoft Authentication Library for React](https://gith
 
 ## Registration
 
-### Choose the Azure AD tenant where you want to create your applications
+### Choose the Microsoft Entra tenant where you want to create your applications
 
 As a first step you'll need to:
 
-1. Sign in to the [Azure portal](https://portal.azure.com).
-1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
+1. Sign in to the [Microsoft admin center](https://portal.azure.com).
+1. If your account is present in more than one Microsoft Entra tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Microsoft Entra tenant.
 
 ### Register the app
 
 > :information_source: Below, we are using a single app registration for both SPA and function API components.
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Navigate to the [Microsoft admin center](https://portal.azure.com) and select the **Microsoft Entra ID** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-react-spa`.
@@ -62,7 +62,7 @@ As a first step you'll need to:
    - Type a key description (for instance `app secret`),
    - Select one of the available key durations (**In 1 year**, **In 2 years**, or **Never Expires**) as per your security posture.
    - The generated key value will be displayed when you select the **Add** button. Copy the generated value for use in the steps later.
-   - You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Azure portal before navigating to any other screen or blade.
+   - You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Microsoft admin center before navigating to any other screen or blade.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
 The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
    - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
@@ -94,9 +94,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `App/src/.env` file.
-1. Find the `REACT_APP_AAD_APP_CLIENT_ID` environment variable and add the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
-1. Find the `REACT_APP_AAD_APP_TENANT_ID` environment variable and add your Azure AD tenant ID.
-1. Find the `REACT_APP_AAD_APP_REDIRECT_URI` environment variable and add the Redirect URI that you've registered earlier, e.g. `http://localhost:3000` (:warning: remember, you will update this value later on when you deploy your app to App Service)
+1. Find the `REACT_APP_ME-ID_APP_CLIENT_ID` environment variable and add the application ID (clientId) of `msal-react-spa` app copied from the Microsoft admin center.
+1. Find the `REACT_APP_ME-ID_APP_TENANT_ID` environment variable and add your Microsoft Entra tenant ID.
+1. Find the `REACT_APP_ME-ID_APP_REDIRECT_URI` environment variable and add the Redirect URI that you've registered earlier, e.g. `http://localhost:3000` (:warning: remember, you will update this value later on when you deploy your app to App Service)
 
 ## Deployment
 
@@ -105,7 +105,7 @@ There are basically **3** stages that you will have to go through in order to de
 1. Create a repository on GitHub and commit your project.
 1. Create a **Static Web App** via VS Code extensions.
 1. Add **environment variables** to your static web app.
-1. Update **Azure AD** **App Registration** with deployed website URI that you have just obtained.
+1. Update **Microsoft Entra ID** **App Registration** with deployed website URI that you have just obtained.
 
 ### Deploy the app (msal-react-spa)
 
@@ -142,19 +142,19 @@ There are various ways to deploy your applications to **Azure Static Web Apps**.
 
 #### Part 2: Update the app's registration
 
-1. Navigate back to the [Azure Portal](https://portal.azure.com).
-1. In the left-hand navigation pane, select the **Azure Active Directory** service, and then select **App registrations**.
+1. Navigate back to the [Microsoft admin center](https://portal.azure.com).
+1. In the left-hand navigation pane, select the **Microsoft Entra ID** service, and then select **App registrations**.
 1. In the resulting screen, select the name of your application.
 1. From the *Branding* menu, update the **Home page URL**, to the address of your service, for example [https://reactspa1.z22.web.core.windows.net/](https://reactspa1.z22.web.core.windows.net/). Save the configuration.
 1. Add the same URI in the list of values of the *Authentication -> Redirect URIs* menu. If you have multiple redirect URIs, make sure that there a new entry using the App service's URI for each redirect URI.
 
 #### Part 3: Add environment variables to your static web app
 
-1. Navigate back to the [Azure Portal](https://portal.azure.com).
+1. Navigate back to the [Microsoft admin center](https://portal.azure.com).
 1. Find the application you've created previously under **Azure Static Web Apps** and select it.
 1. Select the **Configuration** blade on the left hand side. Add the following **environment variables** there:
-    1. `CLIENT_ID`: enter the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
-    1. `TENANT_INFO`: enter your Azure AD tenant ID.
+    1. `CLIENT_ID`: enter the application ID (clientId) of `msal-react-spa` app copied from the Microsoft admin center.
+    1. `TENANT_INFO`: enter your Microsoft Entra tenant ID.
     1. `CLIENT_SECRET`: enter your client secret that you've obtained during app registration.
     1. `EXPECTED_SCOPES`: enter the name of the scope you exposed earlier, e.g. `access_as_user`.
 
@@ -177,7 +177,7 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
-For both the SPA and the function API components, we have used a single Azure AD app registration, as these components are tightly coupled and essentially perform as a single app. The function API endpoint is exposed under the `*/api` path, where `*` is the domain of the deployed sample. So for instance, the function API named **HelloUser** is exposed at `*/api/hello`. See the [function.json](./App/api/HelloUser/function.json) file for how to modify the endpoint.
+For both the SPA and the function API components, we have used a single Microsoft Entra app registration, as these components are tightly coupled and essentially perform as a single app. The function API endpoint is exposed under the `*/api` path, where `*` is the domain of the deployed sample. So for instance, the function API named **HelloUser** is exposed at `*/api/hello`. See the [function.json](./App/api/HelloUser/function.json) file for how to modify the endpoint.
 
 We briefly discuss other important aspects of the sample below.
 
@@ -333,7 +333,7 @@ validateAccessToken = async(accessToken) => {
 
 ## More information
 
-For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Azure AD](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
+For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
 
 ## Community Help and Support
 

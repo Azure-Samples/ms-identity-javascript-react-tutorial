@@ -13,7 +13,7 @@ urlFragment: ms-identity-javascript-react-tutorial
 extensions:
 - services: ms-identity
 - platform: JavaScript
-- endpoint: AAD v2.0
+- endpoint: ME-ID v2.0
 - level: 200
 - client: React SPA
 - service: Node.js web API
@@ -39,7 +39,7 @@ This sample demonstrates a React single-page application (SPA) calling a protect
 
 Here you'll learn how to [register a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-app-registration), [accept authorized calls](https://docs.microsoft.com/azure/active-directory/develop/scenario-protected-web-api-verification-scope-app-roles) and [validate access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validating-tokens).
 
-> :information_source: See the community call: [Deep dive on using MSAL.js to integrate React single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=7oPSL5wWeS0)
+> :information_source: See the community call: [Deep dive on using MSAL.js to integrate React single-page applications with Microsoft Entra ID](https://www.youtube.com/watch?v=7oPSL5wWeS0)
 
 ## Scenario
 
@@ -103,30 +103,30 @@ Next, install the dependencies for the client app:
 
 ### Step 3: Register the sample application(s) in your tenant
 
-> :warning: This sample comes with a pre-registered application for demo purposes. If you would like to use your own **Azure AD B2C** tenant and application, follow the steps below to register and configure the application on **Azure portal**. Otherwise, continue with the steps.
+> :warning: This sample comes with a pre-registered application for demo purposes. If you would like to use your own **Azure AD B2C** tenant and application, follow the steps below to register and configure the application on **Microsoft admin center**. Otherwise, continue with the steps.
 
 #### Choose the Azure AD B2C tenant where you want to create your applications
 
 as a first step you'll need to:
 
-1. Sign in to the [Azure portal](https://portal.azure.com).
+1. Sign in to the [Microsoft admin center](https://portal.azure.com).
 2. If your account is present in more than one Azure AD B2C tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD B2C tenant.
 
 #### Create User Flows and Custom Policies
 
-Please refer to: [Tutorial: Create user flows in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-user-flows)
+Please refer to: [Tutorial: Create user flows in Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-user-flows)
 
-> :warning: This sample requires Azure AD B2C to emit the **emails** claim in the ID token, which is used as **username** by MSAL. To do so, navigate to the [Azure portal](https://portal.azure.com) and locate the **Azure AD B2C** service. Then, navigate to the **User flows** blade. Select the **User Attributes** tab and make sure **Email Address** is checked. Then select the **Application Claims** tab and make sure **Email Addresses** is checked.
+> :warning: This sample requires Azure AD B2C to emit the **emails** claim in the ID token, which is used as **username** by MSAL. To do so, navigate to the [Microsoft admin center](https://portal.azure.com) and locate the **Azure AD B2C** service. Then, navigate to the **User flows** blade. Select the **User Attributes** tab and make sure **Email Address** is checked. Then select the **Application Claims** tab and make sure **Email Addresses** is checked.
 >
 > You may want additional claims (such as  **object ID** (*oid*) and etc.) to appear in the ID tokens obtained from Azure AD B2C user-flows. In that case, please refer to [User profile attributes](https://learn.microsoft.com/azure/active-directory-b2c/user-profile-attributes) to learn about how to configure your user-flows to emit those claims.
 
 #### Add External Identity Providers
 
-Please refer to: [Tutorial: Add identity providers to your applications in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
+Please refer to: [Tutorial: Add identity providers to your applications in Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
 
 #### Register the service app (ms-identity-react-c3s2-api)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory B2C** service.
+1. Navigate to the [Microsoft admin center](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
     1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ms-identity-react-c3s2-api`.
@@ -158,14 +158,14 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\authConfig.js` file.
-1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `ms-identity-react-c3s2-api` app copied from the Azure portal.
+1. Find the key `clientID` and replace the existing value with the application ID (clientId) of `ms-identity-react-c3s2-api` app copied from the Microsoft admin center.
 1. Find the key `tenantName` and replace the existing value with your Azure AD B2C tenant's name (e.g. `fabrikamb2c.onmicrosoft.com`).
 1. Find the key `b2cDomain` and replace it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
 1. Find the key `policyName` and replace it with your policy name e.g. `B2C_1_susi_v2`
 
 #### Register the client app (ms-identity-react-c3s2-spa)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory B2C** service.
+1. Navigate to the [Microsoft admin center](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
     1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ms-identity-react-c3s2-spa`.
@@ -195,7 +195,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\authConfig.js` file.
-1. Find the key `msalConfig.auth.clientId` and replace the existing value with the application ID (clientId) of `ms-identity-react-c3s2-spa` app copied from the Azure portal.
+1. Find the key `msalConfig.auth.clientId` and replace the existing value with the application ID (clientId) of `ms-identity-react-c3s2-spa` app copied from the Microsoft admin center.
 1. Find the key `protectedResources.apiTodoList.scopes` and replace the existing value with the Scopes.
 
 To setup your B2C user-flows, do the following:
@@ -374,9 +374,9 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 ## Learn More
 
-* [What is Azure Active Directory B2C?](https://docs.microsoft.com/azure/active-directory-b2c/overview)
+* [What is Azure AD B2C?](https://docs.microsoft.com/azure/active-directory-b2c/overview)
 * [Application types that can be used in Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/application-types)
-* [Recommendations and best practices for Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/best-practices)
+* [Recommendations and best practices for Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/best-practices)
 * [Azure AD B2C session](https://docs.microsoft.com/azure/active-directory-b2c/session-overview)
 * [Building Zero Trust ready apps](https://aka.ms/ztdevsession)
 * [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
