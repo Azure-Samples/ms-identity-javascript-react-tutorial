@@ -138,7 +138,7 @@ To manually register the apps, as a first step you'll need to:
 1. In the app's registration screen, select the **Authentication** blade to the left.
 1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
     1. In the **Redirect URI** section enter the following redirect URIs:
-        1. `http://localhost:3000/`
+        1. `http://localhost:3000`
         1. `http://localhost:3000/redirect`
     1. Click **Save** to save your changes.
 
